@@ -19,8 +19,8 @@ module.exports = {
       env: { SERVER_TYPE: "socket" },
     },
     {
-      name: "flom-bonus-consumer",
-      script: "./src/server/QueueConsumers/BonusConsumer.js",
+      name: "flom-bonus-consumer-v2",
+      script: "./src/rabbitmq/consumer-app.js",
       exec_mode: "fork",
       interpreter: "/home/pm2user/.nvm/versions/node/v20.19.3/bin/node",
       log_date_format: "YYYY-MM-DD HH:mm:ss.SSS",
