@@ -233,6 +233,7 @@ const schema = new mongoose.Schema(
     auctionPaymentMethodLocked: { type: Boolean, default: false },
     bannedFromAuctions: { type: Boolean, default: false },
     satsBalanceReserve: [{ reserveType: String, auctionId: String, value: Number }],
+    timeZone: String,
   },
   { timestamps: true },
 );

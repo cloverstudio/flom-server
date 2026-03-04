@@ -348,6 +348,15 @@ router.get("/:userId", async function (request, response) {
           }
         }
 
+        // set time zone if not set
+        if (!user.timeZone) {
+          const timeZone = request.headers["timezone"];
+          if (timeZone) {
+            updateObj.timeZone = timeZone;
+            user.timeZone = timeZone;
+          }
+        }
+
         if (Object.keys(updateObj).length > 0) {
           await User.findByIdAndUpdate(userId, updateObj);
         }
