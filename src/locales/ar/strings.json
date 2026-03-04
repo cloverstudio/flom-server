@@ -1,0 +1,21 @@
+{
+    "Purchase_": "شراء ",
+    "New_purchase": "شراء جديد",
+    "request_noun": "طلب",
+    "Payout_": "دفع ",
+    "pending": "قيد الانتظار",
+    "sent": "تم الارسال",
+    "received": "تم الاستلام",
+    "complete": "مكتمل",
+    "completed": "مكتمل",
+    "canceled": "ألغيت",
+    "failed": "فشل",
+    "rejected": "رفض",
+    "successful": "ناجح",
+    "Group_chat": "دردشة الجروب",
+    "Guest": "ضيف",
+    "Guest_user": "مستخدم ضيف",
+    "You_joined_": "لقد انضممت ",
+    "You_canceled_": "لقد ألغيت ",
+    "You_updated_to_": "لقد قمت بالتحديث إلى "
+}

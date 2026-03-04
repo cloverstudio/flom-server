@@ -1,0 +1,21 @@
+{
+    "Purchase_": "Buy ",
+    "New_purchase": "New buy",
+    "request_noun": "ask",
+    "Payout_": "Payment ",
+    "pending": "dey wait",
+    "sent": "send go",
+    "received": "collect",
+    "complete": "finish",
+    "completed": "don finish",
+    "canceled": "cancel am",
+    "failed": "no work",
+    "rejected": "dem no gree",
+    "successful": "e work",
+    "Group_chat": "Group Chat",
+    "Guest": "Visitor",
+    "Guest_user": "Visitor user",
+    "You_joined_": "You enta ",
+    "You_canceled_": "You cancel am ",
+    "You_updated_to_": "You don update to "
+}

@@ -1,0 +1,21 @@
+{
+	"Purchase_": "구매",
+	"New_purchase": "새로운 구매",
+	"request_noun": "요청",
+	"Payout_": "지급 ",
+	"pending": "대기 중",
+	"sent": "보냄",
+	"received": "수신함",
+	"complete": "완료",
+	"completed": "완료됨",
+	"canceled": "취소됨",
+	"failed": "실패",
+	"rejected": "거부됨",
+	"successful": "성공적",
+	"Group_chat": "단체 채팅",
+	"Guest": "게스트",
+	"Guest_user": "게스트 사용자",
+	"You_joined_": "당신이 가입했습니다 ",
+	"You_canceled_": "당신이 취소했습니다 ",
+	"You_updated_to_": "당신이 업데이트하였습니다 "
+}

@@ -1,0 +1,21 @@
+{
+    "Purchase_": "Igbanwe ",
+    "New_purchase": "Ọhụrụ igbanwe",
+    "request_noun": "arịrịọ",
+    "Payout_": "Ndupụ ",
+    "pending": "na-edekọ",
+    "sent": "zipụta",
+    "received": "nwere",
+    "complete": "zọpụta",
+    "completed": "zọpụtara",
+    "canceled": "ekwuchaghị",
+    "failed": "zaghị echi",
+    "rejected": "jụjụ",
+    "successful": "ngọrọ",
+    "Group_chat": "Ọkachamara mkparịta mkpọ",
+    "Guest": "Nwa ngalaba",
+    "Guest_user": "Nwa ngalaba nkeji",
+    "You_joined_": "Ị banye ",
+    "You_canceled_": "Ị gbanwee",
+    "You_updated_to_": "Ị gbanwe ka "
+}

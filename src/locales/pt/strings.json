@@ -1,0 +1,21 @@
+{
+    "Purchase_": "Compra ",
+    "New_purchase": "Nova compra",
+    "request_noun": "solicitação",
+    "Payout_": "Pagamento ",
+    "pending": "pendente",
+    "sent": "enviado",
+    "received": "recebido",
+    "complete": "completo",
+    "completed": "completado",
+    "canceled": "cancelado",
+    "failed": "falhou",
+    "rejected": "rejeitado",
+    "successful": "bem sucedido",
+    "Group_chat": "Chat em grupo",
+    "Guest": "Convidado",
+    "Guest_user": "Usuário convidado",
+    "You_joined_": "Você entrou ",
+    "You_canceled_": "Você cancelou ",
+    "You_updated_to_": "Você atualizou para "
+}

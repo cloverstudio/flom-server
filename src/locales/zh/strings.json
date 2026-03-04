@@ -1,0 +1,21 @@
+{
+    "Purchase_": "购买 ",
+    "New_purchase": "新购",
+    "request_noun": "请求",
+    "Payout_": "付款 ",
+    "pending": "待处理",
+    "sent": "已发送",
+    "received": "已接收",
+    "complete": "完成",
+    "completed": "已完成",
+    "canceled": "已取消",
+    "failed": "失败",
+    "rejected": "拒绝",
+    "successful": "成功",
+    "Group_chat": "群聊",
+    "Guest": "客人",
+    "Guest_user": "访客用户",
+    "You_joined_": "你已加入 ",
+    "You_canceled_": "你已取消 ",
+    "You_updated_to_": "你已更新至 "
+}

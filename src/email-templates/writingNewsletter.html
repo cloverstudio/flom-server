@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/199/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <style>
+      @media (max-width: 720px) {
+        .flom-template-image-container {
+          width: 80px !important;
+          height: 53px !important;
+          margin-left: 24px !important;
+        }
+        .flom-template-text-container {
+          width: calc(100% - 104px) !important;
+        }
+
+        .flom-template-padding-left {
+          padding-left: 16px !important;
+        }
+        .flom-template-padding-right {
+          padding-right: 16px !important;
+        }
+
+        .flom-template-button {
+          font-size: 16px !important;
+          padding: 8px 16px !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <table
+      role="presentation"
+      cellpadding="0"
+      cellspacing="0"
+      border="0"
+      align="center"
+      style="margin-left: auto; margin-right: auto; width: 100%; max-width: 640px"
+      width="100%"
+    >
+      <tr>
+        <td
+          align="center"
+          bgcolor="#FFFFFF"
+          width="640"
+          valign="top"
+          style="
+            background: url('https://v2.flom.dev/bg-emails.png') top / cover no-repeat #ffffff;
+            font-family: sans-serif;
+            background-repeat: no-repeat;
+            background-size: contain;
+            background-position: top;
+            background-color: #ffffff;
+          "
+        >
+          <div
+            style="
+              background: url('https://v2.flom.dev/second-bg-emails.png') top / cover no-repeat;
+              background-repeat: no-repeat;
+              background-size: contain;
+              background-position: top 0px left;
+            "
+          >
+            <div style="font-size: 1rem">
+              <table
+                role="presentation"
+                cellpadding="0"
+                cellspacing="0"
+                border="0"
+                align="center"
+                style="margin-left: auto; margin-right: auto; width: 100%; max-width: 640px"
+                width="100%"
+              >
+                <tr>
+                  <td height="40" align="left" colspan="10">
+                    <a href="{{discoverUrl}}" target="_blank" rel="noreferrer">
+                      <img
+                        src="https://v2.flom.dev/logo_emails.png"
+                        style="max-width: 150px; padding: 20px 40px"
+                        class="flom-template-padding-left flom-template-padding-right"
+                        alt="logo"
+                      />
+                    </a>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td
+                    colspan="10"
+                    style="padding: 0px 40px; padding-top: 100px"
+                    class="flom-template-padding-left flom-template-padding-right"
+                  >
+                    <div style="width: 100%; display: table; table-layout: fixed">
+                      <div
+                        style="
+                          display: table-cell;
+                          overflow: hidden;
+                          text-overflow: ellipsis;
+                          white-space: nowrap;
+                        "
+                      >
+                        <div style="display: inline-block; vertical-align: middle">
+                          <a
+                            href="{{mainWriting.userProfileUrl}}"
+                            style="color: inherit; text-decoration: none"
+                            target="_blank"
+                            ><img
+                              alt="{{mainWriting.username}}"
+                              src="{{mainWriting.avatarUrl}}"
+                              width="40"
+                              height="40"
+                              style="display: block; border-radius: 50%; height: 40px; width: 40px"
+                          /></a>
+                        </div>
+                        <span
+                          style="
+                            vertical-align: middle;
+                            font-weight: 400;
+                            color: #202124;
+                            font-size: 16px;
+                            line-height: 20px;
+                            margin-left: 8px;
+                          "
+                          ><a
+                            href="{{mainWriting.userProfileUrl}}"
+                            style="color: inherit; text-decoration: none"
+                            target="_blank"
+                            >{{mainWriting.username}}</a
+                          ></span
+                        >
+                      </div>
+                    </div>
+                    <div style="margin-top: 16px">
+                      <div
+                        style="float: right; margin-left: 56px; height: 107px; width: 160px"
+                        class="flom-template-image-container"
+                      >
+                        <a
+                          href="{{mainWriting.writingUrlDetails}}"
+                          style="color: inherit; text-decoration: none"
+                          target="_blank"
+                          ><img
+                            alt="{{mainWriting.title}}"
+                            src="{{mainWriting.writingThumbnailUrl}}"
+                            width="160"
+                            height="107"
+                            style="width: 100%; border-radius: 8px; height: 100%"
+                        /></a>
+                      </div>
+                      <div style="width: calc(100% - 216px)" class="flom-template-text-container">
+                        <a
+                          href="{{mainWriting.writingUrlDetails}}"
+                          style="color: inherit; text-decoration: none; display: block"
+                          target="_blank"
+                          ><h2 style="margin: 0; color: #00331e; font-weight: 700">
+                            {{mainWriting.title}}
+                          </h2>
+                          <div style="margin-top: 8px">
+                            <h3
+                              style="
+                                margin: 0;
+                                font-weight: 400;
+                                color: #5f6368;
+                                line-height: 20px;
+                                font-size: 16px;
+                              "
+                            >
+                              {{{mainWriting.text}}}
+                            </h3>
+                          </div>
+                        </a>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td
+                    colspan="10"
+                    style="padding: 40px 40px"
+                    class="flom-template-padding-left flom-template-padding-right"
+                  >
+                    <a
+                      target="_blank"
+                      rel="noreferrer"
+                      href="{{mainWriting.writingUrlDetails}}"
+                      style="
+                        font-family: sans-serif;
+                        letter-spacing: 0.1px;
+                        font-size: x-large;
+                        font-weight: 500;
+                        color: #00331e;
+                        text-decoration: none;
+                        padding: 12px 20px;
+                        border-radius: 50px;
+                        background-color: #18c67f;
+                      "
+                      class="flom-template-button"
+                      >Read more</a
+                    >
+                  </td>
+                </tr>
+
+                <!-- Suggested Articles -->
+                {{#if similarWritings.[0]}}
+                <tr>
+                  <td
+                    align="center"
+                    colspan="10"
+                    style="
+                      padding-top: 40px;
+                      padding-left: 40px;
+                      padding-right: 40px;
+                      font-size: x-large;
+                      letter-spacing: 0.1px;
+                      color: #00331e;
+                      font-family: sans-serif;
+                      vertical-align: top;
+                      font-weight: 700;
+                    "
+                    class="flom-template-padding-left flom-template-padding-right"
+                  >
+                    Suggested Articles
+                  </td>
+                </tr>
+
+                {{#each similarWritings}}
+                <tr>
+                  <td
+                    colspan="10"
+                    style="padding: 32px 40px"
+                    class="flom-template-padding-left flom-template-padding-right"
+                  >
+                    <div style="width: 100%; display: table; table-layout: fixed">
+                      <div
+                        style="
+                          display: table-cell;
+                          overflow: hidden;
+                          text-overflow: ellipsis;
+                          white-space: nowrap;
+                        "
+                      >
+                        <div style="display: inline-block; vertical-align: middle">
+                          <a
+                            href="{{this.userProfileUrl}}"
+                            style="color: inherit; text-decoration: none"
+                            target="_blank"
+                            ><img
+                              alt="{{this.username}}"
+                              src="{{this.avatarUrl}}"
+                              width="40"
+                              height="40"
+                              style="display: block; border-radius: 50%; height: 40px; width: 40px"
+                          /></a>
+                        </div>
+                        <span
+                          style="
+                            vertical-align: middle;
+                            font-weight: 400;
+                            color: #202124;
+                            font-size: 16px;
+                            line-height: 20px;
+                            margin-left: 8px;
+                          "
+                          ><a
+                            href="{{this.userProfileUrl}}"
+                            style="color: inherit; text-decoration: none"
+                            target="_blank"
+                            >{{this.username}}</a
+                          ></span
+                        >
+                      </div>
+                    </div>
+                    <div style="margin-top: 16px">
+                      <div
+                        style="float: right; margin-left: 56px; height: 107px; width: 160px"
+                        class="flom-template-image-container"
+                      >
+                        <a
+                          href="{{this.writingUrlDetails}}"
+                          style="color: inherit; text-decoration: none"
+                          target="_blank"
+                          ><img
+                            alt="{{this.title}}"
+                            src="{{this.writingThumbnailUrl}}"
+                            width="160"
+                            height="107"
+                            style="width: 100%; border-radius: 8px; height: 100%"
+                        /></a>
+                      </div>
+                      <div style="width: calc(100% - 216px)" class="flom-template-text-container">
+                        <a
+                          href="{{this.writingUrlDetails}}"
+                          style="color: inherit; text-decoration: none; display: block"
+                          target="_blank"
+                          ><h2 style="margin: 0; color: #00331e; font-weight: 700">
+                            {{this.title}}
+                          </h2>
+                          <div style="margin-top: 8px">
+                            <h3
+                              style="
+                                margin: 0;
+                                font-weight: 400;
+                                color: #5f6368;
+                                line-height: 20px;
+                                font-size: 16px;
+                              "
+                            >
+                              {{{this.text}}}
+                            </h3>
+                          </div>
+                        </a>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                {{/each}} {{/if}}
+
+                <tr>
+                  <td colspan="10" style="height: 80px"></td>
+                </tr>
+
+                <tr style="background-color: #00331e">
+                  <td
+                    colspan="10"
+                    align="center"
+                    style="color: #18c67f; padding: 16px 40px"
+                    class="flom-template-padding-left flom-template-padding-right"
+                  >
+                    Qrios Inc.
+                  </td>
+                </tr>
+
+                <tr style="background-color: #00331e">
+                  <td
+                    colspan="10"
+                    align="center"
+                    style="color: #18c67f; padding: 16px 40px"
+                    class="flom-template-padding-left flom-template-padding-right"
+                  >
+                    Qrios Inc., Suite 200, 5700 Granite Pkwy, 75024, Plano, Texas
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="1" style="width: 64px" width="64"></td>
+                  <td colspan="1" style="width: 64px" width="64"></td>
+                  <td colspan="1" style="width: 64px" width="64"></td>
+                  <td colspan="1" style="width: 64px" width="64"></td>
+                  <td colspan="1" style="width: 64px" width="64"></td>
+                  <td colspan="1" style="width: 64px" width="64"></td>
+                  <td colspan="1" style="width: 64px" width="64"></td>
+                  <td colspan="1" style="width: 64px" width="64"></td>
+                  <td colspan="1" style="width: 64px" width="64"></td>
+                  <td colspan="1" style="width: 64px" width="64"></td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

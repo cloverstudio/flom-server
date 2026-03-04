@@ -1,0 +1,21 @@
+{
+    "Purchase_": "Ondjira",
+    "New_purchase": "Ondjira ombwa",
+    "request_noun": "ketululo",
+    "Payout_": "Ondongodhilo ",
+    "pending": "omweneendelela",
+    "sent": "oahakutwa",
+    "received": "aamukwa",
+    "complete": "yaishike",
+    "completed": "aapindwa",
+    "canceled": "ombi",
+    "failed": "eeshuna",
+    "rejected": "eyambwa",
+    "successful": "aathika",
+    "Group_chat": "Eehapu lyomilonga",
+    "Guest": "Ogumbo",
+    "Guest_user": "Ogumbo lyoshilongo",
+    "You_joined_": "Oshi li li kwi ",
+    "You_canceled_": "Oshi lyuli ",
+    "You_updated_to_": "Oshi li hala kwi "
+}

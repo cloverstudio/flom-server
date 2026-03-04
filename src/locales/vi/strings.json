@@ -1,0 +1,21 @@
+{
+    "Purchase_": "Mua hàng",
+    "New_purchase": "Mua hàng mới",
+    "request_noun": "yêu cầu",
+    "Payout_": "Thanh toán",
+    "pending": "đang chờ",
+    "sent": "đã gửi",
+    "received": "đã nhận",
+    "complete": "hoàn thành",
+    "completed": "đã hoàn thành",
+    "canceled": "đã hủy",
+    "failed": "thất bại",
+    "rejected": "đã từ chối",
+    "successful": "thành công",
+    "Group_chat": "Nhóm chat",
+    "Guest": "Khách",
+    "Guest_user": "Người dùng khách",
+    "You_joined_": "Bạn đã tham gia ",
+    "You_canceled_": "Bạn đã hủy ",
+    "You_updated_to_": "Bạn đã cập nhật thành "
+}

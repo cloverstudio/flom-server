@@ -1,0 +1,21 @@
+{
+    "Purchase_": "Sayi ",
+    "New_purchase": "Sayi mai sabo",
+    "request_noun": "bukata",
+    "Payout_": "Biyar ",
+    "pending": "mai jiran da aka aika",
+    "sent": "aka aika",
+    "received": "aka karɓa",
+    "complete": "cikakke",
+    "completed": "an cika",
+    "canceled": "an soke",
+    "failed": "ba ta yi",
+    "rejected": "an kore",
+    "successful": "nasara",
+    "Group_chat": "Maganar kungiya",
+    "Guest": "Bako",
+    "Guest_user": "Mai amfani mai ba'a san shi",
+    "You_joined_": "Ka shiga ",
+    "You_canceled_": "Ka soke ",
+    "You_updated_to_": "Ka sabunta zuwa "
+}

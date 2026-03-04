@@ -1,0 +1,21 @@
+{
+    "Purchase_": "Kupovina ",
+    "New_purchase": "Nova kupovina",
+    "request_noun": "zahtjev",
+    "Payout_": "Isplata ",
+    "pending": "na čekanju",
+    "sent": "poslano",
+    "received": "primljeno",
+    "complete": "završeno",
+    "completed": "dovršeno",
+    "canceled": "otkazano",
+    "failed": "neuspjelo",
+    "rejected": "odbijeno",
+    "successful": "uspješno",
+    "Group_chat": "Grupni chat",
+    "Guest": "Gost",
+    "Guest_user": "Gost korisnik",
+    "You_joined_": "Pridružili ste se ",
+    "You_canceled_": "Otkazali ste ",
+    "You_updated_to_": "Ažurirali ste na "
+}

@@ -1,0 +1,21 @@
+{
+    "Purchase_": "Reka",
+    "New_purchase": "Reka e ntšha",
+    "request_noun": "kopa",
+    "Payout_": "Dipolao",
+    "pending": "e emeletse",
+    "sent": "rometse",
+    "received": "amogele",
+    "complete": "feleletse",
+    "completed": "feleletse",
+    "canceled": "khanselletse",
+    "failed": "gadile",
+    "rejected": "gannye",
+    "successful": "katlegile",
+    "Group_chat": "Puo ya sehlopha",
+    "Guest": "Molwetse",
+    "Guest_user": "Molwetse wa mošomiše",
+    "You_joined_": "O tsene ",
+    "You_canceled_": "O khanselletse ",
+    "You_updated_to_": "O ntšhatse go "
+}

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<table
+  role="presentation"
+  width="640"
+  style="width: 640px"
+  cellpadding="0"
+  cellspacing="0"
+  border="0"
+  align="center"
+>
+  <tr>
+    <td
+      align="center"
+      bgcolor="#FFFFFF"
+      background="{{baseUrl}}/assets/bg-emails.png"
+      width="640"
+      height="400"
+      valign="top"
+      style="background: url('{{baseUrl}}/assets/bg-emails.png') top / cover no-repeat #FFFFFF; font-family: sans-serif; background-repeat: no-repeat; background-size: contain; background-position: top; background-color: #FFFFFF;"
+    >
+      <div
+        style="
+          background: url('{{baseUrl}}/assets/qrios-logo-small.png') top / cover no-repeat;
+          background-repeat: no-repeat;
+          background-size: 50%;
+          background-position: top 287px center;"
+      >
+        <div style="font-size: 1rem">
+          <table
+            role="presentation"
+            width="640"
+            style="width: 640px"
+            cellpadding="10"
+            cellspacing="0"
+            border="0"
+            align="center"
+          >
+            <tr>
+              <td height="40" align="left" style="color: red">
+                <img src="{{baseUrl}}/assets/qrios-logo.png" style="max-width: 150px" alt="logo" />
+              </td>
+            </tr>
+
+            <tr>
+              <td
+                height="90"
+                colspan="2"
+                align="center"
+                style="
+                  vertical-align: bottom;
+                  font-size: x-large;
+                  letter-spacing: 0.1px;
+                  color: #00331e;
+                  font-family: serif;
+                "
+              >
+                Let's talk from {{firstname}} {{lastname}}.
+              </td>
+            </tr>
+
+            <tr>
+              <!-- prettier-ignore -->
+              <td
+                height="480"
+                colspan="2"
+                align="left"
+                style="
+                  font-size: large;
+                  letter-spacing: 0.1px;
+                  color: #00331e;
+                  vertical-align: top;
+                  font-family: serif;
+                  white-space: pre-wrap;
+                  padding: 10px 25px;
+                ">
+Country: {{country}}
+    
+Phone number: {{phonenumber}}
+
+Company name: {{companyname}}
+
+Company website: {{companywebsite}}
+
+Job title: {{jobtitle}}
+
+Message: {{tellusmore}}
+
+Sender email: {{businessemail}}
+
+Help with: {{help}}
+            </td>
+            </tr>
+
+            <tr>
+              <td colspan="2" style="color: #202124"><b>Any questions?</b></td>
+            </tr>
+            <tr>
+              <td colspan="2" style="color: #202124">
+                Send email to:
+                <a style="color: #18c67f" href="mailto:website@qrios.com">website@qrios.com</a>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2" style="color: #202124"><b>Thank you for your business!</b></td>
+            </tr>
+            <tr>
+              <td></td>
+            </tr>
+            <tr style="background-color: #00331e">
+              <td colspan="2" align="center" style="color: #18c67f">Qrios Inc.</td>
+            </tr>
+            <tr style="background-color: #00331e">
+              <td colspan="2" align="center" style="color: #18c67f">
+                Suite 200, 5700 Granite Pkwy, 75024, Plano, Texas
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </td>
+  </tr>
+</table>

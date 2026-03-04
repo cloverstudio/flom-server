@@ -1,0 +1,21 @@
+{
+    "Purchase_": "ግዢ ",
+    "New_purchase": "አዲስ ግዢ",
+    "request_noun": "ጥያቄ",
+    "Payout_": "መክፈያ ",
+    "pending": "በርታ",
+    "sent": "ልክ",
+    "received": "ተቀበል",
+    "complete": "ጨርሷል",
+    "completed": "ጨርሰዋል",
+    "canceled": "ተሰርዟል",
+    "failed": "አልተሳካም",
+    "rejected": "ተቀባይነት አልተቀበለም",
+    "successful": "ተሳክቷል",
+    "Group_chat": "ቡድን ጫት",
+    "Guest": "ዉጤት",
+    "Guest_user": "ዉጤት ተጠቅሚ",
+    "You_joined_": "አካባቢዉን ተቀምጠዋል ",
+    "You_canceled_": "ይቸለውን አልተገበያም ",
+    "You_updated_to_": "ይህንን እያወጣዉ ለ"
+}

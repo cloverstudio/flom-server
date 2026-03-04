@@ -1,0 +1,32 @@
+//const exactVersion = "22.13.1";
+const minNodeVersion = 20;
+const maxNodeVersion = 999;
+
+const result = process.versions;
+if (result && result.node) {
+  if (
+    result.node.startsWith("20.") ||
+    (parseInt(result.node) >= minNodeVersion && parseInt(result.node) < maxNodeVersion)
+  ) {
+    console.log(
+      "\x1b[40m\x1b[32m%s\x1b[0m",
+      "-------******* Good to Go with your Node Version: " + result.node + " *******-------"
+    );
+  } else {
+    console.log(
+      "\x1b[47m\x1b[31m%s\x1b[0m",
+      `-------******* Package installation(npm install) or Project startup command(npm start) failed due to Node Version, Please install and use Node Version >=${minNodeVersion} && <${maxNodeVersion} *******-------`
+    );
+    console.log(
+      "\x1b[47m\x1b[33m%s\x1b[0m",
+      "-------******* Your current Node Version is: " + result.node + " *******-------"
+    );
+    process.exit(1);
+  }
+} else {
+  console.log(
+    "\x1b[47m\x1b[31m%s\x1b[0m",
+    "-------******* Something went wrong while checking Node version *******-------"
+  );
+  process.exit(1);
+}

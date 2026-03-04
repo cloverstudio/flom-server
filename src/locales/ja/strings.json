@@ -1,0 +1,21 @@
+{
+    "Purchase_": "購入",
+    "New_purchase": "新規購入",
+    "request_noun": "リクエスト",
+    "Payout_": "支払い ",
+    "pending": "保留中",
+    "sent": "送信済み",
+    "received": "受け取りました",
+    "complete": "完了",
+    "completed": "完了済み",
+    "canceled": "キャンセルされました",
+    "failed": "失敗",
+    "rejected": "拒否されました",
+    "successful": "成功",
+    "Group_chat": "グループチャット",
+    "Guest": "ゲスト",
+    "Guest_user": "ゲストユーザー",
+    "You_joined_": "あなたは参加しました ",
+    "You_canceled_": "あなたはキャンセルしました ",
+    "You_updated_to_": "あなたは更新しました "
+}
