@@ -47,6 +47,7 @@ module.exports = Object.freeze({
   getCountryBanDuration: require("./getCountryBanDuration"),
   getCountryCodeFromPhoneNumber: require("./getCountryCodeFromPhoneNumber"),
   getCountryFromIpAddress: require("./getCountryFromIpAddress"),
+  getCurrencyFromCountryCode: require("./getCurrencyFromCountryCode"),
   getCustomerActivationData: require("./getCustomerActivationData"),
   getDataProductBySku: require("./getDataProductBySku"),
   getGPTAssistantResponse: require("./getGPTAssistantResponse"),
