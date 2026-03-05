@@ -757,8 +757,8 @@ async function getList(lastUpdate, page, request, searchObj = null) {
   const totalUnread = await totalUnreadCount(user._id.toString());
 
   const userIds4 = res
-    .map((item) => item.user._id.toString())
-    .filter((userId) => !!userId && Utils.isObjectId(userId));
+    .filter((userId) => !!userId && Utils.isObjectId(userId))
+    .map((item) => item.user._id.toString());
 
   const onlineStatusResult = await getUsersOnlineStatus(userIds4);
 
