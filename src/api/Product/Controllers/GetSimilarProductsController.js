@@ -242,7 +242,8 @@ router.post("/", async function (request, response) {
         return element._id;
       });
 
-      if (_.isEmpty(userTribeIdsArray)) orQuery2.push({ visibility: "public" });
+      if (!userTribeIdsArray || userTribeIdsArray.length === 0)
+        orQuery2.push({ visibility: "public" });
       else orQuery2.push({ visibility: "public" }, { tribeIds: { $in: userTribeIdsArray } });
     } else {
       orQuery2.push({ visibility: "public" });

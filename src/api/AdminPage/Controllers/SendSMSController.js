@@ -71,7 +71,7 @@ router.post(
         });
       }
 
-      if (!phoneNumbersFile || _.isEmpty(phoneNumbersFile)) {
+      if (!phoneNumbersFile) {
         return Base.newErrorResponse({
           response,
           code: Const.responsecodeNoPhoneNumbersFile,

@@ -551,7 +551,7 @@ async function getSimilarProducts({ product, subscriber }) {
   });
 
   let orQuery2 = [];
-  if (_.isEmpty(userTribeIdsArray)) orQuery2.push({ visibility: "public" });
+  if (!userTribeIdsArray || userTribeIdsArray.length === 0) orQuery2.push({ visibility: "public" });
   else orQuery2.push({ visibility: "public" }, { tribeIds: { $in: userTribeIdsArray } });
 
   let orQuery1 = [];

@@ -727,7 +727,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     if (pushToken) {
       const updatePushToken = (newPushToken, { pushToken: savedPushTokens } = {}) => {
-        if (!savedPushTokens || !_.isArray(savedPushTokens)) {
+        if (!savedPushTokens || !Array.isArray(savedPushTokens)) {
           savedPushTokens = [];
         }
 

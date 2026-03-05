@@ -20,6 +20,8 @@ const {
   deleteFile,
 } = require("../helpers");
 
+const util = require("util");
+
 /**
  * @api {patch} /api/v2/products/:productId/new Update product v2 flom_v1
  * @apiVersion 2.0.23
@@ -598,13 +600,13 @@ function checkVisibility({ fields, files, product }) {
   const { name, description, categoryId } = product;
   const productParams = { name, description, categoryId };
 
-  if (deleteImage || !_.isEmpty(files)) {
+  if (deleteImage || Object.keys(files).length > 0) {
     return false;
   }
 
   if (
     visibility !== product.visibility &&
-    (_.isEmpty(reqParams) || checkParams(reqParams, productParams))
+    (Object.keys(reqParams).length === 0 || checkParams(reqParams, productParams))
   ) {
     return true;
   }
@@ -641,8 +643,10 @@ async function handleAudiosForExpo({
       !product.audiosForExpo || product.audiosForExpo.length === 0
         ? []
         : product.audiosForExpo.map((a) => a.nameOnServer);
+    currentAudioNames.sort();
     const newAudioNames = audioFileNames;
-    if (_.isEqual(currentAudioNames.sort(), newAudioNames.sort())) {
+    newAudioNames.sort();
+    if (util.isDeepStrictEqual(currentAudioNames, newAudioNames)) {
       return {};
     }
 

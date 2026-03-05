@@ -189,7 +189,8 @@ router.post("/", async function (request, response) {
         return element._id;
       });
 
-      if (_.isEmpty(userTribeIdsArray)) query.push({ visibility: "public" });
+      if (!userTribeIdsArray || userTribeIdsArray.length === 0)
+        query.push({ visibility: "public" });
       else query.push({ visibility: "public" }, { tribeIds: { $in: userTribeIdsArray } });
     } else {
       query.push({ visibility: "public" });

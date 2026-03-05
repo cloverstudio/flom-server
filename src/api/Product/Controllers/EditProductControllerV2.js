@@ -742,25 +742,19 @@ function createProdParams(product) {
     originalMaxPrice,
     location,
   };
-  /*
-  const localPrice = _.pick(product.localPrice, [
-    "localMin",
-    "localMax",
-    "localAmount",
-    "currencyCode",
-    "currencyCountryCode",
-    "currencySymbol",
-  ]);
-  */
-  const prodParamsTemp = _.pick(product, ["isNegotiable", "itemCount", "condition"]);
-  const prodParams = _.merge(renamedKeys, prodParamsTemp);
+  const prodParamsTemp = {
+    isNegotiable: product.isNegotiable,
+    itemCount: product.itemCount,
+    condition: product.condition,
+  };
+  const prodParams = Object.assign(renamedKeys, prodParamsTemp);
   return prodParams;
 }
 
 function checkVisibility({ reqBody, product }) {
   const { productId, visibility, tribeIds, publish, ...otherParams } = reqBody;
   const prodParams = createProdParams(product);
-  if (_.isEmpty(otherParams)) {
+  if (!otherParams || Object.keys(otherParams).length === 0) {
     return true;
   } else if (reqBody.visibility !== product.visibility) {
     let count = true;

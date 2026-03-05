@@ -164,7 +164,7 @@ router.post("/", async function (request, response) {
           return element._id;
         });
 
-        if (_.isEmpty(userTribeIdsArray)) {
+        if (userTribeIdsArray && userTribeIdsArray.length > 0) {
           const query = {
             name: {
               $regex: productName,
@@ -263,7 +263,7 @@ router.post("/", async function (request, response) {
           return element._id;
         });
 
-        if (_.isEmpty(userTribeIdsArray)) {
+        if (userTribeIdsArray && userTribeIdsArray.length > 0) {
           const query = {
             ownerId: ownerId,
             "moderation.status": Const.moderationStatusApproved,

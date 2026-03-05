@@ -25,7 +25,7 @@ module.exports = function (socket) {
   socket.on("connection", async function (params, callback) {
     logger.info("auctions connection called, params:", params);
 
-    if (_.isFunction(callback)) callback(value);
+    if (typeof callback === "function") callback(value);
 
     return;
   });
@@ -116,7 +116,7 @@ module.exports = function (socket) {
         $push: { reservations: { auctionId, quantity: updatedAuction.quantity } },
       });
 
-      if (_.isFunction(callback)) callback(updatedAuction);
+      if (typeof callback === "function") callback(updatedAuction);
     } catch (error) {
       logger.error("startAuction, ", error);
       return socket.emit("socketerror", { code: Const.responsecodeUnknownError });
@@ -224,7 +224,7 @@ module.exports = function (socket) {
 
       socketApi.auctions.emitAll("auctionEnded", dataToSend);
 
-      if (_.isFunction(callback)) callback(updatedAuction);
+      if (typeof callback === "function") callback(updatedAuction);
 
       if (winningBid) {
         helpers.handlePayment({ auction: updatedAuction });
@@ -432,7 +432,7 @@ module.exports = function (socket) {
 
       socketApi.auctions.emitAll(eventName, dataToSend);
 
-      if (_.isFunction(callback)) callback(updatedAuction);
+      if (typeof callback === "function") callback(updatedAuction);
     } catch (error) {
       logger.error("bidOnAuction, ", error);
       return socket.emit("socketerror", { code: Const.responsecodeUnknownError });

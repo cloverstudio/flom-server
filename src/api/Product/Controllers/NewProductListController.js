@@ -484,7 +484,7 @@ async function checkTokenAndRole({
         return { code: Const.responsecodeSigninInvalidToken };
       }
 
-      tokenObj = _.find(user.token, function (tokenObjInAry) {
+      tokenObj = user.token.find(function (tokenObjInAry) {
         return tokenObjInAry.token == token;
       });
 

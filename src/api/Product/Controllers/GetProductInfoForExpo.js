@@ -247,21 +247,21 @@ router.get("/:productId", async function (request, response) {
       (product.visibility === "tribes" && !isUserTribeMember) ||
       (product.visibility === "community" && !isUserCommunityMember)
     ) {
-      const productInfo = _.pick(product, [
-        "_id",
-        "name",
-        "created",
-        "file",
-        "price",
-        "originalPrice",
-        "userPrice",
-        "minPrice",
-        "maxPrice",
-        "isNegotiable",
-        "ownerId",
-        "visibility",
-        "allowPublicComments",
-      ]);
+      const productInfo = {
+        _id: product._id,
+        name: product.name,
+        created: product.created,
+        file: product.file,
+        price: product.price,
+        originalPrice: product.originalPrice,
+        userPrice: product.userPrice,
+        minPrice: product.minPrice,
+        maxPrice: product.maxPrice,
+        isNegotiable: product.isNegotiable,
+        ownerId: product.ownerId,
+        visibility: product.visibility,
+        allowPublicComments: product.allowPublicComments,
+      };
       if (product.visibility === "tribes") {
         const tribes = await Tribe.find({ _id: { $in: productTribeIds } }).lean();
         dataToSend = { productInfo, tribes };

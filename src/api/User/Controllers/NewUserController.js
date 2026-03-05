@@ -456,7 +456,7 @@ async function getUserDetails(user, requestToken) {
 
   let groupsLimited = user.groups;
 
-  if (_.isArray(groupsLimited)) {
+  if (Array.isArray(groupsLimited)) {
     groupsLimited = groupsLimited.slice(0, 20);
 
     groupsLimited = groupsLimited.map(function (item) {

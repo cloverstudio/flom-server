@@ -98,7 +98,7 @@ async function notifyNewMessage(obj, originalRequestData) {
 
       result.organizationId = toUserObj.organizationId;
 
-      if (result.sender && _.isArray(toUserObj.muted)) {
+      if (result.sender && Array.isArray(toUserObj.muted)) {
         if (toUserObj.muted.indexOf(result.sender._id.toString()) != -1) muteNotification = true;
       }
 
