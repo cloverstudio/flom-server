@@ -28,8 +28,6 @@ async function messageList({ userID, roomId, lastMessageId, direction, encrypt }
         throw new Error("Invalid message list direction: " + direction);
     }
 
-    console.log("messageList messages: ", !messages ? "nema" : messages.length);
-
     let chatType = roomId.split("-")[0];
     let chatId = roomId.split("-")[1];
     if (chatType == Const.chatTypePrivate && chatId == userID) chatId = roomId.split("-")[2];

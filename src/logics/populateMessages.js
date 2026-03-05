@@ -6,7 +6,7 @@ const { User, Room, Group } = require("#models");
 async function populateMessage(messageList, callerUser) {
   try {
     if (!messageList || !Array.isArray(messageList) || messageList.length === 0) {
-      throw new Error("messageList missing: " + messageList);
+      return [];
     }
 
     const userIds = new Set();
