@@ -15,16 +15,19 @@ module.exports = function (socket) {
       const callRoomId = param.callRoomId;
 
       if (callRoomId === "" || callRoomId) {
-        await CallLog.updateMany({
-          $and: [
-            {
-              $or: [{ callerUserId: param.userId }, { calleeUserId: param.userId }],
-            },
-            { callStatus: { $not: { $eq: Const.callStatusEnded } } },
-            { callRoomId: { $not: { $eq: callRoomId } } },
-            { created: { $lt: Date.now() - 10 * 1000 } }, // last 10s
-          ],
-        });
+        await CallLog.updateMany(
+          {
+            $and: [
+              {
+                $or: [{ callerUserId: param.userId }, { calleeUserId: param.userId }],
+              },
+              { callStatus: { $not: { $eq: Const.callStatusEnded } } },
+              { callRoomId: { $not: { $eq: callRoomId } } },
+              { created: { $lt: Date.now() - 10 * 1000 } }, // last 10s
+            ],
+          },
+          { callStatus: Const.callStatusEnded },
+        );
       }
 
       // make user online
