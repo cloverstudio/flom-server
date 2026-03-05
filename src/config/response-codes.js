@@ -806,6 +806,8 @@ ResponseCodes.responsecodeOrderNotFound = 443940;
 ResponseCodes.responsecodeInvalidOrderStatus = 443941;
 ResponseCodes.responsecodeInvalidShippingInfo = 443942;
 ResponseCodes.responsecodeInvalidShippingProof = 443943;
+ResponseCodes.responsecodePriceTooLow = 443944;
+ResponseCodes.responsecodePriceTooHigh = 443945;
 ResponseCodes.responsecodeAddressNotFound = 443950;
 
 ResponseCodes.responsecodeCountryTemporarilyBanned = 444000;

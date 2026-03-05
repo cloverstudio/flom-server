@@ -146,6 +146,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         isSuddenDeath,
         paramsErrorCode = null,
         paramsErrorMsg = null,
+        paramsErrorParam = null,
       } = await checkParams({ ...auctionData, user, liveStream });
 
       if (paramsErrorCode) {
@@ -153,6 +154,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
           response,
           code: paramsErrorCode,
           message: `CreateAuctionController, Create auction, ${paramsErrorMsg}`,
+          ...(paramsErrorParam && { param: paramsErrorParam }),
         });
       }
 
@@ -310,6 +312,20 @@ async function checkParams({
     return {
       paramsErrorCode: Const.responsecodeInvalidMinPrice,
       paramsErrorMsg: "invalid min price",
+    };
+  }
+  if (minPrice.currency === "NGN" && minPrice.value < 50) {
+    return {
+      paramsErrorCode: Const.responsecodePriceTooLow,
+      paramsErrorMsg: "min price too low",
+      paramsErrorParam: 50,
+    };
+  }
+  if (minPrice.currency === "NGN" && minPrice.value > 40_000) {
+    return {
+      paramsErrorCode: Const.responsecodePriceTooHigh,
+      paramsErrorMsg: "min price too high",
+      paramsErrorParam: 40_000,
     };
   }
 

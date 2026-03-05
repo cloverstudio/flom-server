@@ -438,6 +438,8 @@
   "443941": "Invalid order status. You cannot cancel an order that is already shipped, completed, or cancelled/refunded.",
   "443942": "Missing shipping info.",
   "443943": "Invalid shipping proof file. Only images and pdfs allowed.",
+  "443944": "Price too low, must be higher than {{param}}.",
+  "443945": "Price too high, must be lower than {{param}}.",
   "443950": "Address not found.",
 
   "444000": "Your country has been temporarily banned.",
