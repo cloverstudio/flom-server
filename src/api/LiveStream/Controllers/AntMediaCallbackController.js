@@ -68,7 +68,7 @@ router.post("/", async function (request, response) {
         }
       }
 
-      logger.debug("AntMediaCallbackController, received callback data: " + JSON.stringify(data));
+      // logger.debug("AntMediaCallbackController, received callback data: " + JSON.stringify(data));
 
       const { messageType, liveStreamId, commentData, userData, action, id } = data;
 
