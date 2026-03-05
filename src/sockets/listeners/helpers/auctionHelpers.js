@@ -3,7 +3,7 @@
 const { logger, redis } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { User, Transfer, Order } = require("#models");
+const { User, Transfer, Order, Auction } = require("#models");
 const { authorizeNet } = require("#services");
 
 let conversionRates = { rates: null, lastUpdated: 0 };
@@ -76,6 +76,8 @@ async function handlePayment({ auction }) {
       },
       events: [],
     });
+
+    await Auction.updateOne({ _id: auction._id.toString() }, { orderId: order._id.toString() });
 
     const localAmountReceiver = { ...bid };
     delete localAmountReceiver.valueInSats;
