@@ -7,6 +7,7 @@ const Utils = require("#utils");
 const { BlessPacket } = require("#models");
 const fsp = require("fs/promises");
 const { addFlomojiLinks } = require("../../Flomoji/helpers");
+const path = require("path");
 
 /**
  * @api {get} /api/v2/bless/packets Get super bless packets
@@ -177,8 +178,11 @@ router.get("/emojis/:emojiName", async function (request, response) {
     }
 
     const fileName = request.params.emojiName;
-    const filePath = `${Config.uploadPath}/flomojis/${fileName}`;
-    const filePathDeleted = `${Config.uploadPath}/flomojis/deleted/${fileName}`;
+    const filePath = path.resolve(Config.uploadPath, "flomojis", fileName);
+    const filePathDeleted = path.resolve(Config.uploadPath, "flomojis", "deleted", fileName);
+
+    console.log("Serving bless emoji:", filePath);
+    console.log("Serving bless emoji deleted:", filePathDeleted);
 
     try {
       await fsp.access(filePath);
