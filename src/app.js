@@ -150,7 +150,7 @@ app.use("/", router);
 
 app.use(function (req, res, next) {
   // return index.html
-  res.sendFile(path.join(Config.publicPath + "index.html"));
+  res.sendFile(path.resolve(Config.publicPath, "index.html"));
 });
 
 module.exports = app;
