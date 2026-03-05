@@ -6,7 +6,7 @@ const socketApi = require("../sockets/socket-api");
 const populateMessages = require("./populateMessages");
 const updateHistory = require("./updateHistory");
 
-async function messageList(userID, roomId, lastMessageId, direction, encrypt) {
+async function messageList({ userID, roomId, lastMessageId, direction, encrypt }) {
   try {
     const limit = lastMessageId != 0 ? 0 : Const.pagingLimit;
     let messages = null;

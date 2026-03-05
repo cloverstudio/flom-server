@@ -78,8 +78,6 @@ router.get(
         return Base.successResponse(response, Const.responsecodeMessageListInvalidParam);
       }
 
-      console.log(request.params);
-
       const messages = await messageList({
         userID,
         roomId,
