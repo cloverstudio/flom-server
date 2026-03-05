@@ -1,6 +1,5 @@
 const { Socket } = require("socket.io");
 const { logger } = require("#infra");
-const { Config } = require("#config");
 
 const listeners = {
   auctions: {
@@ -27,9 +26,9 @@ const listeners = {
 
 /**
  * @param {Socket} socket
- * @param {string} [namespace=Config.socketNameSpace]
+ * @param {string} [namespace= "flom"]
  */
-function attachListeners(socket, namespace = Config.socketNameSpace) {
+function attachListeners(socket, namespace = "flom") {
   const namespaceListeners = listeners[namespace];
   if (!namespaceListeners) {
     logger.warn("attachListeners: no listeners found for namespace " + namespace);

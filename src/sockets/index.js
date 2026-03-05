@@ -50,7 +50,7 @@ async function init(httpServer) {
     socket.on("disconnect", async (reason) => {});
 
     if (Config.serverType === "socket") {
-      attachListeners(socket, Config.socketAuctionsNameSpace);
+      attachListeners(socket, "auctions");
     }
   });
 
