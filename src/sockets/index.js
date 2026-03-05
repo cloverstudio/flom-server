@@ -22,11 +22,11 @@ async function init(httpServer) {
 
   io.on("connection", (socket) => {
     socket.setTimeout(600000);
-    console.log("socket connected:", socket.id);
+    console.log("Socket IO connected: ", socket.id);
   });
 
   namespaces.flom.on("connection", (socket) => {
-    console.log("Namespace connected:", socket.id);
+    console.log("Flom namespace connected: ", socket.id);
 
     socket.on("disconnect", async (reason) => {
       try {
@@ -45,7 +45,7 @@ async function init(httpServer) {
   });
 
   namespaces.auctions.on("connection", (socket) => {
-    console.log("Auctions Namespace connected:", socket.id);
+    console.log("Auctions namespace connected: ", socket.id);
 
     socket.on("disconnect", async (reason) => {});
 
