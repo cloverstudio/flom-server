@@ -184,6 +184,9 @@ router.get("/emojis/:emojiName", async function (request, response) {
     console.log("Serving bless emoji:", filePath);
     console.log("Serving bless emoji deleted:", filePathDeleted);
 
+    response.sendFile(filePath);
+
+    /*
     try {
       await fsp.access(filePath);
       response.sendFile(filePath);
@@ -206,7 +209,7 @@ router.get("/emojis/:emojiName", async function (request, response) {
         );
       }
       throw error;
-    }
+    }*/
   } catch (error) {
     return Base.errorResponse(response, Const.httpCodeServerError, "BlessController", error);
   }
