@@ -16,6 +16,7 @@ const {
   LiveStream,
   Review,
   Auction,
+  Order,
 } = require("#models");
 
 /**
@@ -28,7 +29,7 @@ const {
  * @apiHeader {String} access-token Users unique access token. For login it is not required to have a token.
  *
  * @apiParam {string} [email] Contact email.
- * @apiParam {string} type Type parameter from the category selected. (login_issue, transaction_issue, payout_issue, report_abuse, content, other, feedback, live_stream, content_comment, bug_report, flom_team_support, auction_issue, content_issue)
+ * @apiParam {string} type Type parameter from the category selected. (login_issue, transaction_issue, payout_issue, report_abuse, content, other, feedback, live_stream, content_comment, bug_report, flom_team_support, auction_issue, content_issue, order_cancellation_request, order_issue)
  * @apiParam {string} description Description of what happened.
  * @apiParam {string} referenceId Reference id. Optional for type is "other", "login_issue" or "flom_team_support". For login it's loginAttemptId,
  * for abuse it's reportedUserId, for transfer it's transferId, for content it's productId, for live stream it's liveStreamId and for content_comment it's reviewId for products and commentId for live streams.
@@ -62,9 +63,13 @@ const {
  * @apiError (Errors) 443343 Payout not found
  * @apiError (Errors) 443855 Live stream not found
  * @apiError (Errors) 443393 Review not found
+ * @apiError (Errors) 443938 Auction not found
+ * @apiError (Errors) 443940 Order not found
  * @apiError (Errors) 443127 Type parameter is missing
  * @apiError (Errors) 443226 Invalid type parameter
  * @apiError (Errors) 443129 ReferenceId parameter is missing
+ * @apiError (Errors) 443858 User not allowed to cancel the order
+ * @apiError (Errors) 443941 Invalid order status, cannot cancel order after it is marked as shipped/completed
  * @apiError (Errors) 4000007 Token invalid
  */
 
@@ -110,6 +115,8 @@ router.post("/", async (request, response) => {
       flom_team_support: false,
       auction_issue: true,
       content_issue: true,
+      order_cancellation_request: true,
+      order_issue: true,
     };
 
     const token = request.headers["access-token"];
@@ -145,6 +152,8 @@ router.post("/", async (request, response) => {
       flom_team_support: false,
       auction_issue: true,
       content_issue: false,
+      order_cancellation_request: true,
+      order_issue: true,
     };
 
     if (referenceIdRequired[type]) {
@@ -163,6 +172,8 @@ router.post("/", async (request, response) => {
         });
       }
     }
+
+    let order;
 
     switch (type) {
       case "login_issue":
@@ -330,22 +341,20 @@ router.post("/", async (request, response) => {
         supportEmailSubject = "Flom team support ticket";
         break;
       case "auction_issue":
-        if (referenceId) {
-          const auction = await Auction.findOne({ _id: referenceId });
+        const auction = await Auction.findOne({ _id: referenceId });
 
-          if (!auction) {
-            return supportErrorResponse({
-              response,
-              code: Const.responsecodeAuctionNotFound,
-              message: "Support - create ticket, auction not found",
-            });
-          }
-
-          sendSupportEmail = true;
-          supportEmail = Config.transactionSupportEmail;
-          supportEmailSubject = "Auction support ticket (Flom v1)";
-          supportEmailObject = auction.toObject();
+        if (!auction) {
+          return supportErrorResponse({
+            response,
+            code: Const.responsecodeAuctionNotFound,
+            message: "Support - create ticket, auction not found",
+          });
         }
+
+        sendSupportEmail = true;
+        supportEmail = Config.transactionSupportEmail;
+        supportEmailSubject = "Auction support ticket (Flom v1)";
+        supportEmailObject = auction.toObject();
         break;
       case "content_issue":
         if (referenceId) {
@@ -363,6 +372,49 @@ router.post("/", async (request, response) => {
           supportEmailSubject = "Content issue support ticket (Flom v1)";
           supportEmailObject = product.toObject();
         }
+        break;
+      case "order_cancellation_request":
+      case "order_issue":
+        order = await Order.findOne({ _id: referenceId });
+
+        if (!order) {
+          return supportErrorResponse({
+            response,
+            code: Const.responsecodeOrderNotFound,
+            message: "Support - create ticket, order not found",
+          });
+        }
+
+        if (type === "order_cancellation_request" && order.buyerId !== userId) {
+          return supportErrorResponse({
+            response,
+            code: Const.responsecodeUserNotAllowed,
+            message:
+              "Support - create ticket, user not allowed to request cancellation for this order",
+          });
+        }
+
+        if (
+          type === "order_cancellation_request" &&
+          (order.status === Const.orderStatus.SHIPPED ||
+            order.status === Const.orderStatus.DELIVERED)
+        ) {
+          return supportErrorResponse({
+            response,
+            code: Const.responsecodeInvalidOrderStatus,
+            message:
+              "Support - create ticket, cannot cancel order if status is shipped or delivered, current status: " +
+              order.status,
+          });
+        }
+
+        sendSupportEmail = true;
+        supportEmail = Config.transactionSupportEmail;
+        supportEmailSubject =
+          type === "order_cancellation_request"
+            ? "Order cancellation request support ticket (Flom v1)"
+            : "Order issue support ticket (Flom v1)";
+        supportEmailObject = order.toObject();
         break;
       default:
         return supportErrorResponse({
@@ -391,7 +443,34 @@ router.post("/", async (request, response) => {
       await user.save();
     }
 
-    await SupportTicket.create(supportTicketData);
+    const ticket = await SupportTicket.create(supportTicketData);
+
+    if (type === "order_cancellation_request" || type === "order_issue") {
+      await Order.updateOne(
+        { _id: referenceId },
+        {
+          $set: {
+            modified: Date.now(),
+            supportTicketId: ticket._id.toString(),
+            status:
+              type === "order_cancellation_request"
+                ? Const.orderStatus.CANCELLATION_REQUESTED
+                : Const.orderStatus.SUPPORT_TICKET_OPENED,
+          },
+          $push: {
+            events: {
+              status:
+                type === "order_cancellation_request"
+                  ? Const.orderStatus.CANCELLATION_REQUESTED
+                  : Const.orderStatus.SUPPORT_TICKET_OPENED,
+              user: userId === order.buyerId ? "buyer" : "seller",
+              userId,
+              timeStamp: Date.now(),
+            },
+          },
+        },
+      );
+    }
 
     if (sendSupportEmail) {
       const text =
@@ -453,7 +532,7 @@ function supportErrorResponse({ response, code, message }) {
  *
  * @apiParam (Query string) {String} supportTicketId Id of the support ticket
  * @apiParam (Query string) {String} phoneNumber Phone number of the user in the support ticket
- * @apiParam (Query string) {String} type Type of the support ticket (login_issue, transaction_issue, payout_issue, report_abuse, other, feedback, live_stream, refund_request, content_comment, bug_report, flom_team_support, auction_issue, content_issue)
+ * @apiParam (Query string) {String} type Type of the support ticket (login_issue, transaction_issue, payout_issue, report_abuse, other, feedback, live_stream, refund_request, content_comment, bug_report, flom_team_support, auction_issue, content_issue, order_cancellation_request, order_issue)
  * @apiParam (Query string) {String} status Status of the support ticket (1 - submitted, 2 - in progress, 3 - completed, 4 - supervisor requested, 5 - super admin requested, 6 - rejected)
  * @apiParam (Query string) {String} page Page number. Default 1
  * @apiParam (Query string) {String} itemsPerPage Number of results per page. Default 10
@@ -1270,6 +1349,32 @@ router.patch(
           delete user.userName;
           delete user._id;
         }
+      }
+
+      if (
+        status === 6 &&
+        (supportTicket.type === "order_cancellation_request" ||
+          supportTicket.type === "order_issue")
+      ) {
+        const order = await Order.findById(supportTicket.referenceId).lean();
+
+        await Order.updateOne(
+          { _id: supportTicket.referenceId },
+          {
+            $set: {
+              modified: Date.now(),
+              status: order.events.at(-2)?.status || order.status,
+            },
+            $push: {
+              events: {
+                status: order.events.at(-2)?.status || order.status,
+                user: "admin",
+                userId: request.user._id.toString(),
+                timeStamp: Date.now(),
+              },
+            },
+          },
+        );
       }
 
       Base.successResponse(response, Const.responsecodeSucceed, {

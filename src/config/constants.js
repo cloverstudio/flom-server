@@ -1256,22 +1256,15 @@ Constants.orderStatus = {
   PAYMENT_COMPLETED: "payment_completed",
   PAYMENT_FAILED: "payment_failed",
   EXPIRED: "expired",
-  ISSUE_OPEN: "issue_open",
-  CANCELED_REFUNDED: "canceled_refunded",
   SHIPPED: "shipped",
-  COMPLETED: "completed",
-  CLOSED: "closed",
+  SHIPMENT_LATE: "shipment_late",
+  CANCELLATION_REQUESTED: "cancellation_requested",
+  CANCELED: "canceled",
+  SUPPORT_TICKET_OPENED: "support_ticket_opened",
+  CLOSED_BY_SUPPORT: "closed_by_support",
+  DELIVERED: "delivered",
 };
-Constants.orderEvent = {
-  ORDER_CREATED: "order_created",
-  PAYMENT_COMPLETED: "payment_completed",
-  PAYMENT_FAILED: "payment_failed",
-  ORDER_EXPIRED: "order_expired",
-  ISSUE_OPENED: "issue_opened",
-  ORDER_CANCELED_REFUNDED: "order_canceled_refunded",
-  ORDER_SHIPPED: "order_shipped",
-  ORDER_COMPLETED: "order_completed",
-  ORDER_CLOSED: "order_closed",
-};
+
+Constants.shippingLimitInDays = 7;
 
 module.exports = Object.freeze(Constants);

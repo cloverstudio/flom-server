@@ -19,14 +19,16 @@ const fsp = require("fs").promises;
  * @apiHeader {String} access-token Users unique access token
  *
  * @apiParam (Form data) {String} shippingProvider    Shipping provider for the shipment
- * @apiParam (Form data) {String} [trackingNumber]    Tracking number for the shipment
- * @apiParam (Form data) {File}   [file1]             Shipping proof file (only if tracking number not provided). If multiple files, name them as file1, file2, etc. Allowed formats: all images and .pdf.
+ * @apiParam (Form data) {String} [trackingNumber]    Tracking number for the shipment (only if shipping proof files not provided)
+ * @apiParam (Form data) {File}   [file1]             Shipping proof files (only if tracking number not provided). If multiple files, name them as file1, file2, etc. Allowed formats: all images and .pdf.
  *
  * @apiSuccessExample {json} Success Response
  * {
  *   "code": 1,
  *   "time": 1764245263992,
- *   "data": {}
+ *   "data": {
+ *      "order": OrderModel
+ *   }
  * }
  *
  * @apiSuccessExample {json} Error Response
@@ -36,12 +38,14 @@ const fsp = require("fs").promises;
  * }
  *
  * @apiError (Errors) 443940 Order not found
+ * @apiError (Errors) 443941 Invalid order status: order must be in payment_completed status to be shipped
  * @apiError (Errors) 443942 Missing shipping info: shipping provider and either tracking number or shipping proof file must be provided
+ * @apiError (Errors) 443943 Invalid shipping proof file: only images and pdfs are allowed
  * @apiError (Errors) 443858 User not allowed to ship the order
  * @apiError (Errors) 4000007 Token invalid
  */
 
-router.patch("/:orderId", auth({ allowUser: true }), async function (request, response) {
+router.patch("/:orderId/ship", auth({ allowUser: true }), async function (request, response) {
   try {
     const { user } = request;
     const userId = user._id.toString();
@@ -57,6 +61,14 @@ router.patch("/:orderId", auth({ allowUser: true }), async function (request, re
         response,
         code: Const.responsecodeOrderNotFound,
         message: "ShipOrderController, order not found: " + orderId,
+      });
+    }
+
+    if (order.status !== Const.orderStatus.PAYMENT_COMPLETED) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeInvalidOrderStatus,
+        message: "ShipOrderController, order status must be payment_completed to ship",
       });
     }
 
@@ -83,7 +95,7 @@ router.patch("/:orderId", auth({ allowUser: true }), async function (request, re
         message: "ShipOrderController, missing shipping provider",
       });
     }
-    if (!trackingNumber && (!files || !files.file1)) {
+    if (!trackingNumber && (!files || Object.keys(files).length === 0)) {
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeInvalidShippingInfo,
@@ -113,11 +125,12 @@ router.patch("/:orderId", auth({ allowUser: true }), async function (request, re
         $set: {
           status: Const.orderStatus.SHIPPED,
           shipping: shippingInfo,
+          shippedAt: Date.now(),
           modified: Date.now(),
         },
         $push: {
           events: {
-            event: Const.orderEvent.ORDER_SHIPPED,
+            status: Const.orderStatus.SHIPPED,
             user: relation,
             userId,
             timeStamp: Date.now(),
@@ -127,8 +140,8 @@ router.patch("/:orderId", auth({ allowUser: true }), async function (request, re
       { new: true, lean: true },
     );
 
-    //const responseData = { updatedOrder };
-    Base.successResponse(response, Const.responsecodeSucceed, {});
+    const responseData = { order: updatedOrder };
+    Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
     Base.newErrorResponse({
       response,

@@ -160,6 +160,8 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         (minPrice.value / conversionRates.rates[minPrice.currency]) * conversionRates.rates.SAT;
       minPrice.valueInSats = Math.ceil(valueInSats);
 
+      const transferToken = await createTransferToken();
+
       auctionsToCreate.push({
         sellerId: user._id.toString(),
         product: {
@@ -177,6 +179,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         softCloseWindow: 10,
         note,
         isSuddenDeath,
+        transferToken,
       });
     }
 
@@ -433,6 +436,17 @@ async function getNotificationReceivers({ liveStream, userId }) {
   }
 
   return { chatReceivers, pushTokens, notificationListReceiversIds };
+}
+
+async function createTransferToken() {
+  const token = Utils.getRandomString(16, "alpha");
+
+  const exists = await Auction.findOne({ transferToken: token }).lean();
+  if (exists) {
+    return await createTransferToken();
+  }
+
+  return token;
 }
 
 module.exports = router;

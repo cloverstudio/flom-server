@@ -805,6 +805,7 @@ ResponseCodes.responsecodeAuctionNotFound = 443938;
 ResponseCodes.responsecodeOrderNotFound = 443940;
 ResponseCodes.responsecodeInvalidOrderStatus = 443941;
 ResponseCodes.responsecodeInvalidShippingInfo = 443942;
+ResponseCodes.responsecodeInvalidShippingProof = 443943;
 ResponseCodes.responsecodeAddressNotFound = 443950;
 
 ResponseCodes.responsecodeCountryTemporarilyBanned = 444000;

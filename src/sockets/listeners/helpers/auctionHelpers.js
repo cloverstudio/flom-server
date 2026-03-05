@@ -61,7 +61,6 @@ async function handlePayment({ auction }) {
     const originalPrice = { ...bid };
     delete originalPrice.valueInSats;
 
-    const transferToken = await createTransferToken();
     const order = await Order.create({
       sellerId: sellerId,
       buyerId: sender._id.toString(),
@@ -69,14 +68,13 @@ async function handlePayment({ auction }) {
       auctionId: auction._id.toString(),
       paymentMethod: user.paymentMethod,
       status: Const.orderStatus.PAYMENT_PENDING,
-      transferToken,
       quantity: auction.quantity,
       price: originalPrice,
       shipping: {
         origin: receiver.shippingAddresses.find((address) => address.isDefault),
         destination: sender.shippingAddresses.find((address) => address.isDefault),
       },
-      events: [{ event: Const.orderEvent.ORDER_CREATED, timeStamp: Date.now() }],
+      events: [],
     });
 
     const localAmountReceiver = { ...bid };
@@ -252,20 +250,7 @@ async function getPaymentData({ sender, auctionPaymentMethod }) {
   };
 }
 
-async function createTransferToken() {
-  const token = Utils.getRandomString(16, "alpha");
-
-  const existingTransfer = await Order.findOne({ transferToken: token }).lean();
-  if (existingTransfer) {
-    return createTransferToken();
-  }
-
-  return token;
-}
-
 async function sendNotifications({ order, sender, receiver, localAmountSender }) {
-  const shipByMs = order.created + 1000 * 60 * 60 * 24 * 3;
-
   await Utils.sendFlomPush({
     senderId: Config.flomSupportUserId,
     receiverUser: sender,

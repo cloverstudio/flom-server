@@ -19,6 +19,7 @@ const schema = new mongoose.Schema(
     endTimeStamp: Number,
     status: { type: String, default: "inactive" },
     isActive: { type: Boolean, default: false },
+    transferToken: String,
     bids: [
       {
         _id: false,

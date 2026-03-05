@@ -325,6 +325,18 @@ Config.supportCategories = [
     type: "content_issue",
     token: true,
   },
+  {
+    label: "Order cancellation request",
+    selector: "order_cancellation_request",
+    type: "order_cancellation_request",
+    token: true,
+  },
+  {
+    label: "Order issue",
+    selector: "order_issue",
+    type: "order_issue",
+    token: true,
+  },
 ];
 
 Config.defaultLoginSupportType = "login_issue";
@@ -347,6 +359,8 @@ Config.supportTypes = [
   "flom_team_support",
   "auction_issue",
   "content_issue",
+  "order_cancellation_request",
+  "order_issue",
 ];
 
 Config.syncStrings = {

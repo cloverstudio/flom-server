@@ -127,11 +127,11 @@ router.get("/:orderId", auth({ allowUser: true }), async function (request, resp
  * @apiVersion 2.0.34
  * @apiName  Get order list flom_v1
  * @apiGroup WebAPI Order
- * @apiDescription  Get order list, sold or purchased.
+ * @apiDescription  Get order list, sold/purchased/payment pending.
  *
  * @apiHeader {String} access-token Users unique access token
  *
- * @apiParam (Query string) {String} type  Type of orders to return: "sold", "purchased"
+ * @apiParam (Query string) {String} type  Type of orders to return: "sold", "purchased", "payment_pending"
  * @apiParam (Query string) {Number} page  Page number for pagination (default: 1)
  * @apiParam (Query string) {Number} size  Number of orders per page (default: 10)
  *
@@ -222,7 +222,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
   try {
     const { type, page: p, size: s } = request.query;
 
-    if (!type || (type !== "sold" && type !== "purchased")) {
+    if (!type || (type !== "sold" && type !== "purchased" && type !== "payment_pending")) {
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeInvalidTypeParameter,
@@ -234,7 +234,14 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     const size = !s || +s < 1 ? Const.newPagingRows : parseInt(+s);
 
     const userId = request.user._id.toString();
-    const query = type === "sold" ? { sellerId: userId } : { buyerId: userId };
+    let query;
+    if (type === "sold") {
+      query = { sellerId: userId };
+    } else if (type === "purchased") {
+      query = { buyerId: userId };
+    } else if (type === "payment_pending") {
+      query = { buyerId: userId, status: Const.orderStatus.PAYMENT_PENDING };
+    }
     const orders = await Order.find(query)
       .sort({ created: -1 })
       .skip((page - 1) * size)

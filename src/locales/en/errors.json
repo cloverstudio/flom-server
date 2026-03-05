@@ -436,6 +436,8 @@
   "443938": "Auction not found.",
   "443940": "Order not found.",
   "443941": "Invalid order status. You cannot cancel an order that is already shipped, completed, or cancelled/refunded.",
+  "443942": "Missing shipping info.",
+  "443943": "Invalid shipping proof file. Only images and pdfs allowed.",
   "443950": "Address not found.",
 
   "444000": "Your country has been temporarily banned.",

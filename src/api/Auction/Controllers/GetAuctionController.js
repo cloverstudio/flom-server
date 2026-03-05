@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { Const } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
-const { Auction, LiveStream, Order } = require("#models");
+const { Auction, LiveStream } = require("#models");
 
 /**
  * @api {get} /api/v2/auctions/active-on-live-stream Get active auction on live stream flom_v1
@@ -163,11 +163,6 @@ router.get("/:auctionId", auth({ allowUser: true }), async function (request, re
         code: Const.responsecodeAuctionNotFound,
         message: `GetAuctionController, Get auction, auction not found`,
       });
-    }
-
-    const order = await Order.findOne({ auctionId: auction._id.toString() }).lean();
-    if (order && order.transferToken) {
-      auction.transferToken = order.transferToken;
     }
 
     const responseData = { auction };

@@ -15,10 +15,11 @@ const schema = new mongoose.Schema(
     transferId: String,
     paymentMethod: String,
     status: { type: String, default: "payment_pending" },
-    transferToken: String,
     quantity: Number,
-    cancellationReason: String,
     supportTicketId: String,
+    supportReason: String,
+    shipBy: Number,
+    shippedAt: Number,
     shipping: {
       origin: {
         name: String,
@@ -64,7 +65,7 @@ const schema = new mongoose.Schema(
         },
       ],
     },
-    events: [{ event: String, user: String, userId: String, timeStamp: Number }],
+    events: [{ status: String, user: String, userId: String, timeStamp: Number }],
     created: { type: Number, default: Date.now, index: true },
     modified: { type: Number, default: Date.now, index: true },
   },

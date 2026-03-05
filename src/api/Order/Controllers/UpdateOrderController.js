@@ -151,7 +151,7 @@ async function confirmDelivery({ order, userId, relation }) {
       $set: { status: Const.orderStatus.COMPLETED },
       $push: {
         events: {
-          event: Const.orderEvent.ORDER_COMPLETED,
+          status: Const.orderStatus.COMPLETED,
           user: relation,
           userId,
           timeStamp: Date.now(),
@@ -169,11 +169,9 @@ async function cancelOrder({ order, userId, relation, cancellationReason, suppor
     return { err: Const.responsecodeUserNotAllowed, errMsg: "Seller cannot cancel order" };
   }
   if (
-    [
-      Const.orderStatus.SHIPPED,
-      Const.orderStatus.COMPLETED,
-      Const.orderStatus.CANCELED_REFUNDED,
-    ].includes(order.status)
+    [Const.orderStatus.SHIPPED, Const.orderStatus.COMPLETED, Const.orderStatus.CANCELED].includes(
+      order.status,
+    )
   ) {
     return {
       err: Const.responsecodeInvalidOrderStatus,
@@ -221,10 +219,10 @@ async function cancelOrder({ order, userId, relation, cancellationReason, suppor
   const updatedOrder = await Order.findByIdAndUpdate(
     order._id,
     {
-      $set: { status: Const.orderStatus.CANCELED_REFUNDED, cancellationReason, supportTicketId },
+      $set: { status: Const.orderStatus.CANCELED, cancellationReason, supportTicketId },
       $push: {
         events: {
-          event: Const.orderEvent.ORDER_CANCELLED_REFUNDED,
+          status: Const.orderStatus.CANCELED,
           user: relation,
           userId,
           timeStamp: Date.now(),

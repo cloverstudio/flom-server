@@ -429,6 +429,8 @@
     "443938": "Aukcija nije pronađena.",
     "443940": "Narudžba nije pronađena.",
     "443941": "Narudžbin status nije ispravan. Ne možete otkazati narudžbu koja je već otkazana/isporučena/poslana.",
+    "443942": "Nedostaju podaci o dostavi.",
+    "443943": "Neispravna datoteka dokaza o dostavi. Dozvoljene su samo slike i PDF-ovi.",
     "443950": "Adresa nije pronađena.",
 
     "444000": "Vaša zemlja je privremeno zabranjena.",
