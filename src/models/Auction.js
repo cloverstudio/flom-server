@@ -20,6 +20,7 @@ const schema = new mongoose.Schema(
     status: { type: String, default: "inactive" },
     isActive: { type: Boolean, default: false },
     transferToken: String,
+    orderId: String,
     bids: [
       {
         _id: false,
