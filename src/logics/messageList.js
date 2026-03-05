@@ -72,6 +72,9 @@ async function messageList({ userID, roomId, lastMessageId, direction, encrypt }
     await Message.bulkWrite(messageUpdateOperations, { ordered: false });
 
     const lastMessage = messages.sort((a, b) => b.created - a.created)[0];
+
+    console.log("lastMessage: ", lastMessage);
+
     if (lastMessage.userID != userID) {
       await updateHistory.updateLastMessageStatus({
         messageId: lastMessage._id.toString(),
