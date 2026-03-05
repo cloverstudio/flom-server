@@ -1257,7 +1257,7 @@ Constants.orderStatus = {
   PAYMENT_FAILED: "payment_failed",
   EXPIRED: "expired",
   SHIPPED: "shipped",
-  SHIPMENT_LATE: "shipment_late",
+  SHIP_BY_EXPIRED: "ship_by_expired",
   CANCELLATION_REQUESTED: "cancellation_requested",
   CANCELED: "canceled",
   SUPPORT_TICKET_OPENED: "support_ticket_opened",

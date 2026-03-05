@@ -3,7 +3,7 @@
 const router = require("express").Router();
 const Base = require("../../Base");
 const { Const } = require("#config");
-const { Order } = require("#models");
+const { Order, Auction } = require("#models");
 const { auth } = require("#middleware");
 
 /**
@@ -20,6 +20,7 @@ const { auth } = require("#middleware");
  *   "code": 1,
  *   "time": 1764245263992,
  *   "data": {
+ *      "transferToken": String, // Only included if order is from auction and payment is pending
  *      "order": {
  *         "_id": String,
  *         "price": {
@@ -112,6 +113,14 @@ router.get("/:orderId", auth({ allowUser: true }), async function (request, resp
     }
 
     const responseData = { order };
+
+    if (order.auctionId && order.status === Const.orderStatus.PAYMENT_PENDING) {
+      const auction = await Auction.findById(order.auctionId).lean();
+      if (auction) {
+        responseData.transferToken = auction.transferToken;
+      }
+    }
+
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
     Base.newErrorResponse({
