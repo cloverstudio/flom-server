@@ -367,9 +367,7 @@ router.get("/:page", auth({ allowUser: true }), async function (request, respons
   try {
     const androidBuildNumber = request.headers.android_build_number;
     const iOSBuildNumber = request.headers.ios_build_number;
-    const softwareVersion = request.user.toObject().softwareVersion
-      ? request.user.toObject().softwareVersion
-      : {};
+    const softwareVersion = request.user.softwareVersion ? request.user.softwareVersion : {};
 
     let updateFlg = false;
 
