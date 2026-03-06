@@ -21,65 +21,7 @@ const { auth } = require("#middleware");
  *   "time": 1764245263992,
  *   "data": {
  *      "transferToken": String, // Only included if order is from auction and payment is pending
- *      "order": {
- *         "_id": String,
- *         "price": {
- *           "countryCode": String,
- *           "currency": String,
- *           "value": Number,
- *           "valueInSats": Number
- *         },
- *         "product": {
- *           "_id": String,
- *           "name": String,
- *           "condition": String,
- *           "file": {}
- *         },
- *         "sellerId": String,
- *         "buyerId": String,
- *         "auctionId": String,
- *         "transferId": String,
- *         "paymentMethod": String,
- *         "status": String,
- *         "transferToken": String,
- *         "quantity": Number,
- *         "shipping": {
- *           "origin": {
- *             "name": String,
- *             "country": String,
- *             "countryCode": String,
- *             "region": String,
- *             "regionCode": String,
- *             "city": String,
- *             "road": String,
- *             "houseNumber": String,
- *             "postCode": String,
- *             "isDefault": Boolean,
- *           },
- *           "destination": {
- *             "name": String,
- *             "country": String,
- *             "countryCode": String,
- *             "region": String,
- *             "regionCode": String,
- *             "city": String,
- *             "road": String,
- *             "houseNumber": String,
- *             "postCode": String,
- *             "isDefault": Boolean,
- *           },
- *           "provider": String,
- *           "trackingNumber": String,
- *         },
- *         "events": [{
- *           "event": String,
- *           "user": String,
- *           "userId": String,
- *           "timeStamp": Number,
- *         }],
- *         "created": Number,
- *         "modified": Number,
- *       }
+ *      "order": OrderModel
  *    }
  * }
  *
@@ -110,6 +52,11 @@ router.get("/:orderId", auth({ allowUser: true }), async function (request, resp
         code: Const.responsecodeOrderNotFound,
         message: "GetOrderController, get order details - order not found: " + orderId,
       });
+    }
+
+    if (order.product) {
+      order.products = [order.product];
+      delete order.product;
     }
 
     const responseData = { order };
@@ -149,65 +96,7 @@ router.get("/:orderId", auth({ allowUser: true }), async function (request, resp
  *   "code": 1,
  *   "time": 1764245263992,
  *   "data": {
- *      "orders": [{
- *         "_id": String,
- *         "price": {
- *           "countryCode": String,
- *           "currency": String,
- *           "value": Number,
- *           "valueInSats": Number
- *         },
- *         "product": {
- *           "_id": String,
- *           "name": String,
- *           "condition": String,
- *           "file": {}
- *         },
- *         "sellerId": String,
- *         "buyerId": String,
- *         "auctionId": String,
- *         "transferId": String,
- *         "paymentMethod": String,
- *         "status": String,
- *         "transferToken": String,
- *         "quantity": Number,
- *         "shipping": {
- *           "origin": {
- *             "name": String,
- *             "country": String,
- *             "countryCode": String,
- *             "region": String,
- *             "regionCode": String,
- *             "city": String,
- *             "road": String,
- *             "houseNumber": String,
- *             "postCode": String,
- *             "isDefault": Boolean,
- *           },
- *           "destination": {
- *             "name": String,
- *             "country": String,
- *             "countryCode": String,
- *             "region": String,
- *             "regionCode": String,
- *             "city": String,
- *             "road": String,
- *             "houseNumber": String,
- *             "postCode": String,
- *             "isDefault": Boolean,
- *           },
- *           "provider": String,
- *           "trackingNumber": String,
- *         },
- *         "events": [{
- *           "event": String,
- *           "user": String,
- *           "userId": String,
- *           "timeStamp": Number
- *         }],
- *         "created": Number,
- *         "modified": Number,
- *       }],
+ *      "orders": [ OrderModel ],
  *      "paginationData": {
  *          "page": 1,
  *          "size": 1,
@@ -260,6 +149,13 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     const total = await Order.countDocuments(query);
     const hasNext = page * size < total;
     const paginationData = { page, size, total, hasNext };
+
+    for (const order of orders) {
+      if (order.product) {
+        order.products = [order.product];
+        delete order.product;
+      }
+    }
 
     const responseData = { orders: !orders ? [] : orders, paginationData };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
