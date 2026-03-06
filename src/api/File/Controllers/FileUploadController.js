@@ -4,6 +4,7 @@ const router = require("express").Router();
 const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const, Config } = require("#config");
+const Utils = require("#utils");
 const { File } = require("#models");
 const mediaHandler = require("#media");
 const fs = require("fs");
@@ -36,7 +37,10 @@ router.post("", async function (request, response) {
       return;
     }
 
-    const { fields, files } = await form.parse(request);
+    const { fields, files } = await Utils.formParse(request, {
+      keepExtensions: true,
+      uploadDir: Config.uploadPath,
+    });
 
     if (Object.keys(files).length === 0) {
       Base.successResponse(response, Const.responsecodeMessageFileUploadFailed);
