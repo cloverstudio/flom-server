@@ -38,12 +38,17 @@ router.post("", async function (request, response) {
 
     const { fields, files } = await form.parse(request);
 
-    if (!files.file) {
+    if (Object.keys(files).length === 0) {
       Base.successResponse(response, Const.responsecodeMessageFileUploadFailed);
       return;
     }
 
-    const file = files.file;
+    const file = files[Object.keys(files)[0]];
+
+    if (!file) {
+      Base.successResponse(response, Const.responsecodeMessageFileUploadFailed);
+      return;
+    }
 
     let mediaDuration;
     if (file.type.indexOf("audio") > -1 || file.type.indexOf("video") > -1) {
