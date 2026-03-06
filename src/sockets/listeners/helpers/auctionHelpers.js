@@ -64,7 +64,7 @@ async function handlePayment({ auction }) {
     const order = await Order.create({
       sellerId: sellerId,
       buyerId: sender._id.toString(),
-      products: [auction.product],
+      products: [{ quantity: auction.quantity, ...auction.product }],
       auctionId: auction._id.toString(),
       paymentMethod: user.paymentMethod,
       status: Const.orderStatus.PAYMENT_PENDING,

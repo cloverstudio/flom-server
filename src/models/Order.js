@@ -8,7 +8,7 @@ const mongoose = require("mongoose");
 const schema = new mongoose.Schema(
   {
     price: { countryCode: String, currency: String, value: Number, valueInSats: Number },
-    products: [{ _id: String, name: String, condition: String, file: {} }],
+    products: [{ _id: String, name: String, condition: String, quantity: Number, file: {} }],
     sellerId: String,
     buyerId: String,
     auctionId: String,
