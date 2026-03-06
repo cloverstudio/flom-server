@@ -94,7 +94,7 @@ async function sendMessage(param) {
     }
 
     const chatType = roomID.split("-")[0];
-    const chatId = roomID.split("-")[1];
+    let chatId = roomID.split("-")[1];
 
     switch (Number(chatType)) {
       case Const.chatTypePrivate:
