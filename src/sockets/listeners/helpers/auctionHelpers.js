@@ -292,7 +292,10 @@ async function sendNotifications({ order, sender, receiver, localAmountSender })
         auctionId: order.auctionId,
         value: localAmountSender.value,
         currency: localAmountSender.currency,
-        productName: order.product.name,
+        productName:
+          order.products.length === 1
+            ? order.products[0].name
+            : `${order.products[0].name} + ${order.products.length - 1} more`,
         shippingOrigin,
         shippingDestination,
       },
