@@ -308,20 +308,24 @@ async function sendMessage(param) {
     }
 
     const resp = await Message.populateMessages(result.message);
-    resp[0].localID = "";
-    resp[0].deleted = 0;
-    if (param.localID) resp[0].localID = param.localID;
+    if (resp && resp[0]) {
+      resp[0].localID = "";
+      resp[0].deleted = 0;
+      if (param.localID) resp[0].localID = param.localID;
 
-    if (resp[0].type == Const.messageTypeText) {
-      const encryptedMessage = encryptionManager.encryptText(resp[0].message);
-      resp[0].message = encryptedMessage;
+      if (resp[0].type == Const.messageTypeText) {
+        const encryptedMessage = encryptionManager.encryptText(resp[0].message);
+        resp[0].message = encryptedMessage;
+      }
+      result.messagePopulated = resp[0];
+
+      await updateHistory.updateByMessage(resp[0]);
+      await notifyNewMessage(resp[0], param);
+
+      return result.messagePopulated;
+    } else {
+      return result.message;
     }
-    result.messagePopulated = resp[0];
-
-    await updateHistory.updateByMessage(resp[0]);
-    await notifyNewMessage(resp[0], param);
-
-    return result.messagePopulated;
   } catch (error) {
     logger.error("sendMessage error: ", error);
     throw new Error(error.message);

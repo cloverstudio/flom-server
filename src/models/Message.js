@@ -149,7 +149,7 @@ schema.statics.populateMessages = async function (messages) {
     }
 
     if (oldIds.length == 0) {
-      throw new Error("No oldIds to convert");
+      return [];
     }
 
     messages = await this.find({ user: { $in: oldIds } })
