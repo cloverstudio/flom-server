@@ -15,7 +15,6 @@ const schema = new mongoose.Schema(
     transferId: String,
     paymentMethod: String,
     status: { type: String, default: "payment_pending" },
-    quantity: Number,
     supportTicketId: String,
     supportReason: String,
     shipBy: Number,

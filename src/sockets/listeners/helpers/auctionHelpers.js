@@ -68,11 +68,14 @@ async function handlePayment({ auction }) {
       auctionId: auction._id.toString(),
       paymentMethod: user.paymentMethod,
       status: Const.orderStatus.PAYMENT_PENDING,
-      quantity: auction.quantity,
       price: originalPrice,
       shipping: {
-        origin: receiver.shippingAddresses.find((address) => address.isDefault),
-        destination: sender.shippingAddresses.find((address) => address.isDefault),
+        origin:
+          receiver.shippingAddresses.find((address) => address.isDefault) ||
+          receiver.shippingAddresses[0],
+        destination:
+          sender.shippingAddresses.find((address) => address.isDefault) ||
+          sender.shippingAddresses[0],
       },
       events: [],
     });
@@ -284,9 +287,9 @@ async function sendNotifications({ order, sender, receiver, localAmountSender })
     ${order.shipping.destination.country}`;
 
     await Utils.sendEmailFromTemplate({
-      templatePath: "src/email-templates/auctionWinEmail.html",
+      templatePath: "src/email-templates/orderEmail.html",
       to: sender.email,
-      subject: "You have won an auction",
+      subject: "New order: " + order._id.toString(),
       templateDataInput: {
         orderId: order._id.toString(),
         auctionId: order.auctionId,
