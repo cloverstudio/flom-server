@@ -276,13 +276,6 @@ async function sendNotifications({ order, sender, receiver, localAmountSender })
   });
 
   if (sender.email) {
-    const shippingOrigin = !order.shipping.origin
-      ? ""
-      : `${order.shipping.origin.name}
-    ${order.shipping.origin.road} ${order.shipping.origin.houseNumber}
-    ${order.shipping.origin.city}, ${order.shipping.origin.region} ${order.shipping.origin.postcode}
-    ${order.shipping.origin.country}`;
-
     const shippingDestination = !order.shipping.destination
       ? ""
       : `${order.shipping.destination.name}
@@ -303,7 +296,6 @@ async function sendNotifications({ order, sender, receiver, localAmountSender })
           order.products.length === 1
             ? order.products[0].name
             : `${order.products[0].name} + ${order.products.length - 1} more`,
-        shippingOrigin,
         shippingDestination,
       },
     });
