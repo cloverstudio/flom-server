@@ -276,12 +276,16 @@ async function sendNotifications({ order, sender, receiver, localAmountSender })
   });
 
   if (sender.email) {
-    const shippingOrigin = `${order.shipping.origin.name}
+    const shippingOrigin = !order.shipping.origin
+      ? ""
+      : `${order.shipping.origin.name}
     ${order.shipping.origin.road} ${order.shipping.origin.houseNumber}
     ${order.shipping.origin.city}, ${order.shipping.origin.region} ${order.shipping.origin.postcode}
     ${order.shipping.origin.country}`;
 
-    const shippingDestination = `${order.shipping.destination.name}
+    const shippingDestination = !order.shipping.destination
+      ? ""
+      : `${order.shipping.destination.name}
     ${order.shipping.destination.road} ${order.shipping.destination.houseNumber}
     ${order.shipping.destination.city}, ${order.shipping.destination.region} ${order.shipping.destination.postcode}
     ${order.shipping.destination.country}`;
