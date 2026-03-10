@@ -2,7 +2,7 @@
 
 const router = require("express").Router();
 const Base = require("../../Base");
-const { Const } = require("#config");
+const { Const, Config } = require("#config");
 const Utils = require("#utils");
 const { Order } = require("#models");
 const { auth } = require("#middleware");
