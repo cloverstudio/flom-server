@@ -104,7 +104,7 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
       });
     }
 
-    const { err, msg, formattedFiles } = await handleFiles(files);
+    const { err, msg, formattedFiles = [] } = await handleFiles(files);
 
     if (err) {
       return Base.newErrorResponse({
@@ -114,18 +114,14 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
       });
     }
 
-    const shippingInfo = {
-      provider: shippingProvider,
-      trackingNumber,
-      files: formattedFiles,
-    };
-
     const updatedOrder = await Order.findByIdAndUpdate(
       order._id,
       {
         $set: {
           status: Const.orderStatus.SHIPPED,
-          shipping: shippingInfo,
+          "shipping.provider": shippingProvider,
+          ...(trackingNumber && { "shipping.trackingNumber": trackingNumber }),
+          ...(formattedFiles.length > 0 && { "shipping.files": formattedFiles }),
           shippedAt: Date.now(),
           modified: Date.now(),
         },
