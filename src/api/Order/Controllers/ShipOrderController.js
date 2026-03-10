@@ -8,6 +8,7 @@ const { Order } = require("#models");
 const { auth } = require("#middleware");
 const sharp = require("sharp");
 const fsp = require("fs").promises;
+const path = require("path");
 
 /**
  * @api {patch} /api/v2/orders/:orderId/ship Ship order flom_v1
@@ -175,7 +176,7 @@ async function handleFiles(files) {
   for (const file of fileArray) {
     const formatted = {};
 
-    const { type, name, path, size } = file;
+    const { type, name, path: filePath, size } = file;
 
     const newName = Utils.getRandomString(32, "alpha");
     formatted.nameOnServer = newName + path.extname(name);
@@ -184,13 +185,13 @@ async function handleFiles(files) {
     formatted.size = size;
 
     if (type.includes("image")) {
-      const dimensions = await sharp(path).metadata();
+      const dimensions = await sharp(filePath).metadata();
       const { width, height } = dimensions;
       formatted.width = width;
       formatted.height = height;
 
       const thumbnailName = newName + "_thumb" + path.extname(name);
-      await sharp(path)
+      await sharp(filePath)
         .resize(300, 300, { fit: "inside" })
         .toFile(Config.uploadPath + thumbnailName);
       const thumbnailDimensions = await sharp(Config.uploadPath + thumbnailName).metadata();
@@ -203,8 +204,8 @@ async function handleFiles(files) {
       };
     }
 
-    await fsp.copyFile(path, Config.uploadPath + formatted.nameOnServer);
-    await fsp.unlink(path);
+    await fsp.copyFile(filePath, Config.uploadPath + formatted.nameOnServer);
+    await fsp.unlink(filePath);
 
     formattedFiles.push(formatted);
   }
