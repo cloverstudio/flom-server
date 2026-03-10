@@ -180,7 +180,6 @@ const { checkTribeVisibility, checkCommunityVisibility, isLanguageValid } = requ
  * @apiError (Errors) 443487 One or more tribes (from tribeIds) is not found
  * @apiError (Errors) 443240 One or more community ids is invalid
  * @apiError (Errors) 443241 One or more communities (from communityIds) is not found
- * @apiError (Errors) 443936 User has no shipping address
  * @apiError (Errors) 4000007 Token not valid
  * @apiError (Errors) 4000060 Users products blocked and user is blocked from creating new products
  * @apiError (Errors) 400162 Link not valid
@@ -207,13 +206,6 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         response,
         code: Const.responsecodeUserBlocked,
         message: `AddProductControllerV2, user blocked`,
-      });
-    }
-    if (!user.shippingAddresses || user.shippingAddresses.length === 0) {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeNoShippingAddress,
-        message: `AddProductControllerV2, user has no shipping address`,
       });
     }
 

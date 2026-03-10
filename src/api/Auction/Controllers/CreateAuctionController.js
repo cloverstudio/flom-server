@@ -79,7 +79,6 @@ const { socketApi } = require("#sockets");
  * @apiError (Errors) 443932 Invalid bid increment
  * @apiError (Errors) 443933 Invalid min price
  * @apiError (Errors) 443934 Invalid counter bid time
- * @apiError (Errors) 443936 User has no shipping address
  * @apiError (Errors) 443935 Invalid note
  * @apiError (Errors) 4000007 Token invalid
  */
@@ -88,14 +87,6 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
   try {
     const { user } = request;
     const { auctions = null, liveStreamId } = request.body;
-
-    if (!user.shippingAddresses || user.shippingAddresses.length === 0) {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeNoShippingAddress,
-        message: `CreateAuctionController, Create auction, user has no shipping address`,
-      });
-    }
 
     if (!auctions || !Array.isArray(auctions) || auctions.length === 0) {
       return Base.newErrorResponse({
