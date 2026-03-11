@@ -191,8 +191,8 @@ async function handleFiles(files) {
       const thumbnailName = newName + "_thumb" + path.extname(name);
       await sharp(filePath)
         .resize(300, 300, { fit: "inside" })
-        .toFile(Config.uploadPath + thumbnailName);
-      const thumbnailDimensions = await sharp(Config.uploadPath + thumbnailName).metadata();
+        .toFile(Config.uploadPath + "/" + thumbnailName);
+      const thumbnailDimensions = await sharp(Config.uploadPath + "/" + thumbnailName).metadata();
       formatted.thumbnail = {
         nameOnServer: thumbnailName,
         mimeType: type,
@@ -202,7 +202,7 @@ async function handleFiles(files) {
       };
     }
 
-    await fsp.copyFile(filePath, Config.uploadPath + formatted.nameOnServer);
+    await fsp.copyFile(filePath, Config.uploadPath + "/" + formatted.nameOnServer);
     await fsp.unlink(filePath);
 
     formattedFiles.push(formatted);
