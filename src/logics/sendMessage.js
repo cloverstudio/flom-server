@@ -326,6 +326,8 @@ async function sendMessage(param) {
       return result.messagePopulated;
     } else {
       await updateHistory.updateByMessage(result.message);
+      const user = await User.findById(userID, User.getDefaultResponseFields()).lean();
+      result.message.user = user;
       return result.message;
     }
   } catch (error) {
