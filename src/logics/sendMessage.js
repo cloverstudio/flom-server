@@ -308,6 +308,9 @@ async function sendMessage(param) {
     }
 
     const resp = await Message.populateMessages(result.message);
+
+    console.log("sendMessage resp: ", JSON.stringify(resp, null, 2));
+
     if (resp && resp[0]) {
       resp[0].localID = "";
       resp[0].deleted = 0;
