@@ -61,14 +61,20 @@ var UpdateHistory = {
 
     async.waterfall(
       [
-        async function (done) {
+        function (done) {
           var result = {};
 
           // search history object
-          const res = await History.findOne({ userId: userId, chatId: chatId });
-          result.historyObj = res ? res.toObject() : null;
-
-          done(err, result);
+          History.findOne(
+            {
+              userId: userId,
+              chatId: chatId,
+            },
+            function (err, findResult) {
+              result.historyObj = findResult;
+              done(err, result);
+            },
+          );
         },
         function (result, done) {
           if (result.historyObj) {
@@ -178,7 +184,7 @@ var UpdateHistory = {
 
     async.waterfall(
       [
-        async function (done) {
+        function (done) {
           var result = {
             message: {
               messageId: rawMessageObj._id.toString(),
@@ -198,20 +204,24 @@ var UpdateHistory = {
               result.message.duration = rawMessageObj.file.file.duration;
           }
 
-          result.fromUser = await User.findOne(
+          User.findOne(
             { _id: fromUserId },
             User.getDefaultResponseFields(),
-          ).lean();
-
-          done(err, result);
+            function (err, findUserResult) {
+              result.fromUser = findUserResult;
+              done(err, result);
+            },
+          );
         },
-        async function (result, done) {
-          result.toUser = await User.findOne(
+        function (result, done) {
+          User.findOne(
             { _id: toUserId },
             User.getDefaultResponseFields(),
-          ).lean();
-
-          done(err, result);
+            function (err, findUserResult) {
+              result.toUser = findUserResult;
+              done(err, result);
+            },
+          );
         },
         function (result, done) {
           let message = result.message.message;
@@ -269,7 +279,7 @@ var UpdateHistory = {
 
     async.waterfall(
       [
-        async function (done) {
+        function (done) {
           var result = {
             message: {
               messageId: rawMessageObj._id.toString(),
@@ -289,24 +299,25 @@ var UpdateHistory = {
           }
 
           // get room
-          const room = await Room.findOne({ _id: roomId }).lean();
+          Room.findOne({ _id: roomId }, function (err, findRoomResult) {
+            if (findRoomResult == null) {
+              done("invalid room id", roomId);
+              return;
+            }
 
-          if (!room) {
-            return done("invalid room id", roomId);
-          }
-
-          result.room = room;
-
-          done(null, result);
+            result.room = findRoomResult;
+            done(err, result);
+          });
         },
-        async function (result, done) {
-          const fromUser = await User.findOne(
+        function (result, done) {
+          User.findOne(
             { _id: fromUserId },
             User.getDefaultResponseFields(),
-          ).lean();
-
-          result.fromUser = fromUser;
-          done(null, result);
+            function (err, findUserResult) {
+              result.fromUser = findUserResult;
+              done(null, result);
+            },
+          );
         },
         function (result, done) {
           if (!_.isArray(result.room.users)) {
@@ -361,7 +372,7 @@ var UpdateHistory = {
 
     async.waterfall(
       [
-        async function (done) {
+        function (done) {
           var result = {
             message: {
               messageId: rawMessageObj._id.toString(),
@@ -381,17 +392,18 @@ var UpdateHistory = {
           }
 
           // get group
-          const group = await Group.findOne({ _id: groupId }).lean();
+          Group.findOne({ _id: groupId }, function (err, findGroupResult) {
+            if (findGroupResult == null) {
+              done("invalid group id", null);
+              return;
+            }
 
-          if (!group) {
-            return done("invalid group id", null);
-          }
-
-          result.group = group;
-          done(null, result);
+            result.group = findGroupResult;
+            done(err, result);
+          });
         },
-        async function (result, done) {
-          const fromUser = await User.findOne(
+        function (result, done) {
+          User.findOne(
             { _id: fromUserId },
             {
               token: 0,
@@ -400,10 +412,11 @@ var UpdateHistory = {
               voipPushToken: 0,
             },
             User.getDefaultResponseFields(),
-          ).lean();
-
-          result.fromUser = fromUser;
-          done(null, result);
+            function (err, findUserResult) {
+              result.fromUser = findUserResult;
+              done(err, result);
+            },
+          );
         },
         function (result, done) {
           // when hook fromUser doesn't exit
@@ -422,15 +435,20 @@ var UpdateHistory = {
             },
           );
         },
-        async function (result, done) {
+        function (result, done) {
           // get users of above departments
-          const departmentUsers = await User.find(
-            { groups: { $in: result.departmentIds } },
-            { _id: 1 },
-          ).lean();
-
-          result.departmentUsers = _.map(departmentUsers, "_id");
-          done(null, result);
+          User.find(
+            {
+              groups: { $in: result.departmentIds },
+            },
+            {
+              _id: 1,
+            },
+            (err, findResult) => {
+              result.departmentUsers = _.map(findResult, "_id");
+              done(err, result);
+            },
+          );
         },
         function (result, done) {
           var groupUsers = _.compact(
@@ -488,16 +506,19 @@ var UpdateHistory = {
 
     async.waterfall(
       [
-        async function (done) {
+        function (done) {
           var result = {};
 
-          const findResult = await History.findOne({
-            userId: data.userId,
-            chatId: data.chatId,
-          }).lean();
-
-          result.existingData = findResult;
-          done(null, result);
+          History.findOne(
+            {
+              userId: data.userId,
+              chatId: data.chatId,
+            },
+            function (err, findResult) {
+              result.existingData = findResult;
+              done(null, result);
+            },
+          );
         },
         function (result, done) {
           done(null, result);
@@ -562,7 +583,7 @@ var UpdateHistory = {
     );
   },
 
-  updateLastMessageStatus: async function (obj, callback) {
+  updateLastMessageStatus: function (obj, callback) {
     var updateParams = {};
 
     if (obj.delivered) updateParams["lastMessage.delivered"] = true;
@@ -571,10 +592,14 @@ var UpdateHistory = {
 
     var messageIds = !_.isEmpty(obj.messageIds) ? obj.messageIds : [obj.messageId];
 
-    await History.update({ "lastMessage.messageId": { $in: messageIds } }, updateParams, {
-      multi: true,
-    });
-    callback(null);
+    History.update(
+      { "lastMessage.messageId": { $in: messageIds } },
+      updateParams,
+      { multi: true },
+      (err, updateResult) => {
+        callback(err);
+      },
+    );
   },
 };
 
