@@ -164,6 +164,8 @@ async function sendMessage(param) {
     const newMessage = await Message.create(objMessage);
     result.message = newMessage.toObject();
 
+    console.log("MESSAGE CREATED");
+
     if (roomID.includes(Const.FatAiObjectId) && !param.isRecursiveCall) {
       const chatId = Utils.chatIdByUser(result.user, result.receiverUser);
       socketApi.flom.emitToRoom(result.user._id.toString(), "typing", {
@@ -307,7 +309,13 @@ async function sendMessage(param) {
       }
     }
 
+    console.log("result: ", JSON.stringify(result, null, 2));
+
+    console.log("BEFORE POPULATE");
+
     const resp = await Message.populateMessages(result.message);
+
+    console.log("AFTER POPULATE");
 
     console.log("sendMessage resp: ", JSON.stringify(resp, null, 2));
 
