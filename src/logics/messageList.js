@@ -73,7 +73,7 @@ async function messageList({ userID, roomId, lastMessageId, direction, encrypt }
 
     const lastMessage = messages.sort((a, b) => b.created - a.created)[0];
     if (lastMessage && lastMessage.userID != userID) {
-      updateHistory.updateLastMessageStatus({
+      await updateHistory.updateLastMessageStatus({
         messageId: lastMessage._id.toString(),
         seen: lastMessage.sentTo.length == lastMessage.seenBy.length,
       });
@@ -136,7 +136,7 @@ async function messageList({ userID, roomId, lastMessageId, direction, encrypt }
       msg.isFavorite = favoritesMessageIds.includes(msg._id.toString()) ? 1 : 0;
     }
 
-    updateHistory.resetUnreadCount({ roomID: roomId, userID: userID });
+    await updateHistory.resetUnreadCount({ roomID: roomId, userID: userID });
 
     if (!encrypt) return messages;
 

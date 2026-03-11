@@ -45,7 +45,7 @@ module.exports = function (socket) {
         { new: true },
       );
 
-      updateHistory.updateLastMessageStatus({
+      await updateHistory.updateLastMessageStatus({
         messageId: param.messageID,
         delivered: updatedMessage.sentTo.length == updatedMessage.deliveredTo.length,
       });
