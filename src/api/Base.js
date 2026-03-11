@@ -1,4 +1,3 @@
-const _ = require("lodash");
 const { Const } = require("#config");
 const { logger } = require("#infra");
 const Utils = require("#utils");
