@@ -68,7 +68,7 @@ var UpdateHistory = {
           const res = await History.findOne({ userId: userId, chatId: chatId });
           result.historyObj = res ? res.toObject() : null;
 
-          done(err, result);
+          done(null, result);
         },
         function (result, done) {
           if (result.historyObj) {
@@ -203,7 +203,7 @@ var UpdateHistory = {
             User.getDefaultResponseFields(),
           ).lean();
 
-          done(err, result);
+          done(null, result);
         },
         async function (result, done) {
           result.toUser = await User.findOne(
@@ -211,7 +211,7 @@ var UpdateHistory = {
             User.getDefaultResponseFields(),
           ).lean();
 
-          done(err, result);
+          done(null, result);
         },
         function (result, done) {
           let message = result.message.message;
@@ -502,7 +502,7 @@ var UpdateHistory = {
         function (result, done) {
           done(null, result);
         },
-        function (result, done) {
+        async function (result, done) {
           if (rawMessageObj) {
             if (
               !rawMessageObj ||
@@ -547,12 +547,9 @@ var UpdateHistory = {
             if (data.chatType === Const.chatTypePrivate)
               data.firstMessageUserId = data.lastUpdateUser._id.toString();
 
-            var model = new History(data);
-
-            model.save(function (err, insertResult) {
-              result.history = insertResult;
-              done(err, result);
-            });
+            const history = await History.create(data);
+            result.history = history.toObject();
+            done(null, result);
           }
         },
       ],
