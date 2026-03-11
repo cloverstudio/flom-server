@@ -114,28 +114,30 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
       });
     }
 
-    const updatedOrder = await Order.findByIdAndUpdate(
-      order._id,
-      {
-        $set: {
+    const updateObj = {
+      $set: {
+        status: Const.orderStatus.SHIPPED,
+        "shipping.provider": shippingProvider,
+        shippedAt: Date.now(),
+        modified: Date.now(),
+      },
+      $push: {
+        events: {
           status: Const.orderStatus.SHIPPED,
-          "shipping.provider": shippingProvider,
-          ...(trackingNumber && { "shipping.trackingNumber": trackingNumber }),
-          ...(formattedFiles.length > 0 && { "shipping.files": formattedFiles }),
-          shippedAt: Date.now(),
-          modified: Date.now(),
-        },
-        $push: {
-          events: {
-            status: Const.orderStatus.SHIPPED,
-            user: relation,
-            userId,
-            timeStamp: Date.now(),
-          },
+          user: relation,
+          userId,
+          timeStamp: Date.now(),
         },
       },
-      { new: true, lean: true },
-    );
+    };
+
+    if (trackingNumber) updateObj.$set["shipping.trackingNumber"] = trackingNumber;
+    if (formattedFiles.length > 0) updateObj.$set["shipping.files"] = formattedFiles;
+
+    const updatedOrder = await Order.findByIdAndUpdate(order._id, updateObj, {
+      new: true,
+      lean: true,
+    });
 
     const responseData = { order: updatedOrder };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
