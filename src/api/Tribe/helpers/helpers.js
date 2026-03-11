@@ -97,7 +97,7 @@ const createTribeGroupChat = async ({ owner, tribeName, tribeDescription, image 
 
   const groupChatObj = groupChat.toObject();
 
-  await updateHistory.newRoom(groupChatObj);
+  updateHistory.newRoom(groupChatObj);
   socketApi.flom.emitToUser(ownerId, "new_room", { conversation: groupChatObj });
 
   return groupChatObj;

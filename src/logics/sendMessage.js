@@ -319,7 +319,7 @@ async function sendMessage(param) {
       }
       result.messagePopulated = resp[0];
 
-      await updateHistory.updateByMessage(resp[0]);
+      updateHistory.updateByMessage(resp[0]);
       await notifyNewMessage(resp[0], param);
 
       return result.messagePopulated;

@@ -46,7 +46,7 @@ module.exports = function (socket) {
         lean: true,
       });
 
-      await updateHistory.updateLastMessageStatus({
+      updateHistory.updateLastMessageStatus({
         messageId: param.messageID,
         delivered: updatedMessage.sentTo.length == updatedMessage.deliveredTo.length,
         seen: param.doNotUpdateSeenBy
@@ -58,7 +58,7 @@ module.exports = function (socket) {
       const populatedMessage = messages[0];
 
       // reset unread count
-      await updateHistory.resetUnreadCount({
+      updateHistory.resetUnreadCount({
         roomID: populatedMessage.roomID,
         userID: param.userID,
       });
