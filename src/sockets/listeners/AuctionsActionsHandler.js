@@ -370,6 +370,18 @@ module.exports = function (socket) {
             Const.resCodeAuctionGlobalBalanceTooLow,
         );
         return socket.emit("socketerror", { code: Const.resCodeAuctionGlobalBalanceTooLow });
+      } else if (
+        user.countryCode === "NG" &&
+        user.auctionPaymentMethod === Const.auctionPaymentMethodType.TRANSFER &&
+        user.satsBalance < Const.restockingFeeInSats
+      ) {
+        logger.error(
+          "bidOnAuction, user has not enough global balance - restocking fee" +
+            Const.resCodeAuctionGlobaBalanceTooLowRestockingFee,
+        );
+        return socket.emit("socketerror", {
+          code: Const.resCodeAuctionGlobaBalanceTooLowRestockingFee,
+        });
       }
 
       bidData.timeStamp = Date.now();

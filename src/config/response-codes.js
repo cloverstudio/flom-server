@@ -162,6 +162,7 @@ ResponseCodes.resCodeAuctionAuctionEnded = 4000131;
 ResponseCodes.resCodeAuctionUserHasNoAuctionPaymentMethod = 4000132;
 ResponseCodes.resCodeAuctionGlobalBalanceTooLow = 4000133;
 ResponseCodes.resCodeAuctionNoShippingAddress = 4000134;
+ResponseCodes.resCodeAuctionGlobaBalanceTooLowRestockingFee = 4000135;
 
 ResponseCodes.responsecodeFloodDetection = 4000130;
 
