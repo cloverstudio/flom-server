@@ -204,7 +204,7 @@ module.exports = function (socket) {
 
       if (uniqueBidders.length > 0) {
         await User.updateMany(
-          { _id: { $in: uniqueBidders } },
+          { _id: { $in: uniqueBidders.filter((id) => id !== userId) } },
           { $set: { auctionPaymentMethodLocked: false } },
         );
 
