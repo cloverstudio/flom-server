@@ -63,7 +63,7 @@ async function handlePayment({ auction }) {
     delete originalPrice.valueInSats;
 
     const base = DateTime.now();
-    const expirationDate = base.plus({ minutes: 30 }).toUTC().toMillis();
+    const expirationDate = base.plus({ minutes: Const.orderExpirationTime }).toUTC().toMillis();
 
     const order = await Order.create({
       seller: {

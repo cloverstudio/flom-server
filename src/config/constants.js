@@ -1265,6 +1265,8 @@ Constants.orderStatus = {
   DELIVERED: "delivered",
 };
 
+Constants.orderExpirationTime = Config.environment === "production" ? 30 : 7; // 30 minutes in production, 7 minutes otherwise
+
 Constants.shippingLimitInDays = 7;
 
 Constants.restockingFeeInSats = 1_000_000;
