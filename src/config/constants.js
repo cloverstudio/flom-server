@@ -1267,6 +1267,6 @@ Constants.orderStatus = {
 
 Constants.shippingLimitInDays = 7;
 
-Constants.restockingFeeInSats = 5000;
+Constants.restockingFeeInSats = 1_000_000;
 
 module.exports = Object.freeze(Constants);
