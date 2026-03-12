@@ -90,7 +90,7 @@ router.get("/:orderId", auth({ allowUser: true }), async function (request, resp
  * @apiParam (Query string) {String} type      Type of orders to return: "sold", "purchased", "payment_pending"
  * @apiParam (Query string) {Number} [page]    Page number for pagination (default: 1)
  * @apiParam (Query string) {Number} [size]    Number of orders per page (default: 10)
- * @apiParam (Query string) {String} [name]    Seller or product name to filter orders (case insensitive)
+ * @apiParam (Query string) {String} [search]  Seller or product name to filter orders (case insensitive)
  * @apiParam (Query string) {String} [status]  Order status to filter orders (case sensitive)
  *
  * @apiSuccessExample {json} Success Response
@@ -120,7 +120,7 @@ router.get("/:orderId", auth({ allowUser: true }), async function (request, resp
 
 router.get("/", auth({ allowUser: true }), async function (request, response) {
   try {
-    const { type, page: p, size: s, name, status } = request.query;
+    const { type, page: p, size: s, search, status } = request.query;
 
     if (!type || (type !== "sold" && type !== "purchased" && type !== "payment_pending")) {
       return Base.newErrorResponse({
@@ -143,9 +143,9 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       query = { "buyer._id": userId, status: Const.orderStatus.PAYMENT_PENDING };
     }
 
-    if (name) {
-      const sellerRegex = new RegExp(name, "i");
-      const productRegex = new RegExp(name, "i");
+    if (search) {
+      const sellerRegex = new RegExp(search, "i");
+      const productRegex = new RegExp(search, "i");
       query["$or"] = [{ "seller.name": sellerRegex }, { "products.name": productRegex }];
     }
     if (status) {
