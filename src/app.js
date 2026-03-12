@@ -35,6 +35,15 @@ app.use(
   }),
 );
 
+function isAnyElementMeetingCondition(arr, condition) {
+  for (let i = 0; i < arr.length; i++) {
+    if (condition(arr[i])) {
+      return true;
+    }
+  }
+  return false;
+}
+
 app.use(function (req, res, next) {
   const allowedOrigins = [
     ".flom.dev",
