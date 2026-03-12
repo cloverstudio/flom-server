@@ -31,6 +31,7 @@ const schema = new mongoose.Schema(
     status: { type: String, default: "payment_pending" },
     supportTicketId: String,
     supportReason: String,
+    expirationDate: Number,
     shipByDate: Number,
     shippedAt: Number,
     shipping: {

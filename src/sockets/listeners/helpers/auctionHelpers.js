@@ -1,5 +1,6 @@
 "use strict";
 
+const { DateTime } = require("luxon");
 const { logger, redis } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
@@ -61,6 +62,9 @@ async function handlePayment({ auction }) {
     const originalPrice = { ...bid };
     delete originalPrice.valueInSats;
 
+    const base = DateTime.now();
+    const expirationDate = base.plus({ minutes: 30 }).toUTC().toMillis();
+
     const order = await Order.create({
       seller: {
         _id: receiver._id.toString(),
@@ -82,6 +86,7 @@ async function handlePayment({ auction }) {
       auctionId: auction._id.toString(),
       paymentMethod: user.paymentMethod,
       status: Const.orderStatus.PAYMENT_PENDING,
+      expirationDate,
       price: originalPrice,
       shipping: {
         origin:
