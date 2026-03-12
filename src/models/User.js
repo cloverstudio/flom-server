@@ -234,6 +234,7 @@ const schema = new mongoose.Schema(
     bannedFromAuctions: { type: Boolean, default: false },
     satsBalanceReserve: [{ reserveType: String, auctionId: String, value: Number }],
     timeZone: String,
+    shippingOptions: { shippingInterval: Number },
   },
   { timestamps: true },
 );
