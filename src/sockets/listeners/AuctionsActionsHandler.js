@@ -179,7 +179,7 @@ module.exports = function (socket) {
       }
 
       const winningBid = auction.bids.sort(
-        (a, b) => b.bid.value - a.bid.value || a.bid.timeStamp - b.bid.timeStamp,
+        (a, b) => b.bid.value - a.bid.value || a.timeStamp - b.timeStamp,
       )[0];
 
       const updatedAuction = await Auction.findByIdAndUpdate(
@@ -312,9 +312,7 @@ module.exports = function (socket) {
 
       const biggestBid = !auction.bids.length
         ? null
-        : auction.bids.sort(
-            (a, b) => b.bid.value - a.bid.value || a.bid.timeStamp - b.bid.timeStamp,
-          )[0];
+        : auction.bids.sort((a, b) => b.bid.value - a.bid.value || a.timeStamp - b.timeStamp)[0];
       if (
         (biggestBid && bidData.bid <= biggestBid.bid.value) ||
         (!biggestBid && bidData.bid < auction.minPrice.value)
@@ -431,7 +429,9 @@ module.exports = function (socket) {
         );
       }
 
-      updatedAuction.winningBid = updatedAuction.bids.sort((a, b) => b.bid.value - a.bid.value)[0];
+      updatedAuction.winningBid = updatedAuction.bids.sort(
+        (a, b) => b.bid.value - a.bid.value || a.timeStamp - b.timeStamp,
+      )[0];
       updatedAuction.bidCount = updatedAuction.bids.length;
       delete updatedAuction.bids;
 
