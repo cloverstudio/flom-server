@@ -385,7 +385,7 @@ router.post("/", async (request, response) => {
           });
         }
 
-        if (type === "order_cancellation_request" && order.buyerId !== userId) {
+        if (type === "order_cancellation_request" && order.buyer._id.toString() !== userId) {
           return supportErrorResponse({
             response,
             code: Const.responsecodeUserNotAllowed,
@@ -463,7 +463,7 @@ router.post("/", async (request, response) => {
                 type === "order_cancellation_request"
                   ? Const.orderStatus.CANCELLATION_REQUESTED
                   : Const.orderStatus.SUPPORT_TICKET_OPENED,
-              user: userId === order.buyerId ? "buyer" : "seller",
+              user: userId === order.buyer._id.toString() ? "buyer" : "seller",
               userId,
               timeStamp: Date.now(),
             },

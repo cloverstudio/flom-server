@@ -59,7 +59,7 @@ router.patch(
       const orderId = request.params.orderId;
       const order = await Order.findOne({
         _id: orderId,
-        $or: [{ sellerId: userId }, { buyerId: userId }],
+        $or: [{ "seller._id": userId }, { "buyer._id": userId }],
       }).lean();
 
       if (!order) {
@@ -70,7 +70,11 @@ router.patch(
         });
       }
 
-      const relation = isAdmin ? "admin" : order.sellerId === userId ? "seller" : "buyer";
+      const relation = isAdmin
+        ? "admin"
+        : order.seller._id.toString() === userId
+        ? "seller"
+        : "buyer";
 
       const { fields, files } = await Utils.formParse(request, {
         keepExtensions: true,

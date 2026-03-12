@@ -62,8 +62,22 @@ async function handlePayment({ auction }) {
     delete originalPrice.valueInSats;
 
     const order = await Order.create({
-      sellerId: sellerId,
-      buyerId: sender._id.toString(),
+      seller: {
+        _id: receiver._id.toString(),
+        name: receiver.name,
+        userName: receiver.userName,
+        phoneNumber: receiver.phoneNumber,
+        created: receiver.created,
+        avatar: receiver.avatar,
+      },
+      buyer: {
+        _id: sender._id.toString(),
+        name: sender.name,
+        userName: sender.userName,
+        phoneNumber: sender.phoneNumber,
+        created: sender.created,
+        avatar: sender.avatar,
+      },
       products: [{ quantity: auction.quantity, ...auction.product }],
       auctionId: auction._id.toString(),
       paymentMethod: user.paymentMethod,

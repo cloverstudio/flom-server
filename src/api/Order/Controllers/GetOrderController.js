@@ -43,7 +43,7 @@ router.get("/:orderId", auth({ allowUser: true }), async function (request, resp
 
     const order = await Order.findOne({
       _id: orderId,
-      $or: [{ sellerId: userId }, { buyerId: userId }],
+      $or: [{ "seller._id": userId }, { "buyer._id": userId }],
     }).lean();
 
     if (!order) {
@@ -134,11 +134,11 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     const userId = request.user._id.toString();
     let query;
     if (type === "sold") {
-      query = { sellerId: userId };
+      query = { "seller._id": userId };
     } else if (type === "purchased") {
-      query = { buyerId: userId };
+      query = { "buyer._id": userId };
     } else if (type === "payment_pending") {
-      query = { buyerId: userId, status: Const.orderStatus.PAYMENT_PENDING };
+      query = { "buyer._id": userId, status: Const.orderStatus.PAYMENT_PENDING };
     }
     const orders = await Order.find(query)
       .sort({ created: -1 })

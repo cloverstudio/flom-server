@@ -54,7 +54,7 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
     const orderId = request.params.orderId;
     const order = await Order.findOne({
       _id: orderId,
-      $or: [{ sellerId: userId }, { buyerId: userId }],
+      $or: [{ "seller._id": userId }, { "buyer._id": userId }],
     }).lean();
 
     if (!order) {
@@ -73,7 +73,7 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
       });
     }
 
-    const relation = order.sellerId === userId ? "seller" : "buyer";
+    const relation = order.seller._id.toString() === userId ? "seller" : "buyer";
 
     if (relation === "buyer") {
       return Base.newErrorResponse({
