@@ -63,7 +63,8 @@ async function sendMessage(param) {
     if (param.localID) {
       const msg = await Message.findOne({ localID: param.localID }).lean();
       if (msg) {
-        throw new Error("Message with the same localID already exists: " + param.localID);
+        logger.info("Message with the same localID already exists: " + param.localID);
+        return null;
       }
     }
 
