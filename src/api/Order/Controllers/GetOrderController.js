@@ -87,9 +87,12 @@ router.get("/:orderId", auth({ allowUser: true }), async function (request, resp
  *
  * @apiHeader {String} access-token Users unique access token
  *
- * @apiParam (Query string) {String} type  Type of orders to return: "sold", "purchased", "payment_pending"
- * @apiParam (Query string) {Number} page  Page number for pagination (default: 1)
- * @apiParam (Query string) {Number} size  Number of orders per page (default: 10)
+ * @apiParam (Query string) {String} type           Type of orders to return: "sold", "purchased", "payment_pending"
+ * @apiParam (Query string) {Number} [page]         Page number for pagination (default: 1)
+ * @apiParam (Query string) {Number} [size]         Number of orders per page (default: 10)
+ * @apiParam (Query string) {String} [sellerName]   Seller name to filter orders (case insensitive)
+ * @apiParam (Query string) {String} [productName]  Product name to filter orders (case insensitive)
+ * @apiParam (Query string) {String} [status]       Order status to filter orders (case sensitive)
  *
  * @apiSuccessExample {json} Success Response
  * {
@@ -118,7 +121,7 @@ router.get("/:orderId", auth({ allowUser: true }), async function (request, resp
 
 router.get("/", auth({ allowUser: true }), async function (request, response) {
   try {
-    const { type, page: p, size: s } = request.query;
+    const { type, page: p, size: s, sellerName, productName, status } = request.query;
 
     if (!type || (type !== "sold" && type !== "purchased" && type !== "payment_pending")) {
       return Base.newErrorResponse({
@@ -140,6 +143,17 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     } else if (type === "payment_pending") {
       query = { "buyer._id": userId, status: Const.orderStatus.PAYMENT_PENDING };
     }
+
+    if (sellerName) {
+      query["seller.name"] = new RegExp(sellerName, "i");
+    }
+    if (productName) {
+      query["products.name"] = new RegExp(productName, "i");
+    }
+    if (status) {
+      query["status"] = status;
+    }
+
     const orders = await Order.find(query)
       .sort({ created: -1 })
       .skip((page - 1) * size)
