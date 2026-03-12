@@ -1,6 +1,6 @@
 const { Const } = require("#config");
 const { logger } = require("#infra");
-const { Message } = require("#models");
+const { FlomMessage } = require("#models");
 const socketApi = require("../socket-api");
 const { updateHistory } = require("#logics");
 
@@ -24,7 +24,7 @@ module.exports = function (socket) {
         return;
       }
 
-      const message = await Message.findById(param.messageID).lean();
+      const message = await FlomMessage.findById(param.messageID).lean();
       if (!message) {
         logger.error("openMessage socket, no message found");
         return;
@@ -41,7 +41,7 @@ module.exports = function (socket) {
         updateFields.$addToSet.seenBy = seenByRow;
       }
 
-      const updatedMessage = await Message.findByIdAndUpdate(param.messageID, updateFields, {
+      const updatedMessage = await FlomMessage.findByIdAndUpdate(param.messageID, updateFields, {
         new: true,
         lean: true,
       });
@@ -54,7 +54,7 @@ module.exports = function (socket) {
           : updatedMessage.sentTo.length == updatedMessage.seenBy.length,
       });
 
-      const messages = await Message.populateMessages([updatedMessage]);
+      const messages = await FlomMessage.populateMessages([updatedMessage]);
       const populatedMessage = messages[0];
 
       // reset unread count

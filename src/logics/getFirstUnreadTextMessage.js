@@ -1,7 +1,7 @@
 const { logger } = require("#infra");
 const { Const } = require("#config");
 const Utils = require("#utils");
-const { Message, User } = require("#models");
+const { FlomMessage, User } = require("#models");
 const notifyUpdateMessage = require("./notifyUpdateMessage");
 
 async function getFirstUnreadTextMessage({ senderPhoneNumber, receiverPhoneNumber }) {
@@ -15,7 +15,7 @@ async function getFirstUnreadTextMessage({ senderPhoneNumber, receiverPhoneNumbe
 
     const chatId = Utils.chatIdByUser(senderUser, receiverUser);
 
-    const unDeliveredMessages = await Message.find({
+    const unDeliveredMessages = await FlomMessage.find({
       roomID: chatId,
       userID: receiverUser._id.toString(),
       deliveredTo: [],
@@ -27,7 +27,7 @@ async function getFirstUnreadTextMessage({ senderPhoneNumber, receiverPhoneNumbe
       return "";
     }
 
-    await Message.updateOne(
+    await FlomMessage.updateOne(
       { _id: unDeliveredMessages[0]._id },
       {
         $set: {

@@ -202,4 +202,4 @@ schema.statics.populateMessages = async function (messages) {
   }
 };
 
-module.exports = db.db1.model("Message", schema, "flom_messages");
+module.exports = db.db1.model("FlomMessage", schema, "flom_messages");

@@ -1,7 +1,7 @@
 const { Const } = require("#config");
 const Utils = require("#utils");
 const { logger } = require("#infra");
-const { Message, History, User, Room } = require("#models");
+const { FlomMessage, History, User, Room } = require("#models");
 const socketApi = require("../socket-api");
 
 module.exports = function (socket) {
@@ -50,7 +50,7 @@ module.exports = function (socket) {
       const actionIsDelete = reactionString === "";
       let isUpdate = false;
 
-      const message = await Message.findById(messageId).lean();
+      const message = await FlomMessage.findById(messageId).lean();
       const reactions = !message.attributes
         ? []
         : !message.attributes.reactions
@@ -87,14 +87,14 @@ module.exports = function (socket) {
       };
 
       let updatedMessage = !message.attributes
-        ? await Message.findByIdAndUpdate(
+        ? await FlomMessage.findByIdAndUpdate(
             messageId,
             { attributes: attributesForNoAttrInMessage },
             {
               new: true,
             },
           )
-        : await Message.findByIdAndUpdate(
+        : await FlomMessage.findByIdAndUpdate(
             messageId,
             { "attributes.reactions.list": newReactionList },
             {
@@ -161,7 +161,7 @@ module.exports = function (socket) {
       const promiseList = [];
 
       if (actionIsDelete) {
-        const oldLastMessage = await Message.findOne({ roomID: roomId })
+        const oldLastMessage = await FlomMessage.findOne({ roomID: roomId })
           .sort({ created: -1 })
           .lean();
 

@@ -4,7 +4,7 @@ const router = require("express").Router();
 const Base = require("../../Base");
 const { Const } = require("#config");
 const { auth } = require("#middleware");
-const { Message, Favorite } = require("#models");
+const { FlomMessage, Favorite } = require("#models");
 const { populateMessages } = require("#logics");
 
 /**
@@ -256,7 +256,7 @@ router.get("/:page", auth({ allowUser: true }), async function (request, respons
       .lean();
 
     const messageIds = favorites.map((favorite) => favorite.messageId);
-    const messages = await Message.find({ _id: { $in: messageIds } }).lean();
+    const messages = await FlomMessage.find({ _id: { $in: messageIds } }).lean();
     const populatedMessages = await populateMessages(messages, request.user);
 
     const messagesMap = {};

@@ -1,6 +1,6 @@
 const { Const } = require("#config");
 const { logger } = require("#infra");
-const { User, Message } = require("#models");
+const { User, FlomMessage } = require("#models");
 const socketApi = require("../socket-api");
 const { updateHistory } = require("#logics");
 
@@ -28,7 +28,7 @@ module.exports = function (socket) {
           code: Const.resCodeSocketDeliverMessageWrongUserId,
         });
 
-      const message = await Message.findById(param.messageID).lean();
+      const message = await FlomMessage.findById(param.messageID).lean();
       if (!message)
         return socket.emit("socketerror", {
           code: Const.resCodeSocketDeliverMessageWrongMessageId,
@@ -39,7 +39,7 @@ module.exports = function (socket) {
       if (isDelivered) return;
 
       const deliveredToRow = { userId: param.userID, at: Date.now() };
-      const updatedMessage = await Message.findByIdAndUpdate(
+      const updatedMessage = await FlomMessage.findByIdAndUpdate(
         param.messageID,
         { $push: { deliveredTo: deliveredToRow } },
         { new: true },
@@ -50,7 +50,7 @@ module.exports = function (socket) {
         delivered: updatedMessage.sentTo.length == updatedMessage.deliveredTo.length,
       });
 
-      await Message.populateMessages([updatedMessage]);
+      await FlomMessage.populateMessages([updatedMessage]);
 
       // websockets
       const chatType = updatedMessage.roomID.split("-")[0];

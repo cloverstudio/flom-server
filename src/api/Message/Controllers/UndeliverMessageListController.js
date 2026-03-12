@@ -4,7 +4,7 @@ const router = require("express").Router();
 const Base = require("../../Base");
 const { Const } = require("#config");
 const { auth } = require("#middleware");
-const { Message, User } = require("#models");
+const { FlomMessage, User } = require("#models");
 
 /**
       * @api {get} /api/v2/message/undeliver/list/:chatId Get Undelivered Messages
@@ -69,8 +69,11 @@ router.get("/:chatId", auth({ allowUser: true }), async function (request, respo
     };
     if (chatId) messageQuery.roomID = chatId;
 
-    const messages = await Message.find(messageQuery).sort({ created: "desc" }).limit(100).lean();
-    const populatedMessages = await Message.populateMessages(messages);
+    const messages = await FlomMessage.find(messageQuery)
+      .sort({ created: "desc" })
+      .limit(100)
+      .lean();
+    const populatedMessages = await FlomMessage.populateMessages(messages);
 
     return Base.successResponse(response, Const.responsecodeSucceed, {
       messages: populatedMessages,

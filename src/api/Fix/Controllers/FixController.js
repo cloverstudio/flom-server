@@ -6,7 +6,7 @@ const { logger } = require("#infra");
 const { Const, Config, countries } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
-const { User, Message, Test, NonFlomContact } = require("#models");
+const { User, FlomMessage, Test, NonFlomContact } = require("#models");
 const fs = require("fs");
 const path = require("path");
 const { recombee } = require("#services");
@@ -206,7 +206,7 @@ router.get("/flom-team-data", async (request, response) => {
   try {
     const twoWeeksAgo = Math.floor(new Date().getTime() / 1000) - 14 * 24 * 60 * 60;
 
-    const messages = await Message.aggregate(
+    const messages = await FlomMessage.aggregate(
       [
         {
           $match: {

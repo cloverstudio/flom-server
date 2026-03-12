@@ -1,6 +1,6 @@
 const { logger, encryptionManager } = require("#infra");
 const { Const } = require("#config");
-const { Message, Favorite, UserContact, History } = require("#models");
+const { FlomMessage, Favorite, UserContact, History } = require("#models");
 const socketApi = require("../sockets/socket-api");
 
 const populateMessages = require("./populateMessages");
@@ -13,16 +13,16 @@ async function messageList({ userID, roomId, lastMessageId, direction, encrypt }
 
     switch (direction) {
       case Const.MessageLoadDirection.prepend:
-        messages = await Message.findOldMessages(roomId, lastMessageId, Const.pagingLimit);
+        messages = await FlomMessage.findOldMessages(roomId, lastMessageId, Const.pagingLimit);
         break;
       case Const.MessageLoadDirection.appendAnd:
-        messages = await Message.findNewMessagesCurrentInc(roomId, lastMessageId, limit);
+        messages = await FlomMessage.findNewMessagesCurrentInc(roomId, lastMessageId, limit);
         break;
       case Const.MessageLoadDirection.append:
-        messages = await Message.findNewMessages(roomId, lastMessageId, limit);
+        messages = await FlomMessage.findNewMessages(roomId, lastMessageId, limit);
         break;
       case Const.MessageLoadDirection.appendNoLimit:
-        messages = await Message.findAllMessages(roomId, lastMessageId);
+        messages = await FlomMessage.findAllMessages(roomId, lastMessageId);
         break;
       default:
         throw new Error("Invalid message list direction: " + direction);
@@ -69,7 +69,7 @@ async function messageList({ userID, roomId, lastMessageId, direction, encrypt }
       }
     }
 
-    await Message.bulkWrite(messageUpdateOperations, { ordered: false });
+    await FlomMessage.bulkWrite(messageUpdateOperations, { ordered: false });
 
     const lastMessage = messages.sort((a, b) => b.created - a.created)[0];
     if (lastMessage && lastMessage.userID != userID) {

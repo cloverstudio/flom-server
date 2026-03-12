@@ -4,7 +4,7 @@ const router = require("express").Router();
 const Base = require("../../Base");
 const { Const } = require("#config");
 const { auth } = require("#middleware");
-const { Message } = require("#models");
+const { FlomMessage } = require("#models");
 const { socketApi } = require("#sockets");
 const { updateHistory } = require("#logics");
 
@@ -37,7 +37,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     const ids = messageIds ? messageIds.split(",").map((id) => id.trim()) : [messageId];
 
-    const messages = await Message.find({ _id: { $in: ids } }).lean();
+    const messages = await FlomMessage.find({ _id: { $in: ids } }).lean();
     if (messages.length === 0) {
       return Base.successResponse(response, Const.responsecodeDeliverMessageWrongMessageId);
     }
@@ -54,7 +54,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       at: Date.now(),
     };
 
-    await Message.updateMany(
+    await FlomMessage.updateMany(
       { _id: { $in: undeliveredMessages.map((message) => message._id) } },
       { $push: { deliveredTo: deliveredToRow } },
       { multi: true },
@@ -68,7 +68,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       });
     });
 
-    const res = await Message.populateMessages(undeliveredMessages);
+    const res = await FlomMessage.populateMessages(undeliveredMessages);
     const roomIds = [...new Set(res.map((message) => message.roomID))];
 
     roomIds.forEach((roomId) => {

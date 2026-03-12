@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const } = require("#config");
 const { auth } = require("#middleware");
-const { Message } = require("#models");
+const { FlomMessage } = require("#models");
 
 /**
  * @api {get} /api/v2/message/update-request/:requestTransferId/:confirmationState Update request transfer message status
@@ -30,7 +30,7 @@ router.get(
 
       logger.info("UpdateRequestMessageController Request Id: " + id + " status: " + status);
 
-      const updatedMessage = await Message.findOneAndUpdate(
+      const updatedMessage = await FlomMessage.findOneAndUpdate(
         {
           $or: [
             { "attributes.transferInfo.requestTransferId": id },

@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { User, Message } = require("#models");
+const { User, FlomMessage } = require("#models");
 const { sendMessage } = require("#logics");
 
 /*
@@ -263,9 +263,9 @@ async function sendMsg(senderUser, receiverUser) {
 
   const chatIdFatAiIncluded = Utils.chatIdByUser(FatAiUser, receiverUser);
 
-  const oldMessages = await Message.find({ roomID: chatId });
+  const oldMessages = await FlomMessage.find({ roomID: chatId });
 
-  const oldMessagesFatAi = await Message.find({ roomID: chatIdFatAiIncluded });
+  const oldMessagesFatAi = await FlomMessage.find({ roomID: chatIdFatAiIncluded });
 
   if (!oldMessages || !oldMessages.length) {
     const messageParams = {

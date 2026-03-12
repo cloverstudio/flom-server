@@ -6,7 +6,7 @@ const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
-const { File } = require("#models");
+const { FlomFile } = require("#models");
 const fsp = require("fs/promises");
 const { handleAudioFile, handleImageFile, handleVideoFile } = require("../../Product/helpers");
 
@@ -118,7 +118,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
           mimeType: fileType.includes("webp") ? "image/webp" : "image/jpeg",
           mediaProcessingInfo: { status: "processing" },
         };
-        const newFile = await File.create(fileObj);
+        const newFile = await FlomFile.create(fileObj);
         file.fileId = newFile._id.toString();
         file.newName = newName;
 
@@ -131,7 +131,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
           mimeType: fileType.includes("webp") ? "image/webp" : "image/jpeg",
           mediaProcessingInfo: { status: "processing" },
         };
-        const thumb = await File.create(thumbObj);
+        const thumb = await FlomFile.create(thumbObj);
         file.thumbId = thumb._id.toString();
         file.newThumbName = newThumbName;
 
@@ -144,7 +144,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
           mimeType: "audio/mpeg",
           mediaProcessingInfo: { status: "processing" },
         };
-        const newFile = await File.create(fileObj);
+        const newFile = await FlomFile.create(fileObj);
         file.fileId = newFile._id.toString();
         file.newName = newName;
 
@@ -157,7 +157,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
           mimeType: "audio/mpeg",
           mediaProcessingInfo: { status: "processing" },
         };
-        const hsl = await File.create(hslObj);
+        const hsl = await FlomFile.create(hslObj);
         file.hslId = hsl._id.toString();
         file.newHslName = newHslName;
 
@@ -170,7 +170,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
           mimeType: "video/mp4",
           mediaProcessingInfo: { status: "processing" },
         };
-        const newFile = await File.create(fileObj);
+        const newFile = await FlomFile.create(fileObj);
         file.fileId = newFile._id.toString();
         file.newName = newName;
 
@@ -183,7 +183,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
           mimeType: "image/jpeg",
           mediaProcessingInfo: { status: "processing" },
         };
-        const thumb = await File.create(thumbObj);
+        const thumb = await FlomFile.create(thumbObj);
         file.thumbId = thumb._id.toString();
         file.newThumbName = newThumbName;
 
@@ -196,7 +196,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
           mimeType: "video/mp4",
           mediaProcessingInfo: { status: "processing" },
         };
-        const hsl = await File.create(hslObj);
+        const hsl = await FlomFile.create(hslObj);
         file.hslId = hsl._id.toString();
         file.newHslName = newHslName;
 
@@ -208,7 +208,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
           mimeType: "video/webm",
           mediaProcessingInfo: { status: "processing" },
         };
-        const webm = await File.create(webmObj);
+        const webm = await FlomFile.create(webmObj);
         file.webmId = webm._id.toString();
 
         fileToReturn.webm = webm.toObject();
@@ -221,7 +221,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
           created: Date.now(),
           mediaProcessingInfo: { status: "completed" },
         };
-        const newFile = await File.create(fileObj);
+        const newFile = await FlomFile.create(fileObj);
 
         fileToReturn.file = newFile.toObject();
 
@@ -252,28 +252,28 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
           fileData = await handleFunction(file);
         } catch (error) {
           if (fileId) {
-            await File.findByIdAndUpdate(fileId, {
+            await FlomFile.findByIdAndUpdate(fileId, {
               "mediaProcessingInfo.status": "failed",
               "mediaProcessingInfo.error": error.message,
             });
           }
 
           if (thumbId) {
-            await File.findByIdAndUpdate(thumbId, {
+            await FlomFile.findByIdAndUpdate(thumbId, {
               "mediaProcessingInfo.status": "failed",
               "mediaProcessingInfo.error": error.message,
             });
           }
 
           if (hslId) {
-            await File.findByIdAndUpdate(hslId, {
+            await FlomFile.findByIdAndUpdate(hslId, {
               "mediaProcessingInfo.status": "failed",
               "mediaProcessingInfo.error": error.message,
             });
           }
 
           if (webmId) {
-            await File.findByIdAndUpdate(webmId, {
+            await FlomFile.findByIdAndUpdate(webmId, {
               "mediaProcessingInfo.status": "failed",
               "mediaProcessingInfo.error": error.message,
             });
@@ -290,7 +290,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
             "mediaProcessingInfo.status": "completed",
           };
 
-          await File.findByIdAndUpdate(fileId, fileUpdate);
+          await FlomFile.findByIdAndUpdate(fileId, fileUpdate);
         }
 
         if (thumbId) {
@@ -300,7 +300,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
             "mediaProcessingInfo.status": "completed",
           };
 
-          await File.findByIdAndUpdate(thumbId, thumbUpdate);
+          await FlomFile.findByIdAndUpdate(thumbId, thumbUpdate);
         }
 
         if (hslId) {
@@ -311,7 +311,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
             "mediaProcessingInfo.status": "completed",
           };
 
-          await File.findByIdAndUpdate(hslId, hslUpdate);
+          await FlomFile.findByIdAndUpdate(hslId, hslUpdate);
         }
 
         if (webmId) {
@@ -322,7 +322,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
             "mediaProcessingInfo.status": "completed",
           };
 
-          await File.findByIdAndUpdate(webmId, webmUpdate);
+          await FlomFile.findByIdAndUpdate(webmId, webmUpdate);
         }
       }
     } catch (error) {

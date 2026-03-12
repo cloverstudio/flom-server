@@ -1,5 +1,5 @@
 const { logger } = require("#infra");
-const { Message, User } = require("#models");
+const { FlomMessage, User } = require("#models");
 
 async function markMessageDeliveredAndSeenAndNotify(message, receiverPhoneNumber) {
   try {
@@ -12,7 +12,7 @@ async function markMessageDeliveredAndSeenAndNotify(message, receiverPhoneNumber
 
     const seenBy = [...message.seenBy, { user: receiverUser._id.toString(), at: Date.now() }];
 
-    await Message.updateOne(
+    await FlomMessage.updateOne(
       { _id: message._id },
       {
         $set: {

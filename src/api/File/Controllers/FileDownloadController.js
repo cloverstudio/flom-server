@@ -2,7 +2,7 @@
 
 const router = require("express").Router();
 const { Config } = require("#config");
-const { File } = require("#models");
+const { FlomFile } = require("#models");
 const fs = require("fs");
 
 /**
@@ -18,7 +18,7 @@ router.get("/:fileId", async function (request, response) {
     const filePath = Config.uploadPath + "/" + fileId;
     const filePath2 = Config.uploadPath + "/";
 
-    const file = await File.findById(fileId);
+    const file = await FlomFile.findById(fileId);
 
     if (!file) {
       return response.status(404).send("File Not Found");

@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { Const } = require("#config");
 const { auth } = require("#middleware");
 const Utils = require("#utils");
-const { Group, User, UserContact, Room, History, Message } = require("#models");
+const { Group, User, UserContact, Room, History, FlomMessage } = require("#models");
 const { getUsersOnlineStatus, totalUnreadCount } = require("#logics");
 
 /**
@@ -533,7 +533,7 @@ async function getList(lastUpdate, page, request, searchObj = null) {
       owner: owner,
     };
 
-    const messagesSortedByDate = await Message.find({
+    const messagesSortedByDate = await FlomMessage.find({
       roomID: `5-${adminBroadcastRoom._id.toString()}`,
     })
       .sort({ created: -1 })

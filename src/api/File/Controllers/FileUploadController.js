@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { File } = require("#models");
+const { FlomFile } = require("#models");
 const mediaHandler = require("#media");
 const fs = require("fs");
 const fsp = require("fs/promises");
@@ -64,7 +64,7 @@ router.post("", async function (request, response) {
       }
     }
 
-    const newFile = await File.create({
+    const newFile = await FlomFile.create({
       name: file.name,
       mimeType: file.type,
       size: file.size,
@@ -97,7 +97,7 @@ router.post("", async function (request, response) {
           height: 256,
         });
 
-        thumbModel = await File.create({
+        thumbModel = await FlomFile.create({
           name: "thumb_" + file.name,
           mimeType: "image/jpeg",
           size: (await fsp.stat(destPathTmp)).size,

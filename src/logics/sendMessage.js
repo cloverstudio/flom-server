@@ -1,7 +1,7 @@
 const { logger, encryptionManager, redis } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { User, Message, Room, Group, BlockedChatGPTCountry } = require("#models");
+const { User, FlomMessage, Room, Group, BlockedChatGPTCountry } = require("#models");
 const socketApi = require("../sockets/socket-api");
 
 const notifyNewMessage = require("./notifyNewMessage");
@@ -61,7 +61,7 @@ async function sendMessage(param) {
     }
 
     if (param.localID) {
-      const msg = await Message.findOne({ localID: param.localID }).lean();
+      const msg = await FlomMessage.findOne({ localID: param.localID }).lean();
       if (msg) {
         logger.info("Message with the same localID already exists: " + param.localID);
         return { origMessageObj: {} };
@@ -162,7 +162,7 @@ async function sendMessage(param) {
       }
     }
 
-    const newMessage = await Message.create(objMessage);
+    const newMessage = await FlomMessage.create(objMessage);
     result.message = newMessage.toObject();
 
     if (roomID.includes(Const.FatAiObjectId) && !param.isRecursiveCall) {
@@ -308,7 +308,7 @@ async function sendMessage(param) {
       }
     }
 
-    const resp = await Message.populateMessages(result.message);
+    const resp = await FlomMessage.populateMessages(result.message);
 
     if (resp && resp[0]) {
       resp[0].localID = "";

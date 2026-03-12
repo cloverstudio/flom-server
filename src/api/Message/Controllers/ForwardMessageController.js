@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { encryptionManager } = require("#infra");
 const { Const } = require("#config");
 const { auth } = require("#middleware");
-const { Message } = require("#models");
+const { FlomMessage } = require("#models");
 const { sendMessage } = require("#logics");
 
 /**
@@ -66,7 +66,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       return Base.successResponse(response, Const.responsecodeForwardMessageInvalidMessageId);
     }
 
-    const message = await Message.findById(messageId).lean();
+    const message = await FlomMessage.findById(messageId).lean();
     if (!message) {
       return Base.successResponse(response, Const.responsecodeForwardMessageInvalidMessageId);
     }

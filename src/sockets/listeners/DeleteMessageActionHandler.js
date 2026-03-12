@@ -1,6 +1,6 @@
 const { Const } = require("#config");
 const { logger } = require("#infra");
-const { History, Message } = require("#models");
+const { History, FlomMessage } = require("#models");
 const { notifyUpdateMessage } = require("#logics");
 
 module.exports = function (socket) {
@@ -27,7 +27,7 @@ module.exports = function (socket) {
 
       const deletedMessageTimestamp = Date.now();
 
-      const message = await Message.findById(param.messageID).lean();
+      const message = await FlomMessage.findById(param.messageID).lean();
       if (!message) {
         logger.error("deleteMessage socket, no message found");
         return;
@@ -42,14 +42,14 @@ module.exports = function (socket) {
         },
       );
 
-      await Message.findByIdAndUpdate(message._id.toString(), {
+      await FlomMessage.findByIdAndUpdate(message._id.toString(), {
         message: "",
         file: null,
         location: null,
         deleted: deletedMessageTimestamp,
       });
 
-      const messages = await Message.populateMessages(message);
+      const messages = await FlomMessage.populateMessages(message);
 
       if (messages.length > 0) {
         const obj = messages[0];

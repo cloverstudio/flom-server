@@ -1,5 +1,5 @@
 const { logger } = require("#infra");
-const { Message, User } = require("#models");
+const { FlomMessage, User } = require("#models");
 
 async function getAllUsersRoomIds(phoneNumber) {
   try {
@@ -9,7 +9,7 @@ async function getAllUsersRoomIds(phoneNumber) {
       throw new Error("user doesn't exist");
     }
 
-    const messages = await Message.aggregate([
+    const messages = await FlomMessage.aggregate([
       {
         $match: {
           sentTo: receiverUser._id.toString(),

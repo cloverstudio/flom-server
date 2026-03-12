@@ -4,7 +4,7 @@ const router = require("express").Router();
 const Base = require("../../Base");
 const { Const } = require("#config");
 const { auth } = require("#middleware");
-const { Message, User } = require("#models");
+const { FlomMessage, User } = require("#models");
 
 /**
  * @api {get} /api/v2/messages Get messages flom_v1
@@ -152,7 +152,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       });
     }
 
-    const messages = await Message.find({ _id: { $in: messageIds } }).lean();
+    const messages = await FlomMessage.find({ _id: { $in: messageIds } }).lean();
 
     const filteredMessages = [];
 

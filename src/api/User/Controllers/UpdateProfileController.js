@@ -6,7 +6,7 @@ const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
-const { User, Category, Product, Message, ApiAccessLog } = require("#models");
+const { User, Category, Product, FlomMessage, ApiAccessLog } = require("#models");
 const { sendMessage, updateOrganizationDiskUsage } = require("#logics");
 const { recombee } = require("#services");
 const sharp = require("sharp");
@@ -293,7 +293,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
       const FatAiUser = await User.findOne({ _id: Const.FatAiObjectId }).lean();
       const chatIdFatAiIncluded = Utils.chatIdByUser(FatAiUser, user);
-      const oldMessagesFatAi = await Message.find({ roomID: chatIdFatAiIncluded });
+      const oldMessagesFatAi = await FlomMessage.find({ roomID: chatIdFatAiIncluded });
 
       if (
         (!oldMessagesFatAi || !oldMessagesFatAi.length) &&

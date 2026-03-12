@@ -1,5 +1,5 @@
 const { Config, Const } = require("#config");
-const { Message } = require("#models");
+const { FlomMessage } = require("#models");
 
 const { Configuration, OpenAIApi } = require("openai");
 const configuration = new Configuration({
@@ -22,7 +22,7 @@ async function callChatGPTApi(textMessage, senderPhoneNumber, receiverPhoneNumbe
   if (isFatAi) {
     //fetch old messages before openai call
 
-    var oldMessages = await Message.find({
+    var oldMessages = await FlomMessage.find({
       $or: [
         { receiverPhoneNumber: receiverPhoneNumber, senderPhoneNumber: senderPhoneNumber },
         { receiverPhoneNumber: senderPhoneNumber, senderPhoneNumber: receiverPhoneNumber },

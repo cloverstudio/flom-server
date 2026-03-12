@@ -6,7 +6,7 @@ const { logger } = require("#infra");
 const { Const } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
-const { Product, Category, User, Transaction, Message, Review } = require("#models");
+const { Product, Category, User, Transaction, FlomMessage, Review } = require("#models");
 
 /**
       * @api {post} /api/v2/product/paid/ Get Paid Products
@@ -179,7 +179,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       .skip(skip)
       .exec();
 
-    let receipts = await Message.find({
+    let receipts = await FlomMessage.find({
       _id: {
         $in: receiptIds,
       },
