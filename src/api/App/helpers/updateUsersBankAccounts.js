@@ -18,8 +18,10 @@ async function updateUsersBankAccounts({ user, test = false }) {
     try {
       accountsFromTerminalsApi = await Utils.getAllBankAccountsWithMsisdn(user.phoneNumber);
     } catch (error) {
-      console.log("updateUsersBankAccounts failed to fetch NG user's bank accounts from API");
-      console.error("updateUsersBankAccounts failed to fetch NG user's bank accounts from API");
+      if (Config.environment === "production") {
+        console.log("updateUsersBankAccounts failed to fetch NG user's bank accounts from API");
+        console.error("updateUsersBankAccounts failed to fetch NG user's bank accounts from API");
+      }
       return;
     }
 
@@ -28,7 +30,7 @@ async function updateUsersBankAccounts({ user, test = false }) {
       return !accountsFromProfile.some(
         (profileAccount) =>
           account.code === profileAccount.code &&
-          account.accountNumber === profileAccount.accountNumber
+          account.accountNumber === profileAccount.accountNumber,
       );
     });
 
@@ -55,7 +57,7 @@ async function updateUsersBankAccounts({ user, test = false }) {
         {
           $push: { bankAccounts: { $each: difference } },
           $set: { bankAccountsLastUpdated: Date.now() },
-        }
+        },
       );
     } else {
       console.log("Profile: ", accountsFromProfile);
@@ -66,7 +68,7 @@ async function updateUsersBankAccounts({ user, test = false }) {
     return;
   } catch (error) {
     console.log(
-      `Startup - updateUsersBankAccounts for ${user.phoneNumber} error: ${JSON.stringify(error)}`
+      `Startup - updateUsersBankAccounts for ${user.phoneNumber} error: ${JSON.stringify(error)}`,
     );
 
     return;
