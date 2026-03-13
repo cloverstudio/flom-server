@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
 
 function toObjectId(id) {
-  return mongoose.Types.ObjectId(id);
+  const oid = new mongoose.Types.ObjectId(`${id}`);
+  return oid;
 }
 
 module.exports = toObjectId;
