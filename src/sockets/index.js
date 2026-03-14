@@ -33,7 +33,7 @@ async function init(httpServer) {
     socket.test = "test";
     if (socket.data) socket.data.dataTest = "dataTest";
 
-    console.log("Flom socket printout: ", JSON.stringify(socket, null, 2));
+    console.log("Flom socket data printout: ", JSON.stringify(socket.data, null, 2));
 
     socket.on("disconnect", async (reason) => {
       try {
@@ -56,7 +56,7 @@ async function init(httpServer) {
     socket.test = "test";
     if (socket.data) socket.data.dataTest = "dataTest";
 
-    console.log("Auctions socket printout: ", JSON.stringify(socket, null, 2));
+    console.log("Auctions socket data printout: ", JSON.stringify(socket.data, null, 2));
 
     socket.on("disconnect", async (reason) => {});
 
