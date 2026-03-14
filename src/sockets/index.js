@@ -23,10 +23,17 @@ async function init(httpServer) {
   io.on("connection", (socket) => {
     socket.setTimeout(600000);
     console.log("Socket IO connected: ", socket.id);
+
+    socket.test = "test";
+    if (socket.data) socket.data.dataTest = "dataTest";
   });
 
   namespaces.flom.on("connection", (socket) => {
     console.log("Flom namespace connected: ", socket.id);
+    socket.test = "test";
+    if (socket.data) socket.data.dataTest = "dataTest";
+
+    console.log("Flom socket printout: ", JSON.stringify(socket, null, 2));
 
     socket.on("disconnect", async (reason) => {
       try {
@@ -46,6 +53,10 @@ async function init(httpServer) {
 
   namespaces.auctions.on("connection", (socket) => {
     console.log("Auctions namespace connected: ", socket.id);
+    socket.test = "test";
+    if (socket.data) socket.data.dataTest = "dataTest";
+
+    console.log("Auctions socket printout: ", JSON.stringify(socket, null, 2));
 
     socket.on("disconnect", async (reason) => {});
 
