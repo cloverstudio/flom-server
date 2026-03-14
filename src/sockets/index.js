@@ -20,6 +20,14 @@ async function init(httpServer) {
 
   initNamespaces(namespaces);
 
+  io.use((socket, next) => {
+    console.log("Socket IO middleware executed for socket: ", socket.id);
+    console.log("Socket IO middleware handshake: ", JSON.stringify(socket.handshake, null, 2));
+    socket.data.middlewareTest = "middlewareTest for socket " + socket.id;
+
+    next();
+  });
+
   io.on("connection", (socket) => {
     socket.setTimeout(600000);
     console.log("Socket IO connected: ", socket.id);
@@ -30,9 +38,6 @@ async function init(httpServer) {
 
   namespaces.flom.on("connection", (socket) => {
     console.log("Flom namespace connected: ", socket.id);
-    socket.test = "test";
-    if (socket.data) socket.data.dataTest = "dataTest";
-
     console.log("Flom socket data printout: ", JSON.stringify(socket.data, null, 2));
 
     socket.on("disconnect", async (reason) => {
@@ -53,9 +58,6 @@ async function init(httpServer) {
 
   namespaces.auctions.on("connection", (socket) => {
     console.log("Auctions namespace connected: ", socket.id);
-    socket.test = "test";
-    if (socket.data) socket.data.dataTest = "dataTest";
-
     console.log("Auctions socket data printout: ", JSON.stringify(socket.data, null, 2));
 
     socket.on("disconnect", async (reason) => {});
