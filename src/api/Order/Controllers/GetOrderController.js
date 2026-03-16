@@ -91,7 +91,7 @@ router.get("/:orderId", auth({ allowUser: true }), async function (request, resp
  * @apiParam (Query string) {Number} [page]    Page number for pagination (default: 1)
  * @apiParam (Query string) {Number} [size]    Number of orders per page (default: 10)
  * @apiParam (Query string) {String} [search]  Seller or product name to filter orders (case insensitive)
- * @apiParam (Query string) {String} [status]  Order status to filter orders (case sensitive)
+ * @apiParam (Query string) {String} [status]  Order status to filter orders (case sensitive). If there are multiple values, split with a comma (,). Example: "status=payment_pending,shipped"
  *
  * @apiSuccessExample {json} Success Response
  * {
@@ -120,7 +120,8 @@ router.get("/:orderId", auth({ allowUser: true }), async function (request, resp
 
 router.get("/", auth({ allowUser: true }), async function (request, response) {
   try {
-    const { type, page: p, size: s, search, status } = request.query;
+    const { type, page: p, size: s, search } = request.query;
+    const status = request.query.status ? request.query.status.split(",") : [];
 
     if (!type || (type !== "sold" && type !== "purchased" && type !== "payment_pending")) {
       return Base.newErrorResponse({
@@ -148,8 +149,8 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       const productRegex = new RegExp(search, "i");
       query["$or"] = [{ "seller.name": sellerRegex }, { "products.name": productRegex }];
     }
-    if (status) {
-      query["status"] = status;
+    if (status && status.length > 0) {
+      query["status"] = { $in: status };
     }
 
     const orders = await Order.find(query)
