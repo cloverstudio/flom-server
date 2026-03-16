@@ -21,8 +21,8 @@ async function init(httpServer) {
   initNamespaces(namespaces);
 
   io.use((socket, next) => {
-    console.log("Socket IO middleware executed for socket: ", socket.id);
-    console.log("Socket IO middleware handshake: ", JSON.stringify(socket.handshake, null, 2));
+    logger.debug("Socket IO middleware executed for socket: ", socket.id);
+    logger.debug("Socket IO middleware handshake: ", JSON.stringify(socket.handshake, null, 2));
     socket.data.middlewareTest = "middlewareTest for socket " + socket.id;
 
     next();
@@ -30,15 +30,15 @@ async function init(httpServer) {
 
   io.on("connection", (socket) => {
     socket.setTimeout(600000);
-    console.log("Socket IO connected: ", socket.id);
+    logger.debug("Socket IO connected: ", socket.id);
 
     socket.test = "test";
     if (socket.data) socket.data.dataTest = "dataTest";
   });
 
   namespaces.flom.on("connection", (socket) => {
-    console.log("Flom namespace connected: ", socket.id);
-    console.log("Flom socket data printout: ", JSON.stringify(socket.data, null, 2));
+    logger.debug("Flom namespace connected: ", socket.id);
+    logger.debug("Flom socket data printout: ", JSON.stringify(socket.data, null, 2));
 
     socket.on("disconnect", async (reason) => {
       try {
@@ -57,8 +57,8 @@ async function init(httpServer) {
   });
 
   namespaces.auctions.on("connection", (socket) => {
-    console.log("Auctions namespace connected: ", socket.id);
-    console.log("Auctions socket data printout: ", JSON.stringify(socket.data, null, 2));
+    logger.debug("Auctions namespace connected: ", socket.id);
+    logger.debug("Auctions socket data printout: ", JSON.stringify(socket.data, null, 2));
 
     socket.on("disconnect", async (reason) => {});
 
