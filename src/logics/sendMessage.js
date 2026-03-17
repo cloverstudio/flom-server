@@ -88,7 +88,7 @@ async function sendMessage(param) {
         throw new Error("check block::no user found - userIdTo: " + userIdTo);
       }
 
-      const isBlocked = toUser.blocked.includes(userID);
+      const isBlocked = toUser.blocked && toUser.blocked.includes(userID);
       if (isBlocked) {
         throw new Error("User is blocked");
       }
