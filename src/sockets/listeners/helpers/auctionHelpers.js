@@ -167,7 +167,7 @@ async function handlePayment({ auction }) {
       },
     });
 
-    return true;
+    return order;
   } catch (error) {
     logger.error("handlePayment error:", error);
     return false;

@@ -803,6 +803,7 @@ ResponseCodes.responsecodeInvalidNote = 443935;
 ResponseCodes.responsecodeNoShippingAddress = 443936;
 ResponseCodes.responsecodeInvalidAuctionId = 443937;
 ResponseCodes.responsecodeAuctionNotFound = 443938;
+ResponseCodes.responsecodeAuctionPaymentFailed = 443939;
 ResponseCodes.responsecodeOrderNotFound = 443940;
 ResponseCodes.responsecodeInvalidOrderStatus = 443941;
 ResponseCodes.responsecodeInvalidShippingInfo = 443942;

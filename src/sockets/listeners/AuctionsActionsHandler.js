@@ -426,6 +426,15 @@ module.exports = function (socket) {
           },
           { $set: { "satsBalanceReserve.$.value": valueInSats } },
         );
+      } else if (user.auctionPaymentMethod === Const.auctionPaymentMethodType.TRANSFER) {
+        await User.updateOne(
+          {
+            _id: userId,
+            "satsBalanceReserve.reserveType": "auctionBid",
+            "satsBalanceReserve.auctionId": auctionId,
+          },
+          { $set: { "satsBalanceReserve.$.value": Const.restockingFee } },
+        );
       }
 
       updatedAuction.winningBid = updatedAuction.bids.sort(
