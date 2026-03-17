@@ -392,7 +392,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       if (user.typeAcc === 1) {
         const ownerId = userId;
         const newLocation = user.location;
-        Product.updateMany({ ownerId, isDeleted: false }, { location: newLocation }, () => {});
+        Product.updateMany({ ownerId, isDeleted: false }, { location: newLocation });
       }
 
       await ApiAccessLog.create({
