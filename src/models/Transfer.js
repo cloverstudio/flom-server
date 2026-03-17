@@ -77,6 +77,7 @@ const schema = new mongoose.Schema(
     linkedProductId: String,
     recommId: String,
     auctionId: String,
+    orderId: String,
   },
   { timestamps: true },
 );

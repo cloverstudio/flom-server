@@ -134,6 +134,7 @@ Constants.messageTypeTransfer = 15;
 Constants.messageTypeGif = 114;
 Constants.messageTypeNewLiveStream = 16;
 Constants.messageTypeLiveStreamCohostInvitation = 17;
+Constants.messageTypeAuctionOffer = 18;
 
 Constants.pushTypeNewMessage = 1;
 Constants.pushTypeCall = 2;
@@ -588,9 +589,9 @@ Constants.notificationTypeMerchantApplication = 15;
 Constants.notificationTypeIdApplication = 16;
 Constants.notificationTypeNewLiveStream = 17;
 Constants.notificationTypeLiveStreamCohostInvitation = 18;
-Constants.notificationTypeAuction = 19;
+Constants.notificationTypeAuctionOffer = 19;
 
-Constants.notificationTypesFromDb = [5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 17, 18];
+Constants.notificationTypesFromDb = [5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 17, 18, 19];
 
 Constants.tribeActionUserRemoved = 1;
 Constants.tribeActionUserLeft = 2;
