@@ -320,7 +320,7 @@ module.exports = function (socket) {
         return;
       }
 
-      if (user.bannedFromAuctions) {
+      if (user.bannedFromAuctionsUntil && user.bannedFromAuctionsUntil > Date.now()) {
         logger.error(
           "bidOnAuction, user banned from auctions - " + Const.resCodeAuctionUserBannedFromAuctions,
         );
@@ -369,7 +369,6 @@ module.exports = function (socket) {
         );
         return socket.emit("socketerror", { code: Const.resCodeAuctionGlobalBalanceTooLow });
       } else if (
-        user.countryCode === "NG" &&
         user.auctionPaymentMethod === Const.auctionPaymentMethodType.TRANSFER &&
         user.satsBalance < Const.restockingFeeInSats
       ) {

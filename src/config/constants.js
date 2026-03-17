@@ -1269,6 +1269,6 @@ Constants.orderExpirationTime = Config.environment === "production" ? 30 : 7; //
 
 Constants.shippingLimitInDays = 7;
 
-Constants.restockingFeeInSats = 5_000;
+Constants.restockingFeeInSats = 2_000;
 
 module.exports = Object.freeze(Constants);
