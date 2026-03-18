@@ -552,15 +552,10 @@ async function processMedia({ productId, files }) {
         const tempPath = files[file].path;
         const fileName = files[file].name;
         let fileMimeType = files[file].type;
-        console.log("AddProductControllerV2, processing file, tempPath: " + tempPath);
-        console.log("AddProductControllerV2, processing file, fileName: " + fileName);
 
         const destPath = Config.uploadPath + "/";
-        console.log("AddProductControllerV2, processing file, destPath: " + destPath);
         const newFileName = Utils.getRandomString(32);
-        console.log("AddProductControllerV2, processing file, newFileName: " + newFileName);
         const thumbFileName = Utils.getRandomString(32);
-        console.log("AddProductControllerV2, processing file, thumbFileName: " + thumbFileName);
         const hslName = Utils.getRandomString(32);
         let convertToHslSuccess = false;
 
@@ -684,19 +679,12 @@ async function processMedia({ productId, files }) {
           width = dimensions.width;
           height = dimensions.height;
 
-          console.log(
-            "AddProductControllerV2, image dimensions, width: " + width + ", height: " + height,
-          );
-          console.log("AddProductControllerV2, sharp path: " + destPath + newFileName + ".jpg");
           await sharp(tempPath).toFile(destPath + newFileName + ".jpg");
 
           fileType = 0;
           duration = 0;
 
           let newFile = fs.statSync(destPath + newFileName + ".jpg");
-          console.log(
-            "AddProductControllerV2, image file size: " + JSON.stringify(newFile, null, 2),
-          );
 
           fileMimeType = "image/jpeg";
           fileSize = newFile.size;
