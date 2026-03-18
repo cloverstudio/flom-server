@@ -13,7 +13,14 @@ const mediaHandler = require("#media");
 const fsp = require("fs/promises");
 const fs = require("fs");
 const sharp = require("sharp");
-const { checkTribeVisibility, checkCommunityVisibility, isLanguageValid } = require("../helpers");
+const {
+  checkTribeVisibility,
+  checkCommunityVisibility,
+  isLanguageValid,
+  sendApprovedProductNotifications,
+  sendApprovedProductBonuses,
+  sendNewsletterToSubscribers,
+} = require("../helpers");
 
 /**
  * @api {post} /api/v2/product/add/new Add Product v2 flom_v1
@@ -532,6 +539,10 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     Base.successResponse(response, Const.responsecodeSucceed, productObj);
+
+    sendApprovedProductNotifications({ product: productObj, owner: request.user });
+    sendApprovedProductBonuses({ product: productObj, owner: request.user });
+    sendNewsletterToSubscribers({ product: productObj, owner: request.user });
   } catch (e) {
     if (e.message === "Error while compressing video file") {
       return Base.newErrorResponse({

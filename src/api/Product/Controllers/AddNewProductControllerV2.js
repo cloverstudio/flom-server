@@ -16,6 +16,9 @@ const {
   handleVideoFile,
   handleImageFile,
   handleAudioFile,
+  sendApprovedProductNotifications,
+  sendApprovedProductBonuses,
+  sendNewsletterToSubscribers,
 } = require("../helpers");
 
 /**
@@ -580,6 +583,10 @@ router.post(
       }
 
       Base.successResponse(response, Const.responsecodeSucceed, { product: productObj });
+
+      sendApprovedProductNotifications({ product: productObj, owner: request.user });
+      sendApprovedProductBonuses({ product: productObj, owner: request.user });
+      sendNewsletterToSubscribers({ product: productObj, owner: request.user });
     } catch (error) {
       Base.newErrorResponse({
         response,
