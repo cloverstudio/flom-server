@@ -692,7 +692,7 @@ async function processMedia({ productId, files }) {
           let thumb = await Utils.generateImageThumbnail(
             newFile,
             newFileName + ".jpg",
-            thumbFileName + ".jpg",
+            thumbFileName,
           );
 
           thumbSize = thumb.image.size;
