@@ -321,13 +321,22 @@ router.patch(
             if (file.nameOnServer) {
               const ext = file.mimeType === "video/mp4" ? ".mp4" : "";
               let path = Config.uploadPath + "/" + file.nameOnServer + ext;
-              await fsp.unlink(path);
+              try {
+                await fsp.unlink(path);
+              } catch (error) {
+                logger.error("EditProductControllerV2, error deleting file", error);
+              }
               success(file.nameOnServer + ext);
             }
 
             if (thumb.nameOnServer) {
               let thumbPath = Config.uploadPath + "/" + thumb.nameOnServer;
-              await fsp.unlink(thumbPath);
+              try {
+                await fsp.unlink(thumbPath);
+              } catch (error) {
+                logger.error("EditProductControllerV2, error deleting thumb file", error);
+              }
+
               success(thumb.nameOnServer);
             }
 
