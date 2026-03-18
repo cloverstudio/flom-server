@@ -3,6 +3,7 @@
 const { logger } = require("#infra");
 const { Const } = require("#config");
 const { Product, User } = require("#models");
+const Logics = require("#logics");
 
 async function sendApprovedProductBonuses({ product, owner }) {
   try {
@@ -11,7 +12,7 @@ async function sendApprovedProductBonuses({ product, owner }) {
     }
 
     if (product.type === Const.productTypeProduct) {
-      await sendBonus({
+      await Logics.sendBonus({
         userId: product.ownerId,
         userPhoneNumber: owner.phoneNumber,
         bonusType: Const.dataForFirstPaymentOrApprovedProduct,
@@ -20,7 +21,7 @@ async function sendApprovedProductBonuses({ product, owner }) {
         ownerId: product.ownerId,
       });
     } else {
-      await sendBonus({
+      await Logics.sendBonus({
         userId: product.ownerId,
         bonusType: Const.bonusTypeContent,
         productId: product._id.toString(),
@@ -59,7 +60,7 @@ async function sendApprovedProductBonuses({ product, owner }) {
         engagementBudgetCredits > (linkedOwner?.creditBalance || 0) &&
         creditsPerLinkedExpo > 0
       ) {
-        await sendBonus({
+        await Logics.sendBonus({
           userId: product.ownerId,
           bonusType: Const.creditsForLinkedProductInExpo,
           linkedProductId: product.linkedProductId,
