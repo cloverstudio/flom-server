@@ -6,7 +6,7 @@ module.exports = {
       exec_mode: "cluster",
       interpreter: "/home/pm2user/.nvm/versions/node/v20.19.3/bin/node",
       instances: 12,
-      log_date_format: "YYYY-MM-DD HH:mm:ss.SSS",
+      // log_date_format: "YYYY-MM-DD HH:mm:ss.SSS",
       merge_logs: true,
       env: { SERVER_TYPE: "api" },
     },
@@ -15,7 +15,7 @@ module.exports = {
       script: "./src/socket-server.js",
       exec_mode: "fork",
       interpreter: "/home/pm2user/.nvm/versions/node/v20.19.3/bin/node",
-      log_date_format: "YYYY-MM-DD HH:mm:ss.SSS",
+      // log_date_format: "YYYY-MM-DD HH:mm:ss.SSS",
       env: { SERVER_TYPE: "socket" },
     },
     {
@@ -23,7 +23,7 @@ module.exports = {
       script: "./src/rabbitmq/consumer-app.js",
       exec_mode: "fork",
       interpreter: "/home/pm2user/.nvm/versions/node/v20.19.3/bin/node",
-      log_date_format: "YYYY-MM-DD HH:mm:ss.SSS",
+      // log_date_format: "YYYY-MM-DD HH:mm:ss.SSS",
     },
   ],
 };
