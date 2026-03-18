@@ -470,7 +470,7 @@ router.post(
           return Base.newErrorResponse({
             response,
             code: Const.responsecodeLinkedProductNotFound,
-            message: `UpdateProductController, linked product not found`,
+            message: `AddNewProductControllerV2, linked product not found`,
           });
         }
       }
@@ -494,7 +494,7 @@ router.post(
         if (coordinates[0] !== 0 || coordinates[1] !== 0) {
           await ApiAccessLog.create({
             type: "LocationIQ",
-            api: "UpdateProductController",
+            api: "AddNewProductControllerV2",
             userName: request.user.userName,
             createdDate: new Date(),
           });
@@ -510,6 +510,12 @@ router.post(
         await User.findByIdAndUpdate(ownerId, { location });
       }
 
+      const moderationStatus = isDraft
+        ? Const.moderationStatusDraft
+        : owner.merchantApplicationStatus === Const.merchantApplicationStatusApprovedWithPayout
+        ? Const.moderationStatusApproved
+        : Const.moderationStatusPending;
+
       const product = await Product.create({
         name,
         description,
@@ -520,9 +526,7 @@ router.post(
         hashtags,
         location,
         address,
-        moderation: {
-          status: isDraft ? Const.moderationStatusDraft : Const.moderationStatusPending,
-        },
+        moderation: { status: moderationStatus },
         ownerId,
         parentCategoryId,
         categoryId,

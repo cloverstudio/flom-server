@@ -627,16 +627,25 @@ router.patch(
             message: `EditProductControllerV2, ${message}`,
           });
         }
-        product.moderation.status = Const.moderationStatusPending;
+        product.moderation.status =
+          user.merchantApplicationStatus === Const.merchantApplicationStatusApprovedWithPayout
+            ? Const.moderationStatusApproved
+            : Const.moderationStatusPending;
         product.created = Utils.now();
       } else if (!visibilityCheck && product.moderation.status === Const.moderationStatusApproved) {
-        product.moderation.status = Const.moderationStatusPending;
+        product.moderation.status =
+          user.merchantApplicationStatus === Const.merchantApplicationStatusApprovedWithPayout
+            ? Const.moderationStatusApproved
+            : Const.moderationStatusPending;
       } else if (
         product.moderation.status !== Const.moderationStatusDraft &&
         product.moderation.status !== Const.moderationStatusApproved &&
         product.moderation.status !== Const.moderationStatusApprovalNeeded
       ) {
-        product.moderation.status = Const.moderationStatusPending;
+        product.moderation.status =
+          user.merchantApplicationStatus === Const.merchantApplicationStatusApprovedWithPayout
+            ? Const.moderationStatusApproved
+            : Const.moderationStatusPending;
       }
 
       const allowEngagementBonus =
@@ -662,7 +671,7 @@ router.patch(
         return Base.newErrorResponse({
           response,
           code: Const.responsecodeCreditsEngagementBonusLargerThanCreditBalance,
-          message: `AddNewProductController, engagement budget in credits larger than credits balance`,
+          message: `EditProductControllerV2, engagement budget in credits larger than credits balance`,
         });
       }
       if (engagementBudgetCredits !== undefined) {

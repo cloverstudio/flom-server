@@ -217,7 +217,8 @@ router.patch(
   async function (request, response) {
     try {
       const { productId } = request.params;
-      const requestUserId = request.user._id.toString();
+      const user = request.user;
+      const requestUserId = user._id.toString();
       const isAdmin = request.isAdmin;
 
       if (!Utils.isValidObjectId(productId)) {
@@ -500,17 +501,26 @@ router.patch(
           });
         }
 
-        product.moderation.status = Const.moderationStatusPending;
+        product.moderation.status =
+          user.merchantApplicationStatus === Const.merchantApplicationStatusApprovedWithPayout
+            ? Const.moderationStatusApproved
+            : Const.moderationStatusPending;
         product.created = Utils.now();
       } else if (!visibilityCheck && product.moderation.status === Const.moderationStatusApproved) {
-        product.moderation.status = Const.moderationStatusPending;
+        product.moderation.status =
+          user.merchantApplicationStatus === Const.merchantApplicationStatusApprovedWithPayout
+            ? Const.moderationStatusApproved
+            : Const.moderationStatusPending;
       } else if (
         product.moderation.status !== Const.moderationStatusDraft &&
         product.moderation.status !== Const.moderationStatusApproved &&
         product.moderation.status !== Const.moderationStatusApprovalNeeded &&
         !deleteImage
       ) {
-        product.moderation.status = Const.moderationStatusPending;
+        product.moderation.status =
+          user.merchantApplicationStatus === Const.merchantApplicationStatusApprovedWithPayout
+            ? Const.moderationStatusApproved
+            : Const.moderationStatusPending;
       }
 
       const { tags } = fields;

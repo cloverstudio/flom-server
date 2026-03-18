@@ -446,7 +446,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     product.type = +type;
     product.visibility = visibility;
     product.moderation = {
-      status: isDraft ? Const.moderationStatusDraft : Const.moderationStatusPending,
+      status: isDraft
+        ? Const.moderationStatusDraft
+        : user.merchantApplicationStatus === Const.merchantApplicationStatusApprovedWithPayout
+        ? Const.moderationStatusApproved
+        : Const.moderationStatusPending,
     };
     product.language = language;
 
