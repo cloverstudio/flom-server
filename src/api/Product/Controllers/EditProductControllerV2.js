@@ -885,7 +885,11 @@ async function processMedia({ productId, product, files }) {
         fileMimeType = "image/jpeg";
         fileSize = newFile.size;
 
-        let thumb = await Utils.generateImageThumbnail(newFile, newFileName, thumbFileName);
+        let thumb = await Utils.generateImageThumbnail(
+          newFile,
+          newFileName + ".jpg",
+          thumbFileName + ".jpg",
+        );
         aspectRatio = thumb.originalRatio;
         thumbSize = thumb.image.size;
         thumbMimeType = "image/jpeg";

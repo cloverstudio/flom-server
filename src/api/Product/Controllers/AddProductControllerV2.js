@@ -701,7 +701,11 @@ async function processMedia({ productId, files }) {
           fileMimeType = "image/jpeg";
           fileSize = newFile.size;
 
-          let thumb = await Utils.generateImageThumbnail(newFile, newFileName, thumbFileName);
+          let thumb = await Utils.generateImageThumbnail(
+            newFile,
+            newFileName + ".jpg",
+            thumbFileName + ".jpg",
+          );
 
           thumbSize = thumb.image.size;
           thumbMimeType = "image/jpeg";
