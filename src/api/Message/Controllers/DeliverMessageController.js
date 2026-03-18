@@ -28,16 +28,14 @@ const { updateHistory } = require("#logics");
 
 router.post("/", auth({ allowUser: true }), async function (request, response) {
   try {
-    const messageIds = request.body.messageIds;
-    const messageId = request.body.messageId;
+    const messageId = request.body.messageIds || request.body.messageId;
+    const messageIds = messageId ? messageId.split(",").map((id) => id.trim()) : null;
     const user = request.user;
-    if (!messageIds && !messageId) {
+    if (!messageIds || messageIds.length === 0) {
       return Base.successResponse(response, Const.responsecodeDeliverMessageNoMessageId);
     }
 
-    const ids = messageIds ? messageIds.split(",").map((id) => id.trim()) : [messageId];
-
-    const messages = await FlomMessage.find({ _id: { $in: ids } }).lean();
+    const messages = await FlomMessage.find({ _id: { $in: messageIds } }).lean();
     if (messages.length === 0) {
       return Base.successResponse(response, Const.responsecodeDeliverMessageWrongMessageId);
     }
