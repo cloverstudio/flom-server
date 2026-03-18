@@ -181,6 +181,10 @@ router.get("/emojis/:emojiName", async function (request, response) {
     const filePath = path.resolve(Config.uploadPath, "flomojis", fileName);
     const filePathDeleted = path.resolve(Config.uploadPath, "flomojis", "deleted", fileName);
 
+    console.log("Serving bless emoji:", fileName);
+    console.log("File path:", filePath);
+    console.log("File path deleted:", filePathDeleted);
+
     try {
       await fsp.access(filePath);
       response.sendFile(filePath);
