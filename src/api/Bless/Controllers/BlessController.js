@@ -186,28 +186,26 @@ router.get("/emojis/:emojiName", async function (request, response) {
     console.log("File path deleted:", filePathDeleted);
 
     try {
-      await fsp.access(filePath);
-      response.sendFile(filePath);
+      await fsp.access(filePath, fsp.constants.R_OK);
+      return response.sendFile(filePath);
     } catch (error) {
       if (error.code !== "ENOENT") {
         throw error;
       }
+      console.log("ENOENT 1");
     }
 
     try {
-      await fsp.access(filePathDeleted);
-      response.sendFile(filePathDeleted);
+      await fsp.access(filePathDeleted, fsp.constants.R_OK);
+      return response.sendFile(filePathDeleted);
     } catch (error) {
-      if (error.code === "ENOENT") {
-        return Base.successResponse(
-          response,
-          Const.responsecodeFileNotFound,
-          "BlessController",
-          error,
-        );
+      if (error.code !== "ENOENT") {
+        throw error;
       }
-      throw error;
+      console.log("ENOENT 2");
     }
+
+    return Base.successResponse(response, Const.responsecodeFileNotFound, "BlessController", error);
   } catch (error) {
     return Base.errorResponse(response, Const.httpCodeServerError, "BlessController", error);
   }
