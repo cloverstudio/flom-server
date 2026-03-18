@@ -21,8 +21,10 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       message.userID = userId;
 
       const messageObj = await sendMessage(message);
-      console.log("ForwardMessagesController: messageObj", JSON.stringify(messageObj, null, 2));
-      messageList.push({ _id: messageObj._id.toString(), created: messageObj.created });
+
+      if (messageObj && messageObj._id) {
+        messageList.push({ _id: messageObj._id.toString(), created: messageObj.created });
+      }
     }
 
     return Base.successResponse(response, Const.responsecodeSucceed, { messages: messageList });
