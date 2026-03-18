@@ -24,7 +24,7 @@ router.get("/:logoFileName", async function (request, response) {
     const defaultPath = path.join(Config.paymentMethodLogoPath, "payment-1.png");
 
     try {
-      await fsp.access(filePath);
+      await fsp.access(filePath, fsp.constants.R_OK);
       return response.sendFile(filePath);
     } catch (error) {
       if (error.code !== "ENOENT") {
@@ -33,7 +33,7 @@ router.get("/:logoFileName", async function (request, response) {
     }
 
     try {
-      await fsp.access(defaultPath);
+      await fsp.access(defaultPath, fsp.constants.R_OK);
       return response.sendFile(defaultPath);
     } catch (error) {
       if (error.code !== "ENOENT") {

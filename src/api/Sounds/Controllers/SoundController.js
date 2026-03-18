@@ -47,7 +47,7 @@ router.get("/:fileName", async (request, response) => {
     const filePath = `${Config.uploadPath}/sounds/${fileName}`;
 
     try {
-      await fsp.access(filePath);
+      await fsp.access(filePath, fsp.constants.R_OK);
 
       if (fileName.includes(".mp3")) response.contentType("audio/mpeg");
       // if (fileName.includes("m3u8")) response.contentType("application/x-mpegURL");

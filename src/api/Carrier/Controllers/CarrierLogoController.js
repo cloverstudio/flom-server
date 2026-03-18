@@ -21,8 +21,8 @@ router.get("/:carrierName", async function (request, response) {
     const filePath = Config.carrierLogoPath + "/" + carrierName + ".png";
 
     try {
-      await fsp.access(filePath);
-      response.sendFile(filePath);
+      await fsp.access(filePath, fsp.constants.R_OK);
+      return response.sendFile(filePath);
     } catch (error) {
       if (error.code !== "ENOENT") {
         throw error;
@@ -33,14 +33,14 @@ router.get("/:carrierName", async function (request, response) {
       const defaultCarrierName = carrierName.slice(0, -3).toLowerCase();
       const defaultCarrierFilePath = Config.carrierLogoPath + "/" + defaultCarrierName + ".png";
 
-      await fsp.access(defaultCarrierFilePath);
-      response.sendFile(defaultCarrierFilePath);
+      await fsp.access(defaultCarrierFilePath, fsp.constants.R_OK);
+      return response.sendFile(defaultCarrierFilePath);
     } catch (error) {
-      if (error.code === "ENOENT") {
-        logger.warn(`CarrierLogoController - Default logo for ${carrierName}.png not found...`);
-        response.sendStatus(404);
+      if (error.code !== "ENOENT") {
+        throw error;
       }
-      throw error;
+      logger.warn(`CarrierLogoController - Default logo for ${carrierName}.png not found...`);
+      return response.sendStatus(404);
     }
   } catch (error) {
     return Base.errorResponse(response, Const.httpCodeServerError, "CarrierLogoController", error);
