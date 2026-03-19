@@ -14,7 +14,7 @@ const sendNotifications = async function ({ product, owner }) {
       return;
     }
 
-    const sender = await User.findOne({ _id: Config.flomSupportUserId }).lean();
+    const sender = await User.findOne({ _id: Config.flomSupportAgentId }).lean();
 
     await notifyProductOwner({ product, owner, sender });
 

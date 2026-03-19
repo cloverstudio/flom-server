@@ -355,7 +355,7 @@ async function notifyUsersContactHasRegistered({ user }) {
 
   const fixedPushMessageText = Utils.replaceAll(pushMessageText, "[User]", user.userName);
 
-  const flomAgent = await User.findById(Config.flomSupportUserId).lean();
+  const flomAgent = await User.findById(Config.flomSupportAgentId).lean();
 
   for (const flomUser of usersToNotify) {
     try {

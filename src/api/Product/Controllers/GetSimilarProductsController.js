@@ -116,7 +116,7 @@ const { Product, User, Tribe, Category } = require("#models");
  *                     },
  *                     "locationVisibility": false,
  *                     "isAppUser": true,
- *                     "flomAgentId": null,
+ *                     "flomSupportAgentId": null,
  *                     "newUserNotificationSent": true,
  *                     "followedBusinesses": [
  *                         "6139cd7848c6c40f4dffb04a"

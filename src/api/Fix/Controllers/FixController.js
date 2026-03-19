@@ -163,7 +163,7 @@ router.get("/push", async function (request, response) {
       });
     }
 
-    const flomAgent = await User.findById(Config.flomSupportUserId).lean();
+    const flomAgent = await User.findById(Config.flomSupportAgentId).lean();
 
     const message = `Test for push type: ${pushType}, isMuted: ${mute}`;
 
@@ -294,7 +294,7 @@ router.get("/pushtest/:pushType", async (request, response) => {
     const pushType = +request.params.pushType;
 
     const user = await User.findOne({ phoneNumber: "+385958710207" }).lean();
-    const sender = await User.findById(process.env.SUPPORT_USER_ID).lean();
+    const sender = await User.findById(Config.flomSupportAgentId).lean();
 
     await Utils.sendFlomPush({
       newUser: sender,

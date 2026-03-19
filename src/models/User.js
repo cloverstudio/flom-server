@@ -104,7 +104,7 @@ const schema = new mongoose.Schema(
     businessCategory: { _id: String, name: String },
     workingHours: { start: String, end: String },
     isAppUser: { type: Boolean, default: true },
-    flomAgentId: { type: String, default: null },
+    flomSupportAgentId: { type: String, default: null },
     newUserNotificationSent: { type: Boolean, default: false },
     followedBusinesses: [String],
     likedProducts: [String],

@@ -63,6 +63,15 @@ router.post("/", async (request, response) => {
       return Base.successResponse(response, Const.responsecodeNoActivationCode);
     }
 
+    if (Const.flomAgentPhoneNumbers.includes(phoneNumber)) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeInvalidPhoneNumber,
+        type: Const.logTypeLogin,
+        message: `PhoneNumberValidationController, ${phoneNumber} invalid phone number`,
+      });
+    }
+
     let user = await User.findOne({ phoneNumber: phoneNumber }).lean();
 
     if (!user) {
@@ -88,7 +97,7 @@ router.post("/", async (request, response) => {
       return Base.successResponse(response, Const.responsecodeSignupInvalidActivationCode);
     }
 
-    const senderUser = await User.findOne({ _id: Config.flomSupportUserId }).lean();
+    const senderUser = await User.findOne({ _id: Config.flomSupportAgentId }).lean();
 
     await sendMsg(senderUser, user);
 

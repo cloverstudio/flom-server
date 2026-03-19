@@ -17,7 +17,7 @@ async function sendPushForUnreadMessages() {
 
     const userIds = usersToNotify.map((user) => user._id.toString());
 
-    const flomAgent = await User.findById(Config.flomSupportUserId).lean();
+    const flomAgent = await User.findById(Config.flomSupportAgentId).lean();
 
     const unreadCounts = await History.aggregate([
       {

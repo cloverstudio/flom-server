@@ -71,7 +71,8 @@ Config.webClientUrl = process.env.WEB_CLIENT_URL;
 Config.devWebClientUrl = "https://v1.flom.dev";
 Config.adminPageUrl = process.env.ADMIN_PAGE_URL;
 
-Config.flomSupportUserId = process.env.SUPPORT_USER_ID;
+Config.flomSupportAgentId = process.env.SUPPORT_AGENT_ID;
+Config.flomSettlementAgentId = process.env.SETTLEMENT_AGENT_ID;
 
 Config.authorizeApiLoginId = process.env.AUTHORIZE_LOGIN_ID;
 Config.authorizeTransactionKey = process.env.AUTHORIZE_TRANSACTION_KEY;

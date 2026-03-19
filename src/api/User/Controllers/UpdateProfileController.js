@@ -100,7 +100,7 @@ const fsp = require("fs/promises");
  *       },
  *       "locationVisibility": true,
  *       "isAppUser": true,
- *       "flomAgentId": null,
+ *       "flomSupportAgentId": null,
  *       "newUserNotificationSent": false,
  *       "followedBusinesses": [],
  *       "likedProducts": [],

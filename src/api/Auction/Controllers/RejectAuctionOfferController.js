@@ -2,7 +2,7 @@
 
 const router = require("express").Router();
 const Base = require("../../Base");
-const { Const } = require("#config");
+const { Const, Config } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
 const { Auction, Order, User, Transfer, FlomMessage, Notification } = require("#models");
@@ -78,7 +78,7 @@ router.get("/:auctionId/reject", auth({ allowUser: true }), async function (requ
 
     if (order) {
       const restockingFee = Const.restockingFee;
-      const flomAgent = await User.findById(process.env.FLOM_AGENT_ID).lean();
+      const flomAgent = await User.findById(Config.flomSettlementAgentId).lean();
       const receiver = await User.findById(order.seller._id).lean();
 
       const receiverFee = Math.ceil(0.7 * restockingFee);

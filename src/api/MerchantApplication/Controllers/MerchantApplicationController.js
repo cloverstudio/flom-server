@@ -1128,7 +1128,7 @@ async function sendNotifications({
     title,
     text: approvalComment,
     receiverIds: [userId],
-    senderId: Config.flomSupportUserId,
+    senderId: Config.flomSupportAgentId,
     referenceId: merchantApplicationId,
     notificationType: Const.notificationTypeMerchantApplication,
     status,

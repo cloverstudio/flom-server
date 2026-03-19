@@ -57,7 +57,7 @@ async function sendBonusPayout({ userId, bonusType, productId, conversionRatesTo
 
     if (!amount) {
       logger.error(
-        `sendBonusPayout, ${bonusType} approval amount not set in customer activation admin panel`
+        `sendBonusPayout, ${bonusType} approval amount not set in customer activation admin panel`,
       );
       return;
     }
@@ -225,10 +225,10 @@ async function sendSatsBonus({
   const userAmount = Utils.roundNumber(amountForTransfer * userRate, 2);
 
   const { phoneNumber: flomAgentPhoneNumber } =
-    (await User.findById(Config.flomSupportUserId).lean()) || {};
+    (await User.findById(Config.flomSupportAgentId).lean()) || {};
 
   const transferData = {
-    senderId: Config.flomSupportUserId,
+    senderId: Config.flomSupportAgentId,
     senderPhoneNumber: flomAgentPhoneNumber || "FLOM",
     receiverId: user._id.toString(),
     receiverPhoneNumber: user.phoneNumber,
@@ -277,12 +277,12 @@ async function sendPayoutRequest({ payoutRequest, token = null }) {
 }
 
 async function handleNotifications({ user, bonusType, message, sendSmsNotificationForBonus }) {
-  const flomAgent = await User.findById(Config.flomSupportUserId).lean();
+  const flomAgent = await User.findById(Config.flomSupportAgentId).lean();
 
   await Notification.create({
     receiverIds: [user._id.toString()],
     title: `You received a bonus from Flom for approved ` + bonusType.replace("-", " "),
-    senderId: Config.flomSupportUserId,
+    senderId: Config.flomSupportAgentId,
     notificationType: Const.notificationTypeBonus,
     created: Date.now(),
   });

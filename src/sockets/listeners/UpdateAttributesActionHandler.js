@@ -71,7 +71,7 @@ module.exports = function (socket) {
         const message = `Offer${stub}for item ${productName}`;
 
         Utils.sendFlomPush({
-          senderId: Config.flomSupportUserId,
+          senderId: Config.flomSupportAgentId,
           receiverId: receiver1,
           message,
           messageiOs: message,
@@ -81,7 +81,7 @@ module.exports = function (socket) {
         });
 
         Utils.sendFlomPush({
-          senderId: Config.flomSupportUserId,
+          senderId: Config.flomSupportAgentId,
           receiverId: receiver2,
           message,
           messageiOs: message,

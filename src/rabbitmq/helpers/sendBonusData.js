@@ -82,7 +82,7 @@ async function sendBonusData({
 
       if (!bonusDataPackage) {
         logger.error(
-          `sendBonusData - default data package not found in db for number: ${phoneNumber} and operator: ${operator}`
+          `sendBonusData - default data package not found in db for number: ${phoneNumber} and operator: ${operator}`,
         );
         return;
       }
@@ -116,7 +116,7 @@ async function sendBonusData({
 
         if (
           biWeeklyPlanStringsArray.some((el) =>
-            package.name.toLowerCase().includes(el.toLowerCase())
+            package.name.toLowerCase().includes(el.toLowerCase()),
           )
         ) {
           biWeeklyPackages.push(package);
@@ -159,7 +159,7 @@ async function sendBonusData({
 
     if (!amount) {
       logger.error(
-        `sendBonusData - Data package not found for this phonenumber's carrier: ${phoneNumber}, no bonus package awarded`
+        `sendBonusData - Data package not found for this phonenumber's carrier: ${phoneNumber}, no bonus package awarded`,
       );
       return;
     }
@@ -169,19 +169,19 @@ async function sendBonusData({
 
     if (amountUSD > maxAmountPerUser) {
       logger.error(
-        "sendBonusData - Price of smallest monthly data package higher than maxAmountPerUser"
+        "sendBonusData - Price of smallest monthly data package higher than maxAmountPerUser",
       );
       return;
     }
     if (amount > maxAmountNGN) {
       logger.error(
-        `sendBonusData - Price of smallest monthly data package higher than maximum for this bonus type: ${maxAmountNGN} NGN`
+        `sendBonusData - Price of smallest monthly data package higher than maximum for this bonus type: ${maxAmountNGN} NGN`,
       );
       return;
     }
     if (totalSpending + amountUSD > totalSpendingCap) {
       logger.error(
-        "sendBonusData - package price goes over totalSpendingCap, data package will not be added"
+        "sendBonusData - package price goes over totalSpendingCap, data package will not be added",
       );
       return;
     }
@@ -194,10 +194,10 @@ async function sendBonusData({
       }
     }
 
-    const flomAgent = await User.findById(Config.flomSupportUserId).lean();
+    const flomAgent = await User.findById(Config.flomSupportAgentId).lean();
 
     const transferData = {
-      senderId: Config.flomSupportUserId,
+      senderId: Config.flomSupportAgentId,
       senderPhoneNumber: flomAgent.phoneNumber || "FLOM",
       receiverId: userId,
       receiverPhoneNumber: phoneNumber,

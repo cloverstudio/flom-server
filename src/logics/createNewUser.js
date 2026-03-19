@@ -33,7 +33,7 @@ async function createNewUser(userData, raw) {
       user.currency = Utils.getCurrencyFromCountryCode({ countryCode: user.countryCode, rates });
     user.phoneNumberStatus = phoneNumberStatus;
     user.deviceType = deviceType;
-    user.followedBusinesses = [Config.flomSupportUserId];
+    user.followedBusinesses = [Config.flomSupportAgentId];
 
     let stringExists = false;
     const regexTerminalCode = /[^0-9]/g;

@@ -1274,4 +1274,6 @@ Constants.shippingLimitInDays = 7;
 
 Constants.restockingFeeInSats = 2_000;
 
+Constants.flomAgentPhoneNumbers = ["+2348888888888", "+2349999999999"];
+
 module.exports = Object.freeze(Constants);

@@ -68,7 +68,7 @@ const { formatUserDetailsResponse, sendBonus } = require("#logics");
  *       },
  *       "locationVisibility": false,
  *       "isAppUser": true,
- *       "flomAgentId": null,
+ *       "flomSupportAgentId": null,
  *       "newUserNotificationSent": true,
  *       "followedBusinesses": [],
  *       "likedProducts": [

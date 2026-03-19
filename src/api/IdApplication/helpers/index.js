@@ -80,7 +80,7 @@ async function sendNotifications({ userId, approvalStatus, approvalComment, idAp
     title,
     text: approvalComment,
     receiverIds: [userId],
-    senderId: Config.flomSupportUserId,
+    senderId: Config.flomSupportAgentId,
     referenceId: idApplicationId,
     notificationType: Const.notificationTypeIdApplication,
     status,

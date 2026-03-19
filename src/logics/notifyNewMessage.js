@@ -120,7 +120,7 @@ async function notifyNewMessage(obj, originalRequestData) {
         ],
       }).lean();
 
-      const flomAgent = await User.findById(Config.flomSupportUserId).lean();
+      const flomAgent = await User.findById(Config.flomSupportAgentId).lean();
       socketApi.flom.emitToRoom(flomAgent, "newmessage", messageCloned);
 
       for (const user of usersToNotify) {

@@ -259,7 +259,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
         addNotifPromiseList.push(
           Notification.create({
             receiverIds: [member.userId],
-            senderId: Config.flomSupportUserId,
+            senderId: Config.flomSupportAgentId,
             notificationType: 11,
             title: `You have been removed from ${
               membershipObject[member.membershipId]

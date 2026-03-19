@@ -281,7 +281,7 @@ async function getPaymentData({ sender, auctionPaymentMethod }) {
 
 async function sendNotifications({ order, sender, receiver, localAmountSender }) {
   await Utils.sendFlomPush({
-    senderId: Config.flomSupportUserId,
+    senderId: Config.flomSupportAgentId,
     receiverUser: sender,
     message: `You have won an auction, and an order has been prepared.`,
     messageiOs: `You have won an auction, and an order has been prepared.`,
@@ -290,7 +290,7 @@ async function sendNotifications({ order, sender, receiver, localAmountSender })
     orderId: order._id.toString(),
   });
   await Utils.sendFlomPush({
-    senderId: Config.flomSupportUserId,
+    senderId: Config.flomSupportAgentId,
     receiverUser: receiver,
     message: `You have sold an auction, and an order has been prepared.`,
     messageiOs: `You have sold an auction, and an order has been prepared.`,

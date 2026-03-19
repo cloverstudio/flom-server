@@ -36,7 +36,7 @@ const { getMerchantsPhoneNumber, createNewUser } = require("#logics");
 							"permission": 2,
 							"userName": "toyosi",
 							"invitationUri": "https://flom.page.link/cuHQhwCqxxW1d8vt9",
-							"flomAgentId": null,
+							"flomSupportAgentId": null,
 							"createdBusinessInFlom": true
 					}
 				}

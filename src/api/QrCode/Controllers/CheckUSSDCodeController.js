@@ -152,7 +152,7 @@ router.post("/", async function (request, response) {
           typeAcc: user.typeAcc,
         };
 
-        const supportUser = await User.findById(Config.flomSupportUserId).lean();
+        const supportUser = await User.findById(Config.flomSupportAgentId).lean();
         dataToSend.supportUser = supportUser;
       }
     }

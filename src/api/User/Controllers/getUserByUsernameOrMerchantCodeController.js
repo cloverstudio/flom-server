@@ -79,7 +79,7 @@ const { formatUserDetailsResponse } = require("#logics");
  *             ]
  *         },
  *         "isAppUser": true,
- *         "flomAgentId": null,
+ *         "flomSupportAgentId": null,
  *         "newUserNotificationSent": true,
  *         "followedBusinesses": [
  *             "6101140dcbf8f756d06168fd",

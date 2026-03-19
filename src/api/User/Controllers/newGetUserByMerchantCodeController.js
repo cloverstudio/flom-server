@@ -95,7 +95,7 @@ const { User } = require("#models");
  *       },
  *       "locationVisibility": false,
  *       "isAppUser": true,
- *       "flomAgentId": null,
+ *       "flomSupportAgentId": null,
  *       "newUserNotificationSent": true,
  *       "followedBusinesses": [
  *         "6008f4f52639cf0b1829dd49",

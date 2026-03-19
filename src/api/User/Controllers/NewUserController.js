@@ -288,7 +288,7 @@ router.get("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (reque
  *                 ]
  *             },
  *             "isAppUser": true,
- *             "flomAgentId": null,
+ *             "flomSupportAgentId": null,
  *             "newUserNotificationSent": false,
  *             "followedBusinesses": [],
  *             "likedProducts": [],

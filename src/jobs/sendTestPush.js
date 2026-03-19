@@ -9,7 +9,7 @@ module.exports = async () => {
 
     console.log(user.userName);
 
-    const flomAgent = await User.findById(Config.flomSupportUserId).lean();
+    const flomAgent = await User.findById(Config.flomSupportAgentId).lean();
 
     console.log(flomAgent.userName);
 

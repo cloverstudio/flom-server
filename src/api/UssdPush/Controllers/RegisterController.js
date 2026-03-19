@@ -102,7 +102,7 @@ async function getUserId(rawPhoneNumber) {
       rates,
     });
   }
-  user.followedBusinesses = [Config.flomSupportUserId];
+  user.followedBusinesses = [Config.flomSupportAgentId];
 
   let stringExists = false;
   const regexTerminalCode = /[^0-9]/g;
@@ -165,10 +165,10 @@ async function getUserId(rawPhoneNumber) {
 }
 
 async function sendMsg(receiverUser) {
-  if (Config.flomSupportUserId !== receiverUser._id.toString()) {
+  if (Config.flomSupportAgentId !== receiverUser._id.toString()) {
     return;
   }
-  const senderUser = await User.findOne({ _id: Config.flomSupportUserId }).lean();
+  const senderUser = await User.findOne({ _id: Config.flomSupportAgentId }).lean();
 
   const chatId = Utils.chatIdByUser(senderUser, receiverUser);
 
