@@ -6,7 +6,7 @@ const { logger } = require("#infra");
 const { Const } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
-const { Auction } = require("#models");
+const { Auction, FlomMessage, Notification } = require("#models");
 const { handlePayment } = require("../../../sockets/listeners/helpers/auctionHelpers");
 
 /**
@@ -37,6 +37,7 @@ const { handlePayment } = require("../../../sockets/listeners/helpers/auctionHel
  * @apiError (Errors) 443938 Auction not found
  * @apiError (Errors) 443858 User not allowed (not winning bidder)
  * @apiError (Errors) 443939 Auction payment failed
+ * @apiError (Errors) 443946 Auction already resolved
  * @apiError (Errors) 4000007 Token invalid
  */
 
@@ -70,6 +71,14 @@ router.get("/:auctionId/accept", auth({ allowUser: true }), async function (requ
       });
     }
 
+    if (auction.status !== Const.auctionStatus.FINISHED) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeAuctionAlreadyResolved,
+        message: `AcceptAuctionOfferController, auction has already been resolved`,
+      });
+    }
+
     await Auction.findByIdAndUpdate(auctionId, {
       $set: { status: Const.auctionStatus.SOLD, modified: Date.now() },
     });
@@ -86,6 +95,15 @@ router.get("/:auctionId/accept", auth({ allowUser: true }), async function (requ
 
     logger.info(
       `AcceptAuctionOfferController, order created for auction id ${auctionId}, order id ${order._id.toString()}`,
+    );
+
+    await FlomMessage.updateMany(
+      { "attributes.auctionInfo._id": auctionId },
+      { $set: { "attributes.status": "accepted" } },
+    );
+    await Notification.updateMany(
+      { referenceId: auctionId, notificationType: Const.notificationTypeAuctionOffer },
+      { $set: { offerStatus: "accepted" } },
     );
 
     const responseData = { order };

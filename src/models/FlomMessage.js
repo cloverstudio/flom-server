@@ -44,6 +44,8 @@ const schema = new mongoose.Schema(
   { timestamps: true },
 );
 
+schema.index({ "attributes.auctionInfo._id": 1 });
+
 schema.statics.findOldMessages = async function (roomID, lastMessageID, limit) {
   try {
     const query = { roomID: roomID };

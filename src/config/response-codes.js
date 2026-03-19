@@ -794,6 +794,7 @@ ResponseCodes.responsecodeCreditsEngagementBonusLargerThanCreditBalance = 443926
 ResponseCodes.responsecodeInvalidTargetType = 443927;
 ResponseCodes.responsecodeInvalidTargetId = 443928;
 ResponseCodes.responsecodeUserIsBlockedFromCreatingLiveStreams = 443929;
+
 ResponseCodes.responsecodeInvalidDuration = 443930;
 ResponseCodes.responsecodeInvalidQuantity = 443931;
 ResponseCodes.responsecodeInvalidBidIncrement = 443932;
@@ -810,6 +811,7 @@ ResponseCodes.responsecodeInvalidShippingInfo = 443942;
 ResponseCodes.responsecodeInvalidShippingProof = 443943;
 ResponseCodes.responsecodePriceTooLow = 443944;
 ResponseCodes.responsecodePriceTooHigh = 443945;
+ResponseCodes.responsecodeAuctionAlreadyResolved = 443946;
 ResponseCodes.responsecodeAddressNotFound = 443950;
 
 ResponseCodes.responsecodeCountryTemporarilyBanned = 444000;

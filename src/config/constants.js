@@ -1241,6 +1241,7 @@ Constants.auctionStatus = {
   INACTIVE: "inactive",
   ACTIVE: "active",
   FINISHED: "finished",
+  SOLD: "sold",
   UNSOLD: "unsold",
 };
 Constants.auctionPaymentMethodType = {

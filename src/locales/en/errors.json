@@ -441,6 +441,7 @@
   "443943": "Invalid shipping proof file. Only images and pdfs allowed.",
   "443944": "Price too low, must be higher than {{param}}.",
   "443945": "Price too high, must be lower than {{param}}.",
+  "443946": "Auction has already been resolved.",
   "443950": "Address not found.",
 
   "444000": "Your country has been temporarily banned.",

@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { Const } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
-const { Auction, Order, User, Transfer } = require("#models");
+const { Auction, Order, User, Transfer, FlomMessage, Notification } = require("#models");
 
 /**
  * @api {get} /api/v2/auctions/:auctionId/reject Reject second bidder auction offer flom_v1
@@ -32,6 +32,7 @@ const { Auction, Order, User, Transfer } = require("#models");
  * @apiError (Errors) 443937 Invalid auction id
  * @apiError (Errors) 443938 Auction not found
  * @apiError (Errors) 443858 User not allowed (not winning bidder)
+ * @apiError (Errors) 443946 Auction already resolved
  * @apiError (Errors) 4000007 Token invalid
  */
 
@@ -62,6 +63,14 @@ router.get("/:auctionId/reject", auth({ allowUser: true }), async function (requ
         response,
         code: Const.responsecodeUserNotAllowed,
         message: `RejectAuctionOfferController, user is not winning bidder for auction id ${auctionId}`,
+      });
+    }
+
+    if (auction.status !== Const.auctionStatus.FINISHED) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeAuctionAlreadyResolved,
+        message: `RejectAuctionOfferController, auction has already been resolved`,
       });
     }
 
@@ -127,6 +136,15 @@ router.get("/:auctionId/reject", auth({ allowUser: true }), async function (requ
     await Auction.findByIdAndUpdate(auctionId, {
       $set: { status: Const.auctionStatus.UNSOLD, modified: Date.now() },
     });
+
+    await FlomMessage.updateMany(
+      { "attributes.auctionInfo._id": auctionId },
+      { $set: { "attributes.status": "rejected" } },
+    );
+    await Notification.updateMany(
+      { referenceId: auctionId, notificationType: Const.notificationTypeAuctionOffer },
+      { $set: { offerStatus: "rejected" } },
+    );
 
     return Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {

@@ -434,6 +434,7 @@
   "443943": "Neispravna datoteka dokaza o dostavi. Dozvoljene su samo slike i PDF-ovi.",
   "443944": "Cijena je preniska, mora biti veća od {{param}}.",
   "443945": "Cijena je previsoka, mora biti manja od {{param}}.",
+  "443946": "Aukcija je već riješena.",
   "443950": "Adresa nije pronađena.",
 
   "444000": "Vaša zemlja je privremeno zabranjena.",
