@@ -40,7 +40,7 @@ async function checkToken(token, socket, addToUserSockets = false) {
   return userId;
 }
 
-async function handlePayment({ auction }) {
+async function handlePayment({ auction, isFromAccept = false }) {
   try {
     if (!auction) {
       logger.warn("handlePayment error: missing auction");
@@ -54,6 +54,10 @@ async function handlePayment({ auction }) {
     if (!user || !bid) {
       logger.warn("handlePayment error: missing user or bid in auction: " + auction._id.toString());
       return;
+    }
+
+    if (isFromAccept) {
+      logger.info(sellerId, user._id.toString(), auction._id.toString());
     }
 
     const sender = await User.findById(user._id).lean();
@@ -108,7 +112,7 @@ async function handlePayment({ auction }) {
     await sendNotifications({ order: order.toObject(), sender, receiver, localAmountSender });
 
     if (user.paymentMethod === Const.auctionPaymentMethodType.TRANSFER) {
-      return;
+      return order.toObject();
     }
 
     const {
@@ -146,12 +150,13 @@ async function handlePayment({ auction }) {
       auctionId: auction._id.toString(),
     });
 
-    await Order.updateOne(
-      { _id: order._id.toString() },
+    const updatedOrder = await Order.findByIdAndUpdate(
+      order._id.toString(),
       { transferId: transfer._id.toString(), modified: Date.now() },
+      { new: true, lean: true },
     );
 
-    await Utils.sendRequest({
+    Utils.sendRequest({
       method: "POST",
       url: paymentUrl,
       headers: {
@@ -167,7 +172,7 @@ async function handlePayment({ auction }) {
       },
     });
 
-    return order;
+    return updatedOrder;
   } catch (error) {
     logger.error("handlePayment error:", error);
     return false;

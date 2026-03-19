@@ -65,7 +65,7 @@ router.delete("/:auctionId/reject", auth({ allowUser: true }), async function (r
       });
     }
 
-    const order = await Order.findById(auction.orderId).lean();
+    const order = await Order.findOne({ auctionId }).lean();
 
     if (order) {
       const restockingFee = Const.restockingFee;
@@ -128,8 +128,7 @@ router.delete("/:auctionId/reject", auth({ allowUser: true }), async function (r
       $set: { status: Const.auctionStatus.UNSOLD, modified: Date.now() },
     });
 
-    const responseData = {};
-    Base.successResponse(response, Const.responsecodeSucceed, responseData);
+    return Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
     Base.newErrorResponse({
       response,

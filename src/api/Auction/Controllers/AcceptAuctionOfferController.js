@@ -2,6 +2,7 @@
 
 const router = require("express").Router();
 const Base = require("../../Base");
+const { logger } = require("#infra");
 const { Const } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
@@ -73,7 +74,7 @@ router.patch("/:auctionId/accept", auth({ allowUser: true }), async function (re
       $set: { status: Const.auctionStatus.SOLD, modified: Date.now() },
     });
 
-    const order = await handlePayment({ auction });
+    const order = await handlePayment({ auction, isFromAccept: true });
 
     if (!order) {
       return Base.newErrorResponse({
@@ -82,6 +83,10 @@ router.patch("/:auctionId/accept", auth({ allowUser: true }), async function (re
         message: `AcceptAuctionOfferController, auction payment failed`,
       });
     }
+
+    logger.info(
+      `AcceptAuctionOfferController, order created for auction id ${auctionId}, order id ${order._id.toString()}`,
+    );
 
     const responseData = { order };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
