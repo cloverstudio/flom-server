@@ -139,7 +139,7 @@ router.get("/:auctionId/reject", auth({ allowUser: true }), async function (requ
 
     await FlomMessage.updateMany(
       { "attributes.auctionInfo._id": auctionId },
-      { $set: { "attributes.status": "rejected" } },
+      { $set: { "attributes.offerStatus": "rejected" } },
     );
     await Notification.updateMany(
       { referenceId: auctionId, notificationType: Const.notificationTypeAuctionOffer },
