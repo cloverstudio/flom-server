@@ -81,7 +81,7 @@ router.post("/end", auth({ allowUser: true }), async function (request, response
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeLiveStreamAlreadyEnded,
-        message: "StartLiveStreamController, live stream already ended",
+        message: "EndLiveStreamController, live stream already ended",
       });
     }
 
