@@ -10,7 +10,7 @@ const { Auction } = require("#models");
 const { handlePayment } = require("../../../sockets/listeners/helpers/auctionHelpers");
 
 /**
- * @api {patch} /api/v2/auctions/:auctionId/accept Accept second bidder auction offer flom_v1
+ * @api {get} /api/v2/auctions/:auctionId/accept Accept second bidder auction offer flom_v1
  * @apiVersion 2.0.31
  * @apiName  Accept second bidder auction offer flom_v1
  * @apiGroup WebAPI Auction
@@ -40,7 +40,7 @@ const { handlePayment } = require("../../../sockets/listeners/helpers/auctionHel
  * @apiError (Errors) 4000007 Token invalid
  */
 
-router.patch("/:auctionId/accept", auth({ allowUser: true }), async function (request, response) {
+router.get("/:auctionId/accept", auth({ allowUser: true }), async function (request, response) {
   try {
     const { auctionId } = request.params;
 

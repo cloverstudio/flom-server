@@ -8,7 +8,7 @@ const { auth } = require("#middleware");
 const { Auction, Order, User, Transfer } = require("#models");
 
 /**
- * @api {patch} /api/v2/auctions/:auctionId/reject Reject second bidder auction offer flom_v1
+ * @api {get} /api/v2/auctions/:auctionId/reject Reject second bidder auction offer flom_v1
  * @apiVersion 2.0.31
  * @apiName  Reject second bidder auction offer flom_v1
  * @apiGroup WebAPI Auction
@@ -35,7 +35,7 @@ const { Auction, Order, User, Transfer } = require("#models");
  * @apiError (Errors) 4000007 Token invalid
  */
 
-router.delete("/:auctionId/reject", auth({ allowUser: true }), async function (request, response) {
+router.get("/:auctionId/reject", auth({ allowUser: true }), async function (request, response) {
   try {
     const { auctionId } = request.params;
 
