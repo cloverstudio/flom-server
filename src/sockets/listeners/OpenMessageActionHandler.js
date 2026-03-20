@@ -24,6 +24,8 @@ module.exports = function (socket) {
         return;
       }
 
+      console.log("openMessage", param);
+
       const message = await FlomMessage.findById(param.messageID).lean();
       if (!message) {
         logger.error("openMessage socket, no message found");
