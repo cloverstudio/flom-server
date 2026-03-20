@@ -85,6 +85,10 @@ router.get("/playlist/:fileName", async (request, response) => {
 
 router.get("/env", async (request, response) => {
   try {
+    if (Config.environment === "production") {
+      return Base.successResponse(response, Const.responsecodeSucceed, {});
+    }
+
     Base.successResponse(response, Const.responsecodeSucceed, { env: process.env });
   } catch (error) {
     Base.newErrorResponse({
