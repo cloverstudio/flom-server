@@ -1272,7 +1272,7 @@ Constants.orderExpirationTime = Config.environment === "production" ? 30 : 1; //
 
 Constants.shippingLimitInDays = 7;
 
-Constants.restockingFeeInSats = 2_000;
+Constants.restockingFee = 2_000;
 
 Constants.flomAgentPhoneNumbers = ["+2348888888888", "+2349999999999"];
 

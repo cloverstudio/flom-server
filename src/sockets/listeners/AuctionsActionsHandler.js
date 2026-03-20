@@ -370,7 +370,7 @@ module.exports = function (socket) {
         return socket.emit("socketerror", { code: Const.resCodeAuctionGlobalBalanceTooLow });
       } else if (
         user.auctionPaymentMethod === Const.auctionPaymentMethodType.TRANSFER &&
-        user.satsBalance < Const.restockingFeeInSats
+        user.satsBalance < Const.restockingFee
       ) {
         logger.error(
           "bidOnAuction, user has not enough global balance - restocking fee" +
