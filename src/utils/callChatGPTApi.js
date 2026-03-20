@@ -1,11 +1,8 @@
 const { Config, Const } = require("#config");
 const { FlomMessage } = require("#models");
 
-const { Configuration, OpenAIApi } = require("openai");
-const configuration = new Configuration({
-  apiKey: Config.chatGPTApiKey,
-});
-const openai = new OpenAIApi(configuration);
+const { OpenAI } = require("openai");
+const openai = new OpenAI({ apiKey: Config.chatGPTApiKey });
 const { encode } = require("gpt-3-encoder");
 
 async function callChatGPTApi(textMessage, senderPhoneNumber, receiverPhoneNumber, isFatAi) {

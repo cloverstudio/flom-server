@@ -1,11 +1,8 @@
 const { Config } = require("#config");
 const { User } = require("#models");
 
-const { Configuration, OpenAIApi } = require("openai");
-const configuration = new Configuration({
-  apiKey: Config.chatGPTApiKey,
-});
-const openai = new OpenAIApi(configuration);
+const { OpenAI } = require("openai");
+const openai = new OpenAI({ apiKey: Config.chatGPTApiKey });
 
 async function getGPTAssistantResponse(assistantId, userId, messageText) {
   const user = await User.findOne({ _id: userId }).lean();
