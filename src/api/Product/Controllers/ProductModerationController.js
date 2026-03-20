@@ -217,6 +217,7 @@ router.patch(
       const moderation = {
         status: moderationStatus,
         comment: comment,
+        timestamp: Date.now(),
       };
 
       product.moderation = moderation;

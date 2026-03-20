@@ -125,6 +125,7 @@ const schema = new mongoose.Schema(
     moderation: {
       status: { type: Number, default: Const.moderationStatusPending }, // 1 - pending, 2 - rejected, 3 - approved
       comment: String,
+      timestamp: Number,
     },
     type: { type: Number }, // 1 - video, 2 - video story, 3 - podcast, 4 - text story, 5 - product
     tags: String,

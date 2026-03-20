@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const } = require("#config");
 const Utils = require("#utils");
-const { auth } = require("#middleware");
+const { auth, autoApproveProduct } = require("#middleware");
 const { Category, Product, User, ApiAccessLog, Sound } = require("#models");
 const { recombee } = require("#services");
 const { handleTags } = require("#logics");
@@ -234,8 +234,10 @@ const {
 router.post(
   "/new",
   auth({ allowUser: true, allowAdmin: true }),
+  autoApproveProduct,
   async function (request, response) {
     try {
+      const { autoApproveProduct = false } = request;
       const { fields, files = {} } = await Utils.formParse(request);
       console.log("fields", fields, "files", files);
       const {
@@ -515,7 +517,7 @@ router.post(
 
       const moderationStatus = isDraft
         ? Const.moderationStatusDraft
-        : owner.merchantApplicationStatus === Const.merchantApplicationStatusApprovedWithPayout
+        : autoApproveProduct
         ? Const.moderationStatusApproved
         : Const.moderationStatusPending;
 
@@ -529,7 +531,7 @@ router.post(
         hashtags,
         location,
         address,
-        moderation: { status: moderationStatus },
+        moderation: { status: moderationStatus, timestamp: Date.now() },
         ownerId,
         parentCategoryId,
         categoryId,
@@ -857,6 +859,8 @@ async function handleProcessingError({ productId, error }) {
 
   await Product.findByIdAndUpdate(productId, {
     mediaProcessingInfo: { status: "failed", error },
+    "moderation.status": Const.moderationStatusPending,
+    "moderation.timestamp": Date.now(),
   });
 
   return;

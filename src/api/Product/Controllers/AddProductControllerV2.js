@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { auth } = require("#middleware");
+const { auth, autoApproveProduct } = require("#middleware");
 const { Category, Product, User, ApiAccessLog } = require("#models");
 const { handleTags } = require("#logics");
 const { recombee } = require("#services");
@@ -192,8 +192,10 @@ const {
  * @apiError (Errors) 400162 Link not valid
  */
 
-router.post("/", auth({ allowUser: true }), async function (request, response) {
+router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (request, response) {
   try {
+    const { autoApproveProduct = false } = request;
+
     let { fields, files } = await Utils.formParse(request);
 
     if (fields.productPrice || fields.maxPrice || fields.minPrice) {
@@ -455,9 +457,10 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     product.moderation = {
       status: isDraft
         ? Const.moderationStatusDraft
-        : user.merchantApplicationStatus === Const.merchantApplicationStatusApprovedWithPayout
+        : autoApproveProduct
         ? Const.moderationStatusApproved
         : Const.moderationStatusPending,
+      timestamp: Date.now(),
     };
     product.language = language;
 
@@ -766,6 +769,8 @@ async function handleProcessingError({ productId, error }) {
 
   await Product.findByIdAndUpdate(productId, {
     mediaProcessingInfo: { status: "failed", error },
+    "moderation.status": Const.moderationStatusPending,
+    "moderation.timestamp": Date.now(),
   });
 
   return;

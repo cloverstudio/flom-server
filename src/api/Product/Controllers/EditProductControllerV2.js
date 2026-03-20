@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { auth } = require("#middleware");
+const { auth, autoApproveProduct } = require("#middleware");
 const { Category, Product, User } = require("#models");
 const { handleTags } = require("#logics");
 const { recombee } = require("#services");
@@ -190,8 +190,11 @@ router.patch(
     allowAdmin: true,
     role: Const.Role.REVIEWER,
   }),
+  autoApproveProduct,
   async function (request, response) {
     try {
+      const { autoApproveProduct = false } = request;
+
       const { fields = {}, files = {} } = await Utils.formParse(request);
       console.log("EditProductControllerV2 fields", fields, "files", files);
 
@@ -627,25 +630,22 @@ router.patch(
             message: `EditProductControllerV2, ${message}`,
           });
         }
-        product.moderation.status =
-          user.merchantApplicationStatus === Const.merchantApplicationStatusApprovedWithPayout
-            ? Const.moderationStatusApproved
-            : Const.moderationStatusPending;
+        product.moderation.status = autoApproveProduct
+          ? Const.moderationStatusApproved
+          : Const.moderationStatusPending;
         product.created = Utils.now();
       } else if (!visibilityCheck && product.moderation.status === Const.moderationStatusApproved) {
-        product.moderation.status =
-          user.merchantApplicationStatus === Const.merchantApplicationStatusApprovedWithPayout
-            ? Const.moderationStatusApproved
-            : Const.moderationStatusPending;
+        product.moderation.status = autoApproveProduct
+          ? Const.moderationStatusApproved
+          : Const.moderationStatusPending;
       } else if (
         product.moderation.status !== Const.moderationStatusDraft &&
         product.moderation.status !== Const.moderationStatusApproved &&
         product.moderation.status !== Const.moderationStatusApprovalNeeded
       ) {
-        product.moderation.status =
-          user.merchantApplicationStatus === Const.merchantApplicationStatusApprovedWithPayout
-            ? Const.moderationStatusApproved
-            : Const.moderationStatusPending;
+        product.moderation.status = autoApproveProduct
+          ? Const.moderationStatusApproved
+          : Const.moderationStatusPending;
       }
 
       const allowEngagementBonus =
@@ -950,6 +950,8 @@ async function processMedia({ productId, product, files }) {
 
     await Product.findByIdAndUpdate(productId, {
       mediaProcessingInfo: { status: "failed", error: error.message },
+      "moderation.status": Const.moderationStatusPending,
+      "moderation.timestamp": Date.now(),
     });
 
     return;
