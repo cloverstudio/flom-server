@@ -34,6 +34,8 @@ const schema = new mongoose.Schema(
     expirationDate: Number,
     shipByDate: Number,
     shippedAt: Number,
+    overdue: { type: Boolean, default: false },
+    deliveredAt: Number,
     shipping: {
       origin: {
         name: String,

@@ -75,6 +75,7 @@ router.patch(
           $set: {
             status: Const.orderStatus.DELIVERED,
             modified: Date.now(),
+            deliveredAt: Date.now(),
           },
           $push: {
             events: {
