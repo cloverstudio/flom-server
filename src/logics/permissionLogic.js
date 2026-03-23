@@ -81,8 +81,6 @@ async function checkPermissionByChatId(userId, chatId) {
       messageTargetType == Const.chatTypeRoom ||
       messageTargetType == Const.chatTypeBroadcastAdmin
     ) {
-      this.checkRoomPermission(userId, messageTargetId, errorCB, cb);
-
       const room = await Room.findById(messageTargetId).lean();
 
       if (!room) {
