@@ -214,18 +214,4 @@ schema.index({ featured: -1 });
 
 schema.index({ _id: -1, isDeleted: -1 });
 
-schema.post(/find/, function (docs) {
-  const arr = !Array.isArray(docs) ? [docs] : docs;
-
-  for (let i = 0; i < arr.length; i++) {
-    if (arr[i].reservations && arr[i].reservations.length > 0) {
-      let totalReserved = 0;
-      for (const reservation of arr[i].reservations) {
-        totalReserved += reservation.quantity;
-      }
-      arr[i].itemCount = arr[i].itemCount - totalReserved;
-    }
-  }
-});
-
 module.exports = db.db1.model("Product", schema, "products");

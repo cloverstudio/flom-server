@@ -112,10 +112,6 @@ module.exports = function (socket) {
 
       socketApi.auctions.emitAll("auctionStarted", dataToSend);
 
-      await Product.findByIdAndUpdate(auction.product._id, {
-        $push: { reservations: { auctionId, quantity: updatedAuction.quantity } },
-      });
-
       if (typeof callback === "function") callback(updatedAuction);
     } catch (error) {
       logger.error("startAuction, ", error);
