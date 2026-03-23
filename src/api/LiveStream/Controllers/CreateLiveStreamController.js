@@ -274,7 +274,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
           linkedProductTagIds = linkedProductTagIds.concat(linkedProduct.tagIds ?? []);
         }
       }
-      linkedProductTags = linkedProductTags.join(" ");
+      linkedProductTags = linkedProductTags.length === 0 ? "" : linkedProductTags.join(" ");
 
       if (!activeProductId) {
         return Base.newErrorResponse({
