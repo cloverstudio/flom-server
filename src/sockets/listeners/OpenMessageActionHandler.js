@@ -57,6 +57,7 @@ module.exports = function (socket) {
       });
 
       const messages = await FlomMessage.populateMessages([updatedMessage]);
+      console.log("openMessage, populated messages", JSON.stringify(messages, null, 2));
       const populatedMessage = messages[0];
 
       // reset unread count
