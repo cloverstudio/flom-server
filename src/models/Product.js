@@ -214,7 +214,7 @@ schema.index({ featured: -1 });
 
 schema.index({ _id: -1, isDeleted: -1 });
 
-/* schema.post(/find/, function (docs) {
+schema.post(/find/, function (docs) {
   const arr = !Array.isArray(docs) ? [docs] : docs;
 
   for (let i = 0; i < arr.length; i++) {
@@ -226,6 +226,6 @@ schema.index({ _id: -1, isDeleted: -1 });
       arr[i].itemCount = arr[i].itemCount - totalReserved;
     }
   }
-} */
+});
 
 module.exports = db.db1.model("Product", schema, "products");
