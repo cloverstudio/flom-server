@@ -51,15 +51,18 @@ module.exports = function (socket) {
   socket.on("login", async function (param) {
     try {
       param.socketid = socket.id;
+      console.log("Login param", param);
 
       if (!param.processId) {
         socket.emit("socketerror", { code: Const.responsecodeLoginInvalidParam });
+        console.log("Login invalid param", param);
         return;
       }
 
       const user = await Base.checkToken(param.token);
       if (!user) {
         socket.emit("socketerror", { code: Const.responsecodeSigninInvalidToken });
+        console.log("Login invalid token", param);
         return;
       }
 

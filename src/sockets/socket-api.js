@@ -45,6 +45,7 @@ class SocketApi {
   }
 
   emitToRoom(roomName, command, param) {
+    console.log("emitToRoom", roomName, command, param);
     this.nsp.to(roomName).emit(command, param);
   }
 

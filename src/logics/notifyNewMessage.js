@@ -102,6 +102,8 @@ async function notifyNewMessage(obj, originalRequestData) {
         if (toUserObj.muted.indexOf(result.sender._id.toString()) != -1) muteNotification = true;
       }
 
+      console.log("fromUser:", fromUser, "toUser:", toUser);
+
       // send to my Base
       socketApi.flom.emitToRoom(fromUser, "newmessage", messageCloned);
 
