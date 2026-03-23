@@ -51,7 +51,6 @@ module.exports = function (socket) {
   socket.on("login", async function (param) {
     try {
       param.socketid = socket.id;
-      console.log("Login param", param);
 
       if (!param.processId) {
         socket.emit("socketerror", { code: Const.responsecodeLoginInvalidParam });
