@@ -24,8 +24,6 @@ module.exports = function (socket) {
         return;
       }
 
-      console.log("openMessage", param);
-
       const message = await FlomMessage.findById(param.messageID).lean();
       if (!message) {
         logger.error("openMessage socket, no message found");
@@ -57,7 +55,6 @@ module.exports = function (socket) {
       });
 
       const messages = await FlomMessage.populateMessages([updatedMessage]);
-      console.log("openMessage, populated messages", JSON.stringify(messages, null, 2));
       const populatedMessage = messages[0];
 
       // reset unread count
