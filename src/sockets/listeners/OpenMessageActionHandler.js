@@ -1,6 +1,6 @@
 const { Const } = require("#config");
 const { logger } = require("#infra");
-const { FlomMessage } = require("#models");
+const { FlomMessage, User } = require("#models");
 const socketApi = require("../socket-api");
 const { updateHistory } = require("#logics");
 
@@ -62,19 +62,22 @@ module.exports = function (socket) {
 
       // reset unread count
       await updateHistory.resetUnreadCount({
-        roomID: populatedMessage.roomID,
+        roomID: updatedMessage.roomID,
         userID: param.userID,
       });
 
       // websocket notification
-      const chatType = populatedMessage.roomID.split("-")[0];
+      const chatType = updatedMessage.roomID.split("-")[0];
+
+      const user = await User.findById(param.userID, User.getDefaultResponseFields()).lean();
+      updatedMessage.message.user = user;
 
       if (chatType == Const.chatTypeGroup) {
-        socketApi.flom.emitToRoom(populatedMessage.roomID, "updatemessages", [populatedMessage]);
+        socketApi.flom.emitToRoom(updatedMessage.roomID, "updatemessages", [updatedMessage]);
       } else if (chatType == Const.chatTypeRoom) {
-        socketApi.flom.emitToRoom(populatedMessage.roomID, "updatemessages", [populatedMessage]);
+        socketApi.flom.emitToRoom(updatedMessage.roomID, "updatemessages", [updatedMessage]);
       } else if (chatType == Const.chatTypePrivate) {
-        const splitAry = populatedMessage.roomID.split("-");
+        const splitAry = updatedMessage.roomID.split("-");
         if (splitAry.length < 2) return;
 
         const user1 = splitAry[1];
@@ -91,8 +94,8 @@ module.exports = function (socket) {
           fromUser = user2;
         }
 
-        socketApi.flom.emitToRoom(fromUser, "updatemessages", [populatedMessage]);
-        socketApi.flom.emitToRoom(toUser, "updatemessages", [populatedMessage]);
+        socketApi.flom.emitToRoom(fromUser, "updatemessages", [updatedMessage]);
+        socketApi.flom.emitToRoom(toUser, "updatemessages", [updatedMessage]);
       }
     } catch (error) {
       logger.error("openMessage", error);
