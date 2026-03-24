@@ -574,16 +574,16 @@ router.post(
       );
 
       try {
-        await recombee.upsertProduct({ product: product.toObject() });
+        await recombee.upsertProduct({ product });
       } catch (error) {
         logger.error(`AddNewProductControllerV2, ${product._id.toString()}, recombee`, error);
       }
 
       processMedia({ productId: product._id.toString(), files, type, isDraft });
 
-      await handleAudioForExpoPostProcessing({ product: product.toObject() });
+      await handleAudioForExpoPostProcessing({ product });
 
-      let productObj = product.toObject();
+      let productObj = product;
       delete productObj.__v;
 
       productObj.owner = {
