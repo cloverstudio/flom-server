@@ -112,7 +112,7 @@ async function isUserAllowed({ liveStream, userId }) {
 
   const memberIds = [];
 
-  if (visibility === "tribe") {
+  if (visibility === "tribes") {
     const tribes = await Tribe.find({ _id: { $in: tribeIds } }).lean();
 
     for (const tribe of tribes) {

@@ -176,7 +176,7 @@ router.post("/", async function (request, response) {
         }
 
         if (
-          (product.visibility === "tribe" && !isUserTribeMember) ||
+          (product.visibility === "tribes" && !isUserTribeMember) ||
           (product.moderation.status !== Const.moderationStatusApproved &&
             userId !== product.ownerId)
         ) {
