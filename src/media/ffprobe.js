@@ -4,7 +4,7 @@ function ffprobe(filePath) {
   return new Promise((resolve, reject) => {
     const args = [
       "-v",
-      "quiet",
+      "error",
       "-print_format",
       "json",
       "-show_format",

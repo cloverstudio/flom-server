@@ -6,21 +6,21 @@ const { Const } = require("#config");
 const { Product } = require("#models");
 
 async function autoApproveProduct(req, res, next) {
-  req.autoApproveProduct = true;
+  req.autoApprove = true;
 
   try {
     if (!req.user) {
-      req.autoApproveProduct = false;
+      req.autoApprove = false;
       return next();
     }
 
     if (req.user.isAdmin) {
-      req.autoApproveProduct = false;
+      req.autoApprove = false;
       return next();
     }
 
     if (req.user.merchantApplicationStatus !== Const.merchantApplicationStatusApprovedWithPayout) {
-      req.autoApproveProduct = false;
+      req.autoApprove = false;
       return next();
     }
 
@@ -47,7 +47,7 @@ async function autoApproveProduct(req, res, next) {
     }
 
     if (approvedContentCount < 5) {
-      req.autoApproveProduct = false;
+      req.autoApprove = false;
       return next();
     }
 
@@ -55,11 +55,11 @@ async function autoApproveProduct(req, res, next) {
     const limit = base.minus({ days: 30 }).startOf("day").toUTC().toMillis();
 
     if (lastRejectedProduct && lastRejectedProduct.moderation.timestamp > limit) {
-      req.autoApproveProduct = false;
+      req.autoApprove = false;
       return next();
     }
   } catch (error) {
-    req.autoApproveProduct = false;
+    req.autoApprove = false;
     logger.error("autoApproveProduct", error);
   }
 

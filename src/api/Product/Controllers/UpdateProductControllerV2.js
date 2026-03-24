@@ -217,7 +217,7 @@ router.patch(
   autoApproveProduct,
   async function (request, response) {
     try {
-      const { autoApproveProduct = false } = request;
+      const { autoApprove = false } = request;
 
       const { productId } = request.params;
       const user = request.user;
@@ -494,6 +494,21 @@ router.patch(
         }
       }
 
+      let isWatermarked = false;
+      for (const key of Object.keys(files)) {
+        const file = files[key];
+        if (file.type.includes("video")) {
+          const ocrResult = await Utils.checkVideoForWatermarks({
+            filePath: file.path,
+            productId: product._id.toString(),
+          });
+          if (ocrResult) {
+            isWatermarked = true;
+            break;
+          }
+        }
+      }
+
       if (publish && product.moderation.status === Const.moderationStatusDraft) {
         const { code, message } = checkDraftProduct(product) || {};
         if (code) {
@@ -504,23 +519,26 @@ router.patch(
           });
         }
 
-        product.moderation.status = autoApproveProduct
-          ? Const.moderationStatusApproved
-          : Const.moderationStatusPending;
+        product.moderation.status =
+          autoApprove && !isWatermarked
+            ? Const.moderationStatusApproved
+            : Const.moderationStatusPending;
         product.created = Utils.now();
       } else if (!visibilityCheck && product.moderation.status === Const.moderationStatusApproved) {
-        product.moderation.status = autoApproveProduct
-          ? Const.moderationStatusApproved
-          : Const.moderationStatusPending;
+        product.moderation.status =
+          autoApprove && !isWatermarked
+            ? Const.moderationStatusApproved
+            : Const.moderationStatusPending;
       } else if (
         product.moderation.status !== Const.moderationStatusDraft &&
         product.moderation.status !== Const.moderationStatusApproved &&
         product.moderation.status !== Const.moderationStatusApprovalNeeded &&
         !deleteImage
       ) {
-        product.moderation.status = autoApproveProduct
-          ? Const.moderationStatusApproved
-          : Const.moderationStatusPending;
+        product.moderation.status =
+          autoApprove && !isWatermarked
+            ? Const.moderationStatusApproved
+            : Const.moderationStatusPending;
       }
 
       const { tags } = fields;

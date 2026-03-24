@@ -13,6 +13,7 @@ module.exports = Object.freeze({
   checkProductCategoryGroup: require("./checkProductCategoryGroup"),
   checkQriosBalance: require("./checkQriosBalance"),
   checkReCaptcha: require("./checkReCaptcha"),
+  checkVideoForWatermarks: require("./checkVideoForWatermarks"),
 
   clearCookies: require("./clearCookies"),
   compareAudioWithSoundalike: require("./compareAudioWithSoundalike"),

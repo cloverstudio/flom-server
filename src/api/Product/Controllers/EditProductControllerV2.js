@@ -193,7 +193,7 @@ router.patch(
   autoApproveProduct,
   async function (request, response) {
     try {
-      const { autoApproveProduct = false } = request;
+      const { autoApprove = false } = request;
 
       const { fields = {}, files = {} } = await Utils.formParse(request);
       console.log("EditProductControllerV2 fields", fields, "files", files);
@@ -630,12 +630,12 @@ router.patch(
             message: `EditProductControllerV2, ${message}`,
           });
         }
-        product.moderation.status = autoApproveProduct
+        product.moderation.status = autoApprove
           ? Const.moderationStatusApproved
           : Const.moderationStatusPending;
         product.created = Utils.now();
       } else if (!visibilityCheck && product.moderation.status === Const.moderationStatusApproved) {
-        product.moderation.status = autoApproveProduct
+        product.moderation.status = autoApprove
           ? Const.moderationStatusApproved
           : Const.moderationStatusPending;
       } else if (
@@ -643,7 +643,7 @@ router.patch(
         product.moderation.status !== Const.moderationStatusApproved &&
         product.moderation.status !== Const.moderationStatusApprovalNeeded
       ) {
-        product.moderation.status = autoApproveProduct
+        product.moderation.status = autoApprove
           ? Const.moderationStatusApproved
           : Const.moderationStatusPending;
       }

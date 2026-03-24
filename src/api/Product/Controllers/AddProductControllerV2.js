@@ -194,7 +194,7 @@ const {
 
 router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (request, response) {
   try {
-    const { autoApproveProduct = false } = request;
+    const { autoApprove = false } = request;
 
     let { fields, files } = await Utils.formParse(request);
 
@@ -457,7 +457,7 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
     product.moderation = {
       status: isDraft
         ? Const.moderationStatusDraft
-        : autoApproveProduct
+        : autoApprove
         ? Const.moderationStatusApproved
         : Const.moderationStatusPending,
       timestamp: Date.now(),

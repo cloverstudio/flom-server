@@ -20,6 +20,7 @@ local
 id_photos
 .history
 build
+*.traineddata
 
 public/**
 !public/logo_emails.png

@@ -237,7 +237,7 @@ router.post(
   autoApproveProduct,
   async function (request, response) {
     try {
-      const { autoApproveProduct = false } = request;
+      const { autoApprove = false } = request;
       const { fields, files = {} } = await Utils.formParse(request);
       console.log("fields", fields, "files", files);
       const {
@@ -515,13 +515,9 @@ router.post(
         await User.findByIdAndUpdate(ownerId, { location });
       }
 
-      const moderationStatus = isDraft
-        ? Const.moderationStatusDraft
-        : autoApproveProduct
-        ? Const.moderationStatusApproved
-        : Const.moderationStatusPending;
+      let moderationStatus = isDraft ? Const.moderationStatusDraft : Const.moderationStatusPending;
 
-      const product = await Product.create({
+      let product = await Product.create({
         name,
         description,
         countryCode: owner.countryCode,
@@ -549,6 +545,33 @@ router.post(
         originalPrice,
         mediaProcessingInfo: { status: "processing" },
       });
+
+      let isWatermarked = false;
+      for (const key of Object.keys(files)) {
+        const file = files[key];
+        if (file.type.includes("video")) {
+          const ocrResult = await Utils.checkVideoForWatermarks({
+            filePath: file.path,
+            productId: product._id.toString(),
+          });
+          if (ocrResult) {
+            isWatermarked = true;
+            break;
+          }
+        }
+      }
+
+      moderationStatus = isDraft
+        ? Const.moderationStatusDraft
+        : autoApprove && !isWatermarked
+        ? Const.moderationStatusApproved
+        : Const.moderationStatusPending;
+
+      product = await Product.findByIdAndUpdate(
+        product._id,
+        { moderation: { status: moderationStatus, timestamp: Date.now() } },
+        { new: true, lean: true },
+      );
 
       try {
         await recombee.upsertProduct({ product: product.toObject() });
