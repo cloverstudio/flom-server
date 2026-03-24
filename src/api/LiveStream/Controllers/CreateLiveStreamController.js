@@ -274,7 +274,6 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
           linkedProductTagIds = linkedProductTagIds.concat(linkedProduct.tagIds ?? []);
         }
       }
-      linkedProductTags = linkedProductTags.length === 0 ? "" : linkedProductTags.join(" ");
 
       if (!activeProductId) {
         return Base.newErrorResponse({
@@ -496,7 +495,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       activeProductId,
       tags,
       tagIds,
-      linkedProductTags,
+      linkedProductTags: linkedProductTags.length === 0 ? "" : linkedProductTags.join(" "),
       linkedProductTagIds,
       cohosts,
       allowComments,
