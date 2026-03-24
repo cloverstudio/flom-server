@@ -6,7 +6,15 @@ const { logger } = require("#infra");
 const { Const } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
-const { LiveStream, User, Membership, Tribe, Notification, Product } = require("#models");
+const {
+  LiveStream,
+  User,
+  Membership,
+  Tribe,
+  Notification,
+  Product,
+  FlomMessage,
+} = require("#models");
 const { socketApi } = require("#sockets");
 const { handleTags, formatLiveStreamResponse } = require("#logics");
 const { recombee } = require("#services");
@@ -327,6 +335,16 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
 
       set.endTimeStamp = endTimeStamp;
       set.isActive = false;
+
+      await FlomMessage.updateMany(
+        { type: Const.messageTypeNewLiveStream, "attributes.liveStream._id": id },
+        {
+          $set: {
+            "attributes.liveStream.endTimeStamp": Date.now(),
+            "attributes.liveStream.isActive": false,
+          },
+        },
+      );
 
       socketApi.flom.emitAll("userStoppedStreaming", {
         userId,

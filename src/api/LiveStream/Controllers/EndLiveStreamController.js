@@ -6,7 +6,7 @@ const { logger } = require("#infra");
 const { Const } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
-const { LiveStream } = require("#models");
+const { LiveStream, FlomMessage } = require("#models");
 const { socketApi } = require("#sockets");
 const { formatLiveStreamResponse } = require("#logics");
 const { recombee } = require("#services");
@@ -55,7 +55,7 @@ router.post("/end", auth({ allowUser: true }), async function (request, response
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeInvalidLiveStreamId,
-        message: `EndLiveStreamController, invalid liveStreamId: ${id}`,
+        message: `EndLiveStreamController, invalid liveStreamId: ${liveStreamId}`,
       });
     }
 
@@ -85,8 +85,10 @@ router.post("/end", auth({ allowUser: true }), async function (request, response
       });
     }
 
+    const now = Date.now();
+
     const updateObj = {
-      $set: { endTimeStamp: Date.now(), modified: Date.now(), isActive: false },
+      $set: { endTimeStamp: now, modified: now, isActive: false },
       $unset: { comments: 1 },
     };
     if (deleteComments !== true) {
@@ -97,6 +99,16 @@ router.post("/end", auth({ allowUser: true }), async function (request, response
       new: true,
       lean: true,
     });
+
+    await FlomMessage.updateMany(
+      { type: Const.messageTypeNewLiveStream, "attributes.liveStream._id": liveStreamId },
+      {
+        $set: {
+          "attributes.liveStream.endTimeStamp": now,
+          "attributes.liveStream.isActive": false,
+        },
+      },
+    );
 
     await formatLiveStreamResponse({ liveStream: updatedLiveStream });
 
