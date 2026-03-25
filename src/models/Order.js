@@ -62,6 +62,7 @@ const schema = new mongoose.Schema(
         isDefault: Boolean,
       },
       provider: String,
+      providerName: String,
       trackingNumber: String,
       files: [],
     },

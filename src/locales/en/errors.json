@@ -442,6 +442,8 @@
   "443944": "Price too low, must be higher than {{param}}.",
   "443945": "Price too high, must be lower than {{param}}.",
   "443946": "Auction has already been resolved.",
+  "443947": "Missing shipping provider name.",
+  "443948": "Invalid tracking number.",
   "443950": "Address not found.",
 
   "444000": "Your country has been temporarily banned.",

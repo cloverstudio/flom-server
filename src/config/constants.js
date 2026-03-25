@@ -1276,4 +1276,19 @@ Constants.restockingFee = 2_000;
 
 Constants.flomAgentPhoneNumbers = ["+2348888888888", "+2349999999999"];
 
+Constants.shippingProviders = [
+  { type: "dhl", displayName: "DHL" },
+  { type: "ups", displayName: "UPS" },
+  { type: "usps", displayName: "USPS" },
+  { type: "fedex", displayName: "FedEx" },
+  { type: "chilexpress", displayName: "Chilexpress" },
+  { type: "blue_express", displayName: "Blue Express" },
+  { type: "correos_de_chile", displayName: "Correos de Chile" },
+  { type: "starken", displayName: "Starken" },
+  { type: "gig_logistics", displayName: "GIG Logistics" },
+  { type: "aramex", displayName: "Aramex" },
+  { type: "jumia_logistics", displayName: "Jumia Logistics" },
+  { type: "other", displayName: "Other" },
+];
+
 module.exports = Object.freeze(Constants);

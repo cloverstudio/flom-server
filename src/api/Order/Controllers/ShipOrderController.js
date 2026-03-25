@@ -19,9 +19,10 @@ const path = require("path");
  *
  * @apiHeader {String} access-token Users unique access token
  *
- * @apiParam (Form data) {String} shippingProvider    Shipping provider for the shipment
- * @apiParam (Form data) {String} [trackingNumber]    Tracking number for the shipment (only if shipping proof files not provided)
- * @apiParam (Form data) {File}   [file1]             Shipping proof files (only if tracking number not provided). If multiple files, name them as file1, file2, etc. Allowed formats: all images and .pdf.
+ * @apiParam (Form data) {String} shippingProvider        Shipping provider for the shipment ("dhl", "ups", "usps", "fedex", "chilexpress", "blue_express", "correos_de_chile", "starken", "gig_logistics", "aramex", "jumia_logistics", "other")
+ * @apiParam (Form data) {String} [shippingProviderName]  Shipping provider name for the shipment (only for "other" shipping provider)
+ * @apiParam (Form data) {String} [trackingNumber]        Tracking number for the shipment (only for non-"other" shipping providers)
+ * @apiParam (Form data) {File}   [file1]                 Shipping proof files (only for "other" shipping provider). If multiple files, name them as file1, file2, etc. Allowed formats: all images and .pdf.
  *
  * @apiSuccessExample {json} Success Response
  * {
@@ -40,8 +41,10 @@ const path = require("path");
  *
  * @apiError (Errors) 443940 Order not found
  * @apiError (Errors) 443941 Invalid order status: order must be in payment_completed status to be shipped
- * @apiError (Errors) 443942 Missing shipping info: shipping provider and either tracking number or shipping proof file must be provided
+ * @apiError (Errors) 443942 Invalid shipping provider: only predefined shipping providers or 'other' are allowed
  * @apiError (Errors) 443943 Invalid shipping proof file: only images and pdfs are allowed
+ * @apiError (Errors) 443947 Missing shipping provider name for 'other' shipping provider
+ * @apiError (Errors) 443948 Missing tracking number for non-'other' shipping provider
  * @apiError (Errors) 443858 User not allowed to ship the order
  * @apiError (Errors) 4000007 Token invalid
  */
@@ -88,19 +91,45 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
       uploadDir: Config.uploadPath,
     });
 
-    const { shippingProvider, trackingNumber } = fields;
+    const { shippingProvider, shippingProviderName = null, trackingNumber } = fields;
     if (!shippingProvider) {
       return Base.newErrorResponse({
         response,
-        code: Const.responsecodeInvalidShippingInfo,
+        code: Const.responsecodeInvalidShippingProvider,
         message: "ShipOrderController, missing shipping provider",
       });
     }
-    if (!trackingNumber && (!files || Object.keys(files).length === 0)) {
+    const providerExists = Const.shippingProviders.find(
+      (provider) => provider.type === shippingProvider,
+    );
+    if (!providerExists) {
       return Base.newErrorResponse({
         response,
-        code: Const.responsecodeInvalidShippingInfo,
-        message: "ShipOrderController, missing tracking number or shipping proof file",
+        code: Const.responsecodeInvalidShippingProvider,
+        message: "ShipOrderController, invalid shipping provider: " + shippingProvider,
+      });
+    }
+
+    if (shippingProvider === "other" && !shippingProviderName) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeMissingShippingProviderName,
+        message:
+          "ShipOrderController, missing shipping provider name for 'other' shipping provider",
+      });
+    }
+    if (shippingProvider === "other" && (!files || Object.keys(files).length === 0)) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeInvalidShippingProof,
+        message: "ShipOrderController, missing shipping proof file",
+      });
+    }
+    if (shippingProvider !== "other" && !trackingNumber) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeInvalidTrackingNumber,
+        message: "ShipOrderController, missing tracking number",
       });
     }
 
@@ -131,6 +160,8 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
       },
     };
 
+    if (shippingProvider === "other")
+      updateObj.$set["shipping.providerName"] = shippingProviderName;
     if (trackingNumber) updateObj.$set["shipping.trackingNumber"] = trackingNumber;
     if (formattedFiles.length > 0) updateObj.$set["shipping.files"] = formattedFiles;
 
