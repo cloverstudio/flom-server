@@ -199,16 +199,20 @@ module.exports = function (socket) {
         auction.bids.length === 0 ? [] : Array.from(new Set(auction.bids.map((b) => b.user._id)));
 
       if (uniqueBidders.length > 0) {
+        logger.info("endAuction, uniqueBidders:", uniqueBidders);
+
         await User.updateMany(
           { _id: { $in: uniqueBidders.filter((id) => id !== userId) } },
           { $set: { auctionPaymentMethodLocked: false } },
         );
 
+        /*
         await SatsReservation.deleteMany({
           reservationType: "auctionBid",
           referenceId: auctionId,
           userId: { $in: uniqueBidders.filter((id) => id !== userId) },
         });
+        */
       }
 
       const dataToSend = {
@@ -314,7 +318,8 @@ module.exports = function (socket) {
         (biggestBid && bidData.bid <= biggestBid.bid.value) ||
         (!biggestBid && bidData.bid < auction.minPrice.value)
       ) {
-        return;
+        logger.error("bidOnAuction, bid value too low - " + Const.responsecodePriceTooLow);
+        return socket.emit("socketerror", { code: Const.responsecodePriceTooLow });
       }
 
       if (user.bannedFromAuctionsUntil && user.bannedFromAuctionsUntil > Date.now()) {
