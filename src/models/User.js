@@ -289,7 +289,7 @@ schema.post("findOne", function (docs) {
     docs.satsBalanceReserve.forEach((reserve) => {
       totalReserved += reserve.value;
     });
-    docs.satsBalance = docs.satsBalance - totalReserved;
+    docs.sats = docs.satsBalance - totalReserved;
   }
 
   return docs;
@@ -329,7 +329,7 @@ schema.post("find", function (docs) {
       user.satsBalanceReserve.forEach((reserve) => {
         totalReserved += reserve.value;
       });
-      user.satsBalance = user.satsBalance - totalReserved;
+      user.sats = user.satsBalance - totalReserved;
     }
   });
   return docs;
