@@ -3,7 +3,7 @@
 const { logger, redis } = require("#infra");
 const { Const } = require("#config");
 const Utils = require("#utils");
-const { User, Auction, LiveStream, Product } = require("#models");
+const { User, Auction, LiveStream, Product, SatsReservation } = require("#models");
 const socketApi = require("../socket-api");
 
 const helpers = require("./helpers/auctionHelpers");
@@ -204,10 +204,11 @@ module.exports = function (socket) {
           { $set: { auctionPaymentMethodLocked: false } },
         );
 
-        await User.updateMany(
-          { _id: { $in: uniqueBidders.filter((id) => id !== userId) } },
-          { $pull: { satsBalanceReserve: { reserveType: "auctionBid", auctionId: auctionId } } },
-        );
+        await SatsReservation.deleteMany({
+          reservationType: "auctionBid",
+          referenceId: auctionId,
+          userId: { $in: uniqueBidders.filter((id) => id !== userId) },
+        });
       }
 
       const dataToSend = {
@@ -414,22 +415,16 @@ module.exports = function (socket) {
       });
 
       if (user.auctionPaymentMethod === Const.auctionPaymentMethodType.GLOBAL_BALANCE) {
-        await User.updateOne(
-          {
-            _id: userId,
-            "satsBalanceReserve.reserveType": "auctionBid",
-            "satsBalanceReserve.auctionId": auctionId,
-          },
-          { $set: { "satsBalanceReserve.$.value": valueInSats } },
+        await SatsReservation.findOneAndUpdate(
+          { userId, reservationType: "auctionBid", referenceId: auctionId },
+          { value: valueInSats },
+          { upsert: true },
         );
       } else if (user.auctionPaymentMethod === Const.auctionPaymentMethodType.TRANSFER) {
-        await User.updateOne(
-          {
-            _id: userId,
-            "satsBalanceReserve.reserveType": "auctionBid",
-            "satsBalanceReserve.auctionId": auctionId,
-          },
-          { $set: { "satsBalanceReserve.$.value": Const.restockingFee } },
+        await SatsReservation.findOneAndUpdate(
+          { userId, reservationType: "auctionBid", referenceId: auctionId },
+          { value: Math.max(Const.restockingFee, valueInSats) },
+          { upsert: true },
         );
       }
 

@@ -233,7 +233,6 @@ const schema = new mongoose.Schema(
     auctionPaymentMethodLocked: { type: Boolean, default: false },
     failedAuctionPayments: { type: Number, default: 0 },
     bannedFromAuctionsUntil: { type: Number, default: 0 },
-    satsBalanceReserve: [{ reserveType: String, auctionId: String, value: Number }],
     timeZone: String,
     shippingOptions: { shippingInterval: Number },
   },
@@ -284,14 +283,6 @@ schema.post("findOne", function (docs) {
     docs.dateOfBirth = Math.round(docs.dateOfBirth);
   }
 
-  if (docs && docs.satsBalanceReserve && docs.satsBalanceReserve.length > 0) {
-    let totalReserved = 0;
-    docs.satsBalanceReserve.forEach((reserve) => {
-      totalReserved += reserve.value;
-    });
-    docs.sats = docs.satsBalance - totalReserved;
-  }
-
   return docs;
 });
 
@@ -322,14 +313,6 @@ schema.post("find", function (docs) {
 
     if (user && user.dateOfBirth) {
       user.dateOfBirth = Math.round(user.dateOfBirth);
-    }
-
-    if (user && user.satsBalanceReserve && user.satsBalanceReserve.length > 0) {
-      let totalReserved = 0;
-      user.satsBalanceReserve.forEach((reserve) => {
-        totalReserved += reserve.value;
-      });
-      user.sats = user.satsBalance - totalReserved;
     }
   });
   return docs;

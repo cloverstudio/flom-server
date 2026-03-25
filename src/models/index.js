@@ -82,6 +82,7 @@ module.exports = Object.freeze({
   Review: require("./Review"),
   Room: require("./Room"),
 
+  SatsReservation: require("./SatsReservation"),
   Size: require("./Size"),
   SmsData: require("./SMSData"),
   SmsPrice: require("./SMSPrice"),
