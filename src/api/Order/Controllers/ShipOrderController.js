@@ -15,14 +15,16 @@ const path = require("path");
  * @apiVersion 2.0.34
  * @apiName  Ship order flom_v1
  * @apiGroup WebAPI Order
- * @apiDescription  Ship order by order ID.
+ * @apiDescription  Ship order. Frontend sends form data with a field named "data" which is a stringified JSON object, and one or more files for shipping proof.
  *
  * @apiHeader {String} access-token Users unique access token
  *
- * @apiParam (Form data) {String} shippingProvider        Shipping provider for the shipment ("dhl", "ups", "usps", "fedex", "chilexpress", "blue_express", "correos_de_chile", "starken", "gig_logistics", "aramex", "jumia_logistics", "other")
- * @apiParam (Form data) {String} [shippingProviderName]  Shipping provider name for the shipment (only for "other" shipping provider)
- * @apiParam (Form data) {String} [trackingNumber]        Tracking number for the shipment (only for non-"other" shipping providers)
- * @apiParam (Form data) {File}   [file1]                 Shipping proof files (only for "other" shipping provider). If multiple files, name them as file1, file2, etc. Allowed formats: all images and .pdf.
+ * @apiParam (Form data) {String}  data                         Stringified JSON object.
+ * @apiParam (Form data) {Boolean} data.isPickup                If true, then all other shipping fields are ignored and the order is marked as shipped with personal_pickup as the shipping method.
+ * @apiParam (Form data) {String}  [data.shippingProvider]      Shipping provider for the shipment ("dhl", "ups", "usps", "fedex", "chilexpress", "blue_express", "correos_de_chile", "starken", "gig_logistics", "aramex", "jumia_logistics", "other")
+ * @apiParam (Form data) {String}  [data.shippingProviderName]  Shipping provider name for the shipment (only for "other" shipping provider)
+ * @apiParam (Form data) {String}  [data.trackingNumber]        Tracking number for the shipment (only for non-"other" shipping providers)
+ * @apiParam (Form data) {File}    [file1]                      Shipping proof files (only for "other" shipping provider). If multiple files, name them as file1, file2, etc. Allowed formats: all images and .pdf.
  *
  * @apiSuccessExample {json} Success Response
  * {
@@ -91,7 +93,15 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
       uploadDir: Config.uploadPath,
     });
 
-    const { shippingProvider, shippingProviderName = null, trackingNumber } = fields;
+    let data = {};
+    try {
+      data = JSON.parse(fields.data);
+    } catch (error) {
+      logger.error("ShipOrderController, error parsing data field: ", error);
+      data = {};
+    }
+
+    const { shippingProvider, shippingProviderName = null, trackingNumber } = data;
     if (!shippingProvider) {
       return Base.newErrorResponse({
         response,
@@ -99,6 +109,35 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
         message: "ShipOrderController, missing shipping provider",
       });
     }
+
+    let isPickup = typeof data.isPickup === "boolean" ? data.isPickup : false;
+    if (isPickup) {
+      const updateObj = {
+        $set: {
+          status: Const.orderStatus.SHIPPED,
+          "shipping.provider": "personal_pickup",
+          shippedAt: Date.now(),
+          modified: Date.now(),
+        },
+        $push: {
+          events: {
+            status: Const.orderStatus.SHIPPED,
+            user: relation,
+            userId,
+            timeStamp: Date.now(),
+          },
+        },
+      };
+
+      const updatedOrder = await Order.findByIdAndUpdate(order._id, updateObj, {
+        new: true,
+        lean: true,
+      });
+
+      const responseData = { order: updatedOrder };
+      return Base.successResponse(response, Const.responsecodeSucceed, responseData);
+    }
+
     const providerExists = Const.shippingProviders.find(
       (provider) => provider.type === shippingProvider,
     );
