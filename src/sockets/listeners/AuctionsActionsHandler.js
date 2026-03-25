@@ -174,9 +174,27 @@ module.exports = function (socket) {
         return socket.emit("socketerror", { code: Const.resCodeAuctionAuctionNotFound });
       }
 
-      const winningBid = auction.bids.sort(
-        (a, b) => b.bid.value - a.bid.value || a.timeStamp - b.timeStamp,
-      )[0];
+      auction.bids.sort((a, b) => b.bid.value - a.bid.value || a.timeStamp - b.timeStamp);
+      const winningBid = auction.bids[0];
+
+      let secondBest = null;
+      if (auction.bids.length > 0) {
+        for (const bid of auction.bids) {
+          if (bid.user._id.toString() !== winningBid.user._id.toString()) {
+            secondBest = bid;
+            break;
+          }
+        }
+      }
+
+      if (secondBest) {
+        await SatsReservation.findOneAndUpdate({
+          reservationType: "auctionBid",
+          referenceId: auctionId,
+          userId: secondBest.user._id,
+          value: Math.max(Const.restockingFee, secondBest.bid.valueInSats),
+        });
+      }
 
       const updatedAuction = await Auction.findByIdAndUpdate(
         auctionId,
@@ -196,23 +214,33 @@ module.exports = function (socket) {
       updatedAuction.bidCount = updatedAuction.bids.length;
 
       const uniqueBidders =
-        auction.bids.length === 0 ? [] : Array.from(new Set(auction.bids.map((b) => b.user._id)));
+        auction.bids.length === 0
+          ? []
+          : Array.from(
+              new Set(
+                auction.bids
+                  .map((b) => b.user._id)
+                  .filter(
+                    (id) =>
+                      id !== winningBid.user._id.toString() &&
+                      id !== secondBest?.user._id.toString(),
+                  ),
+              ),
+            );
 
       if (uniqueBidders.length > 0) {
         logger.info("endAuction, uniqueBidders:", uniqueBidders);
 
         await User.updateMany(
-          { _id: { $in: uniqueBidders.filter((id) => id !== userId) } },
+          { _id: { $in: uniqueBidders } },
           { $set: { auctionPaymentMethodLocked: false } },
         );
 
-        /*
         await SatsReservation.deleteMany({
           reservationType: "auctionBid",
           referenceId: auctionId,
-          userId: { $in: uniqueBidders.filter((id) => id !== userId) },
+          userId: { $in: uniqueBidders },
         });
-        */
       }
 
       const dataToSend = {
