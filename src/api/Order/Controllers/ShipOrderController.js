@@ -101,15 +101,6 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
       data = {};
     }
 
-    const { shippingProvider, shippingProviderName = null, trackingNumber } = data;
-    if (!shippingProvider) {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeInvalidShippingProvider,
-        message: "ShipOrderController, missing shipping provider",
-      });
-    }
-
     let isPickup = typeof data.isPickup === "boolean" ? data.isPickup : false;
     if (isPickup) {
       const updateObj = {
@@ -136,6 +127,16 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
 
       const responseData = { order: updatedOrder };
       return Base.successResponse(response, Const.responsecodeSucceed, responseData);
+    }
+
+    const { shippingProvider, shippingProviderName = null, trackingNumber } = data;
+
+    if (!shippingProvider) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeInvalidShippingProvider,
+        message: "ShipOrderController, missing shipping provider",
+      });
     }
 
     const providerExists = Const.shippingProviders.find(
