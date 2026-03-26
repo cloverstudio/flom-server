@@ -763,9 +763,15 @@ Constants.transferTypeDirectCash = 13;
 Constants.transferTypeGiftCard = 14;
 Constants.transferTypeBillPayment = 15;
 Constants.transferTypeOrder = 16;
+Constants.transferTypeAuctionPenalty = 17;
+Constants.transferTypeSellerCompensation = 18;
+Constants.transferTypePlatformFee = 19;
 Constants.transferTypeBonus = 97;
 Constants.transferTypeBonusData = 98;
 Constants.transferTypePayout = 99;
+
+Constants.transferTypesForNotification = [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 17, 18, 19];
+Constants.groupTransferTypesForNotification = [1, 2, 6, 8, 10, 13];
 
 Constants.blessEmojiTitles = [
   "Fit",
