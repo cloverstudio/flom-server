@@ -79,10 +79,6 @@ router.get("/:auctionId/accept", auth({ allowUser: true }), async function (requ
       });
     }
 
-    await Auction.findByIdAndUpdate(auctionId, {
-      $set: { status: Const.auctionStatus.SOLD, modified: Date.now() },
-    });
-
     const order = await handlePayment({ auction, isFromAccept: true });
 
     if (!order) {
@@ -90,6 +86,21 @@ router.get("/:auctionId/accept", auth({ allowUser: true }), async function (requ
         response,
         code: Const.responsecodeAuctionPaymentFailed,
         message: `AcceptAuctionOfferController, auction payment failed`,
+      });
+    }
+
+    await Auction.findByIdAndUpdate(auctionId, {
+      $set: { status: Const.auctionStatus.SOLD, modified: Date.now() },
+    });
+
+    if (request.user.email) {
+      Utils.sendEmailFromTemplate({
+        to: request.user.email,
+        subject: "Your auction offer has been accepted",
+        text: `Congratulations! Your offer for the auction "${
+          auction.product.name
+        }" has been accepted.\nIf the payment has not been completed automatically please proceed to your order (#${order._id.toString()}) to finalize your purchase.`,
+        templatePath: "src/email-templates/default.html",
       });
     }
 

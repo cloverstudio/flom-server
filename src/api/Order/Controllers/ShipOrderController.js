@@ -4,7 +4,7 @@ const router = require("express").Router();
 const Base = require("../../Base");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { Order } = require("#models");
+const { Order, User } = require("#models");
 const { auth } = require("#middleware");
 const sharp = require("sharp");
 const fsp = require("fs").promises;
@@ -212,6 +212,17 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
       new: true,
       lean: true,
     });
+
+    const buyer = await User.findById(order.buyer._id).lean();
+
+    if (buyer.email) {
+      Utils.sendEmailFromTemplate({
+        to: buyer.email,
+        subject: "Your order has been shipped!",
+        text: `Good news! Your order "${order._id.toString()}" has been shipped.\nVisit your order page for more details.`,
+        templatePath: "src/email-templates/default.html",
+      });
+    }
 
     const responseData = { order: updatedOrder };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
