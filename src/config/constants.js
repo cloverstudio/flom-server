@@ -590,8 +590,11 @@ Constants.notificationTypeIdApplication = 16;
 Constants.notificationTypeNewLiveStream = 17;
 Constants.notificationTypeLiveStreamCohostInvitation = 18;
 Constants.notificationTypeAuctionOffer = 19;
+Constants.notificationTypeOverdueShipping = 20;
+Constants.notificationTypeShipByExpired = 21;
+Constants.notificationTypeShippingReminder = 22;
 
-Constants.notificationTypesFromDb = [5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 17, 18, 19];
+Constants.notificationTypesFromDb = [5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 17, 18, 19, 20, 21, 22];
 
 Constants.tribeActionUserRemoved = 1;
 Constants.tribeActionUserLeft = 2;
