@@ -14,7 +14,7 @@ async function autoApproveProduct(req, res, next) {
       return next();
     }
 
-    if (req.user.isAdmin) {
+    if (req.isAdmin) {
       req.autoApprove = false;
       return next();
     }
