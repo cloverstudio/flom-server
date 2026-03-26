@@ -177,25 +177,6 @@ module.exports = function (socket) {
       auction.bids.sort((a, b) => b.bid.value - a.bid.value || a.timeStamp - b.timeStamp);
       const winningBid = auction.bids[0];
 
-      let secondBest = null;
-      if (auction.bids.length > 0) {
-        for (const bid of auction.bids) {
-          if (bid.user._id.toString() !== winningBid.user._id.toString()) {
-            secondBest = bid;
-            break;
-          }
-        }
-      }
-
-      if (secondBest) {
-        await SatsReservation.findOneAndUpdate({
-          reservationType: "auctionBid",
-          referenceId: auctionId,
-          userId: secondBest.user._id,
-          value: Math.max(Const.restockingFee, secondBest.bid.valueInSats),
-        });
-      }
-
       const updatedAuction = await Auction.findByIdAndUpdate(
         auctionId,
         {
@@ -220,11 +201,7 @@ module.exports = function (socket) {
               new Set(
                 auction.bids
                   .map((b) => b.user._id)
-                  .filter(
-                    (id) =>
-                      id !== winningBid.user._id.toString() &&
-                      id !== secondBest?.user._id.toString(),
-                  ),
+                  .filter((id) => id !== winningBid.user._id.toString()),
               ),
             );
 
@@ -236,11 +213,14 @@ module.exports = function (socket) {
           { $set: { auctionPaymentMethodLocked: false } },
         );
 
-        await SatsReservation.deleteMany({
-          reservationType: "auctionBid",
-          referenceId: auctionId,
-          userId: { $in: uniqueBidders },
-        });
+        await SatsReservation.updateMany(
+          {
+            reservationType: "auctionBid",
+            referenceId: auctionId,
+            userId: { $in: uniqueBidders },
+          },
+          { isActive: false },
+        );
       }
 
       const dataToSend = {
@@ -449,13 +429,13 @@ module.exports = function (socket) {
 
       if (user.auctionPaymentMethod === Const.auctionPaymentMethodType.GLOBAL_BALANCE) {
         await SatsReservation.findOneAndUpdate(
-          { userId, reservationType: "auctionBid", referenceId: auctionId },
+          { userId, reservationType: "auctionBid", referenceId: auctionId, isActive: true },
           { value: valueInSats },
           { upsert: true },
         );
       } else if (user.auctionPaymentMethod === Const.auctionPaymentMethodType.TRANSFER) {
         await SatsReservation.findOneAndUpdate(
-          { userId, reservationType: "auctionBid", referenceId: auctionId },
+          { userId, reservationType: "auctionBid", referenceId: auctionId, isActive: true },
           { value: Math.max(Const.restockingFee, valueInSats) },
           { upsert: true },
         );

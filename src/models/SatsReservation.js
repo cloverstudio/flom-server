@@ -11,6 +11,7 @@ const schema = new mongoose.Schema(
     reservationType: String,
     value: Number,
     referenceId: String,
+    isActive: { type: Boolean, default: true },
     created: { type: Number, default: Date.now, index: true },
   },
   { timestamps: true },
