@@ -13,6 +13,7 @@ async function init() {
       host: Config.redis.host,
       port: Config.redis.port,
       reconnectStrategy: (retries) => {
+        logger.warn(`Redis reconnect attempt #${retries}`);
         if (retries > 10) return new Error("Too many retries");
         return Math.min(retries * 100, 3000); // backoff
       },
