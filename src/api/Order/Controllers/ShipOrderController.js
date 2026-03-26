@@ -200,8 +200,11 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
       },
     };
 
-    if (shippingProvider === "other")
+    if (shippingProvider === "other") {
       updateObj.$set["shipping.providerName"] = shippingProviderName;
+    } else {
+      updateObj.$set["shipping.providerName"] = providerExists.displayName;
+    }
     if (trackingNumber) updateObj.$set["shipping.trackingNumber"] = trackingNumber;
     if (formattedFiles.length > 0) updateObj.$set["shipping.files"] = formattedFiles;
 
