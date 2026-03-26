@@ -332,6 +332,7 @@ async function getTransferNotifications({ userId, userPhoneNumber }) {
       let title = "";
       let isGroupPayment = false;
       let isSentGroupPayment = false;
+      let ignoreActionString = false;
 
       switch (transferType) {
         case Const.transferTypeTopUp:
@@ -367,10 +368,22 @@ async function getTransferNotifications({ userId, userPhoneNumber }) {
         case Const.transferTypeDirectCash:
           title += "Local transfer ";
           break;
+        case Const.transferTypeAuctionPenalty:
+          title += "Auction penalty";
+          ignoreActionString = true;
+          break;
+        case Const.transferTypeSellerCompensation:
+          title += "Seller compensation";
+          break;
+        case Const.transferTypePlatformFee:
+          title += "Platform fee";
+          ignoreActionString = true;
+          break;
       }
 
       if (senderId === userId && transferType !== Const.transferTypeCreditPackage) {
-        if (status === Const.transferWaitingForFulfillment) {
+        if (ignoreActionString) {
+        } else if (status === Const.transferWaitingForFulfillment) {
           title += loc.s(Const.stringpending);
         } else if (
           status === Const.transferComplete &&
@@ -421,6 +434,10 @@ async function getTransferNotifications({ userId, userPhoneNumber }) {
       notificationData.title = title;
       notificationData.isGroupPayment = isGroupPayment;
       notificationData.isSentGroupPayment = isSentGroupPayment;
+
+      if (transfers[i].orderId) {
+        notificationData.orderId = transfers[i].orderId;
+      }
 
       transferNotificationList.push(notificationData);
     }
