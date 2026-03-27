@@ -85,11 +85,8 @@ app.use(function (req, res, next) {
   }
 
   // debug output
-  if (["local", "development"].includes(Config.environment)) {
-    if (req.originalUrl.includes("livestreams/cb") && req.method === "POST") {
-    } else if (req.originalUrl !== "/" && !req.originalUrl.includes("/uploads/")) {
-      logger.info("method: " + req.method + " | url: " + req.originalUrl);
-    }
+  if (!req.originalUrl.includes("livestreams/cb")) {
+    logger.info("method: " + req.method + " | url: " + req.originalUrl);
   }
   next();
 });
@@ -113,25 +110,23 @@ app.use(function (request, response, next) {
 });
 
 app.use(function (request, response, next) {
-  if (["local", "development"].includes(Config.environment)) {
-    if (request.originalUrl !== "/") {
-      const headers = {};
-      Object.keys(request.headers).forEach((header) => {
-        if (!Const.ignoredHeaders.includes(header.toLowerCase())) {
-          headers[header] = request.headers[header];
-        }
-      });
-
-      if (request.originalUrl.includes("livestreams/cb") && request.method === "POST") {
-      } else if (
-        request.originalUrl.includes("app/startup") ||
-        request.originalUrl.includes("user/sync")
-      ) {
-        logger.debug(`Headers: ${JSON.stringify(headers)}`);
-      } else {
-        logger.debug(`Headers: ${JSON.stringify(headers)}`);
-        logger.debug(`Body: ${JSON.stringify(request.body)}`);
+  if (request.originalUrl !== "/") {
+    const headers = {};
+    Object.keys(request.headers).forEach((header) => {
+      if (!Const.ignoredHeaders.includes(header.toLowerCase())) {
+        headers[header] = request.headers[header];
       }
+    });
+
+    if (request.originalUrl.includes("livestreams/cb") && request.method === "POST") {
+    } else if (
+      request.originalUrl.includes("app/startup") ||
+      request.originalUrl.includes("user/sync")
+    ) {
+      logger.debug(`Headers: ${JSON.stringify(headers)}`);
+    } else {
+      logger.debug(`Headers: ${JSON.stringify(headers)}`);
+      logger.debug(`Body: ${JSON.stringify(request.body)}`);
     }
   }
   next();
