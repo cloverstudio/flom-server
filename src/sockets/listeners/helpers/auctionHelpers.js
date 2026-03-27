@@ -132,7 +132,7 @@ async function handlePayment({ auction, isFromAccept = false }) {
       receiverId: receiver._id.toString(),
       receiverPhoneNumber: receiver.phoneNumber,
       receiverCountryCode: receiver.countryCode,
-      transferType: Const.transferTypeOrder,
+      transferType: Const.transferTypeAuction,
       productName: auction.product.name,
       paymentMethodType,
       paymentMethodName,
