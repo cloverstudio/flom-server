@@ -373,7 +373,7 @@ async function getTransferNotifications({ userId, userPhoneNumber }) {
           ignoreActionString = true;
           break;
         case Const.transferTypeSellerCompensation:
-          title += "Seller compensation";
+          title += "Seller compensation ";
           break;
         case Const.transferTypePlatformFee:
           title += "Platform fee";
