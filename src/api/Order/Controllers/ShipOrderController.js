@@ -158,7 +158,11 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
           "ShipOrderController, missing shipping provider name for 'other' shipping provider",
       });
     }
-    if (shippingProvider === "other" && (!files || Object.keys(files).length === 0)) {
+    if (
+      shippingProvider === "other" &&
+      !trackingNumber &&
+      (!files || Object.keys(files).length === 0)
+    ) {
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeInvalidShippingProof,
