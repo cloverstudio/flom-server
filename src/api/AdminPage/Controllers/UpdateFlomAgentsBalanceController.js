@@ -43,7 +43,7 @@ const { User } = require("#models");
  *                 ]
  *             },
  *             "isAppUser": true,
- *             "flomAgentId": null,
+ *             "flomSupportAgentId": null,
  *             "newUserNotificationSent": true,
  *             "followedBusinesses": [],
  *             "likedProducts": [],
@@ -121,10 +121,10 @@ router.post(
   async function (request, response) {
     try {
       const { creditsAmount } = request.body;
-      const flomAgentId = Config.flomSupportUserId;
+      const flomSupportAgentId = Config.flomSupportAgentId;
 
       const updatedFlomAgent = await User.findOneAndUpdate(
-        { _id: flomAgentId },
+        { _id: flomSupportAgentId },
         { $inc: { creditBalance: creditsAmount } },
         { new: true },
       );

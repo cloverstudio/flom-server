@@ -1,7 +1,7 @@
 const { logger, encryptionManager, redis } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { User, Message, Room, Group, BlockedChatGPTCountry } = require("#models");
+const { User, FlomMessage, Room, Group, BlockedChatGPTCountry } = require("#models");
 const socketApi = require("../sockets/socket-api");
 
 const notifyNewMessage = require("./notifyNewMessage");
@@ -61,9 +61,10 @@ async function sendMessage(param) {
     }
 
     if (param.localID) {
-      const msg = await Message.findOne({ localID: param.localID }).lean();
+      const msg = await FlomMessage.findOne({ localID: param.localID }).lean();
       if (msg) {
-        throw new Error("Message with the same localID already exists: " + param.localID);
+        logger.info("Message with the same localID already exists: " + param.localID);
+        return { origMessageObj: {} };
       }
     }
 
@@ -87,14 +88,14 @@ async function sendMessage(param) {
         throw new Error("check block::no user found - userIdTo: " + userIdTo);
       }
 
-      const isBlocked = toUser.blocked.includes(userID);
+      const isBlocked = toUser.blocked && toUser.blocked.includes(userID);
       if (isBlocked) {
         throw new Error("User is blocked");
       }
     }
 
     const chatType = roomID.split("-")[0];
-    const chatId = roomID.split("-")[1];
+    let chatId = roomID.split("-")[1];
 
     switch (Number(chatType)) {
       case Const.chatTypePrivate:
@@ -161,7 +162,7 @@ async function sendMessage(param) {
       }
     }
 
-    const newMessage = await Message.create(objMessage);
+    const newMessage = await FlomMessage.create(objMessage);
     result.message = newMessage.toObject();
 
     if (roomID.includes(Const.FatAiObjectId) && !param.isRecursiveCall) {
@@ -307,21 +308,30 @@ async function sendMessage(param) {
       }
     }
 
-    const resp = await Message.populateMessages(result.message);
-    resp[0].localID = "";
-    resp[0].deleted = 0;
-    if (param.localID) resp[0].localID = param.localID;
+    const resp = await FlomMessage.populateMessages(result.message);
 
-    if (resp[0].type == Const.messageTypeText) {
-      const encryptedMessage = encryptionManager.encryptText(resp[0].message);
-      resp[0].message = encryptedMessage;
+    if (resp && resp[0]) {
+      resp[0].localID = "";
+      resp[0].deleted = 0;
+      if (param.localID) resp[0].localID = param.localID;
+
+      if (resp[0].type == Const.messageTypeText) {
+        const encryptedMessage = encryptionManager.encryptText(resp[0].message);
+        resp[0].message = encryptedMessage;
+      }
+      result.messagePopulated = resp[0];
+
+      await updateHistory.updateByMessage(resp[0]);
+      await notifyNewMessage(resp[0], param);
+
+      return result.messagePopulated;
+    } else {
+      await updateHistory.updateByMessage(result.message);
+      await notifyNewMessage(result.message, param);
+      const user = await User.findById(userID, User.getDefaultResponseFields()).lean();
+      result.message.user = user;
+      return result.message;
     }
-    result.messagePopulated = resp[0];
-
-    await updateHistory.updateByMessage(resp[0]);
-    await notifyNewMessage(resp[0], param);
-
-    return result.messagePopulated;
   } catch (error) {
     logger.error("sendMessage error: ", error);
     throw new Error(error.message);

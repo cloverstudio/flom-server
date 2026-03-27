@@ -1,7 +1,7 @@
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
 const { logger } = require("#infra");
-const { Message } = require("#models");
+const { FlomMessage } = require("#models");
 const { updateHistory, notifyUpdateMessage } = require("#logics");
 
 module.exports = function (socket) {
@@ -31,13 +31,13 @@ module.exports = function (socket) {
         return;
       }
 
-      const message = await Message.findById(param.messageID).lean();
+      const message = await FlomMessage.findById(param.messageID).lean();
 
       const updateParams = { attributes: newAttributes };
       if (message.type == Const.messageTypeOffer || message.type == Const.messageTypeRequestPay) {
         updateParams.created = Date.now();
       }
-      await Message.findByIdAndUpdate(param.messageID, updateParams);
+      await FlomMessage.findByIdAndUpdate(param.messageID, updateParams);
 
       let pushType = null,
         stub = "";
@@ -71,7 +71,7 @@ module.exports = function (socket) {
         const message = `Offer${stub}for item ${productName}`;
 
         Utils.sendFlomPush({
-          senderId: Config.flomSupportUserId,
+          senderId: Config.flomSupportAgentId,
           receiverId: receiver1,
           message,
           messageiOs: message,
@@ -81,7 +81,7 @@ module.exports = function (socket) {
         });
 
         Utils.sendFlomPush({
-          senderId: Config.flomSupportUserId,
+          senderId: Config.flomSupportAgentId,
           receiverId: receiver2,
           message,
           messageiOs: message,
@@ -91,7 +91,7 @@ module.exports = function (socket) {
         });
       }
 
-      const messages = await Message.populateMessages(message);
+      const messages = await FlomMessage.populateMessages(message);
 
       if (messages.length > 0) {
         const obj = messages[0];

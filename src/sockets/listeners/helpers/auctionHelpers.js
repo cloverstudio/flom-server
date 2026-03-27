@@ -1,9 +1,10 @@
 "use strict";
 
+const { DateTime } = require("luxon");
 const { logger, redis } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { User, Transfer, Order } = require("#models");
+const { User, Transfer, Order, Auction } = require("#models");
 const { authorizeNet } = require("#services");
 
 let conversionRates = { rates: null, lastUpdated: 0 };
@@ -39,7 +40,7 @@ async function checkToken(token, socket, addToUserSockets = false) {
   return userId;
 }
 
-async function handlePayment({ auction }) {
+async function handlePayment({ auction, isFromAccept = false }) {
   try {
     if (!auction) {
       logger.warn("handlePayment error: missing auction");
@@ -55,29 +56,54 @@ async function handlePayment({ auction }) {
       return;
     }
 
+    if (isFromAccept) {
+      logger.info(sellerId, user._id.toString(), auction._id.toString());
+    }
+
     const sender = await User.findById(user._id).lean();
     const receiver = await User.findById(sellerId).lean();
 
     const originalPrice = { ...bid };
     delete originalPrice.valueInSats;
 
-    const transferToken = await createTransferToken();
+    const base = DateTime.now();
+    const expirationDate = base.plus({ minutes: Const.orderExpirationTime }).toUTC().toMillis();
+
     const order = await Order.create({
-      sellerId: sellerId,
-      buyerId: sender._id.toString(),
-      product: auction.product,
+      seller: {
+        _id: receiver._id.toString(),
+        name: receiver.name,
+        userName: receiver.userName,
+        phoneNumber: receiver.phoneNumber,
+        created: receiver.created,
+        avatar: receiver.avatar,
+      },
+      buyer: {
+        _id: sender._id.toString(),
+        name: sender.name,
+        userName: sender.userName,
+        phoneNumber: sender.phoneNumber,
+        created: sender.created,
+        avatar: sender.avatar,
+      },
+      products: [{ quantity: auction.quantity, ...auction.product }],
       auctionId: auction._id.toString(),
       paymentMethod: user.paymentMethod,
       status: Const.orderStatus.PAYMENT_PENDING,
-      transferToken,
-      quantity: auction.quantity,
+      expirationDate,
       price: originalPrice,
       shipping: {
-        origin: receiver.shippingAddresses.find((address) => address.isDefault),
-        destination: sender.shippingAddresses.find((address) => address.isDefault),
+        origin:
+          receiver.shippingAddresses.find((address) => address.isDefault) ||
+          receiver.shippingAddresses[0],
+        destination:
+          sender.shippingAddresses.find((address) => address.isDefault) ||
+          sender.shippingAddresses[0],
       },
-      events: [{ event: Const.orderEvent.ORDER_CREATED, timeStamp: Date.now() }],
+      events: [],
     });
+
+    await Auction.updateOne({ _id: auction._id.toString() }, { orderId: order._id.toString() });
 
     const localAmountReceiver = { ...bid };
     delete localAmountReceiver.valueInSats;
@@ -86,7 +112,7 @@ async function handlePayment({ auction }) {
     await sendNotifications({ order: order.toObject(), sender, receiver, localAmountSender });
 
     if (user.paymentMethod === Const.auctionPaymentMethodType.TRANSFER) {
-      return;
+      return order.toObject();
     }
 
     const {
@@ -124,12 +150,13 @@ async function handlePayment({ auction }) {
       auctionId: auction._id.toString(),
     });
 
-    await Order.updateOne(
-      { _id: order._id.toString() },
+    const updatedOrder = await Order.findByIdAndUpdate(
+      order._id.toString(),
       { transferId: transfer._id.toString(), modified: Date.now() },
+      { new: true, lean: true },
     );
 
-    await Utils.sendRequest({
+    Utils.sendRequest({
       method: "POST",
       url: paymentUrl,
       headers: {
@@ -145,7 +172,7 @@ async function handlePayment({ auction }) {
       },
     });
 
-    return true;
+    return updatedOrder;
   } catch (error) {
     logger.error("handlePayment error:", error);
     return false;
@@ -252,22 +279,9 @@ async function getPaymentData({ sender, auctionPaymentMethod }) {
   };
 }
 
-async function createTransferToken() {
-  const token = Utils.getRandomString(16, "alpha");
-
-  const existingTransfer = await Order.findOne({ transferToken: token }).lean();
-  if (existingTransfer) {
-    return createTransferToken();
-  }
-
-  return token;
-}
-
 async function sendNotifications({ order, sender, receiver, localAmountSender }) {
-  const shipByMs = order.created + 1000 * 60 * 60 * 24 * 3;
-
   await Utils.sendFlomPush({
-    senderId: Config.flomSupportUserId,
+    senderId: Config.flomSupportAgentId,
     receiverUser: sender,
     message: `You have won an auction, and an order has been prepared.`,
     messageiOs: `You have won an auction, and an order has been prepared.`,
@@ -276,7 +290,7 @@ async function sendNotifications({ order, sender, receiver, localAmountSender })
     orderId: order._id.toString(),
   });
   await Utils.sendFlomPush({
-    senderId: Config.flomSupportUserId,
+    senderId: Config.flomSupportAgentId,
     receiverUser: receiver,
     message: `You have sold an auction, and an order has been prepared.`,
     messageiOs: `You have sold an auction, and an order has been prepared.`,
@@ -286,27 +300,26 @@ async function sendNotifications({ order, sender, receiver, localAmountSender })
   });
 
   if (sender.email) {
-    const shippingOrigin = `${order.shipping.origin.name}
-    ${order.shipping.origin.road} ${order.shipping.origin.houseNumber}
-    ${order.shipping.origin.city}, ${order.shipping.origin.region} ${order.shipping.origin.postcode}
-    ${order.shipping.origin.country}`;
-
-    const shippingDestination = `${order.shipping.destination.name}
+    const shippingDestination = !order.shipping.destination
+      ? ""
+      : `${order.shipping.destination.name}
     ${order.shipping.destination.road} ${order.shipping.destination.houseNumber}
     ${order.shipping.destination.city}, ${order.shipping.destination.region} ${order.shipping.destination.postcode}
     ${order.shipping.destination.country}`;
 
     await Utils.sendEmailFromTemplate({
-      templatePath: "src/email-templates/auctionWinEmail.html",
+      templatePath: "src/email-templates/orderEmail.html",
       to: sender.email,
-      subject: "You have won an auction",
+      subject: "New order: " + order._id.toString(),
       templateDataInput: {
         orderId: order._id.toString(),
         auctionId: order.auctionId,
         value: localAmountSender.value,
         currency: localAmountSender.currency,
-        productName: order.product.name,
-        shippingOrigin,
+        productName:
+          order.products.length === 1
+            ? order.products[0].name
+            : `${order.products[0].name} + ${order.products.length - 1} more`,
         shippingDestination,
       },
     });

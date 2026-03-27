@@ -51,7 +51,7 @@ const { User } = require("#models");
  *                     ]
  *                 },
  *                 "isAppUser": true,
- *                 "flomAgentId": null,
+ *                 "flomSupportAgentId": null,
  *                 "newUserNotificationSent": true,
  *                 "followedBusinesses": [],
  *                 "likedProducts": [],
@@ -206,7 +206,7 @@ router.get("/", async function (request, response) {
 
     const userId = user._id.toString();
 
-    if (userId !== Config.flomSupportUserId) {
+    if (userId !== Config.flomSupportAgentId) {
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeInvalidUserId,

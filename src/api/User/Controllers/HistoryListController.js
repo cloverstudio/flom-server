@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { Const } = require("#config");
 const { auth } = require("#middleware");
 const Utils = require("#utils");
-const { Group, User, UserContact, Room, History, Message } = require("#models");
+const { Group, User, UserContact, Room, History, FlomMessage } = require("#models");
 const { getUsersOnlineStatus, totalUnreadCount } = require("#logics");
 
 /**
@@ -367,9 +367,7 @@ router.get("/:page", auth({ allowUser: true }), async function (request, respons
   try {
     const androidBuildNumber = request.headers.android_build_number;
     const iOSBuildNumber = request.headers.ios_build_number;
-    const softwareVersion = request.user.toObject().softwareVersion
-      ? request.user.toObject().softwareVersion
-      : {};
+    const softwareVersion = request.user.softwareVersion ? request.user.softwareVersion : {};
 
     let updateFlg = false;
 
@@ -535,7 +533,7 @@ async function getList(lastUpdate, page, request, searchObj = null) {
       owner: owner,
     };
 
-    const messagesSortedByDate = await Message.find({
+    const messagesSortedByDate = await FlomMessage.find({
       roomID: `5-${adminBroadcastRoom._id.toString()}`,
     })
       .sort({ created: -1 })
@@ -759,8 +757,8 @@ async function getList(lastUpdate, page, request, searchObj = null) {
   const totalUnread = await totalUnreadCount(user._id.toString());
 
   const userIds4 = res
-    .map((item) => item.user._id.toString())
-    .filter((userId) => !!userId && Utils.isObjectId(userId));
+    .filter((userId) => !!userId && Utils.isObjectId(userId))
+    .map((item) => item.user._id.toString());
 
   const onlineStatusResult = await getUsersOnlineStatus(userIds4);
 

@@ -110,7 +110,7 @@ const { Product, View, User, Configuration, AdminPageUser, Tribe } = require("#m
  *                     },
  *                     "locationVisibility": false,
  *                     "isAppUser": true,
- *                     "flomAgentId": null,
+ *                     "flomSupportAgentId": null,
  *                     "newUserNotificationSent": true,
  *                     "followedBusinesses": [],
  *                     "likedProducts": [],
@@ -290,7 +290,7 @@ router.get("/", async function (request, response) {
       { $sort: { count: -1 } },
     ]);
 
-    if (!_.isEmpty(productsArray)) {
+    if (productsArray && productsArray.length > 0) {
       const productIdsArray = productsArray.map((element) => {
         return element._id;
       });

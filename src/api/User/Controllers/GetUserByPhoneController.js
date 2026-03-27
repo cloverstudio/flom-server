@@ -58,7 +58,7 @@ const { User } = require("#models");
         },
         "locationVisibility": false,
         "isAppUser": true,
-        "flomAgentId": null,
+        "flomSupportAgentId": null,
         "newUserNotificationSent": false,
         "followedBusinesses": [],
         "likedProducts": [],

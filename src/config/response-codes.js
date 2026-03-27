@@ -162,6 +162,7 @@ ResponseCodes.resCodeAuctionAuctionEnded = 4000131;
 ResponseCodes.resCodeAuctionUserHasNoAuctionPaymentMethod = 4000132;
 ResponseCodes.resCodeAuctionGlobalBalanceTooLow = 4000133;
 ResponseCodes.resCodeAuctionNoShippingAddress = 4000134;
+ResponseCodes.resCodeAuctionGlobaBalanceTooLowRestockingFee = 4000135;
 
 ResponseCodes.responsecodeFloodDetection = 4000130;
 
@@ -793,6 +794,7 @@ ResponseCodes.responsecodeCreditsEngagementBonusLargerThanCreditBalance = 443926
 ResponseCodes.responsecodeInvalidTargetType = 443927;
 ResponseCodes.responsecodeInvalidTargetId = 443928;
 ResponseCodes.responsecodeUserIsBlockedFromCreatingLiveStreams = 443929;
+
 ResponseCodes.responsecodeInvalidDuration = 443930;
 ResponseCodes.responsecodeInvalidQuantity = 443931;
 ResponseCodes.responsecodeInvalidBidIncrement = 443932;
@@ -802,9 +804,16 @@ ResponseCodes.responsecodeInvalidNote = 443935;
 ResponseCodes.responsecodeNoShippingAddress = 443936;
 ResponseCodes.responsecodeInvalidAuctionId = 443937;
 ResponseCodes.responsecodeAuctionNotFound = 443938;
+ResponseCodes.responsecodeAuctionPaymentFailed = 443939;
 ResponseCodes.responsecodeOrderNotFound = 443940;
 ResponseCodes.responsecodeInvalidOrderStatus = 443941;
-ResponseCodes.responsecodeInvalidShippingInfo = 443942;
+ResponseCodes.responsecodeInvalidShippingProvider = 443942;
+ResponseCodes.responsecodeInvalidShippingProof = 443943;
+ResponseCodes.responsecodePriceTooLow = 443944;
+ResponseCodes.responsecodePriceTooHigh = 443945;
+ResponseCodes.responsecodeAuctionAlreadyResolved = 443946;
+ResponseCodes.responsecodeMissingShippingProviderName = 443947;
+ResponseCodes.responsecodeInvalidTrackingNumber = 443948;
 ResponseCodes.responsecodeAddressNotFound = 443950;
 
 ResponseCodes.responsecodeCountryTemporarilyBanned = 444000;

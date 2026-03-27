@@ -78,7 +78,7 @@ async function sendBonusCreditsOrSats({
 
       if (isDeleted || !engagementBonusAllowed || creditsPerLinkedExpo === 0) {
         logger.error(
-          `sendBonusCreditsOrSats - credit bonus per linked expo, product deleted/bonus not allowed/no credits`
+          `sendBonusCreditsOrSats - credit bonus per linked expo, product deleted/bonus not allowed/no credits`,
         );
         return;
       }
@@ -124,11 +124,11 @@ async function sendBonusCreditsOrSats({
     const sender =
       (!takeFromFlomAgent
         ? await User.findById(ownerId).lean()
-        : await User.findById(Config.flomSupportUserId).lean()) || {};
+        : await User.findById(Config.flomSupportAgentId).lean()) || {};
 
     if (!sender) {
       logger.error(
-        `sendBonusCreditsOrSats - sender ${ownerId || Config.flomSupportUserId} not found`
+        `sendBonusCreditsOrSats - sender ${ownerId || Config.flomSupportAgentId} not found`,
       );
       return;
     }
@@ -200,7 +200,7 @@ async function sendBonusCreditsOrSats({
 
     const bonusMessage = Const.bonusMessage.replace(
       "BONUS_PAYMENT_METHOD",
-      bonusPaymentMethod === "credits" ? "Credits" : "Sats"
+      bonusPaymentMethod === "credits" ? "Credits" : "Sats",
     );
 
     Utils.sendFlomPush({

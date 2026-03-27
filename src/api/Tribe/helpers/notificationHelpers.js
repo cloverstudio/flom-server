@@ -20,8 +20,9 @@ const getTribeOwnerAndCoOwners = async (tribe) => {
 
 const getPushTokens = async ({ users, userIds }) => {
   userIds = userIds?.map(function (el) {
-    return mongoose.Types.ObjectId(el);
+    return new mongoose.Types.ObjectId(`${el}`);
   });
+
   if (users) {
     return [
       ...new Set(

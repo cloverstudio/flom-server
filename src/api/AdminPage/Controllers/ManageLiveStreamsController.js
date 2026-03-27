@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { Config, Const } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
-const { LiveStream, User } = require("#models");
+const { LiveStream, User, FlomMessage } = require("#models");
 
 /**
  * @api {post} /api/v2/admin-page/manage-livestreams Manage live streams flom_v1
@@ -109,6 +109,16 @@ router.post(
             message: "ManageLiveStreamsController, live stream not found: " + targetId,
           });
         }
+
+        await FlomMessage.updateMany(
+          { type: Const.messageTypeNewLiveStream, "attributes.liveStream._id": targetId },
+          {
+            $set: {
+              "attributes.liveStream.endTimeStamp": Date.now(),
+              "attributes.liveStream.isActive": false,
+            },
+          },
+        );
 
         const url = !liveStream.domain
           ? `${Config.antMediaBaseUrl}/v2/broadcasts/${targetId}/stop`

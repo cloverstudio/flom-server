@@ -3,7 +3,7 @@
 const { logger, redis } = require("#infra");
 const { Const } = require("#config");
 const Utils = require("#utils");
-const { User, Auction, LiveStream, Product } = require("#models");
+const { User, Auction, LiveStream, Product, SatsReservation } = require("#models");
 const socketApi = require("../socket-api");
 
 const helpers = require("./helpers/auctionHelpers");
@@ -25,7 +25,7 @@ module.exports = function (socket) {
   socket.on("connection", async function (params, callback) {
     logger.info("auctions connection called, params:", params);
 
-    if (_.isFunction(callback)) callback(value);
+    if (typeof callback === "function") callback(value);
 
     return;
   });
@@ -112,11 +112,7 @@ module.exports = function (socket) {
 
       socketApi.auctions.emitAll("auctionStarted", dataToSend);
 
-      await Product.findByIdAndUpdate(auction.product._id, {
-        $push: { reservations: { auctionId, quantity: updatedAuction.quantity } },
-      });
-
-      if (_.isFunction(callback)) callback(updatedAuction);
+      if (typeof callback === "function") callback(updatedAuction);
     } catch (error) {
       logger.error("startAuction, ", error);
       return socket.emit("socketerror", { code: Const.responsecodeUnknownError });
@@ -178,9 +174,8 @@ module.exports = function (socket) {
         return socket.emit("socketerror", { code: Const.resCodeAuctionAuctionNotFound });
       }
 
-      const winningBid = auction.bids.sort(
-        (a, b) => b.bid.value - a.bid.value || a.bid.timeStamp - b.bid.timeStamp,
-      )[0];
+      auction.bids.sort((a, b) => b.bid.value - a.bid.value || a.timeStamp - b.timeStamp);
+      const winningBid = auction.bids[0];
 
       const updatedAuction = await Auction.findByIdAndUpdate(
         auctionId,
@@ -200,17 +195,31 @@ module.exports = function (socket) {
       updatedAuction.bidCount = updatedAuction.bids.length;
 
       const uniqueBidders =
-        auction.bids.length === 0 ? [] : Array.from(new Set(auction.bids.map((b) => b.user._id)));
+        auction.bids.length === 0
+          ? []
+          : Array.from(
+              new Set(
+                auction.bids
+                  .map((b) => b.user._id)
+                  .filter((id) => id !== winningBid.user._id.toString()),
+              ),
+            );
 
       if (uniqueBidders.length > 0) {
+        logger.info("endAuction, uniqueBidders:", uniqueBidders);
+
         await User.updateMany(
           { _id: { $in: uniqueBidders } },
           { $set: { auctionPaymentMethodLocked: false } },
         );
 
-        await User.updateMany(
-          { _id: { $in: uniqueBidders.filter((id) => id !== userId) } },
-          { $pull: { satsBalanceReserve: { reserveType: "auctionBid", auctionId: auctionId } } },
+        await SatsReservation.updateMany(
+          {
+            reservationType: "auctionBid",
+            referenceId: auctionId,
+            userId: { $in: uniqueBidders },
+          },
+          { isActive: false },
         );
       }
 
@@ -224,7 +233,7 @@ module.exports = function (socket) {
 
       socketApi.auctions.emitAll("auctionEnded", dataToSend);
 
-      if (_.isFunction(callback)) callback(updatedAuction);
+      if (typeof callback === "function") callback(updatedAuction);
 
       if (winningBid) {
         helpers.handlePayment({ auction: updatedAuction });
@@ -312,17 +321,16 @@ module.exports = function (socket) {
 
       const biggestBid = !auction.bids.length
         ? null
-        : auction.bids.sort(
-            (a, b) => b.bid.value - a.bid.value || a.bid.timeStamp - b.bid.timeStamp,
-          )[0];
+        : auction.bids.sort((a, b) => b.bid.value - a.bid.value || a.timeStamp - b.timeStamp)[0];
       if (
         (biggestBid && bidData.bid <= biggestBid.bid.value) ||
         (!biggestBid && bidData.bid < auction.minPrice.value)
       ) {
-        return;
+        logger.error("bidOnAuction, bid value too low - " + Const.responsecodePriceTooLow);
+        return socket.emit("socketerror", { code: Const.responsecodePriceTooLow });
       }
 
-      if (user.bannedFromAuctions) {
+      if (user.bannedFromAuctionsUntil && user.bannedFromAuctionsUntil > Date.now()) {
         logger.error(
           "bidOnAuction, user banned from auctions - " + Const.resCodeAuctionUserBannedFromAuctions,
         );
@@ -370,6 +378,17 @@ module.exports = function (socket) {
             Const.resCodeAuctionGlobalBalanceTooLow,
         );
         return socket.emit("socketerror", { code: Const.resCodeAuctionGlobalBalanceTooLow });
+      } else if (
+        user.auctionPaymentMethod === Const.auctionPaymentMethodType.TRANSFER &&
+        user.satsBalance < Const.restockingFee
+      ) {
+        logger.error(
+          "bidOnAuction, user has not enough global balance - restocking fee" +
+            Const.resCodeAuctionGlobaBalanceTooLowRestockingFee,
+        );
+        return socket.emit("socketerror", {
+          code: Const.resCodeAuctionGlobaBalanceTooLowRestockingFee,
+        });
       }
 
       bidData.timeStamp = Date.now();
@@ -409,17 +428,22 @@ module.exports = function (socket) {
       });
 
       if (user.auctionPaymentMethod === Const.auctionPaymentMethodType.GLOBAL_BALANCE) {
-        await User.updateOne(
-          {
-            _id: userId,
-            "satsBalanceReserve.reserveType": "auctionBid",
-            "satsBalanceReserve.auctionId": auctionId,
-          },
-          { $set: { "satsBalanceReserve.$.value": valueInSats } },
+        await SatsReservation.findOneAndUpdate(
+          { userId, reservationType: "auctionBid", referenceId: auctionId, isActive: true },
+          { value: valueInSats },
+          { upsert: true },
+        );
+      } else if (user.auctionPaymentMethod === Const.auctionPaymentMethodType.TRANSFER) {
+        await SatsReservation.findOneAndUpdate(
+          { userId, reservationType: "auctionBid", referenceId: auctionId, isActive: true },
+          { value: Math.max(Const.restockingFee, valueInSats) },
+          { upsert: true },
         );
       }
 
-      updatedAuction.winningBid = updatedAuction.bids.sort((a, b) => b.bid.value - a.bid.value)[0];
+      updatedAuction.winningBid = updatedAuction.bids.sort(
+        (a, b) => b.bid.value - a.bid.value || a.timeStamp - b.timeStamp,
+      )[0];
       updatedAuction.bidCount = updatedAuction.bids.length;
       delete updatedAuction.bids;
 
@@ -432,7 +456,7 @@ module.exports = function (socket) {
 
       socketApi.auctions.emitAll(eventName, dataToSend);
 
-      if (_.isFunction(callback)) callback(updatedAuction);
+      if (typeof callback === "function") callback(updatedAuction);
     } catch (error) {
       logger.error("bidOnAuction, ", error);
       return socket.emit("socketerror", { code: Const.responsecodeUnknownError });

@@ -49,7 +49,7 @@ const { createNewUser } = require("#logics");
  *                     ]
  *                 },
  *                 "isAppUser": true,
- *                 "flomAgentId": null,
+ *                 "flomSupportAgentId": null,
  *                 "newUserNotificationSent": false,
  *                 "followedBusinesses": [],
  *                 "likedProducts": [],
@@ -164,6 +164,15 @@ router.post("", async (request, response) => {
       });
     }
     phoneNumber = Utils.formatPhoneNumber({ phoneNumber });
+
+    if (!phoneNumber || Const.flomAgentPhoneNumbers.includes(phoneNumber)) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeInvalidPhoneNumber,
+        type: Const.logTypeLogin,
+        message: `CheckNumberDidWWController, ${phoneNumber} invalid phone number`,
+      });
+    }
 
     if (phoneNumber.startsWith("+234803200") || phoneNumber.startsWith("+234810000")) {
       return Base.newErrorResponse({
@@ -359,7 +368,7 @@ router.post("", async (request, response) => {
     ).lean();
     await User.findByIdAndUpdate(user._id.toString(), { $set: { ...user } });
 
-    const supportUser = await User.findById(Config.flomSupportUserId).lean();
+    const supportUser = await User.findById(Config.flomSupportAgentId).lean();
     dataToSend.supportUser = supportUser;
 
     Base.successResponse(response, Const.responsecodeSucceed, dataToSend);

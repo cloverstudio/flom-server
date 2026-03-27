@@ -104,7 +104,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       });
     }
 
-    const ownMemberships = await Membership.find({ creatorId: user[0]._id.toString() });
+    const ownMemberships = await Membership.find({ creatorId: user[0]._id.toString() }).lean();
 
     const ownMembershipsIds = ownMemberships.map((membership) => membership.id);
 

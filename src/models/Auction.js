@@ -19,6 +19,8 @@ const schema = new mongoose.Schema(
     endTimeStamp: Number,
     status: { type: String, default: "inactive" },
     isActive: { type: Boolean, default: false },
+    transferToken: String,
+    orderId: String,
     bids: [
       {
         _id: false,
@@ -49,6 +51,8 @@ const schema = new mongoose.Schema(
     counterBidTime: Number,
     softCloseWindow: Number, // in seconds
     note: String,
+    secondBidder: { type: Boolean, default: false },
+    secondBidderAcceptBefore: { type: Number, default: 0 },
     created: { type: Number, default: Date.now, index: true },
     modified: { type: Number, default: Date.now, index: true },
   },

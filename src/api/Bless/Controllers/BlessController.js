@@ -7,6 +7,7 @@ const Utils = require("#utils");
 const { BlessPacket } = require("#models");
 const fsp = require("fs/promises");
 const { addFlomojiLinks } = require("../../Flomoji/helpers");
+const path = require("path");
 
 /**
  * @api {get} /api/v2/bless/packets Get super bless packets
@@ -177,32 +178,30 @@ router.get("/emojis/:emojiName", async function (request, response) {
     }
 
     const fileName = request.params.emojiName;
-    const filePath = `${Config.uploadPath}/flomojis/${fileName}`;
-    const filePathDeleted = `${Config.uploadPath}/flomojis/deleted/${fileName}`;
+    const filePath = path.resolve(Config.uploadPath, "flomojis", fileName);
+    const filePathDeleted = path.resolve(Config.uploadPath, "flomojis", "deleted", fileName);
 
     try {
-      await fsp.access(filePath);
-      response.sendFile(filePath);
+      await fsp.access(filePath, fsp.constants.R_OK);
+      return response.sendFile(filePath);
     } catch (error) {
       if (error.code !== "ENOENT") {
         throw error;
       }
+      console.log("ENOENT 1");
     }
 
     try {
-      await fsp.access(filePathDeleted);
-      response.sendFile(filePathDeleted);
+      await fsp.access(filePathDeleted, fsp.constants.R_OK);
+      return response.sendFile(filePathDeleted);
     } catch (error) {
-      if (error.code === "ENOENT") {
-        return Base.successResponse(
-          response,
-          Const.responsecodeFileNotFound,
-          "BlessController",
-          error,
-        );
+      if (error.code !== "ENOENT") {
+        throw error;
       }
-      throw error;
+      console.log("ENOENT 2");
     }
+
+    return Base.successResponse(response, Const.responsecodeFileNotFound, "BlessController", error);
   } catch (error) {
     return Base.errorResponse(response, Const.httpCodeServerError, "BlessController", error);
   }

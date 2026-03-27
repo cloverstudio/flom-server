@@ -35,6 +35,15 @@ app.use(
   }),
 );
 
+function isAnyElementMeetingCondition(arr, condition) {
+  for (let i = 0; i < arr.length; i++) {
+    if (condition(arr[i])) {
+      return true;
+    }
+  }
+  return false;
+}
+
 app.use(function (req, res, next) {
   const allowedOrigins = [
     ".flom.dev",
@@ -150,7 +159,7 @@ app.use("/", router);
 
 app.use(function (req, res, next) {
   // return index.html
-  res.sendFile(path.join(Config.publicPath + "index.html"));
+  res.sendFile(path.resolve(Config.publicPath, "index.html"));
 });
 
 module.exports = app;

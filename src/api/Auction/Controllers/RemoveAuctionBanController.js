@@ -14,7 +14,10 @@ router.patch("/remove-ban", auth({ allowUser: true }), async function (request, 
 
     const { user } = request;
 
-    await User.findByIdAndUpdate(user._id.toString(), { bannedFromAuctions: false });
+    await User.findByIdAndUpdate(user._id.toString(), {
+      bannedFromAuctionsUntil: 0,
+      failedAuctionPayments: 0,
+    });
 
     const responseData = {};
     Base.successResponse(response, Const.responsecodeSucceed, responseData);

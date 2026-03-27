@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { auth } = require("#middleware");
+const { auth, autoApproveProduct } = require("#middleware");
 const { Category, Product, User } = require("#models");
 const { handleTags } = require("#logics");
 const { recombee } = require("#services");
@@ -190,8 +190,11 @@ router.patch(
     allowAdmin: true,
     role: Const.Role.REVIEWER,
   }),
+  autoApproveProduct,
   async function (request, response) {
     try {
+      const { autoApprove = false } = request;
+
       const { fields = {}, files = {} } = await Utils.formParse(request);
       console.log("EditProductControllerV2 fields", fields, "files", files);
 
@@ -321,13 +324,22 @@ router.patch(
             if (file.nameOnServer) {
               const ext = file.mimeType === "video/mp4" ? ".mp4" : "";
               let path = Config.uploadPath + "/" + file.nameOnServer + ext;
-              await fsp.unlink(path);
+              try {
+                await fsp.unlink(path);
+              } catch (error) {
+                logger.error("EditProductControllerV2, error deleting file", error);
+              }
               success(file.nameOnServer + ext);
             }
 
             if (thumb.nameOnServer) {
               let thumbPath = Config.uploadPath + "/" + thumb.nameOnServer;
-              await fsp.unlink(thumbPath);
+              try {
+                await fsp.unlink(thumbPath);
+              } catch (error) {
+                logger.error("EditProductControllerV2, error deleting thumb file", error);
+              }
+
               success(thumb.nameOnServer);
             }
 
@@ -618,16 +630,22 @@ router.patch(
             message: `EditProductControllerV2, ${message}`,
           });
         }
-        product.moderation.status = Const.moderationStatusPending;
+        product.moderation.status = autoApprove
+          ? Const.moderationStatusApproved
+          : Const.moderationStatusPending;
         product.created = Utils.now();
       } else if (!visibilityCheck && product.moderation.status === Const.moderationStatusApproved) {
-        product.moderation.status = Const.moderationStatusPending;
+        product.moderation.status = autoApprove
+          ? Const.moderationStatusApproved
+          : Const.moderationStatusPending;
       } else if (
         product.moderation.status !== Const.moderationStatusDraft &&
         product.moderation.status !== Const.moderationStatusApproved &&
         product.moderation.status !== Const.moderationStatusApprovalNeeded
       ) {
-        product.moderation.status = Const.moderationStatusPending;
+        product.moderation.status = autoApprove
+          ? Const.moderationStatusApproved
+          : Const.moderationStatusPending;
       }
 
       const allowEngagementBonus =
@@ -653,7 +671,7 @@ router.patch(
         return Base.newErrorResponse({
           response,
           code: Const.responsecodeCreditsEngagementBonusLargerThanCreditBalance,
-          message: `AddNewProductController, engagement budget in credits larger than credits balance`,
+          message: `EditProductControllerV2, engagement budget in credits larger than credits balance`,
         });
       }
       if (engagementBudgetCredits !== undefined) {
@@ -742,25 +760,19 @@ function createProdParams(product) {
     originalMaxPrice,
     location,
   };
-  /*
-  const localPrice = _.pick(product.localPrice, [
-    "localMin",
-    "localMax",
-    "localAmount",
-    "currencyCode",
-    "currencyCountryCode",
-    "currencySymbol",
-  ]);
-  */
-  const prodParamsTemp = _.pick(product, ["isNegotiable", "itemCount", "condition"]);
-  const prodParams = _.merge(renamedKeys, prodParamsTemp);
+  const prodParamsTemp = {
+    isNegotiable: product.isNegotiable,
+    itemCount: product.itemCount,
+    condition: product.condition,
+  };
+  const prodParams = Object.assign(renamedKeys, prodParamsTemp);
   return prodParams;
 }
 
 function checkVisibility({ reqBody, product }) {
   const { productId, visibility, tribeIds, publish, ...otherParams } = reqBody;
   const prodParams = createProdParams(product);
-  if (_.isEmpty(otherParams)) {
+  if (!otherParams || Object.keys(otherParams).length === 0) {
     return true;
   } else if (reqBody.visibility !== product.visibility) {
     let count = true;
@@ -891,7 +903,11 @@ async function processMedia({ productId, product, files }) {
         fileMimeType = "image/jpeg";
         fileSize = newFile.size;
 
-        let thumb = await Utils.generateImageThumbnail(newFile, newFileName, thumbFileName);
+        let thumb = await Utils.generateImageThumbnail(
+          newFile,
+          newFileName + ".jpg",
+          thumbFileName,
+        );
         aspectRatio = thumb.originalRatio;
         thumbSize = thumb.image.size;
         thumbMimeType = "image/jpeg";
@@ -934,6 +950,8 @@ async function processMedia({ productId, product, files }) {
 
     await Product.findByIdAndUpdate(productId, {
       mediaProcessingInfo: { status: "failed", error: error.message },
+      "moderation.status": Const.moderationStatusPending,
+      "moderation.timestamp": Date.now(),
     });
 
     return;

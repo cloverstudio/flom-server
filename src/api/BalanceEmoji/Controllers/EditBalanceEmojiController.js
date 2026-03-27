@@ -147,7 +147,7 @@ router.patch(
         await fsp.unlink(filePath);
       }
 
-      if (_.isEmpty(updateData)) {
+      if (updateData.limit === undefined && !fileData) {
         return Base.successResponse(response, Const.responsecodeSucceed, {
           updatedBalanceEmoji: balanceEmoji,
         });

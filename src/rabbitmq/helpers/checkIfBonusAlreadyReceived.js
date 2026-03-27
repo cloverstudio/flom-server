@@ -89,8 +89,8 @@ async function checkIfBonusAlreadyReceived({
         ]);
 
         if (aggregation?.length) {
-          count = result[0].count;
-          sum = result[0].sum;
+          count = aggregation[0].count;
+          sum = aggregation[0].sum;
         }
       } else {
         match.transferType = Const.transferTypeSats;
@@ -103,8 +103,8 @@ async function checkIfBonusAlreadyReceived({
         ]);
 
         if (aggregation?.length) {
-          count = result[0].count;
-          sum = result[0].sum;
+          count = aggregation[0].count;
+          sum = aggregation[0].sum;
         }
       }
 

@@ -118,7 +118,7 @@ const { User, Product, Category } = require("#models");
 
 router.get("/", auth({ allowUser: true }), async function (request, response) {
   try {
-    const { recentlyViewedProducts, kidsMode } = request.user;
+    const { recentlyViewedProducts = [], kidsMode } = request.user;
     let products = [];
     const newRecentlyViewedProducts = [];
 

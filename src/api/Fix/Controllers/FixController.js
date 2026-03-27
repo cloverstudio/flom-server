@@ -6,7 +6,7 @@ const { logger } = require("#infra");
 const { Const, Config, countries } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
-const { User, Message, Test, NonFlomContact } = require("#models");
+const { User, FlomMessage, Test, NonFlomContact } = require("#models");
 const fs = require("fs");
 const path = require("path");
 const { recombee } = require("#services");
@@ -85,6 +85,10 @@ router.get("/playlist/:fileName", async (request, response) => {
 
 router.get("/env", async (request, response) => {
   try {
+    if (Config.environment === "production") {
+      return Base.successResponse(response, Const.responsecodeSucceed, {});
+    }
+
     Base.successResponse(response, Const.responsecodeSucceed, { env: process.env });
   } catch (error) {
     Base.newErrorResponse({
@@ -163,7 +167,7 @@ router.get("/push", async function (request, response) {
       });
     }
 
-    const flomAgent = await User.findById(Config.flomSupportUserId).lean();
+    const flomAgent = await User.findById(Config.flomSupportAgentId).lean();
 
     const message = `Test for push type: ${pushType}, isMuted: ${mute}`;
 
@@ -206,7 +210,7 @@ router.get("/flom-team-data", async (request, response) => {
   try {
     const twoWeeksAgo = Math.floor(new Date().getTime() / 1000) - 14 * 24 * 60 * 60;
 
-    const messages = await Message.aggregate(
+    const messages = await FlomMessage.aggregate(
       [
         {
           $match: {
@@ -294,7 +298,7 @@ router.get("/pushtest/:pushType", async (request, response) => {
     const pushType = +request.params.pushType;
 
     const user = await User.findOne({ phoneNumber: "+385958710207" }).lean();
-    const sender = await User.findById(process.env.SUPPORT_USER_ID).lean();
+    const sender = await User.findById(Config.flomSupportAgentId).lean();
 
     await Utils.sendFlomPush({
       newUser: sender,

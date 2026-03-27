@@ -34,7 +34,8 @@ module.exports = Object.freeze({
   Favorite: require("./Favorite"),
   Fee: require("./Fee"),
   Feedback: require("./Feedback"),
-  File: require("./File"),
+  FlomFile: require("./FlomFile"),
+  FlomMessage: require("./FlomMessage"),
   Fulfillment: require("./Fulfillment"),
 
   Gender: require("./Gender"),
@@ -57,7 +58,6 @@ module.exports = Object.freeze({
   MarketingNotificationTemplate: require("./MarketingNotificationTemplate"),
   Membership: require("./Membership"),
   MerchantApplication: require("./MerchantApplication"),
-  Message: require("./Message"),
 
   NonFlomContact: require("./NonFlomContact"),
   Note: require("./Note"),
@@ -82,6 +82,7 @@ module.exports = Object.freeze({
   Review: require("./Review"),
   Room: require("./Room"),
 
+  SatsReservation: require("./SatsReservation"),
   Size: require("./Size"),
   SmsData: require("./SMSData"),
   SmsPrice: require("./SMSPrice"),

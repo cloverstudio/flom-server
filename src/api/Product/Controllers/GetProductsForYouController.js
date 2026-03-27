@@ -189,6 +189,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       user,
       kidsMode,
       blocked,
+      userToken: request.headers["access-token"],
     });
 
     var productsWithOwner = await addOwners(products);
@@ -217,6 +218,7 @@ async function getProducts({
   user,
   kidsMode,
   blocked,
+  userToken,
 }) {
   const productQuery = await generateQuery({
     requestUserTribeIds,
@@ -235,8 +237,8 @@ async function getProducts({
 
   const { userRate, userCountryCode, userCurrency, conversionRates } =
     await Utils.getUsersConversionRate({
-      user: request.user,
-      accessToken: request.headers["access-token"],
+      user,
+      accessToken: userToken,
     });
 
   const categoryIds = new Set();

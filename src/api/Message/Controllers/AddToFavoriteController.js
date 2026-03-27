@@ -4,7 +4,7 @@ const router = require("express").Router();
 const Base = require("../../Base");
 const { Const } = require("#config");
 const { auth } = require("#middleware");
-const { Favorite, Message } = require("#models");
+const { Favorite, FlomMessage } = require("#models");
 
 /**
       * @api {post} /api/v2/message/favorite/add AddToFavorite
@@ -38,7 +38,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       return Base.successResponse(response, Const.responsecodeAddToFavoriteNoMessageId);
     }
 
-    const message = await Message.findById(messageId).lean();
+    const message = await FlomMessage.findById(messageId).lean();
 
     if (!message) {
       return Base.successResponse(response, Const.responsecodeAddToFavoriteInvalidMessageId);

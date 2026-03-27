@@ -3,6 +3,9 @@ const checkDraftProduct = require("./checkDraftProduct");
 const checkTribeVisibility = require("./checkTribeVisibility");
 const isLanguageValid = require("./isLanguageValid");
 const { handleVideoFile, handleImageFile, handleAudioFile, deleteFile } = require("./handleFiles");
+const sendApprovedProductNotifications = require("./sendApprovedProductNotifications");
+const sendApprovedProductBonuses = require("./sendApprovedProductBonuses");
+const sendNewsletterToSubscribers = require("./sendNewsletterToSubscribers");
 
 module.exports = {
   checkCommunityVisibility,
@@ -13,4 +16,7 @@ module.exports = {
   handleImageFile,
   handleAudioFile,
   deleteFile,
+  sendApprovedProductNotifications,
+  sendApprovedProductBonuses,
+  sendNewsletterToSubscribers,
 };

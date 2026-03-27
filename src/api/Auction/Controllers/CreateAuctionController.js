@@ -79,7 +79,6 @@ const { socketApi } = require("#sockets");
  * @apiError (Errors) 443932 Invalid bid increment
  * @apiError (Errors) 443933 Invalid min price
  * @apiError (Errors) 443934 Invalid counter bid time
- * @apiError (Errors) 443936 User has no shipping address
  * @apiError (Errors) 443935 Invalid note
  * @apiError (Errors) 4000007 Token invalid
  */
@@ -88,14 +87,6 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
   try {
     const { user } = request;
     const { auctions = null, liveStreamId } = request.body;
-
-    if (!user.shippingAddresses || user.shippingAddresses.length === 0) {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeNoShippingAddress,
-        message: `CreateAuctionController, Create auction, user has no shipping address`,
-      });
-    }
 
     if (!auctions || !Array.isArray(auctions) || auctions.length === 0) {
       return Base.newErrorResponse({
@@ -146,6 +137,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         isSuddenDeath,
         paramsErrorCode = null,
         paramsErrorMsg = null,
+        paramsErrorParam = null,
       } = await checkParams({ ...auctionData, user, liveStream });
 
       if (paramsErrorCode) {
@@ -153,12 +145,15 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
           response,
           code: paramsErrorCode,
           message: `CreateAuctionController, Create auction, ${paramsErrorMsg}`,
+          ...(paramsErrorParam && { param: paramsErrorParam }),
         });
       }
 
       const valueInSats =
         (minPrice.value / conversionRates.rates[minPrice.currency]) * conversionRates.rates.SAT;
       minPrice.valueInSats = Math.ceil(valueInSats);
+
+      const transferToken = await createTransferToken();
 
       auctionsToCreate.push({
         sellerId: user._id.toString(),
@@ -177,6 +172,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         softCloseWindow: 10,
         note,
         isSuddenDeath,
+        transferToken,
       });
     }
 
@@ -309,6 +305,20 @@ async function checkParams({
       paramsErrorMsg: "invalid min price",
     };
   }
+  if (minPrice.currency === "NGN" && minPrice.value < 50) {
+    return {
+      paramsErrorCode: Const.responsecodePriceTooLow,
+      paramsErrorMsg: "min price too low",
+      paramsErrorParam: 50,
+    };
+  }
+  if (minPrice.currency === "NGN" && minPrice.value > 40_000) {
+    return {
+      paramsErrorCode: Const.responsecodePriceTooHigh,
+      paramsErrorMsg: "min price too high",
+      paramsErrorParam: 40_000,
+    };
+  }
 
   if (!note || typeof note !== "string") {
     note = "";
@@ -433,6 +443,17 @@ async function getNotificationReceivers({ liveStream, userId }) {
   }
 
   return { chatReceivers, pushTokens, notificationListReceiversIds };
+}
+
+async function createTransferToken() {
+  const token = Utils.getRandomString(16, "alpha");
+
+  const exists = await Auction.findOne({ transferToken: token }).lean();
+  if (exists) {
+    return await createTransferToken();
+  }
+
+  return token;
 }
 
 module.exports = router;

@@ -104,7 +104,7 @@ const schema = new mongoose.Schema(
     businessCategory: { _id: String, name: String },
     workingHours: { start: String, end: String },
     isAppUser: { type: Boolean, default: true },
-    flomAgentId: { type: String, default: null },
+    flomSupportAgentId: { type: String, default: null },
     newUserNotificationSent: { type: Boolean, default: false },
     followedBusinesses: [String],
     likedProducts: [String],
@@ -231,8 +231,10 @@ const schema = new mongoose.Schema(
     blockedFromCreatingLiveStreams: { type: Boolean, default: false },
     auctionPaymentMethod: String,
     auctionPaymentMethodLocked: { type: Boolean, default: false },
-    bannedFromAuctions: { type: Boolean, default: false },
-    satsBalanceReserve: [{ reserveType: String, auctionId: String, value: Number }],
+    failedAuctionPayments: { type: Number, default: 0 },
+    bannedFromAuctionsUntil: { type: Number, default: 0 },
+    timeZone: String,
+    shippingOptions: { shippingInterval: Number },
   },
   { timestamps: true },
 );
@@ -281,14 +283,6 @@ schema.post("findOne", function (docs) {
     docs.dateOfBirth = Math.round(docs.dateOfBirth);
   }
 
-  if (docs && docs.satsBalanceReserve && docs.satsBalanceReserve.length > 0) {
-    let totalReserved = 0;
-    docs.satsBalanceReserve.forEach((reserve) => {
-      totalReserved += reserve.value;
-    });
-    docs.satsBalance = docs.satsBalance - totalReserved;
-  }
-
   return docs;
 });
 
@@ -319,14 +313,6 @@ schema.post("find", function (docs) {
 
     if (user && user.dateOfBirth) {
       user.dateOfBirth = Math.round(user.dateOfBirth);
-    }
-
-    if (user && user.satsBalanceReserve && user.satsBalanceReserve.length > 0) {
-      let totalReserved = 0;
-      user.satsBalanceReserve.forEach((reserve) => {
-        totalReserved += reserve.value;
-      });
-      user.satsBalance = user.satsBalance - totalReserved;
     }
   });
   return docs;

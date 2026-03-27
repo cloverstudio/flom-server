@@ -3,7 +3,7 @@
 const router = require("express").Router();
 const Base = require("../../Base");
 const { Const } = require("#config");
-const { Order } = require("#models");
+const { Order, Auction } = require("#models");
 const { auth } = require("#middleware");
 
 /**
@@ -20,65 +20,8 @@ const { auth } = require("#middleware");
  *   "code": 1,
  *   "time": 1764245263992,
  *   "data": {
- *      "order": {
- *         "_id": String,
- *         "price": {
- *           "countryCode": String,
- *           "currency": String,
- *           "value": Number,
- *           "valueInSats": Number
- *         },
- *         "product": {
- *           "_id": String,
- *           "name": String,
- *           "condition": String,
- *           "file": {}
- *         },
- *         "sellerId": String,
- *         "buyerId": String,
- *         "auctionId": String,
- *         "transferId": String,
- *         "paymentMethod": String,
- *         "status": String,
- *         "transferToken": String,
- *         "quantity": Number,
- *         "shipping": {
- *           "origin": {
- *             "name": String,
- *             "country": String,
- *             "countryCode": String,
- *             "region": String,
- *             "regionCode": String,
- *             "city": String,
- *             "road": String,
- *             "houseNumber": String,
- *             "postCode": String,
- *             "isDefault": Boolean,
- *           },
- *           "destination": {
- *             "name": String,
- *             "country": String,
- *             "countryCode": String,
- *             "region": String,
- *             "regionCode": String,
- *             "city": String,
- *             "road": String,
- *             "houseNumber": String,
- *             "postCode": String,
- *             "isDefault": Boolean,
- *           },
- *           "provider": String,
- *           "trackingNumber": String,
- *         },
- *         "events": [{
- *           "event": String,
- *           "user": String,
- *           "userId": String,
- *           "timeStamp": Number,
- *         }],
- *         "created": Number,
- *         "modified": Number,
- *       }
+ *      "transferToken": String, // Only included if order is from auction and payment is pending
+ *      "order": OrderModel
  *    }
  * }
  *
@@ -100,7 +43,7 @@ router.get("/:orderId", auth({ allowUser: true }), async function (request, resp
 
     const order = await Order.findOne({
       _id: orderId,
-      $or: [{ sellerId: userId }, { buyerId: userId }],
+      $or: [{ "seller._id": userId }, { "buyer._id": userId }],
     }).lean();
 
     if (!order) {
@@ -111,7 +54,20 @@ router.get("/:orderId", auth({ allowUser: true }), async function (request, resp
       });
     }
 
+    if (order.product) {
+      order.products = [order.product];
+      delete order.product;
+    }
+
     const responseData = { order };
+
+    if (order.auctionId && order.status === Const.orderStatus.PAYMENT_PENDING) {
+      const auction = await Auction.findById(order.auctionId).lean();
+      if (auction) {
+        responseData.transferToken = auction.transferToken;
+      }
+    }
+
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
     Base.newErrorResponse({
@@ -127,78 +83,22 @@ router.get("/:orderId", auth({ allowUser: true }), async function (request, resp
  * @apiVersion 2.0.34
  * @apiName  Get order list flom_v1
  * @apiGroup WebAPI Order
- * @apiDescription  Get order list, sold or purchased.
+ * @apiDescription  Get order list, sold/purchased/payment pending.
  *
  * @apiHeader {String} access-token Users unique access token
  *
- * @apiParam (Query string) {String} type  Type of orders to return: "sold", "purchased"
- * @apiParam (Query string) {Number} page  Page number for pagination (default: 1)
- * @apiParam (Query string) {Number} size  Number of orders per page (default: 10)
+ * @apiParam (Query string) {String} type      Type of orders to return: "sold", "purchased", "payment_pending"
+ * @apiParam (Query string) {Number} [page]    Page number for pagination (default: 1)
+ * @apiParam (Query string) {Number} [size]    Number of orders per page (default: 10)
+ * @apiParam (Query string) {String} [search]  Seller or product name to filter orders (case insensitive)
+ * @apiParam (Query string) {String} [status]  Order status to filter orders (case sensitive). If there are multiple values, split with a comma (,). Example: "status=payment_pending,shipped"
  *
  * @apiSuccessExample {json} Success Response
  * {
  *   "code": 1,
  *   "time": 1764245263992,
  *   "data": {
- *      "orders": [{
- *         "_id": String,
- *         "price": {
- *           "countryCode": String,
- *           "currency": String,
- *           "value": Number,
- *           "valueInSats": Number
- *         },
- *         "product": {
- *           "_id": String,
- *           "name": String,
- *           "condition": String,
- *           "file": {}
- *         },
- *         "sellerId": String,
- *         "buyerId": String,
- *         "auctionId": String,
- *         "transferId": String,
- *         "paymentMethod": String,
- *         "status": String,
- *         "transferToken": String,
- *         "quantity": Number,
- *         "shipping": {
- *           "origin": {
- *             "name": String,
- *             "country": String,
- *             "countryCode": String,
- *             "region": String,
- *             "regionCode": String,
- *             "city": String,
- *             "road": String,
- *             "houseNumber": String,
- *             "postCode": String,
- *             "isDefault": Boolean,
- *           },
- *           "destination": {
- *             "name": String,
- *             "country": String,
- *             "countryCode": String,
- *             "region": String,
- *             "regionCode": String,
- *             "city": String,
- *             "road": String,
- *             "houseNumber": String,
- *             "postCode": String,
- *             "isDefault": Boolean,
- *           },
- *           "provider": String,
- *           "trackingNumber": String,
- *         },
- *         "events": [{
- *           "event": String,
- *           "user": String,
- *           "userId": String,
- *           "timeStamp": Number
- *         }],
- *         "created": Number,
- *         "modified": Number,
- *       }],
+ *      "orders": [ OrderModel ],
  *      "paginationData": {
  *          "page": 1,
  *          "size": 1,
@@ -220,9 +120,10 @@ router.get("/:orderId", auth({ allowUser: true }), async function (request, resp
 
 router.get("/", auth({ allowUser: true }), async function (request, response) {
   try {
-    const { type, page: p, size: s } = request.query;
+    const { type, page: p, size: s, search } = request.query;
+    const status = request.query.status ? request.query.status.split(",") : [];
 
-    if (!type || (type !== "sold" && type !== "purchased")) {
+    if (!type || (type !== "sold" && type !== "purchased" && type !== "payment_pending")) {
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeInvalidTypeParameter,
@@ -234,7 +135,24 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     const size = !s || +s < 1 ? Const.newPagingRows : parseInt(+s);
 
     const userId = request.user._id.toString();
-    const query = type === "sold" ? { sellerId: userId } : { buyerId: userId };
+    let query;
+    if (type === "sold") {
+      query = { "seller._id": userId };
+    } else if (type === "purchased") {
+      query = { "buyer._id": userId };
+    } else if (type === "payment_pending") {
+      query = { "buyer._id": userId, status: Const.orderStatus.PAYMENT_PENDING };
+    }
+
+    if (search) {
+      const sellerRegex = new RegExp(search, "i");
+      const productRegex = new RegExp(search, "i");
+      query["$or"] = [{ "seller.name": sellerRegex }, { "products.name": productRegex }];
+    }
+    if (status && status.length > 0) {
+      query["status"] = { $in: status };
+    }
+
     const orders = await Order.find(query)
       .sort({ created: -1 })
       .skip((page - 1) * size)
@@ -244,6 +162,13 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     const total = await Order.countDocuments(query);
     const hasNext = page * size < total;
     const paginationData = { page, size, total, hasNext };
+
+    for (const order of orders) {
+      if (order.product) {
+        order.products = [order.product];
+        delete order.product;
+      }
+    }
 
     const responseData = { orders: !orders ? [] : orders, paginationData };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);

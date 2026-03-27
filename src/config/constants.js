@@ -134,6 +134,7 @@ Constants.messageTypeTransfer = 15;
 Constants.messageTypeGif = 114;
 Constants.messageTypeNewLiveStream = 16;
 Constants.messageTypeLiveStreamCohostInvitation = 17;
+Constants.messageTypeAuctionOffer = 18;
 
 Constants.pushTypeNewMessage = 1;
 Constants.pushTypeCall = 2;
@@ -588,9 +589,12 @@ Constants.notificationTypeMerchantApplication = 15;
 Constants.notificationTypeIdApplication = 16;
 Constants.notificationTypeNewLiveStream = 17;
 Constants.notificationTypeLiveStreamCohostInvitation = 18;
-Constants.notificationTypeAuction = 19;
+Constants.notificationTypeAuctionOffer = 19;
+Constants.notificationTypeOverdueShipping = 20;
+Constants.notificationTypeShipByExpired = 21;
+Constants.notificationTypeShippingReminder = 22;
 
-Constants.notificationTypesFromDb = [5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 17, 18];
+Constants.notificationTypesFromDb = [5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 17, 18, 19, 20, 21, 22];
 
 Constants.tribeActionUserRemoved = 1;
 Constants.tribeActionUserLeft = 2;
@@ -762,9 +766,15 @@ Constants.transferTypeDirectCash = 13;
 Constants.transferTypeGiftCard = 14;
 Constants.transferTypeBillPayment = 15;
 Constants.transferTypeAuction = 16;
+Constants.transferTypeAuctionPenalty = 17;
+Constants.transferTypeSellerCompensation = 18;
+Constants.transferTypePlatformFee = 19;
 Constants.transferTypeBonus = 97;
 Constants.transferTypeBonusData = 98;
 Constants.transferTypePayout = 99;
+
+Constants.transferTypesForNotification = [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 17, 18, 19];
+Constants.groupTransferTypesForNotification = [1, 2, 6, 8, 10, 13];
 
 Constants.blessEmojiTitles = [
   "Fit",
@@ -1240,6 +1250,8 @@ Constants.auctionStatus = {
   INACTIVE: "inactive",
   ACTIVE: "active",
   FINISHED: "finished",
+  SOLD: "sold",
+  UNSOLD: "unsold",
 };
 Constants.auctionPaymentMethodType = {
   CREDIT_CARD: "credit_card",
@@ -1256,22 +1268,36 @@ Constants.orderStatus = {
   PAYMENT_COMPLETED: "payment_completed",
   PAYMENT_FAILED: "payment_failed",
   EXPIRED: "expired",
-  ISSUE_OPEN: "issue_open",
-  CANCELED_REFUNDED: "canceled_refunded",
   SHIPPED: "shipped",
-  COMPLETED: "completed",
-  CLOSED: "closed",
+  SHIP_BY_EXPIRED: "ship_by_expired",
+  CANCELLATION_REQUESTED: "cancellation_requested",
+  CANCELED: "canceled",
+  SUPPORT_TICKET_OPENED: "support_ticket_opened",
+  CLOSED_BY_SUPPORT: "closed_by_support",
+  DELIVERED: "delivered",
 };
-Constants.orderEvent = {
-  ORDER_CREATED: "order_created",
-  PAYMENT_COMPLETED: "payment_completed",
-  PAYMENT_FAILED: "payment_failed",
-  ORDER_EXPIRED: "order_expired",
-  ISSUE_OPENED: "issue_opened",
-  ORDER_CANCELED_REFUNDED: "order_canceled_refunded",
-  ORDER_SHIPPED: "order_shipped",
-  ORDER_COMPLETED: "order_completed",
-  ORDER_CLOSED: "order_closed",
-};
+
+Constants.orderExpirationTime = Config.environment === "production" ? 30 : 7; // 30 minutes in production, 7 minutes otherwise
+
+Constants.shippingLimitInDays = 7;
+
+Constants.restockingFee = 2_000;
+
+Constants.flomAgentPhoneNumbers = ["+2348888888888", "+2349999999999"];
+
+Constants.shippingProviders = [
+  { type: "dhl", displayName: "DHL" },
+  { type: "ups", displayName: "UPS" },
+  { type: "usps", displayName: "USPS" },
+  { type: "fedex", displayName: "FedEx" },
+  { type: "chilexpress", displayName: "Chilexpress" },
+  { type: "blue_express", displayName: "Blue Express" },
+  { type: "correos_de_chile", displayName: "Correos de Chile" },
+  { type: "starken", displayName: "Starken" },
+  { type: "gig_logistics", displayName: "GIG Logistics" },
+  { type: "aramex", displayName: "Aramex" },
+  { type: "jumia_logistics", displayName: "Jumia Logistics" },
+  { type: "other", displayName: "Other" },
+];
 
 module.exports = Object.freeze(Constants);

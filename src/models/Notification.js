@@ -17,6 +17,7 @@ const schema = new mongoose.Schema(
     notificationSubType: Number,
     created: { type: Number, default: Date.now },
     status: Number,
+    offerStatus: String,
   },
   { timestamps: true },
 );

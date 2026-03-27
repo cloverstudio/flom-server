@@ -44,6 +44,8 @@ const schema = new mongoose.Schema(
   { timestamps: true },
 );
 
+schema.index({ "attributes.auctionInfo._id": 1 });
+
 schema.statics.findOldMessages = async function (roomID, lastMessageID, limit) {
   try {
     const query = { roomID: roomID };
@@ -149,7 +151,7 @@ schema.statics.populateMessages = async function (messages) {
     }
 
     if (oldIds.length == 0) {
-      throw new Error("No oldIds to convert");
+      return [];
     }
 
     messages = await this.find({ user: { $in: oldIds } })
@@ -202,4 +204,4 @@ schema.statics.populateMessages = async function (messages) {
   }
 };
 
-module.exports = db.db1.model("Message", schema, "flom_messages");
+module.exports = db.db1.model("FlomMessage", schema, "flom_messages");

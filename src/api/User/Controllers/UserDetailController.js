@@ -68,7 +68,7 @@ const { formatUserDetailsResponse, sendBonus } = require("#logics");
  *       },
  *       "locationVisibility": false,
  *       "isAppUser": true,
- *       "flomAgentId": null,
+ *       "flomSupportAgentId": null,
  *       "newUserNotificationSent": true,
  *       "followedBusinesses": [],
  *       "likedProducts": [
@@ -345,6 +345,15 @@ router.get("/:userId", async function (request, response) {
             updateObj.auctionPaymentMethod = Const.auctionPaymentMethodType.TRANSFER;
           } else if (user.paymentProfileId) {
             updateObj.auctionPaymentMethod = Const.auctionPaymentMethodType.CREDIT_CARD;
+          }
+        }
+
+        // set time zone if not set
+        if (!user.timeZone) {
+          const timeZone = request.headers["timezone"];
+          if (timeZone) {
+            updateObj.timeZone = timeZone;
+            user.timeZone = timeZone;
           }
         }
 

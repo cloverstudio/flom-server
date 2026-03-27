@@ -59,7 +59,7 @@ router.patch(
       const orderId = request.params.orderId;
       const order = await Order.findOne({
         _id: orderId,
-        $or: [{ sellerId: userId }, { buyerId: userId }],
+        $or: [{ "seller._id": userId }, { "buyer._id": userId }],
       }).lean();
 
       if (!order) {
@@ -70,7 +70,11 @@ router.patch(
         });
       }
 
-      const relation = isAdmin ? "admin" : order.sellerId === userId ? "seller" : "buyer";
+      const relation = isAdmin
+        ? "admin"
+        : order.seller._id.toString() === userId
+        ? "seller"
+        : "buyer";
 
       const { fields, files } = await Utils.formParse(request, {
         keepExtensions: true,
@@ -151,7 +155,7 @@ async function confirmDelivery({ order, userId, relation }) {
       $set: { status: Const.orderStatus.COMPLETED },
       $push: {
         events: {
-          event: Const.orderEvent.ORDER_COMPLETED,
+          status: Const.orderStatus.COMPLETED,
           user: relation,
           userId,
           timeStamp: Date.now(),
@@ -169,11 +173,9 @@ async function cancelOrder({ order, userId, relation, cancellationReason, suppor
     return { err: Const.responsecodeUserNotAllowed, errMsg: "Seller cannot cancel order" };
   }
   if (
-    [
-      Const.orderStatus.SHIPPED,
-      Const.orderStatus.COMPLETED,
-      Const.orderStatus.CANCELED_REFUNDED,
-    ].includes(order.status)
+    [Const.orderStatus.SHIPPED, Const.orderStatus.COMPLETED, Const.orderStatus.CANCELED].includes(
+      order.status,
+    )
   ) {
     return {
       err: Const.responsecodeInvalidOrderStatus,
@@ -221,10 +223,10 @@ async function cancelOrder({ order, userId, relation, cancellationReason, suppor
   const updatedOrder = await Order.findByIdAndUpdate(
     order._id,
     {
-      $set: { status: Const.orderStatus.CANCELED_REFUNDED, cancellationReason, supportTicketId },
+      $set: { status: Const.orderStatus.CANCELED, cancellationReason, supportTicketId },
       $push: {
         events: {
-          event: Const.orderEvent.ORDER_CANCELLED_REFUNDED,
+          status: Const.orderStatus.CANCELED,
           user: relation,
           userId,
           timeStamp: Date.now(),

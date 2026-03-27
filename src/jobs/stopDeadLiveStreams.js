@@ -1,7 +1,7 @@
 const { Config } = require("#config");
 const { logger } = require("#infra");
 const Utils = require("#utils");
-const { LiveStream } = require("#models");
+const { LiveStream, FlomMessage } = require("#models");
 const { recombee } = require("#services");
 
 async function stopDeadLiveStreams() {
@@ -50,6 +50,16 @@ async function stopDeadLiveStreams() {
           liveStreamId,
           { isActive: false, endTimeStamp: Date.now() },
           { new: true, lean: true },
+        );
+
+        await FlomMessage.updateMany(
+          { type: Const.messageTypeNewLiveStream, "attributes.liveStream._id": liveStreamId },
+          {
+            $set: {
+              "attributes.liveStream.endTimeStamp": Date.now(),
+              "attributes.liveStream.isActive": false,
+            },
+          },
         );
 
         await recombee.upsertLiveStream({ liveStream: updated });

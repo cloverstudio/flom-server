@@ -2,18 +2,14 @@
 
 const path = require("path");
 require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
-
 const amqplib = require("amqplib");
 const { Config } = require("#config");
-const Utils = require("#utils");
 const { logger, db } = require("#infra");
-const consumerLogic = require("./consumers");
-
 const queues = ["bonus-queue"];
-
 let connection;
 const channelState = {};
-db.init();
+
+let Utils, consumerLogic;
 
 const blankQueues = () => {
   for (const queue of queues) {
@@ -24,7 +20,12 @@ const blankQueues = () => {
 async function startConsumer() {
   try {
     logger.info(`startConsumer, Connecting to RabbitMQ...`);
+
     connection = connection ?? (await amqplib.connect(Config.rabbitMQUrl));
+
+    await db.init();
+    Utils = require("#utils");
+    consumerLogic = require("./consumers");
 
     for (const queue of queues) {
       await setupQueue(queue, true);

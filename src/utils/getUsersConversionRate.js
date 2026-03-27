@@ -1,7 +1,8 @@
-const { Const, countries } = require("#config");
+const { Const } = require("#config");
 const { User } = require("#models");
 const getCountryCodeFromPhoneNumber = require("./getCountryCodeFromPhoneNumber");
 const getConversionRates = require("./getConversionRates");
+const getCurrencyFromCountryCode = require("./getCurrencyFromCountryCode");
 
 async function getUsersConversionRate({ user, accessToken }) {
   if (!user) {
@@ -21,25 +22,6 @@ async function getUsersConversionRate({ user, accessToken }) {
   const userRate = conversionRates.rates[userCurrency];
 
   return { userRate, userCountryCode, userCurrency, conversionRates };
-}
-
-function getCurrencyFromCountryCode({ countryCode, rates }) {
-  if (!countryCode) {
-    throw new Error(Const.responsecodeUserNoCountryCode);
-  }
-
-  let country = countries[countryCode];
-  if (!country) {
-    country = countries["US"];
-  }
-
-  let currencies = country.currency.split(",");
-  for (let i = 0; i < currencies.length; i++) {
-    if (rates[currencies[i]]) {
-      return currencies[i].toUpperCase();
-    }
-  }
-  throw new Error(Const.responsecodeNoCurrencyFound);
 }
 
 module.exports = getUsersConversionRate;

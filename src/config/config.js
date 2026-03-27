@@ -71,7 +71,8 @@ Config.webClientUrl = process.env.WEB_CLIENT_URL;
 Config.devWebClientUrl = "https://v1.flom.dev";
 Config.adminPageUrl = process.env.ADMIN_PAGE_URL;
 
-Config.flomSupportUserId = process.env.SUPPORT_USER_ID;
+Config.flomSupportAgentId = process.env.SUPPORT_AGENT_ID;
+Config.flomSettlementAgentId = process.env.SETTLEMENT_AGENT_ID;
 
 Config.authorizeApiLoginId = process.env.AUTHORIZE_LOGIN_ID;
 Config.authorizeTransactionKey = process.env.AUTHORIZE_TRANSACTION_KEY;
@@ -325,6 +326,18 @@ Config.supportCategories = [
     type: "content_issue",
     token: true,
   },
+  {
+    label: "Order cancellation request",
+    selector: "order_cancellation_request",
+    type: "order_cancellation_request",
+    token: true,
+  },
+  {
+    label: "Order issue",
+    selector: "order_issue",
+    type: "order_issue",
+    token: true,
+  },
 ];
 
 Config.defaultLoginSupportType = "login_issue";
@@ -347,6 +360,8 @@ Config.supportTypes = [
   "flom_team_support",
   "auction_issue",
   "content_issue",
+  "order_cancellation_request",
+  "order_issue",
 ];
 
 Config.syncStrings = {

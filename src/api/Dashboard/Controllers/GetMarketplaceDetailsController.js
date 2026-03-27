@@ -4,7 +4,7 @@ const router = require("express").Router();
 const Base = require("../../Base");
 const { Const } = require("#config");
 const { auth } = require("#middleware");
-const { User, Product, Transfer, ConversionRate, Message } = require("#models");
+const { User, Product, Transfer, ConversionRate, FlomMessage } = require("#models");
 
 /**
  * @api {get} /api/v2/dashboard/marketplace Dashboard - marketplace details API
@@ -292,7 +292,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       { $group: { _id: null, sumSold: { $sum: "$basket.quantity" } } },
     ]);
 
-    const offersCount = await Message.find({
+    const offersCount = await FlomMessage.find({
       $and: [
         { type: Const.messageTypeOffer },
         { receiverPhoneNumber: user[0].phoneNumber },

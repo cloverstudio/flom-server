@@ -1,6 +1,6 @@
 const { logger } = require("#infra");
 const Utils = require("#utils");
-const { Message } = require("#models");
+const { FlomMessage } = require("#models");
 
 const permissionLogic = require("./permissionLogic");
 const populateMessages = require("./populateMessages");
@@ -18,7 +18,7 @@ async function searchMessage(baseUser, keyword, page, pagingRows) {
 
     const regexUserId = RegExp("^1.+" + baseUser._id.toString(), "i");
 
-    const privateMessages = await Message.find({
+    const privateMessages = await FlomMessage.find({
       roomID: { $regex: regexUserId },
       $or: [{ message: { $regex: regexMessage } }, { "file.file.name": { $regex: regexMessage } }],
     })
@@ -28,7 +28,7 @@ async function searchMessage(baseUser, keyword, page, pagingRows) {
 
     result.messages = result.messages.concat(privateMessages);
     result.count +=
-      (await Message.countDocuments({
+      (await FlomMessage.countDocuments({
         roomID: { $regex: regexUserId },
         $or: [
           { message: { $regex: regexMessage } },
@@ -37,7 +37,7 @@ async function searchMessage(baseUser, keyword, page, pagingRows) {
       })) || 0;
 
     const groupRoomIds = result.groups.map((groupId) => "2-" + groupId);
-    const groupMessages = await Message.find({
+    const groupMessages = await FlomMessage.find({
       roomID: { $in: groupRoomIds },
       $or: [{ message: { $regex: regexMessage } }, { "file.file.name": { $regex: regexMessage } }],
     })
@@ -46,7 +46,7 @@ async function searchMessage(baseUser, keyword, page, pagingRows) {
       .lean();
     result.messages = result.messages.concat(groupMessages);
     result.count +=
-      (await Message.countDocuments({
+      (await FlomMessage.countDocuments({
         roomID: { $in: groupRoomIds },
         $or: [
           { message: { $regex: regexMessage } },
@@ -55,7 +55,7 @@ async function searchMessage(baseUser, keyword, page, pagingRows) {
       })) || 0;
 
     const roomRoomIds = result.groups.map((roomId) => "3-" + roomId);
-    const roomMessages = await Message.find({
+    const roomMessages = await FlomMessage.find({
       roomID: { $in: roomRoomIds },
       $or: [{ message: { $regex: regexMessage } }, { "file.file.name": { $regex: regexMessage } }],
     })
@@ -64,7 +64,7 @@ async function searchMessage(baseUser, keyword, page, pagingRows) {
       .lean();
     result.messages = result.messages.concat(roomMessages);
     result.count +=
-      (await Message.countDocuments({
+      (await FlomMessage.countDocuments({
         roomID: { $in: roomRoomIds },
         $or: [
           { message: { $regex: regexMessage } },

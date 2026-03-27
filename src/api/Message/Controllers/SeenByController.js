@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { Const } = require("#config");
 const Utils = require("#utils");
 // const { auth } = require("#middleware");
-const { Message, User } = require("#models");
+const { FlomMessage, User } = require("#models");
 
 /**
  * @api {get} /api/v2/message/seenby/messageid Get list of users who've seen the message
@@ -22,7 +22,7 @@ router.get("/:messageid", async function (request, response) {
       return Base.successResponse(response, Const.responsecodeForwardMessageInvalidChatId);
     }
 
-    const message = await Message.findById(messageId).lean();
+    const message = await FlomMessage.findById(messageId).lean();
 
     if (!message) {
       return Base.successResponse(response, Const.responsecodeForwardMessageInvalidChatId);

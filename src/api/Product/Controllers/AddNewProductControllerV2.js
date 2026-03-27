@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const } = require("#config");
 const Utils = require("#utils");
-const { auth } = require("#middleware");
+const { auth, autoApproveProduct } = require("#middleware");
 const { Category, Product, User, ApiAccessLog, Sound } = require("#models");
 const { recombee } = require("#services");
 const { handleTags } = require("#logics");
@@ -16,6 +16,9 @@ const {
   handleVideoFile,
   handleImageFile,
   handleAudioFile,
+  sendApprovedProductNotifications,
+  sendApprovedProductBonuses,
+  sendNewsletterToSubscribers,
 } = require("../helpers");
 
 /**
@@ -231,8 +234,10 @@ const {
 router.post(
   "/new",
   auth({ allowUser: true, allowAdmin: true }),
+  autoApproveProduct,
   async function (request, response) {
     try {
+      const { autoApprove = false } = request;
       const { fields, files = {} } = await Utils.formParse(request);
       console.log("fields", fields, "files", files);
       const {
@@ -470,7 +475,7 @@ router.post(
           return Base.newErrorResponse({
             response,
             code: Const.responsecodeLinkedProductNotFound,
-            message: `UpdateProductController, linked product not found`,
+            message: `AddNewProductControllerV2, linked product not found`,
           });
         }
       }
@@ -494,7 +499,7 @@ router.post(
         if (coordinates[0] !== 0 || coordinates[1] !== 0) {
           await ApiAccessLog.create({
             type: "LocationIQ",
-            api: "UpdateProductController",
+            api: "AddNewProductControllerV2",
             userName: request.user.userName,
             createdDate: new Date(),
           });
@@ -510,7 +515,9 @@ router.post(
         await User.findByIdAndUpdate(ownerId, { location });
       }
 
-      const product = await Product.create({
+      let moderationStatus = isDraft ? Const.moderationStatusDraft : Const.moderationStatusPending;
+
+      let product = await Product.create({
         name,
         description,
         countryCode: owner.countryCode,
@@ -520,9 +527,7 @@ router.post(
         hashtags,
         location,
         address,
-        moderation: {
-          status: isDraft ? Const.moderationStatusDraft : Const.moderationStatusPending,
-        },
+        moderation: { status: moderationStatus, timestamp: Date.now() },
         ownerId,
         parentCategoryId,
         categoryId,
@@ -541,17 +546,44 @@ router.post(
         mediaProcessingInfo: { status: "processing" },
       });
 
+      let isWatermarked = false;
+      for (const key of Object.keys(files)) {
+        const file = files[key];
+        if (file.type.includes("video")) {
+          const ocrResult = await Utils.checkVideoForWatermarks({
+            filePath: file.path,
+            productId: product._id.toString(),
+          });
+          if (ocrResult) {
+            isWatermarked = true;
+            break;
+          }
+        }
+      }
+
+      moderationStatus = isDraft
+        ? Const.moderationStatusDraft
+        : autoApprove && !isWatermarked
+        ? Const.moderationStatusApproved
+        : Const.moderationStatusPending;
+
+      product = await Product.findByIdAndUpdate(
+        product._id,
+        { moderation: { status: moderationStatus, timestamp: Date.now() } },
+        { new: true, lean: true },
+      );
+
       try {
-        await recombee.upsertProduct({ product: product.toObject() });
+        await recombee.upsertProduct({ product });
       } catch (error) {
         logger.error(`AddNewProductControllerV2, ${product._id.toString()}, recombee`, error);
       }
 
       processMedia({ productId: product._id.toString(), files, type, isDraft });
 
-      await handleAudioForExpoPostProcessing({ product: product.toObject() });
+      await handleAudioForExpoPostProcessing({ product });
 
-      let productObj = product.toObject();
+      let productObj = product;
       delete productObj.__v;
 
       productObj.owner = {
@@ -576,6 +608,10 @@ router.post(
       }
 
       Base.successResponse(response, Const.responsecodeSucceed, { product: productObj });
+
+      sendApprovedProductNotifications({ product: productObj, owner: request.user });
+      sendApprovedProductBonuses({ product: productObj, owner: request.user });
+      sendNewsletterToSubscribers({ product: productObj, owner: request.user });
     } catch (error) {
       Base.newErrorResponse({
         response,
@@ -846,6 +882,8 @@ async function handleProcessingError({ productId, error }) {
 
   await Product.findByIdAndUpdate(productId, {
     mediaProcessingInfo: { status: "failed", error },
+    "moderation.status": Const.moderationStatusPending,
+    "moderation.timestamp": Date.now(),
   });
 
   return;

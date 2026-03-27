@@ -36,7 +36,7 @@ router.get(
       const filePath = Config.idPhotosPath + "/" + nameOnServer;
 
       try {
-        await fsp.access(filePath);
+        await fsp.access(filePath, fsp.constants.R_OK);
         return response.sendFile(filePath);
       } catch (error) {
         if (error.code !== "ENOENT") {
@@ -45,7 +45,7 @@ router.get(
       }
 
       try {
-        await fsp.access(filePath + ".jpg");
+        await fsp.access(filePath + ".jpg", fsp.constants.R_OK);
         return response.sendFile(filePath + ".jpg");
       } catch (error) {
         if (error.code !== "ENOENT") {

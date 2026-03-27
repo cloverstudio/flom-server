@@ -37,7 +37,7 @@ router.post("/", async (request, response) => {
     validatePhoneNumber(rawPhoneNumber.trim());
 
     const phoneNumber = Utils.formatPhoneNumber({ phoneNumber: rawPhoneNumber.trim() });
-    if (!phoneNumber) {
+    if (!phoneNumber || Const.flomAgentPhoneNumbers.includes(phoneNumber)) {
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeInvalidPhoneNumber,
@@ -509,7 +509,7 @@ async function detectFlooding() {
 
 async function detectUserFlooding({ phoneNumber }) {
   const user = await User.findOne({ phoneNumber }).lean();
-  if (user && user._id.toString() === Config.flomSupportUserId) {
+  if (user && user._id.toString() === Config.flomSupportAgentId) {
     return { flood: false };
   }
 

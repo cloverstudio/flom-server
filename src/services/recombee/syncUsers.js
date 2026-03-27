@@ -1,4 +1,5 @@
 const { logger } = require("#infra");
+const { countries } = require("#config");
 const { client, rqs } = require("./client").getClientAndRequest();
 const { User } = require("#models");
 

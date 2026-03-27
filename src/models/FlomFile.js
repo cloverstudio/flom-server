@@ -17,4 +17,4 @@ const schema = new mongoose.Schema(
   { timestamps: true },
 );
 
-module.exports = db.db1.model("File", schema, "flom_files");
+module.exports = db.db1.model("FlomFile", schema, "flom_files");

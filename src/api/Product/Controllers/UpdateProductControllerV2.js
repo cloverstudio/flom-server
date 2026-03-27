@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const } = require("#config");
 const Utils = require("#utils");
-const { auth } = require("#middleware");
+const { auth, autoApproveProduct } = require("#middleware");
 const { Category, Product, User, Sound } = require("#models");
 const { recombee } = require("#services");
 const { handleTags } = require("#logics");
@@ -19,6 +19,8 @@ const {
   handleAudioFile,
   deleteFile,
 } = require("../helpers");
+
+const util = require("util");
 
 /**
  * @api {patch} /api/v2/products/:productId/new Update product v2 flom_v1
@@ -212,10 +214,14 @@ const {
 router.patch(
   "/:productId/new",
   auth({ allowUser: true, allowAdmin: true, role: Const.Role.REVIEWER }),
+  autoApproveProduct,
   async function (request, response) {
     try {
+      const { autoApprove = false } = request;
+
       const { productId } = request.params;
-      const requestUserId = request.user._id.toString();
+      const user = request.user;
+      const requestUserId = user._id.toString();
       const isAdmin = request.isAdmin;
 
       if (!Utils.isValidObjectId(productId)) {
@@ -488,6 +494,21 @@ router.patch(
         }
       }
 
+      let isWatermarked = false;
+      for (const key of Object.keys(files)) {
+        const file = files[key];
+        if (file.type.includes("video")) {
+          const ocrResult = await Utils.checkVideoForWatermarks({
+            filePath: file.path,
+            productId: product._id.toString(),
+          });
+          if (ocrResult) {
+            isWatermarked = true;
+            break;
+          }
+        }
+      }
+
       if (publish && product.moderation.status === Const.moderationStatusDraft) {
         const { code, message } = checkDraftProduct(product) || {};
         if (code) {
@@ -498,17 +519,26 @@ router.patch(
           });
         }
 
-        product.moderation.status = Const.moderationStatusPending;
+        product.moderation.status =
+          autoApprove && !isWatermarked
+            ? Const.moderationStatusApproved
+            : Const.moderationStatusPending;
         product.created = Utils.now();
       } else if (!visibilityCheck && product.moderation.status === Const.moderationStatusApproved) {
-        product.moderation.status = Const.moderationStatusPending;
+        product.moderation.status =
+          autoApprove && !isWatermarked
+            ? Const.moderationStatusApproved
+            : Const.moderationStatusPending;
       } else if (
         product.moderation.status !== Const.moderationStatusDraft &&
         product.moderation.status !== Const.moderationStatusApproved &&
         product.moderation.status !== Const.moderationStatusApprovalNeeded &&
         !deleteImage
       ) {
-        product.moderation.status = Const.moderationStatusPending;
+        product.moderation.status =
+          autoApprove && !isWatermarked
+            ? Const.moderationStatusApproved
+            : Const.moderationStatusPending;
       }
 
       const { tags } = fields;
@@ -598,13 +628,13 @@ function checkVisibility({ fields, files, product }) {
   const { name, description, categoryId } = product;
   const productParams = { name, description, categoryId };
 
-  if (deleteImage || !_.isEmpty(files)) {
+  if (deleteImage || Object.keys(files).length > 0) {
     return false;
   }
 
   if (
     visibility !== product.visibility &&
-    (_.isEmpty(reqParams) || checkParams(reqParams, productParams))
+    (Object.keys(reqParams).length === 0 || checkParams(reqParams, productParams))
   ) {
     return true;
   }
@@ -641,8 +671,10 @@ async function handleAudiosForExpo({
       !product.audiosForExpo || product.audiosForExpo.length === 0
         ? []
         : product.audiosForExpo.map((a) => a.nameOnServer);
+    currentAudioNames.sort();
     const newAudioNames = audioFileNames;
-    if (_.isEqual(currentAudioNames.sort(), newAudioNames.sort())) {
+    newAudioNames.sort();
+    if (util.isDeepStrictEqual(currentAudioNames, newAudioNames)) {
       return {};
     }
 
@@ -879,6 +911,8 @@ async function handleProcessingError({ productId, error }) {
 
   await Product.findByIdAndUpdate(productId, {
     mediaProcessingInfo: { status: "failed", error },
+    "moderation.status": Const.moderationStatusPending,
+    "moderation.timestamp": Date.now(),
   });
 
   return;

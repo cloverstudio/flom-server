@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { auth } = require("#middleware");
+const { auth, autoApproveProduct } = require("#middleware");
 const { Category, Product, User, ApiAccessLog } = require("#models");
 const { handleTags } = require("#logics");
 const { recombee } = require("#services");
@@ -13,7 +13,14 @@ const mediaHandler = require("#media");
 const fsp = require("fs/promises");
 const fs = require("fs");
 const sharp = require("sharp");
-const { checkTribeVisibility, checkCommunityVisibility, isLanguageValid } = require("../helpers");
+const {
+  checkTribeVisibility,
+  checkCommunityVisibility,
+  isLanguageValid,
+  sendApprovedProductNotifications,
+  sendApprovedProductBonuses,
+  sendNewsletterToSubscribers,
+} = require("../helpers");
 
 /**
  * @api {post} /api/v2/product/add/new Add Product v2 flom_v1
@@ -185,8 +192,10 @@ const { checkTribeVisibility, checkCommunityVisibility, isLanguageValid } = requ
  * @apiError (Errors) 400162 Link not valid
  */
 
-router.post("/", auth({ allowUser: true }), async function (request, response) {
+router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (request, response) {
   try {
+    const { autoApprove = false } = request;
+
     let { fields, files } = await Utils.formParse(request);
 
     if (fields.productPrice || fields.maxPrice || fields.minPrice) {
@@ -446,7 +455,12 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     product.type = +type;
     product.visibility = visibility;
     product.moderation = {
-      status: isDraft ? Const.moderationStatusDraft : Const.moderationStatusPending,
+      status: isDraft
+        ? Const.moderationStatusDraft
+        : autoApprove
+        ? Const.moderationStatusApproved
+        : Const.moderationStatusPending,
+      timestamp: Date.now(),
     };
     product.language = language;
 
@@ -528,6 +542,10 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     Base.successResponse(response, Const.responsecodeSucceed, productObj);
+
+    sendApprovedProductNotifications({ product: productObj, owner: request.user });
+    sendApprovedProductBonuses({ product: productObj, owner: request.user });
+    sendNewsletterToSubscribers({ product: productObj, owner: request.user });
   } catch (e) {
     if (e.message === "Error while compressing video file") {
       return Base.newErrorResponse({
@@ -689,7 +707,11 @@ async function processMedia({ productId, files }) {
           fileMimeType = "image/jpeg";
           fileSize = newFile.size;
 
-          let thumb = await Utils.generateImageThumbnail(newFile, newFileName, thumbFileName);
+          let thumb = await Utils.generateImageThumbnail(
+            newFile,
+            newFileName + ".jpg",
+            thumbFileName,
+          );
 
           thumbSize = thumb.image.size;
           thumbMimeType = "image/jpeg";
@@ -747,6 +769,8 @@ async function handleProcessingError({ productId, error }) {
 
   await Product.findByIdAndUpdate(productId, {
     mediaProcessingInfo: { status: "failed", error },
+    "moderation.status": Const.moderationStatusPending,
+    "moderation.timestamp": Date.now(),
   });
 
   return;

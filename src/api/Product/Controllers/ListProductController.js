@@ -351,7 +351,7 @@ function getLocationFromString(locString) {
 function getCategoryIdsFromString(catString) {
   return catString == undefined
     ? undefined
-    : catString.split(",").map((str) => mongoose.Types.ObjectId(str));
+    : catString.split(",").map((str) => new mongoose.Types.ObjectId(`${str}`));
 }
 
 function addDistField(product, location) {

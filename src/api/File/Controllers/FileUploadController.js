@@ -4,7 +4,8 @@ const router = require("express").Router();
 const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const, Config } = require("#config");
-const { File } = require("#models");
+const Utils = require("#utils");
+const { FlomFile } = require("#models");
 const mediaHandler = require("#media");
 const fs = require("fs");
 const fsp = require("fs/promises");
@@ -36,14 +37,22 @@ router.post("", async function (request, response) {
       return;
     }
 
-    const { fields, files } = await form.parse(request);
+    const { fields, files } = await Utils.formParse(request, {
+      keepExtensions: true,
+      uploadDir: Config.uploadPath,
+    });
 
-    if (!files.file) {
+    if (Object.keys(files).length === 0) {
       Base.successResponse(response, Const.responsecodeMessageFileUploadFailed);
       return;
     }
 
-    const file = files.file;
+    const file = files[Object.keys(files)[0]];
+
+    if (!file) {
+      Base.successResponse(response, Const.responsecodeMessageFileUploadFailed);
+      return;
+    }
 
     let mediaDuration;
     if (file.type.indexOf("audio") > -1 || file.type.indexOf("video") > -1) {
@@ -55,7 +64,7 @@ router.post("", async function (request, response) {
       }
     }
 
-    const newFile = await File.create({
+    const newFile = await FlomFile.create({
       name: file.name,
       mimeType: file.type,
       size: file.size,
@@ -88,7 +97,7 @@ router.post("", async function (request, response) {
           height: 256,
         });
 
-        thumbModel = await File.create({
+        thumbModel = await FlomFile.create({
           name: "thumb_" + file.name,
           mimeType: "image/jpeg",
           size: (await fsp.stat(destPathTmp)).size,

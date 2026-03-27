@@ -125,6 +125,7 @@ const schema = new mongoose.Schema(
     moderation: {
       status: { type: Number, default: Const.moderationStatusPending }, // 1 - pending, 2 - rejected, 3 - approved
       comment: String,
+      timestamp: Number,
     },
     type: { type: Number }, // 1 - video, 2 - video story, 3 - podcast, 4 - text story, 5 - product
     tags: String,
@@ -212,19 +213,5 @@ schema.index({ hashtags: -1 });
 schema.index({ featured: -1 });
 
 schema.index({ _id: -1, isDeleted: -1 });
-
-schema.post(/find/, function (docs) {
-  const arr = !Array.isArray(docs) ? [docs] : docs;
-
-  for (let i = 0; i < arr.length; i++) {
-    if (arr[i].reservations && arr[i].reservations.length > 0) {
-      let totalReserved = 0;
-      for (const reservation of arr[i].reservations) {
-        totalReserved += reservation.quantity;
-      }
-      arr[i].itemCount = arr[i].itemCount - totalReserved;
-    }
-  }
-});
 
 module.exports = db.db1.model("Product", schema, "products");

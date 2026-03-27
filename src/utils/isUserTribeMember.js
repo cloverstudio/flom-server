@@ -7,7 +7,7 @@ async function isUserTribeMember({ productTribeIds, userId }) {
     }
     const filteredTribeIds = productTribeIds.filter((id) => id !== "");
     const productTribes = await Tribe.find({ _id: { $in: filteredTribeIds } }).lean();
-    if (_.isEmpty(productTribes)) return false;
+    if (!productTribes || productTribes.length === 0) return false;
     for (let i = 0; i < productTribes.length; i++) {
       if (userId === productTribes[i].ownerId) {
         return true;

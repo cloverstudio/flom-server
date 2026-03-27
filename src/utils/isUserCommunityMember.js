@@ -9,7 +9,7 @@ async function isUserCommunityMember({ productCommunityIds, userId }) {
     }
     const filteredCommunityIds = productCommunityIds.filter((id) => id !== "");
     const productCommunities = await Membership.find({ _id: { $in: filteredCommunityIds } }).lean();
-    if (_.isEmpty(productCommunities)) return false;
+    if (!productCommunities || productCommunities.length === 0) return false;
     for (let i = 0; i < productCommunities.length; i++) {
       if (userId === productCommunities[i].creatorId) {
         return true;

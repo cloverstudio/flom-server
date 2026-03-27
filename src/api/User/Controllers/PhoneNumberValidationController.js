@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { User, Message } = require("#models");
+const { User, FlomMessage } = require("#models");
 const { sendMessage } = require("#logics");
 
 /*
@@ -63,6 +63,15 @@ router.post("/", async (request, response) => {
       return Base.successResponse(response, Const.responsecodeNoActivationCode);
     }
 
+    if (Const.flomAgentPhoneNumbers.includes(phoneNumber)) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeInvalidPhoneNumber,
+        type: Const.logTypeLogin,
+        message: `PhoneNumberValidationController, ${phoneNumber} invalid phone number`,
+      });
+    }
+
     let user = await User.findOne({ phoneNumber: phoneNumber }).lean();
 
     if (!user) {
@@ -88,7 +97,7 @@ router.post("/", async (request, response) => {
       return Base.successResponse(response, Const.responsecodeSignupInvalidActivationCode);
     }
 
-    const senderUser = await User.findOne({ _id: Config.flomSupportUserId }).lean();
+    const senderUser = await User.findOne({ _id: Config.flomSupportAgentId }).lean();
 
     await sendMsg(senderUser, user);
 
@@ -263,9 +272,9 @@ async function sendMsg(senderUser, receiverUser) {
 
   const chatIdFatAiIncluded = Utils.chatIdByUser(FatAiUser, receiverUser);
 
-  const oldMessages = await Message.find({ roomID: chatId });
+  const oldMessages = await FlomMessage.find({ roomID: chatId });
 
-  const oldMessagesFatAi = await Message.find({ roomID: chatIdFatAiIncluded });
+  const oldMessagesFatAi = await FlomMessage.find({ roomID: chatIdFatAiIncluded });
 
   if (!oldMessages || !oldMessages.length) {
     const messageParams = {

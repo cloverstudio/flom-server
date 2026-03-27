@@ -151,17 +151,17 @@ router.patch("/:tribeId", auth({ allowUser: true }), async (request, response) =
     // in case tribe has no roomId create empty object, which will be filled with data and then ignored, instead of breaking the app
     if (!roomId) room = {};
 
-    if (name && _.isString(name)) {
+    if (name && typeof name === "string") {
       tribe.name = name;
       room.name = name;
       roomUpdated = true;
     }
-    if (description && _.isString(description)) {
+    if (description && typeof description === "string") {
       tribe.description = description;
       room.description = description;
       roomUpdated = true;
     }
-    if ((addMembers && _.isString(addMembers)) || addMembersWithRoles) {
+    if ((addMembers && typeof addMembers === "string") || addMembersWithRoles) {
       let { formattedUsers, usersToNotify, code, message } =
         (await checkUsers({
           members: addMembers,
@@ -267,7 +267,7 @@ router.patch("/:tribeId", auth({ allowUser: true }), async (request, response) =
       }
     }
 
-    if (removeMembers && _.isString(removeMembers)) {
+    if (removeMembers && typeof removeMembers === "string") {
       const removeUserIds = removeMembers.split(",").filter((id) => Utils.isValidObjectId(id));
       const acceptedUsersToRemove = tribe.members.accepted.filter(
         (member) => removeUserIds.includes(member.id) && member.role < requestUserRole,
@@ -345,7 +345,7 @@ router.patch("/:tribeId", auth({ allowUser: true }), async (request, response) =
       tribe.markModified("members");
     }
 
-    const imageDelete = deleteImage && _.isString(deleteImage) && deleteImage === "1";
+    const imageDelete = deleteImage && typeof deleteImage === "string" && deleteImage === "1";
 
     if (!imageDelete && image && image.type.split("/")[0] === "image") {
       tribe.image = formatImageData(image);

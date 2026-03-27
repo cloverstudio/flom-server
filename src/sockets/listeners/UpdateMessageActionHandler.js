@@ -1,6 +1,6 @@
 const { Const } = require("#config");
 const { logger, encryptionManager } = require("#infra");
-const { History, Message } = require("#models");
+const { History, FlomMessage } = require("#models");
 const { notifyUpdateMessage } = require("#logics");
 
 module.exports = function (socket) {
@@ -28,7 +28,7 @@ module.exports = function (socket) {
         return;
       }
 
-      const message = await Message.findById(param.messageID).lean();
+      const message = await FlomMessage.findById(param.messageID).lean();
       if (!message) {
         logger.error("updateMessage socket, no message found");
         return;
@@ -45,11 +45,11 @@ module.exports = function (socket) {
         });
       }
 
-      await Message.findByIdAndUpdate(message._id.toString(), {
+      await FlomMessage.findByIdAndUpdate(message._id.toString(), {
         message: encryptionManager.decryptText(newMessage),
       });
 
-      const messages = await Message.populateMessages(message);
+      const messages = await FlomMessage.populateMessages(message);
 
       if (messages.length > 0) {
         const obj = messages[0];

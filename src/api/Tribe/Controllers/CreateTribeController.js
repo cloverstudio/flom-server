@@ -78,7 +78,7 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
     const isHidden = data?.fields?.isHidden === "true" ? true : false;
     const image = data?.files?.image;
 
-    if (!_.isString(name)) {
+    if (typeof name !== "string" || name.trim().length === 0) {
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeTribeInvalidName,
@@ -86,7 +86,7 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
       });
     }
 
-    if (!_.isString(description)) {
+    if (typeof description !== "string" || description.trim().length === 0) {
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeTribeInvalidDescription,

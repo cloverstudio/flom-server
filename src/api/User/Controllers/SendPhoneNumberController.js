@@ -183,7 +183,7 @@ router.post("/", (request, response) => {
             pushTokens: [],
           };
 
-          if (!_.isEmpty(newPushToken)) UUIDObj.pushTokens.push(newPushToken);
+          if (newPushToken) UUIDObj.pushTokens.push(newPushToken);
 
           uuidAry.push(UUIDObj);
           user.pushToken = newPushToken;

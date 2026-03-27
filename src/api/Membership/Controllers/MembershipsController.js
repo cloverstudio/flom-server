@@ -352,7 +352,7 @@ router.patch("/:membershipId", auth({ allowUser: true }), async function (reques
 
     console.log("data", data);
 
-    const imageDelete = deleteImage && _.isString(deleteImage) && deleteImage === "1";
+    const imageDelete = deleteImage && typeof deleteImage === "string" && deleteImage === "1";
 
     if (!imageDelete && image && image.type.split("/")[0] === "image") {
       membership.image = formatImageData(image);

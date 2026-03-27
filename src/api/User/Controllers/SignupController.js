@@ -106,7 +106,7 @@ router.post("/sendSms", async (request, response) => {
       * @apiGroup WebAPI
       * @apiDescription Verifies if flom agent can login as user
       *   
-      * @apiParam {String} flomAgentId flomAgentId
+      * @apiParam {String} flomSupportAgentId flomSupportAgentId
       * @apiParam {String} userId userId
       * 
       * @apiSuccessExample Success-Response:
@@ -121,10 +121,10 @@ router.post("/sendSms", async (request, response) => {
      */
 router.post("/verifyFlomAgent", async (request, response) => {
   try {
-    const flomAgentId = request.body.flomAgentId;
+    const flomSupportAgentId = request.body.flomSupportAgentId;
     const userId = request.body.userId;
 
-    if (!flomAgentId) {
+    if (!flomSupportAgentId) {
       return Base.successResponse(response, Const.responsecodeNoFlomAgentId);
     }
 
@@ -132,7 +132,7 @@ router.post("/verifyFlomAgent", async (request, response) => {
       return Base.successResponse(response, Const.responsecodeNoUserId);
     }
 
-    const users = await User.find({ _id: { $in: [flomAgentId, userId] } }).lean();
+    const users = await User.find({ _id: { $in: [flomSupportAgentId, userId] } }).lean();
 
     if (users.length !== 2) {
       return Base.successResponse(response, Const.responsecodeFlomAgentNotVerified);
@@ -153,7 +153,7 @@ router.post("/verifyFlomAgent", async (request, response) => {
           verified = true;
         }
       } else if (flomAgent.permission === Const.userPermission.flomAgent) {
-        if (nonAppUser.flomAgentId === flomAgent._id.toString()) {
+        if (nonAppUser.flomSupportAgentId === flomAgent._id.toString()) {
           verified = true;
         }
       }

@@ -1,6 +1,6 @@
 const { logger } = require("#infra");
 const { Const } = require("#config");
-const { Message, User } = require("#models");
+const { FlomMessage, User } = require("#models");
 
 async function getAllUnreadTextMessages(phoneNumber) {
   try {
@@ -10,7 +10,7 @@ async function getAllUnreadTextMessages(phoneNumber) {
       throw new Error("user doesn't exist");
     }
 
-    const unDeliveredMessages = await Message.find({
+    const unDeliveredMessages = await FlomMessage.find({
       sentTo: receiverUser._id.toString(),
       deliveredTo: { $not: { $elemMatch: { userId: receiverUser._id.toString() } } },
       seenBy: { $not: { $elemMatch: { user: receiverUser._id.toString() } } },

@@ -288,7 +288,7 @@ router.get("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (reque
  *                 ]
  *             },
  *             "isAppUser": true,
- *             "flomAgentId": null,
+ *             "flomSupportAgentId": null,
  *             "newUserNotificationSent": false,
  *             "followedBusinesses": [],
  *             "likedProducts": [],
@@ -456,7 +456,7 @@ async function getUserDetails(user, requestToken) {
 
   let groupsLimited = user.groups;
 
-  if (_.isArray(groupsLimited)) {
+  if (Array.isArray(groupsLimited)) {
     groupsLimited = groupsLimited.slice(0, 20);
 
     groupsLimited = groupsLimited.map(function (item) {

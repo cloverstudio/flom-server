@@ -98,11 +98,11 @@ async function notifyNewMessage(obj, originalRequestData) {
 
       result.organizationId = toUserObj.organizationId;
 
-      if (result.sender && _.isArray(toUserObj.muted)) {
+      if (result.sender && Array.isArray(toUserObj.muted)) {
         if (toUserObj.muted.indexOf(result.sender._id.toString()) != -1) muteNotification = true;
       }
 
-      // send to my Base
+      // send to my self
       socketApi.flom.emitToRoom(fromUser, "newmessage", messageCloned);
 
       // send to user who got message
@@ -120,7 +120,7 @@ async function notifyNewMessage(obj, originalRequestData) {
         ],
       }).lean();
 
-      const flomAgent = await User.findById(Config.flomSupportUserId).lean();
+      const flomAgent = await User.findById(Config.flomSupportAgentId).lean();
       socketApi.flom.emitToRoom(flomAgent, "newmessage", messageCloned);
 
       for (const user of usersToNotify) {
