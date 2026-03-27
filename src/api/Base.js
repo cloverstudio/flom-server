@@ -5,7 +5,7 @@ const { Localizer } = require("#services");
 
 function errorResponse(response, httpCode, message, error) {
   if (message && error) {
-    logger.warn(message, error);
+    logger.error(message, error);
   }
   response.status(httpCode);
   response.send("");
@@ -18,7 +18,7 @@ function successResponse(response, code, data) {
   response.set("connection", "Keep-alive");
 
   if (code != Const.responsecodeSucceed) {
-    logger.warn(`Error code: ${code}`);
+    logger.error(`Error code: ${code}`);
 
     const { lang } = response;
     delete response.lang;
@@ -55,8 +55,8 @@ function newErrorResponse({ response, code, type, message, error, data, param, p
   const loc = new Localizer(lang);
 
   if (code !== Const.responsecodeNoActiveLiveStreamFoundForUser) {
-    if (!error) logger.warn(`Error code: ${code} | Error message: ${message}`);
-    else logger.warn(`Error code: ${code} | Error message: ${message}`, error);
+    if (!error) logger.error(`Error code: ${code} | Error message: ${message}`);
+    else logger.error(`Error code: ${code} | Error message: ${message}`, error);
   }
 
   response.status(Const.httpCodeSucceed);
