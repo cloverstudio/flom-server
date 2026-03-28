@@ -3,7 +3,7 @@
 const router = require("express").Router();
 const Base = require("../../Base");
 const { Const } = require("#config");
-const { Order } = require("#models");
+const { Order, Transfer } = require("#models");
 const { auth } = require("#middleware");
 
 /**
@@ -88,6 +88,8 @@ router.patch(
         },
         { new: true, lean: true },
       );
+
+      await Transfer.findByIdAndUpdate(order.transferId, { $set: { eligibleForPayout: true } });
 
       const responseData = { order: updatedOrder };
       Base.successResponse(response, Const.responsecodeSucceed, responseData);
