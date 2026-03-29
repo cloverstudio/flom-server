@@ -142,7 +142,7 @@ async function handlePayment({ auction, isFromAccept = false }) {
       message: "",
       status: Const.transferPrepayment,
       source: "flom_v1",
-      eligibleForPayout: true,
+      eligibleForPayout: false,
       satsAmount: bid.valueInSats,
       localAmountSender,
       localAmountReceiver,

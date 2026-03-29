@@ -2,7 +2,7 @@
 
 const router = require("express").Router();
 const Base = require("../../Base");
-const { Const, Config } = require("#config");
+const { Const, Config, countries } = require("#config");
 const Utils = require("#utils");
 const { Order, User } = require("#models");
 const { auth } = require("#middleware");
@@ -212,6 +212,10 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
     if (trackingNumber) updateObj.$set["shipping.trackingNumber"] = trackingNumber;
     if (formattedFiles.length > 0) updateObj.$set["shipping.files"] = formattedFiles;
 
+    const payoutEligibilityDate = getPayoutEligibilityDate({ trackingNumber });
+
+    updateObj.$set.eligibleForPayoutAt = payoutEligibilityDate;
+
     const updatedOrder = await Order.findByIdAndUpdate(order._id, updateObj, {
       new: true,
       lean: true,
@@ -298,6 +302,19 @@ async function handleFiles(files) {
   }
 
   return { err: null, msg: null, formattedFiles };
+}
+
+function getPayoutEligibilityDate({ trackingNumber }) {
+  try {
+    if (trackingNumber) {
+      return Date.now() + 2 * 24 * 60 * 60 * 1000; // 2 days from now
+    }
+
+    return Date.now() + 21 * 24 * 60 * 60 * 1000; // default to 21 days from now
+  } catch (error) {
+    logger.error("ShipOrderController, error determining payout eligibility date: ", error);
+    return Date.now() + 21 * 24 * 60 * 60 * 1000; // default to 21 days from now
+  }
 }
 
 module.exports = router;

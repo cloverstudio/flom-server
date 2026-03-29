@@ -36,6 +36,7 @@ const schema = new mongoose.Schema(
     shippedAt: Number,
     overdue: { type: Boolean, default: false },
     deliveredAt: Number,
+    eligibleForPayoutAt: Number,
     shipping: {
       origin: {
         name: String,
