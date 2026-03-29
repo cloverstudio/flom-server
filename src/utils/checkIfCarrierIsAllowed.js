@@ -1,5 +1,5 @@
 const twilio = require("twilio");
-const { Config, Const } = require("#config");
+const { Config, Const, countries } = require("#config");
 const { BlockedNumber } = require("#models");
 const sendRequest = require("./sendRequest");
 const formatPhoneNumber = require("./formatPhoneNumber");
@@ -68,7 +68,7 @@ async function checkIfCarrierIsAllowed(phoneNumber) {
       sendEmailWithSG(
         "New registration with banned carrier",
         `New user registration attempt with phone number ${phoneNumberFormatted}, carrier name: ${carrier.name}`,
-        Config.blockedNumberEmail
+        Config.blockedNumberEmail,
       );
 
       return defaultReturnObject;
@@ -94,13 +94,13 @@ async function checkIfCarrierIsAllowed(phoneNumber) {
       sendEmailWithSG(
         "New registration with voip carrier",
         `New user registration attempt with phone number ${phoneNumberFormatted}, carrier name: ${carrier.name}`,
-        Config.blockedNumberEmail
+        Config.blockedNumberEmail,
       );
     } else if (line_type) {
       sendEmailWithSG(
         "New registration with voip carrier",
         `New user registration attempt with phone number ${phoneNumberFormatted}, carrier name: ${line_carrier}`,
-        Config.blockedNumberEmail
+        Config.blockedNumberEmail,
       );
     }
 
