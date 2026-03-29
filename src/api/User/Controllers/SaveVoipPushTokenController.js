@@ -43,7 +43,7 @@ router.post("", auth({ allowUser: true }), async function (request, response) {
       return Base.successResponse(response, Const.responsecodeSavePushTokenWrongToken);
     }
 
-    const user = request.user;
+    let user = request.user;
 
     if (user.voipPushToken && user.voipPushToken.includes(request.body.pushToken)) {
       return Base.successResponse(response, Const.responsecodeSucceed);
