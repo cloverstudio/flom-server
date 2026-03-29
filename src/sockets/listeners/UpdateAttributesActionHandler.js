@@ -36,59 +36,60 @@ module.exports = function (socket) {
       const updateParams = { attributes: newAttributes };
       if (message.type == Const.messageTypeOffer || message.type == Const.messageTypeRequestPay) {
         updateParams.created = Date.now();
-      }
-      await FlomMessage.findByIdAndUpdate(param.messageID, updateParams);
 
-      let pushType = null,
-        stub = "";
-      switch (newAttributes.product.status) {
-        case Const.offerMessageStatusInitiated:
-          pushType = Const.pushTypeOfferInitiated;
-          stub = " ";
-          break;
-        case Const.offerMessageStatusAccepted:
-          pushType = Const.pushTypeOfferAccepted;
-          stub = " accepted ";
-          break;
-        case Const.offerMessageStatusRejected:
-          pushType = Const.pushTypeOfferRejected;
-          stub = " rejected ";
-          break;
-        case Const.offerMessageStatusRefused:
-          pushType = Const.pushTypeOfferRefused;
-          stub = " refused ";
-        default:
-          pushType = null;
-          break;
-      }
+        await FlomMessage.findByIdAndUpdate(param.messageID, updateParams);
 
-      if (pushType) {
-        const productName = message.attributes.product.name;
-        const roomId = message.roomID;
-        const temp = roomId.split("-");
-        const receiver1 = temp[1];
-        const receiver2 = temp[2];
-        const message = `Offer${stub}for item ${productName}`;
+        let pushType = null,
+          stub = "";
+        switch (newAttributes.product.status) {
+          case Const.offerMessageStatusInitiated:
+            pushType = Const.pushTypeOfferInitiated;
+            stub = " ";
+            break;
+          case Const.offerMessageStatusAccepted:
+            pushType = Const.pushTypeOfferAccepted;
+            stub = " accepted ";
+            break;
+          case Const.offerMessageStatusRejected:
+            pushType = Const.pushTypeOfferRejected;
+            stub = " rejected ";
+            break;
+          case Const.offerMessageStatusRefused:
+            pushType = Const.pushTypeOfferRefused;
+            stub = " refused ";
+          default:
+            pushType = null;
+            break;
+        }
 
-        Utils.sendFlomPush({
-          senderId: Config.flomSupportAgentId,
-          receiverId: receiver1,
-          message,
-          messageiOs: message,
-          pushType,
-          isMuted: false,
-          roomId,
-        });
+        if (pushType) {
+          const productName = message.attributes.product.name;
+          const roomId = message.roomID;
+          const temp = roomId.split("-");
+          const receiver1 = temp[1];
+          const receiver2 = temp[2];
+          const message = `Offer${stub}for item ${productName}`;
 
-        Utils.sendFlomPush({
-          senderId: Config.flomSupportAgentId,
-          receiverId: receiver2,
-          message,
-          messageiOs: message,
-          pushType,
-          isMuted: false,
-          roomId,
-        });
+          Utils.sendFlomPush({
+            senderId: Config.flomSupportAgentId,
+            receiverId: receiver1,
+            message,
+            messageiOs: message,
+            pushType,
+            isMuted: false,
+            roomId,
+          });
+
+          Utils.sendFlomPush({
+            senderId: Config.flomSupportAgentId,
+            receiverId: receiver2,
+            message,
+            messageiOs: message,
+            pushType,
+            isMuted: false,
+            roomId,
+          });
+        }
       }
 
       const messages = await FlomMessage.populateMessages(message);
