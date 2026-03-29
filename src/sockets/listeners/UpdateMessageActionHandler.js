@@ -35,7 +35,7 @@ module.exports = function (socket) {
       }
 
       const histories = await History.find({
-        "lastMessage.messageId": result.message._id.toString(),
+        "lastMessage.messageId": message._id.toString(),
       }).lean();
 
       for (const element of histories) {
