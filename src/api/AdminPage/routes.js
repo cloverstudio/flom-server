@@ -22,8 +22,8 @@ router.use(
 router.use("/admin-page/moderators-jobs", require("./Controllers/ModeratorsJobController.js"));
 router.use("/admin-page/password-reset", require("./Controllers/PasswordResetController.js"));
 router.use("/admin-page/payment-logs", require("./Controllers/PaymentLogController.js"));
-router.use("/admin-page/payout", require("./Controllers/PayoutController.js"));
 router.use("/admin-page/payout/limits", require("./Controllers/PayoutLimitsController.js"));
+router.use("/admin-page/payout", require("./Controllers/PayoutController.js"));
 router.use(
   "/admin-page/product-moderation-logs",
   require("./Controllers/ProductModerationLogController.js"),
