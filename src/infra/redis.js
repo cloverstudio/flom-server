@@ -25,8 +25,12 @@ async function init() {
   client.on("error", (error) => logger.error("Redis client error", error));
   client.on("connect", () => logger.notice("Redis client connecting..."));
   client.on("ready", () => logger.notice("Redis client ready"));
-  client.on("reconnecting", () => logger.warn("Redis client reconnecting"));
-  client.on("end", () => logger.warn("Redis connection closed"));
+  client.on("reconnecting", () => logger.notice("Redis client reconnecting"));
+  client.on("end", () => logger.error("Redis connection closed"));
+  const originalQuit = client.quit.bind(client);
+  client.quit = () => {
+    logger.error("Redis client, quit called!");
+  };
 
   try {
     await client.connect();
