@@ -412,15 +412,15 @@ router.get("/", async function (request, response) {
             .filter((key) => allowed.includes(key))
             .reduce((obj, key) => {
               if (key === "image" && product[key] != []) {
-                var imageObject = {};
-                var arr = [];
+                let imageObject = {};
+                let arr = [];
                 product[key].map((product) => arr.push({ thumb: product.thumb }));
                 imageObject = arr;
 
                 obj[key] = imageObject;
               } else if (key === "file" && product[key] != []) {
-                var fileObject = {};
-                var arr = [];
+                let fileObject = {};
+                let arr = [];
                 product[key].map((product) => arr.push({ thumb: product.thumb }));
                 fileObject = arr;
 
@@ -516,8 +516,7 @@ async function checkTokenAndRole({
       }
       if (includedRoles?.length) {
         if (includedRoles.indexOf(requestUserRole) !== -1) {
-          request.user = user;
-          return next();
+          return { user };
         } else {
           return { code: Const.responsecodeUnauthorized };
         }
@@ -860,7 +859,7 @@ async function addParentCategoryIdToProducts() {
     });
 
     const products = await Product.find({});
-    const updatedProductsCount = 0;
+    let updatedProductsCount = 0;
     for (let i = 0; i < products.length; i++) {
       const product = products[i];
       if (!product.parentCategoryId) {

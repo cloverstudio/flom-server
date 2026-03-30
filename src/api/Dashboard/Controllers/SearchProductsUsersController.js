@@ -662,7 +662,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
         };
       });
 
-      var soldWithUsers = await addUsersForSold(sold, username);
+      const soldWithUsers = await addUsersForSold(sold, username);
 
       const hasNext = page * Const.newPagingRows < soldWithUsers.length;
 
@@ -706,7 +706,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
         };
       });
 
-      var soldWithUsers = await addUsersForSold(soldOffer, username);
+      const soldWithUsers = await addUsersForSold(soldOffer, username);
 
       const hasNext = page * Const.newPagingRows < soldWithUsers.length;
 

@@ -44,7 +44,7 @@ async function sendMessage(param) {
       let msgReceiver;
       msgType[1] === userID ? (msgReceiver = msgType[2]) : (msgReceiver = msgType[1]);
 
-      if (!msgReceiver) return done(Const.responsecodeUnknownError);
+      if (!msgReceiver) throw new Error("no mesgReceiver found for roomID: " + roomID);
 
       receiver = await User.findById(msgReceiver, { token: 0 }).lean();
       if (!receiver) {

@@ -1,6 +1,7 @@
 "use strict";
 
 const router = require("express").Router();
+const { logger } = require("#infra");
 const Base = require("../../Base");
 const { Const } = require("#config");
 const Utils = require("#utils");
@@ -382,40 +383,44 @@ async function getTransferNotifications({ userId, userPhoneNumber }) {
       }
 
       if (senderId === userId && transferType !== Const.transferTypeCreditPackage) {
-        if (ignoreActionString) {
-        } else if (status === Const.transferWaitingForFulfillment) {
-          title += loc.s(Const.stringpending);
-        } else if (
-          status === Const.transferComplete &&
-          transferType !== Const.transferTypeSatsPurchase
-        ) {
-          title += loc.s(Const.stringsent);
-        } else if (
-          status === Const.transferComplete &&
-          transferType === Const.transferTypeSatsPurchase
-        ) {
-          title += loc.s(Const.stringcompleted);
-        } else {
-          if (transfers[i].paymentProcessingInfo?.payPalCanceled) {
-            title += loc.s(Const.stringcanceled);
+        if (!ignoreActionString) {
+          if (status === Const.transferWaitingForFulfillment) {
+            title += loc.s(Const.stringpending);
+          } else if (
+            status === Const.transferComplete &&
+            transferType !== Const.transferTypeSatsPurchase
+          ) {
+            title += loc.s(Const.stringsent);
+          } else if (
+            status === Const.transferComplete &&
+            transferType === Const.transferTypeSatsPurchase
+          ) {
+            title += loc.s(Const.stringcompleted);
           } else {
-            title += loc.s(Const.stringfailed);
+            if (transfers[i].paymentProcessingInfo?.payPalCanceled) {
+              title += loc.s(Const.stringcanceled);
+            } else {
+              title += loc.s(Const.stringfailed);
+            }
           }
         }
-        if (transfers[i].receiverPhoneNumber)
+
+        if (transfers[i].receiverPhoneNumber) {
           notificationData.to =
             transfers[i].receiverPhoneNumber === "Global"
               ? transfers[i].lightningAppName ?? "Internet"
               : transfers[i].receiverPhoneNumber === "Local"
               ? "Local"
               : transfers[i].receiverPhoneNumber;
-        else if (transfers[i].receivers?.length > 0) {
+        } else if (transfers[i].receivers?.length > 0) {
           const roomIdArray = !transfers[i].roomId ? null : transfers[i].roomId.split("-");
           const roomId = !roomIdArray ? null : roomIdArray[roomIdArray.length - 1];
           let transferRoom;
           try {
             transferRoom = !roomId ? null : await Room.findOne({ _id: roomId }).lean();
-          } catch (error) {}
+          } catch (error) {
+            logger.error("Error fetching room for transfer notification", error);
+          }
           notificationData.to = !transferRoom ? loc.s(Const.stringGroup_chat) : transferRoom.name;
         }
       } else {
@@ -586,7 +591,9 @@ async function getRequestTransferNotifications({ userId, userPhoneNumber }) {
         let transferRoom;
         try {
           transferRoom = !roomId ? null : await Room.findOne({ _id: roomId }).lean();
-        } catch (error) {}
+        } catch (error) {
+          logger.error("Error fetching room for transfer notification", error);
+        }
         notificationData.to = !transferRoom ? loc.s(Const.stringGroup_chat) : transferRoom.name;
         notificationData.roomId = !roomId || !transferRoom ? null : roomId;
       } else {

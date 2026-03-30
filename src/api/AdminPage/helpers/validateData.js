@@ -109,7 +109,7 @@ async function validateAndUpdateUserData({
   if (
     role &&
     role !== "" &&
-    +role !== NaN &&
+    !isNaN(+role) &&
     Const.adminPageRoles.indexOf(+role) !== -1 &&
     role < requestUserRole
   ) {

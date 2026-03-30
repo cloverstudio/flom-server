@@ -43,10 +43,7 @@ async function getSimilarProducts({ product, subscriber }) {
   const ownerId = product.ownerId;
 
   const { userRate, userCountryCode, userCurrency, conversionRates } =
-    await Utils.getUsersConversionRate({
-      user: subscriber,
-      accessToken: request.headers["access-token"],
-    });
+    await Utils.getUsersConversionRate({ user: subscriber });
 
   const kidsMode = subscriber.kidsMode;
   const blocked = subscriber.blocked || [];

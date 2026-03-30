@@ -143,9 +143,9 @@ async function notifyUpdateMessage(message) {
       },
     };
 
-    if (obj.file) payload.file = obj.file;
-    if (obj.location) payload.location = obj.location;
-    if (obj.attributes) payload.message.attributes = obj.attributes;
+    if (message.file) payload.file = message.file;
+    if (message.location) payload.location = message.location;
+    if (message.attributes) payload.message.attributes = message.attributes;
     if (fromUser.avatar && fromUser.avatar.thumbnail)
       avatarURL += fromUser.avatar.thumbnail.nameOnServer;
 

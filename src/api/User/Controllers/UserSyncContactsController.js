@@ -98,7 +98,6 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
         aboutBusiness: true,
         businessCategory: true,
         workingHours: true,
-        created: true,
         isAppUser: true,
         pushToken: true,
         voipPushToken: true,

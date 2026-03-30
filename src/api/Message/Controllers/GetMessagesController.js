@@ -66,7 +66,7 @@ const { FlomMessage, User } = require("#models");
  *                             "nameOnServer": "72QsCaJDcsJgXfEv8Svpe7g43cl1AMAP"
  *                         }
  *                     },
- *                     "description": "Plan 9 from Outer Space is a 1959 American science fiction film."
+ *                     "description": "Plan 9 from Outer Spaceis a 1959 American science fiction film."
  *                 },
  *                 "__v": 0
  *             },
@@ -118,7 +118,7 @@ const { FlomMessage, User } = require("#models");
  *                             "nameOnServer": "72QsCaJDcsJgXfEv8Svpe7g43cl1AMAP"
  *                         }
  *                     },
- *                     "description": "Plan 9 from Outer Space is a 1959 American science fiction film."
+ *                     "description": "Plan 9 from Outer Spaceis a 1959 American science fiction film."
  *                 },
  *                 "__v": 0
  *             }

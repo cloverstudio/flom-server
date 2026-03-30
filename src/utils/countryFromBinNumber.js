@@ -6,7 +6,7 @@ async function countryFromBinNumber(binNumber) {
   try {
     const savedBinLookup = await BinLookup.findOne({ binNumber });
 
-    if (savedBinLookup && now() - savedBinLookup.created < Config.binLookupCacheLifetime) {
+    if (savedBinLookup && Date.now() - savedBinLookup.created < Config.binLookupCacheLifetime) {
       return savedBinLookup.countryCode;
     }
 
@@ -14,7 +14,7 @@ async function countryFromBinNumber(binNumber) {
 
     if (savedBinLookup) {
       savedBinLookup.countryCode = countryCode;
-      savedBinLookup.created = now();
+      savedBinLookup.created = Date.now();
       await savedBinLookup.save();
     } else {
       await BinLookup.create({ binNumber, countryCode });

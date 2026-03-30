@@ -15,7 +15,6 @@ async function getFlomUsers({ phoneNumbers, countryCode }) {
     aboutBusiness: true,
     businessCategory: true,
     workingHours: true,
-    created: true,
     isAppUser: true,
     pushToken: true,
     voipPushToken: true,

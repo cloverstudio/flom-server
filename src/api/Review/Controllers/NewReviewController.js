@@ -507,7 +507,7 @@ router.patch("/:reviewId", auth({ allowUser: true }), async function (request, r
       let order = 0;
       const oldReviewFiles = review.files.map((file) => file.toObject());
       const newReviewFiles = [];
-      for (i = 0; i < oldReviewFiles.length; i++) {
+      for (let i = 0; i < oldReviewFiles.length; i++) {
         const currentFile = oldReviewFiles[i];
         const currentFileId = currentFile._id.toString();
         if (!filesIdsToDeleteObj[currentFileId]) {

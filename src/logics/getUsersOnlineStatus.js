@@ -27,7 +27,7 @@ async function getUsersOnlineStatus(userIds = []) {
 
     return result;
   } catch (error) {
-    logger.error("getUsersOnlineStatus error ", err);
+    logger.error("getUsersOnlineStatus error ", error);
     return 0;
   }
 }

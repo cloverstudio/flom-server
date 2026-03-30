@@ -135,9 +135,9 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       });
     }
 
-    const { name, benefits, description } = data?.fields;
-    const amount = +data?.fields.amount;
-    const order = +data?.fields.order;
+    const { name, benefits, description } = data?.fields || {};
+    const amount = +(data?.fields?.amount || 0);
+    const order = +(data?.fields?.order || 0);
 
     if (!name || name === "") {
       return Base.newErrorResponse({

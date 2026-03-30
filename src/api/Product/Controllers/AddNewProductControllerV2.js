@@ -335,9 +335,9 @@ router.post(
         if (!fields.priceSingle && !fields.priceUnlimited && !fields.priceExclusive) {
           isFree = true;
         } else if (
-          (fields.priceSingle && !isNan(+fields.priceSingle) && +fields.priceSingle > 0) ||
-          (fields.priceUnlimited && !isNan(+fields.priceUnlimited) && +fields.priceUnlimited > 0) ||
-          (fields.priceExclusive && !isNan(+fields.priceExclusive) && +fields.priceExclusive > 0)
+          (fields.priceSingle && !isNaN(+fields.priceSingle) && +fields.priceSingle > 0) ||
+          (fields.priceUnlimited && !isNaN(+fields.priceUnlimited) && +fields.priceUnlimited > 0) ||
+          (fields.priceExclusive && !isNaN(+fields.priceExclusive) && +fields.priceExclusive > 0)
         ) {
           if (fields.priceSingle) {
             originalPrice.singleValue = Math.floor(+fields.priceSingle);
@@ -856,11 +856,15 @@ async function processMedia({ productId, files, type, isDraft }) {
   if (!isDraft) {
     //check if correct files have been added for each product type
     console.log(type, hasVideo, hasImage, hasAudio);
-    if (type === Const.productTypeVideo && hasVideo && !hasImage && !hasAudio) {
-    } else if (type === Const.productTypeVideoStory && hasVideo && !hasImage && !hasAudio) {
-    } else if (type === Const.productTypePodcast && hasAudio && !hasVideo) {
-    } else if (type === Const.productTypeTextStory && !hasAudio && !hasVideo) {
-    } else {
+
+    if (
+      !(
+        (type === Const.productTypeVideo && hasVideo && !hasImage && !hasAudio) ||
+        (type === Const.productTypeVideoStory && hasVideo && !hasImage && !hasAudio) ||
+        (type === Const.productTypePodcast && hasAudio && !hasVideo) ||
+        (type === Const.productTypeTextStory && !hasAudio && !hasVideo)
+      )
+    ) {
       await handleProcessingError({ productId, error: "invalid or no file" });
       return;
     }

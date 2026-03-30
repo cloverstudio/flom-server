@@ -98,7 +98,7 @@ router.post("/add", auth({ allowUser: true }), async function (request, response
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeInvalidLiveStreamId,
-        message: `LikeLiveStreamController, Like - invalid liveStreamId: ${id}`,
+        message: `LikeLiveStreamController, Like - invalid liveStreamId: ${liveStreamId}`,
       });
     }
 
@@ -108,7 +108,7 @@ router.post("/add", auth({ allowUser: true }), async function (request, response
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeLiveStreamNotFound,
-        message: "LikeLiveStreamController, Like - live stream not found",
+        message: `LikeLiveStreamController, Like - live stream not found: ${liveStreamId}`,
       });
     }
 
@@ -118,7 +118,7 @@ router.post("/add", auth({ allowUser: true }), async function (request, response
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeLiveStreamAlreadyLiked,
-        message: "LikeLiveStreamController, Like - live stream already liked",
+        message: `LikeLiveStreamController, Like - live stream already liked: ${liveStreamId}`,
       });
     }
 
@@ -188,7 +188,7 @@ router.post("/remove", auth({ allowUser: true }), async function (request, respo
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeInvalidLiveStreamId,
-        message: `LikeLiveStreamController, Unlike - invalid liveStreamId: ${id}`,
+        message: `LikeLiveStreamController, Unlike - invalid liveStreamId: ${liveStreamId}`,
       });
     }
 
@@ -198,7 +198,7 @@ router.post("/remove", auth({ allowUser: true }), async function (request, respo
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeLiveStreamNotFound,
-        message: "LikeLiveStreamController, Unlike - live stream not found",
+        message: `LikeLiveStreamController, Unlike - live stream not found: ${liveStreamId}`,
       });
     }
 
@@ -208,7 +208,7 @@ router.post("/remove", auth({ allowUser: true }), async function (request, respo
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeLiveStreamAlreadyLiked,
-        message: "LikeLiveStreamController, Unlike - live stream not liked",
+        message: `LikeLiveStreamController, Unlike - live stream not liked: ${liveStreamId}`,
       });
     }
 

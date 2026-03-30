@@ -250,7 +250,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       const groups = transfers[array][0]?.transferArray.reduce((groups, transfer) => {
         var date;
         if (endStart <= ONE_DAY) {
-          var copyOfStartDate = new Date(
+          let copyOfStartDate = new Date(
             new Date(Number(startDate)).toISOString().split(":")[0] + ":00:00.000Z",
           ).getTime();
 
@@ -272,7 +272,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
 
           const arrayOfRanges = [];
           const increment = Math.round(endStart / 24);
-          var copyOfStartDate = Number(startDate);
+          let copyOfStartDate = Number(startDate);
 
           for (let i = 0; i < 23; i++) {
             arrayOfRanges.push(copyOfStartDate + Number(increment));
@@ -312,7 +312,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
             copyOfStartDate += increment;
           }
         } else if (endStart >= ONE_WEEK && endStart <= ONE_MONTH) {
-          var copyOfStartDate = new Date(
+          let copyOfStartDate = new Date(
             new Date(Number(startDate)).toISOString().split("T")[0] + "T00:00:00.000Z",
           ).getTime();
 
@@ -334,7 +334,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
 
           const arrayOfRanges = [];
           const increment = Math.round(endStart / 31);
-          var copyOfStartDate = Number(startDate);
+          let copyOfStartDate = Number(startDate);
 
           for (let i = 0; i < 30; i++) {
             arrayOfRanges.push(copyOfStartDate + Number(increment));

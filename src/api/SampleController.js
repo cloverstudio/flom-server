@@ -6,7 +6,7 @@ const { logger } = require("#infra");
 const { Config, Const, countries } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
-const {} = require("#models");
+const { User } = require("#models");
 
 /**
  * @api {method} /api/v2/sample/:urlParamArg Sample API flom_v1

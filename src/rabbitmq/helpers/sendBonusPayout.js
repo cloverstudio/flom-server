@@ -200,7 +200,7 @@ async function sendBonusPayout({ userId, bonusType, productId, conversionRatesTo
 
     return;
   } catch (error) {
-    logger.error(`sendBonusPayout, bonus type "${bonusType}" for ${user.phoneNumber}`, error);
+    logger.error(`sendBonusPayout, bonus type "${bonusType}" for userId ${userId}`, error);
     return;
   }
 }

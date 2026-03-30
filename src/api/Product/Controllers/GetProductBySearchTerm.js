@@ -235,7 +235,7 @@ const generateQueryObject = function (params) {
   result.isDeleted = false;
 
   if (params.kidsMode === true) result.appropriateForKids = true;
-  if (params.blocked && params.blocked.length > 0) result.ownerId = { $nin: blocked };
+  if (params.blocked && params.blocked.length > 0) result.ownerId = { $nin: params.blocked };
 
   return result;
 };
@@ -272,6 +272,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
           location,
           searchTerm,
           typeAcc: 1,
+          blocked,
         }),
         {
           $sort: {

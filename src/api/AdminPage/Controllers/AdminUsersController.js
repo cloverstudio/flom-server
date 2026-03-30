@@ -84,7 +84,7 @@ router.get(
       if (username) {
         searchQuery.username = username;
       }
-      if (role && +role !== NaN) {
+      if (role && !isNaN(+role)) {
         searchQuery.role = role;
       } else {
         if (requestUserRole === Const.Role.SUPER_ADMIN) {

@@ -25,7 +25,7 @@ module.exports = function (socket) {
   socket.on("connection", async function (params, callback) {
     logger.info("auctions connection called, params:", params);
 
-    if (typeof callback === "function") callback(value);
+    if (typeof callback === "function") callback({ success: true });
 
     return;
   });

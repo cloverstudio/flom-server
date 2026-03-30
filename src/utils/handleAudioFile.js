@@ -32,7 +32,7 @@ async function handleAudioFile({ file, dir = null, allowedExtensions = null }) {
   let newAudioDestPath = "";
 
   if (fileMimeType !== "audio/mpeg") {
-    let extension = ".mp3";
+    let extension = "";
 
     switch (fileMimeType) {
       case "audio/aac":
@@ -42,9 +42,20 @@ async function handleAudioFile({ file, dir = null, allowedExtensions = null }) {
         extension = ".aac";
         break;
       case "audio/wav":
-        extension = ".wav";
       case "audio/x-wav":
         extension = ".wav";
+        break;
+      case "audio/ogg":
+        extension = ".ogg";
+        break;
+      case "audio/flac":
+        extension = ".flac";
+        break;
+      case "audio/webm":
+        extension = ".webm";
+        break;
+      default:
+        extension = ".mp3";
     }
 
     newAudioDestPath = destPath + dir + newFileName + extension;

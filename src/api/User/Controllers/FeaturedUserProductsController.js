@@ -135,8 +135,7 @@ router.get(
       ).lean();
 
       if (featuredUsersFromUserCountry.length < 12) {
-        const featuredUsersFromDefaultCountry = await User;
-        aggregate([
+        const featuredUsersFromDefaultCountry = await User.aggregate([
           { $match: { "featured.countryCode": "default" } },
           { $sample: { size: 12 - featuredUsersFromUserCountry.length } },
         ]);

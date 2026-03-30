@@ -52,12 +52,16 @@ function checkDraftProduct(product) {
 
   //check if correct files have been added for each product type
   const { type } = productObj;
-  if (type === Const.productTypeVideo && hasVideo && !hasImage && !hasAudio) {
-  } else if (type === Const.productTypeVideoStory && hasVideo && !hasImage && !hasAudio) {
-  } else if (type === Const.productTypePodcast && hasAudio && !hasVideo) {
-  } else if (type === Const.productTypeTextStory && !hasAudio && !hasVideo) {
-  } else if (type === Const.productTypeProduct && !hasAudio) {
-  } else {
+
+  if (
+    !(
+      (type === Const.productTypeVideo && hasVideo && !hasImage && !hasAudio) ||
+      (type === Const.productTypeVideoStory && hasVideo && !hasImage && !hasAudio) ||
+      (type === Const.productTypePodcast && hasAudio && !hasVideo) ||
+      (type === Const.productTypeTextStory && !hasAudio && !hasVideo) ||
+      (type === Const.productTypeProduct && !hasAudio)
+    )
+  ) {
     return errors["file"];
   }
 }

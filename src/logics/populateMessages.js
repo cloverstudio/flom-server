@@ -58,7 +58,7 @@ async function populateMessage(messageList, callerUser) {
           const user1 = roomIDSplitted[1];
           const user2 = roomIDSplitted[2];
 
-          const targetUserId = user1;
+          let targetUserId = user1;
           if (callerUser) {
             if (callerUser._id == user1) targetUserId = user2;
           } else {

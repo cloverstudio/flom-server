@@ -45,7 +45,7 @@ router.get("/:fileID", function (request, response) {
   }
 
   const fileID = request.params.fileID;
-  const filePath = Config.uploadPath + "/" + fileID;
+  let filePath = Config.uploadPath + "/" + fileID;
 
   fs.existsSync(filePath, function (exists) {
     if (!exists) {

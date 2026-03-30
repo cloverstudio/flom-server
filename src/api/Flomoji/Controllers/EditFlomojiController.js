@@ -109,10 +109,10 @@ router.patch(
         keepExtensions: true,
         type: "multipart",
       });
-      const { title, keywords } = fields;
-      const amount = +fields.amount ?? null;
-      const creditsAmount = +fields.creditsAmount ?? null;
-      const position = +fields.position ?? null;
+      const { title, keywords } = fields || {};
+      const amount = +(fields.amount || 0);
+      const creditsAmount = +(fields.creditsAmount || 0);
+      const position = +(fields.position || 0);
 
       if (amount && (!Number.isInteger(amount) || amount < 0 || isNaN(amount))) {
         return Base.newErrorResponse({

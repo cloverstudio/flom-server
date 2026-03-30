@@ -256,7 +256,7 @@ router.post("/remove", auth({ allowUser: true }), async function (request, respo
     const product = await Product.findOne({ _id: productId }).exec();
 
     if (!product) {
-      return Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
+      return Base.successResponse(response, Const.responsecodeProductNotFound);
     }
 
     let likedProducts = [];
@@ -300,7 +300,7 @@ router.post("/remove", auth({ allowUser: true }), async function (request, respo
       const tags = (product.tags ?? "").split(" ").map((tag) => tag.trim().replace("#", ""));
 
       await UserTagInteraction.updateMany(
-        { userId: user._id.toString(), tag: { $in: tags } },
+        { userId: request.user._id.toString(), tag: { $in: tags } },
         { $inc: { interactions: -3 }, $set: { modified: Date.now() } },
         { upsert: true },
       );
@@ -321,7 +321,7 @@ router.post("/remove", auth({ allowUser: true }), async function (request, respo
       );
 
       await UserCategoryInteraction.updateMany(
-        { userId: user._id.toString(), category: { $in: categories } },
+        { userId: request.user._id.toString(), category: { $in: categories } },
         { $inc: { interactions: -3 }, $set: { modified: Date.now() } },
         { upsert: true },
       );
