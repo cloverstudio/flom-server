@@ -163,7 +163,7 @@ router.get("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (reque
       }
 
       searchQuery.$and.push({
-        deviceType: deviceType === "unknown" ? { $nin: validDeviceTypes } : deviceType,
+        deviceType: deviceType === "unknown" ? { $nin: ["web", "ios", "android"] } : deviceType,
       });
     }
 

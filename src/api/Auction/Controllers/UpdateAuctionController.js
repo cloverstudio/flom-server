@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { Const } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
-const { Auction } = require("#models");
+const { Auction, Product } = require("#models");
 const { socketApi } = require("#sockets");
 
 /**
@@ -105,7 +105,7 @@ router.patch("/:auctionId", auth({ allowUser: true }), async function (request, 
       paramsErrorCode = null,
       paramsErrorMsg = null,
       ...updateObj
-    } = await checkParams(request.body);
+    } = await checkParams(request.body, auction);
 
     if (paramsErrorCode) {
       return Base.newErrorResponse({
@@ -136,15 +136,18 @@ router.patch("/:auctionId", auth({ allowUser: true }), async function (request, 
   }
 });
 
-async function checkParams({
-  duration = undefined,
-  quantity = undefined,
-  bidIncrement = undefined,
-  counterBidTime = undefined,
-  minPrice = undefined,
-  note = undefined,
-  isSuddenDeath = undefined,
-}) {
+async function checkParams(
+  {
+    duration = undefined,
+    quantity = undefined,
+    bidIncrement = undefined,
+    counterBidTime = undefined,
+    minPrice = undefined,
+    note = undefined,
+    isSuddenDeath = undefined,
+  },
+  auction,
+) {
   const updateObj = {};
 
   if (duration) {
@@ -179,6 +182,8 @@ async function checkParams({
   }
 
   if (quantity) {
+    const product = await Product.findById(auction.productId).lean();
+
     if (
       typeof quantity !== "number" ||
       quantity.toString().includes(".") ||

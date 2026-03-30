@@ -1,6 +1,7 @@
 "use strict";
 
 const router = require("express").Router();
+const zlib = require("node:zlib");
 const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const } = require("#config");

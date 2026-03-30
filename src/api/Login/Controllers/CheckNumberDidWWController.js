@@ -302,7 +302,7 @@ router.post("", async (request, response) => {
         user.location = { type: "Point", coordinates: [longitude, latitude] };
       }
 
-      user.phoneNumberStatus = user.phoneNumberStatus;
+      // user.phoneNumberStatus = user.phoneNumberStatus;   ??????????
 
       if (!deviceTypeFromUserModel) user.deviceType = deviceType;
 

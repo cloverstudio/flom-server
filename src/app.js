@@ -118,15 +118,16 @@ app.use(function (request, response, next) {
       }
     });
 
-    if (request.originalUrl.includes("livestreams/cb") && request.method === "POST") {
-    } else if (
-      request.originalUrl.includes("app/startup") ||
-      request.originalUrl.includes("user/sync")
-    ) {
-      logger.debug(`Headers: ${JSON.stringify(headers)}`);
-    } else {
-      logger.debug(`Headers: ${JSON.stringify(headers)}`);
-      logger.debug(`Body: ${JSON.stringify(request.body)}`);
+    if (!request.originalUrl.includes("livestreams/cb")) {
+      if (
+        request.originalUrl.includes("app/startup") ||
+        request.originalUrl.includes("user/sync")
+      ) {
+        logger.debug(`Headers: ${JSON.stringify(headers)}`);
+      } else {
+        logger.debug(`Headers: ${JSON.stringify(headers)}`);
+        logger.debug(`Body: ${JSON.stringify(request.body)}`);
+      }
     }
   }
   next();

@@ -59,7 +59,7 @@ schema.statics.findOldMessages = async function (roomID, lastMessageID, limit) {
 
     return messages;
   } catch (error) {
-    return console.error(new Date().toISOString() + " " + err);
+    return console.error(new Date().toISOString(), error);
   }
 };
 
@@ -76,7 +76,7 @@ schema.statics.findNewMessages = async function (roomID, lastMessageID, limit) {
 
     return messages;
   } catch (error) {
-    return console.error(new Date().toISOString() + " " + err);
+    return console.error(new Date().toISOString(), error);
   }
 };
 
@@ -93,7 +93,7 @@ schema.statics.findNewMessagesCurrentInc = async function (roomID, lastMessageID
 
     return messages;
   } catch (error) {
-    return console.error(new Date().toISOString() + " " + err);
+    return console.error(new Date().toISOString(), error);
   }
 };
 
@@ -114,7 +114,7 @@ schema.statics.findAllMessages = async function (roomID, fromMessageID) {
 
     return messages;
   } catch (error) {
-    return console.error(new Date().toISOString() + " " + err);
+    return console.error(new Date().toISOString(), error);
   }
 };
 

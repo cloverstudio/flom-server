@@ -65,8 +65,8 @@ class SocketApi {
     if (!value) return;
 
     value.forEach((socket) => {
-      var socketId = socket.socketId;
-      var socket = this.nsp.sockets.get(socketId);
+      const socketId = socket.socketId;
+      socket = this.nsp.sockets.get(socketId);
 
       if (socket) socket.leave(type + "-" + roomId);
     });

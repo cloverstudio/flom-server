@@ -59,7 +59,7 @@ router.post("/mute-cohost", auth({ allowUser: true }), async function (request, 
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeInvalidLiveStreamId,
-        message: `CohostController, mute cohost - invalid liveStreamId: ${id}`,
+        message: `CohostController, mute cohost - invalid liveStreamId: ${liveStreamId}`,
       });
     }
 
@@ -69,7 +69,7 @@ router.post("/mute-cohost", auth({ allowUser: true }), async function (request, 
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeLiveStreamNotFound,
-        message: "CohostController, mute cohost - live stream not found",
+        message: `CohostController, mute cohost - live stream not found: ${liveStreamId}`,
       });
     }
 
@@ -77,7 +77,7 @@ router.post("/mute-cohost", auth({ allowUser: true }), async function (request, 
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
-        message: "CohostController, mute cohost - user not stream owner",
+        message: `CohostController, mute cohost - user not stream owner: ${user._id}`,
       });
     }
 
@@ -102,7 +102,7 @@ router.post("/mute-cohost", auth({ allowUser: true }), async function (request, 
   } catch (error) {
     Base.newErrorResponse({
       response,
-      message: "CohostController, mute cohost",
+      message: `CohostController, mute cohost - live stream id: ${request.body.liveStreamId}`,
       error,
     });
   }
@@ -158,7 +158,7 @@ router.post("/unmute-cohost", auth({ allowUser: true }), async function (request
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeInvalidLiveStreamId,
-        message: `CohostController, unmute cohost - invalid liveStreamId: ${id}`,
+        message: `CohostController, unmute cohost - invalid liveStreamId: ${liveStreamId}`,
       });
     }
 
@@ -168,7 +168,7 @@ router.post("/unmute-cohost", auth({ allowUser: true }), async function (request
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeLiveStreamNotFound,
-        message: "CohostController, unmute cohost - live stream not found",
+        message: `CohostController, unmute cohost - live stream not found: ${liveStreamId}`,
       });
     }
 
@@ -176,7 +176,7 @@ router.post("/unmute-cohost", auth({ allowUser: true }), async function (request
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
-        message: "CohostController, unmute cohost - user not stream owner",
+        message: `CohostController, unmute cohost - user not stream owner: ${user._id}`,
       });
     }
 
@@ -201,7 +201,7 @@ router.post("/unmute-cohost", auth({ allowUser: true }), async function (request
   } catch (error) {
     Base.newErrorResponse({
       response,
-      message: "CohostController, unmute cohost",
+      message: `CohostController, unmute cohost - live stream id: ${request.body.liveStreamId}`,
       error,
     });
   }
@@ -264,7 +264,7 @@ router.post("/manage-cohosts", auth({ allowUser: true }), async function (reques
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeInvalidLiveStreamId,
-        message: `CohostController, manage cohosts - invalid liveStreamId: ${id}`,
+        message: `CohostController, manage cohosts - invalid liveStreamId: ${liveStreamId}`,
       });
     }
 
@@ -274,7 +274,7 @@ router.post("/manage-cohosts", auth({ allowUser: true }), async function (reques
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeLiveStreamNotFound,
-        message: "CohostController, manage cohosts - live stream not found",
+        message: `CohostController, manage cohosts - live stream not found: ${liveStreamId}`,
       });
     }
 
@@ -282,7 +282,7 @@ router.post("/manage-cohosts", auth({ allowUser: true }), async function (reques
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
-        message: "CohostController, manage cohosts - user not stream owner",
+        message: `CohostController, manage cohosts - user not stream owner: ${user._id}`,
       });
     }
 
@@ -290,7 +290,7 @@ router.post("/manage-cohosts", auth({ allowUser: true }), async function (reques
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeOnlyLiveEventCanHaveCohosts,
-        message: "CohostController, manage cohosts - only type 'event' can have cohosts",
+        message: `CohostController, manage cohosts - only type 'event' can have cohosts: ${liveStreamId}`,
       });
     }
 
@@ -316,7 +316,7 @@ router.post("/manage-cohosts", auth({ allowUser: true }), async function (reques
         return Base.newErrorResponse({
           response,
           code: Const.responsecodeTooManyCohosts,
-          message: "CohostController, manage cohosts - too many cohosts",
+          message: `CohostController, manage cohosts - too many cohosts: ${liveStreamId}`,
         });
       }
 
@@ -325,7 +325,7 @@ router.post("/manage-cohosts", auth({ allowUser: true }), async function (reques
           return Base.newErrorResponse({
             response,
             code: Const.responsecodeUserIsAlreadyCohost,
-            message: "CohostController, manage cohosts - user is already a cohost",
+            message: `CohostController, manage cohosts - user is already a cohost: ${cohostId}`,
           });
         }
 

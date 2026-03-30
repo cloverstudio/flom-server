@@ -77,7 +77,7 @@ router.get("/:code", auth({ allowUser: true }), async (req, res) => {
     }
   } catch (error) {
     console.error("getUserByMerchantCodeController: ", error);
-    return Base.errorResponse(response, Const.httpCodeServerError);
+    return Base.errorResponse(res, Const.httpCodeServerError);
   }
 });
 

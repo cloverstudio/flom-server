@@ -35,7 +35,7 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
   try {
     const phoneNumber = request.body.phoneNumber;
 
-    const bank = request.body.financialInstitutionCode.replace(/\'/g, '"');
+    const bank = request.body.financialInstitutionCode.replace(/'/g, '"');
     const bankObj = JSON.parse(bank);
     const merchantDOB = request.body.merchantDOB;
 
@@ -209,7 +209,7 @@ function convertToObject(data) {
 
   const responseKey = Object.keys(converted).filter((key) => !key.startsWith("_"));
 
-  responseObj = converted[responseKey[0]];
+  const responseObj = converted[responseKey[0]];
   const response = Object.keys(responseObj)
     .map((key) => ({
       [key]: responseObj[key]._text,

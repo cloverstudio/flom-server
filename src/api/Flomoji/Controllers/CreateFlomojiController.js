@@ -100,9 +100,9 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
       uploadDir: Config.uploadPath,
     });
     const { title, keywords } = fields;
-    const amount = +fields.amount ?? null;
-    const creditsAmount = +fields.creditsAmount ?? null;
-    const position = +fields.position ?? null;
+    const amount = +(fields.amount || 0);
+    const creditsAmount = +(fields.creditsAmount || 0);
+    const position = +(fields.position || 0);
 
     if (!title) {
       return Base.newErrorResponse({

@@ -83,7 +83,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     Base.successResponse(response, Const.responsecodeSucceed, { stickers: formatted });
     return;
   } catch (error) {
-    console.log("StickersController critical err", err);
+    console.log("StickersController critical err", error);
     Base.errorResponse(response, Const.httpCodeServerError);
     return;
   }

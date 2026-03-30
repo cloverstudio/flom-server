@@ -84,8 +84,7 @@ router.post("/", async function (request, response) {
       return crypto.createHash("sha1").update(text).digest("hex");
     }
 
-    if (sha1(candidate1) == secret || sha1(candidate2) == secret || sha1(candidate3) == secret) {
-    } else {
+    if (!(sha1(candidate1) == secret || sha1(candidate2) == secret || sha1(candidate3) == secret)) {
       if (secret != Config.signinBackDoorSecret) {
         return Base.successResponse(response, Const.responsecodeSigninWrongSecret);
       }
@@ -282,8 +281,7 @@ router.post("/guest", async function (request, response) {
       return crypto.createHash("sha1").update(text).digest("hex");
     }
 
-    if (sha1(candidate1) == secret || sha1(candidate2) == secret || sha1(candidate3) == secret) {
-    } else {
+    if (!(sha1(candidate1) == secret || sha1(candidate2) == secret || sha1(candidate3) == secret)) {
       if (secret != Config.signinBackDoorSecret) {
         return Base.successResponse(response, Const.responsecodeSigninWrongSecret);
       }

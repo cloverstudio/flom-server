@@ -1,6 +1,7 @@
 "use strict";
 
 const router = require("express").Router();
+const { logger } = require("#infra");
 const Base = require("../../Base");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");

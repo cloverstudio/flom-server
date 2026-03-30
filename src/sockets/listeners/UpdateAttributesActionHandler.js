@@ -57,6 +57,7 @@ module.exports = function (socket) {
           case Const.offerMessageStatusRefused:
             pushType = Const.pushTypeOfferRefused;
             stub = " refused ";
+            break;
           default:
             pushType = null;
             break;

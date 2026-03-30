@@ -428,12 +428,13 @@ router.post("/finish", auth({ allowUser: true }), async (request, response) => {
     }
 
     if (
-      sha1(candidate1) === secret ||
-      sha1(candidate2) === secret ||
-      sha1(candidate3) === secret ||
-      secret === Config.signinBackDoorSecret
+      !(
+        sha1(candidate1) === secret ||
+        sha1(candidate2) === secret ||
+        sha1(candidate3) === secret ||
+        secret === Config.signinBackDoorSecret
+      )
     ) {
-    } else {
       return Base.successResponse(response, Const.responsecodeSigninWrongSecret);
     }
 

@@ -201,7 +201,7 @@ router.get("/emojis/:emojiName", async function (request, response) {
       console.log("ENOENT 2");
     }
 
-    return Base.successResponse(response, Const.responsecodeFileNotFound, "BlessController", error);
+    return Base.successResponse(response, Const.responsecodeFileNotFound, "BlessController");
   } catch (error) {
     return Base.errorResponse(response, Const.httpCodeServerError, "BlessController", error);
   }

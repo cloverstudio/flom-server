@@ -68,13 +68,13 @@ router.post("", async function (request, response) {
           duration: mediaDuration,
         });
 
-        var id;
+        let id;
 
         const res = await newFile.save();
 
         id = res._doc._id;
 
-        var objectForResponse = {};
+        let objectForResponse = {};
 
         objectForResponse.file = {
           id: id,
@@ -104,9 +104,8 @@ router.post("", async function (request, response) {
           created: Utils.now(),
         });
 
-        var id;
-        var thumbType;
-        var objectForResponse = {};
+        let thumbType;
+        let objectForResponse = {};
 
         const res = await newFile.save();
 
@@ -120,15 +119,15 @@ router.post("", async function (request, response) {
           mimeType: res._doc.mimeType,
         };
 
-        var destPath = Config.uploadPath + "/" + id.toString();
+        let destPath = Config.uploadPath + "/" + id.toString();
 
         await fsp.copyFile(file.path, destPath);
 
-        var tempThumbFileName = id + "_thumb.jpg"; // force to be jpg
+        let tempThumbFileName = id + "_thumb.jpg"; // force to be jpg
 
         logger.info("tempThumbFileName " + tempThumbFileName);
 
-        var destPathTmp = Config.uploadPath + "/" + tempThumbFileName;
+        let destPathTmp = Config.uploadPath + "/" + tempThumbFileName;
 
         const image = await easyimg.thumbnail({
           src: file.path,
@@ -147,8 +146,8 @@ router.post("", async function (request, response) {
 
         const resThumb = await thumbObj.save();
 
-        var thumbFileName = resThumb._doc._id;
-        var destPath = Config.uploadPath + "/" + thumbFileName;
+        let thumbFileName = resThumb._doc._id;
+        destPath = Config.uploadPath + "/" + thumbFileName;
 
         objectForResponse.thumb = {
           id: resThumb._doc._id,
@@ -187,7 +186,7 @@ router.post("", async function (request, response) {
 
         fileModelsToBeReturned.push(objectForResponse);
 
-        var destPath = Config.uploadPath + "/" + id.toString();
+        let destPath = Config.uploadPath + "/" + id.toString();
 
         await fsp.copyFile(file.path, destPath);
       }

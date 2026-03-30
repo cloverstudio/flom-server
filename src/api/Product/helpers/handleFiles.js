@@ -293,9 +293,17 @@ async function handleAudioFile(file) {
           extension = ".aac";
           break;
         case "audio/wav":
-          extension = ".wav";
         case "audio/x-wav":
           extension = ".wav";
+          break;
+        case "audio/ogg":
+          extension = ".ogg";
+          break;
+        case "audio/flac":
+          extension = ".flac";
+          break;
+        default:
+          throw new Error("Unsupported audio format");
       }
       await fsp.copyFile(tempPath, destPath + newFileName + extension);
       await Utils.convertToMP3(tempPath, newAudioDestPath);

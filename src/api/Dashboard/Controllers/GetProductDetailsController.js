@@ -700,7 +700,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
         { basket: 1, senderPhoneNumber: 1, created: 1 },
       ).lean();
 
-      var sumQuantity = 0;
+      let sumQuantity = 0;
 
       sold.forEach((product) => {
         product.basket = product.basket.filter((basket) => {
@@ -721,7 +721,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
 
       sold = sold.slice((page - 1) * Const.newPagingRows, (page - 1) * Const.newPagingRows + 10);
 
-      var soldWithUsers = await addUsersForSold(sold);
+      let soldWithUsers = await addUsersForSold(sold);
 
       const total = await Transfer.find(
         {
@@ -754,7 +754,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
         { senderPhoneNumber: 1, basket: 1, created: 1 },
       ).lean();
 
-      var sumQuantity = 0;
+      let sumQuantity = 0;
 
       soldOffer.forEach((product) => {
         product.basket = product.basket.filter((basket) => {
@@ -781,7 +781,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
         (page - 1) * Const.newPagingRows + 10,
       );
 
-      var soldWithUsers = await addUsersForSold(soldOffer);
+      let soldWithUsers = await addUsersForSold(soldOffer);
 
       const total = await Transfer.find(
         {
@@ -834,7 +834,6 @@ async function addUsers(userIdsAndDate) {
         created: currentUser.created,
         avatar: currentUser.avatar || {},
         isAppUser: currentUser.isAppUser,
-        bankAccounts: currentUser.bankAccounts,
       };
     }
   }
@@ -862,7 +861,6 @@ async function addUsersForSold(sold) {
         created: currentUser.created,
         avatar: currentUser.avatar || {},
         isAppUser: currentUser.isAppUser,
-        bankAccounts: currentUser.bankAccounts,
       };
     }
   }

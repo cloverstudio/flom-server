@@ -197,7 +197,7 @@ router.get("/", async (request, response) => {
       }).lean();
     }
 
-    var requestUserId, requestUserId, tribes, requestUserTribeIds, requestUserMembershipIds;
+    var requestUserId, tribes, requestUserTribeIds, requestUserMembershipIds;
     const { userRate, userCountryCode, userCurrency, conversionRates } =
       await Utils.getUsersConversionRate({
         user: request.user,
@@ -357,15 +357,15 @@ router.get("/", async (request, response) => {
             .filter((key) => allowed.includes(key))
             .reduce((obj, key) => {
               if (key === "image" && product[key] != []) {
-                var imageObject = {};
-                var arr = [];
+                let imageObject = {};
+                let arr = [];
                 product[key].map((product) => arr.push({ thumb: product.thumb }));
                 imageObject = arr;
 
                 obj[key] = imageObject;
               } else if (key === "file" && product[key] != []) {
-                var fileObject = {};
-                var arr = [];
+                let fileObject = {};
+                let arr = [];
                 product[key].map((product) => arr.push({ thumb: product.thumb }));
                 fileObject = arr;
 
