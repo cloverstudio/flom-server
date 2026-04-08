@@ -8,6 +8,7 @@
         "#infra": "./src/infra/index.js",
         "#config": "./src/config/index.js",
         "#utils": "./src/utils/index.js",
+        "#utils2": "./src/utils2/index.js",
         "#logics": "./src/logics/index.js",
         "#models": "./src/models/index.js",
         "#sockets": "./src/sockets/index.js",
