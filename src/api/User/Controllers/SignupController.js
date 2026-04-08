@@ -339,6 +339,13 @@ router.post("/verify", async (request, response) => {
 
     const organization = await Organization.findById(user.organizationId).lean();
 
+    Utils.setCookies(
+      response,
+      tokenObj.token.toString(),
+      user._id.toString(),
+      request.headers.origin,
+    );
+
     Base.successResponse(response, Const.responsecodeSucceed, {
       newToken,
       user: user.toObject(),
