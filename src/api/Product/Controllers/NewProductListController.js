@@ -662,7 +662,7 @@ async function generateQuery({
   isGuest,
   blocked,
 }) {
-  const query = { ownerId: { $nin: blocked } };
+  const query = { ownerId: { $nin: blocked || [] } };
 
   let fetchUsersProducts = false;
   if (productIds && Array.isArray(productIds) && productIds.length > 0) {
