@@ -72,7 +72,7 @@ schema.statics.findNewMessages = async function (roomID, lastMessageID, limit) {
       query.created = { $gt: lastCreated };
     }
 
-    const messages = await this.find(query).sort({ created: 1 }).limit(limit).lean();
+    const messages = await this.find(query).sort({ created: -1 }).limit(limit).lean();
 
     return messages;
   } catch (error) {
