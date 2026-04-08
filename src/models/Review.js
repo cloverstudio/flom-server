@@ -1,6 +1,6 @@
 const { db } = require("#infra");
 const mongoose = require("mongoose");
-const Utils = require("#utils");
+const Utils = require("#utils2");
 const { Config } = require("#config");
 
 /**

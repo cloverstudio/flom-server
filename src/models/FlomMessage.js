@@ -1,7 +1,6 @@
 const { db, logger } = require("#infra");
 const mongoose = require("mongoose");
 const { Const } = require("#config");
-const Utils = require("#utils");
 const User = require("./User");
 
 /**
@@ -135,7 +134,7 @@ schema.statics.populateMessages = async function (messages) {
         if (row2.version == 2) {
           ids.push(row2.user);
         } else {
-          if (Utils.isObjectId(row2.user)) oldIds.push(row2.user.toString());
+          if (mongoose.isValidObjectId(row2.user)) oldIds.push(row2.user.toString());
           else oldIds.push(row2.userID);
         }
       });
