@@ -9,7 +9,7 @@ let timer;
 function setTimer(socket, callData) {
   clearTimeout(timer);
   timer = setTimeout(() => {
-    socketApi.flom.emitToSocket(socket.id, "call_request", {
+    socketApi.emitToSocket(socket.id, "call_request", {
       user: callData.user,
       mediaType: callData.mediaType,
       callRoomId: callData.callRoomId,
@@ -102,7 +102,7 @@ module.exports = function (socket) {
       if (status) {
         socket.emit("logined", { user });
       }
-      socketApi.flom.emitAll("onlineStatus", { userId, online: status });
+      socketApi.emitAll("onlineStatus", { userId, online: status });
 
       return;
     } catch (error) {

@@ -192,11 +192,15 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
 
     for (const auction of createdAuctions) {
-      socketApi.auctions.emitAll("auctionCreated", {
-        auctionId: auction._id.toString(),
-        liveStreamId,
-        auctionData: auction,
-      });
+      socketApi.emitAll(
+        "auctionCreated",
+        {
+          auctionId: auction._id.toString(),
+          liveStreamId,
+          auctionData: auction,
+        },
+        "auctions",
+      );
     }
 
     sendPushNotifications({ liveStream, user });

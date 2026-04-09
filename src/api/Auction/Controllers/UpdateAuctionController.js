@@ -122,11 +122,15 @@ router.patch("/:auctionId", auth({ allowUser: true }), async function (request, 
     const responseData = { updatedAuction };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
 
-    socketApi.auctions.emitAll("auctionUpdated", {
-      auctionId: updatedAuction._id.toString(),
-      liveStreamId: updatedAuction.liveStreamId,
-      auctionData: updatedAuction,
-    });
+    socketApi.emitAll(
+      "auctionUpdated",
+      {
+        auctionId: updatedAuction._id.toString(),
+        liveStreamId: updatedAuction.liveStreamId,
+        auctionData: updatedAuction,
+      },
+      "auctions",
+    );
   } catch (error) {
     Base.newErrorResponse({
       response,

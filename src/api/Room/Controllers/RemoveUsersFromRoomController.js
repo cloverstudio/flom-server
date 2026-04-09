@@ -116,8 +116,8 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     for (const user of usersExists) {
       // stop sending notification
-      socketApi.flom.leaveFrom(user._id.toString(), Const.chatTypeRoom, roomId);
-      socketApi.flom.emitToUser(user._id.toString(), "delete_room", { conversation: updatedRoom });
+      socketApi.leaveFrom(user._id.toString(), Const.chatTypeRoom, roomId);
+      socketApi.emitToUser(user._id.toString(), "delete_room", { conversation: updatedRoom });
 
       await History.deleteMany({ chatId: roomId, userId: user._id.toString() });
     }

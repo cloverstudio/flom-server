@@ -39,9 +39,9 @@ module.exports = function (socket) {
 
       // websocket notification
       if (chatType == Const.chatTypeGroup) {
-        socketApi.flom.emitToRoom(roomID, "typing", param);
+        socketApi.emitToRoom(roomID, "typing", param);
       } else if (chatType == Const.chatTypeRoom) {
-        socketApi.flom.emitToRoom(roomID, "typing", param);
+        socketApi.emitToRoom(roomID, "typing", param);
       } else if (chatType == Const.chatTypePrivate) {
         const splitAry = roomID.split("-");
         if (splitAry.length < 2) return;
@@ -64,7 +64,7 @@ module.exports = function (socket) {
         if (!user) return;
 
         if (user.blocked && user.blocked.includes(fromUser)) return;
-        socketApi.flom.emitToRoom(toUser, "typing", param);
+        socketApi.emitToRoom(toUser, "typing", param);
       }
 
       return;

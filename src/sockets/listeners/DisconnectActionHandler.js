@@ -33,7 +33,7 @@ module.exports = function (socket) {
         lastSeenTimestamp: Date.now(),
       });
 
-      socketApi.flom.emitAll("onlineStatus", { userId: userId, online: false });
+      socketApi.emitAll("onlineStatus", { userId: userId, online: false });
 
       return;
     } catch (error) {

@@ -96,8 +96,8 @@ const deleteTribeGroupChat = async ({ roomId, userIds }) => {
   });
 
   for (const userId of userIds) {
-    socketApi.flom.leaveFrom(userId, Const.chatTypeTribeGroupChat, roomId);
-    socketApi.flom.emitToUser(userId, "delete_room", { conversation: room });
+    socketApi.leaveFrom(userId, Const.chatTypeTribeGroupChat, roomId);
+    socketApi.emitToUser(userId, "delete_room", { conversation: room });
   }
 };
 

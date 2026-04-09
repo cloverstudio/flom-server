@@ -74,7 +74,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       const filterMessages = res.filter((message) => message.roomID === roomId);
 
       if (chatType === Const.chatTypeGroup || chatType === Const.chatTypeRoom) {
-        socketApi.flom.emitToRoom(roomId, "updatemessages", filterMessages);
+        socketApi.emitToRoom(roomId, "updatemessages", filterMessages);
       } else if (chatType === Const.chatTypePrivate) {
         const splitAry = roomId.split("-");
         if (splitAry.length < 2) return;
@@ -86,8 +86,8 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
           [fromUser, toUser] = [toUser, fromUser];
         }
 
-        socketApi.flom.emitToRoom(toUser, "updatemessages", filterMessages);
-        socketApi.flom.emitToRoom(fromUser, "updatemessages", filterMessages);
+        socketApi.emitToRoom(toUser, "updatemessages", filterMessages);
+        socketApi.emitToRoom(fromUser, "updatemessages", filterMessages);
       }
     });
 

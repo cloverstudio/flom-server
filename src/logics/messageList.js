@@ -96,9 +96,9 @@ async function messageList({ userID, roomId, lastMessageId, direction, encrypt }
 
       // websocket notification
       if (chatType == Const.chatTypeGroup) {
-        socketApi.flom.emitToRoom(roomID, "updatemessages", messagesToNotify);
+        socketApi.emitToRoom(roomID, "updatemessages", messagesToNotify);
       } else if (chatType == Const.chatTypeRoom || chatType == Const.chatTypeBroadcastAdmin) {
-        socketApi.flom.emitToRoom(roomID, "updatemessages", messagesToNotify);
+        socketApi.emitToRoom(roomID, "updatemessages", messagesToNotify);
       } else if (chatType == Const.chatTypePrivate) {
         const splitAry = roomID.split("-");
 
@@ -118,7 +118,7 @@ async function messageList({ userID, roomId, lastMessageId, direction, encrypt }
           fromUser = user2;
         }
 
-        socketApi.flom.emitToRoom(toUser, "updatemessages", messagesToNotify);
+        socketApi.emitToRoom(toUser, "updatemessages", messagesToNotify);
       }
     }
 

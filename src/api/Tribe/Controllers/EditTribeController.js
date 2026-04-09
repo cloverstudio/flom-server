@@ -293,11 +293,11 @@ router.patch("/:tribeId", auth({ allowUser: true }), async (request, response) =
           room.markModified("users");
 
           for (const memberId of acceptedUserIdsToRemove) {
-            socketApi.flom.leaveFrom(memberId, Const.chatTypeTribeGroupChat, roomId);
+            socketApi.leaveFrom(memberId, Const.chatTypeTribeGroupChat, roomId);
 
             await History.deleteOne({ chatId: roomId, userId: memberId });
 
-            socketApi.flom.emitToUser(memberId, "delete_room", {
+            socketApi.emitToUser(memberId, "delete_room", {
               conversation: room.toObject(),
             });
           }

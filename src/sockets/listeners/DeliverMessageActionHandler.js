@@ -57,9 +57,9 @@ module.exports = function (socket) {
 
       // websocket notification
       if (chatType == Const.chatTypeGroup) {
-        socketApi.flom.emitToRoom(updatedMessage.roomID, "updatemessages", [updatedMessage]);
+        socketApi.emitToRoom(updatedMessage.roomID, "updatemessages", [updatedMessage]);
       } else if (chatType == Const.chatTypeRoom) {
-        socketApi.flom.emitToRoom(updatedMessage.roomID, "updatemessages", [updatedMessage]);
+        socketApi.emitToRoom(updatedMessage.roomID, "updatemessages", [updatedMessage]);
       } else if (chatType == Const.chatTypePrivate) {
         const splitAry = updatedMessage.roomID.split("-");
 
@@ -78,8 +78,8 @@ module.exports = function (socket) {
           fromUser = user2;
         }
 
-        socketApi.flom.emitToRoom(fromUser, "updatemessages", [updatedMessage]);
-        socketApi.flom.emitToRoom(toUser, "updatemessages", [updatedMessage]);
+        socketApi.emitToRoom(fromUser, "updatemessages", [updatedMessage]);
+        socketApi.emitToRoom(toUser, "updatemessages", [updatedMessage]);
       }
     } catch (error) {
       logger.error("deliverMessage", error);

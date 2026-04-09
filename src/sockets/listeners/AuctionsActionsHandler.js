@@ -110,7 +110,7 @@ module.exports = function (socket) {
         serverTimeMs: Date.now(),
       };
 
-      socketApi.auctions.emitAll("auctionStarted", dataToSend);
+      socketApi.emitAll("auctionStarted", dataToSend, "auctions");
 
       if (typeof callback === "function") callback(updatedAuction);
     } catch (error) {
@@ -231,7 +231,7 @@ module.exports = function (socket) {
         serverTimeMs: Date.now(),
       };
 
-      socketApi.auctions.emitAll("auctionEnded", dataToSend);
+      socketApi.emitAll("auctionEnded", dataToSend, "auctions");
 
       if (typeof callback === "function") callback(updatedAuction);
 
@@ -454,7 +454,7 @@ module.exports = function (socket) {
         serverTimeMs: Date.now(),
       };
 
-      socketApi.auctions.emitAll(eventName, dataToSend);
+      socketApi.emitAll(eventName, dataToSend, "auctions");
 
       if (typeof callback === "function") callback(updatedAuction);
     } catch (error) {

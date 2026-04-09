@@ -122,7 +122,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     // send socket
     resultRoom.users.forEach((userId) => {
       if (userId) {
-        socketApi.flom.emitToUser(userId, "new_room", { conversation: resultRoom });
+        socketApi.emitToUser(userId, "new_room", { conversation: resultRoom });
       }
     });
 
@@ -131,7 +131,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       : [];
     usersArray.push(request.user._id.toString());
     usersArray.forEach((userId) => {
-      socketApi.flom.joinTo(userId, Const.chatTypeRoom, roomId);
+      socketApi.joinTo(userId, Const.chatTypeRoom, roomId);
     });
 
     return Base.successResponse(response, Const.responsecodeSucceed, { room: resultRoom });

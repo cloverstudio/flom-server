@@ -119,7 +119,7 @@ async function cancelCall(socket, param, callback) {
       setShortTtl: true,
     });
 
-    socketApi.flom.emitToRoom(userId, "call_cancel", {
+    socketApi.emitToRoom(userId, "call_cancel", {
       userId: userFrom._id,
       roomId: callRoomId,
       callRoomId,

@@ -286,7 +286,7 @@ module.exports = function (socket) {
       updatedMessage.user = messageSender;
 
       for (const chatUserId of chatUserIds) {
-        socketApi.flom.emitToRoom(chatUserId, "updatemessages", [updatedMessage]);
+        socketApi.emitToRoom(chatUserId, "updatemessages", [updatedMessage]);
       }
 
       if (typeof callback === "function") callback(updatedMessage);

@@ -1,14 +1,11 @@
 const { redis, logger } = require("#infra");
-const { Config } = require("#config");
+const { Config, Const } = require("#config");
 const attachListeners = require("./listeners");
-const attachCommands = require("./attach-commands");
 
 const socketApi = {
   io: null,
   flomNsp: null,
   auctionsNsp: null,
-  flom: null,
-  auctions: null,
   init: async function (io) {
     this.io = io;
     this.flomNsp = io.of(Config.socketNameSpace);
@@ -33,7 +30,6 @@ const socketApi = {
         attachListeners(socket);
       }
     });
-    this.flom = attachCommands(this.flomNsp);
 
     this.auctionsNsp.on("connection", (socket) => {
       logger.debug("Auctions namespace connected: ", socket.id);
@@ -45,7 +41,55 @@ const socketApi = {
         attachListeners(socket, "auctions");
       }
     });
-    this.auctions = attachCommands(this.auctionsNsp);
+  },
+  emitAll(command, param, nsp = "flom") {
+    this[`${nsp}Nsp`].emit(command, param);
+  },
+  emitToSocket(socketId, command, param, nsp = "flom") {
+    this[`${nsp}Nsp`].to(socketId).emit(command, param);
+  },
+  temporaryListener(socketId, command, timeout, nsp = "flom") {
+    const socket = this[`${nsp}Nsp`].sockets.get(socketId);
+
+    if (!socket) {
+      return;
+    }
+
+    setTimeout(() => {
+      socket.removeAllListeners(command);
+    }, timeout);
+
+    socket.on(command, function () {
+      socket.removeAllListeners(command);
+    });
+  },
+  emitToUser(userId, command, param, nsp = "flom") {
+    this[`${nsp}Nsp`].emitToRoom(userId, command, param);
+  },
+  emitToRoom(roomName, command, param, nsp = "flom") {
+    this[`${nsp}Nsp`].to(roomName).emit(command, param);
+  },
+  async joinTo(userId, type, roomId, nsp = "flom") {
+    const value = await redis.get(Const.redisKeyUserId + userId);
+    if (!value) return;
+
+    value.forEach((socket) => {
+      const socketId = socket.socketId;
+      socket = this[`${nsp}Nsp`].sockets.get(socketId);
+
+      if (socket) socket.join(type + "-" + roomId);
+    });
+  },
+  async leaveFrom(userId, type, roomId, nsp = "flom") {
+    const value = await redis.get(Const.redisKeyUserId + userId);
+    if (!value) return;
+
+    value.forEach((socket) => {
+      const socketId = socket.socketId;
+      socket = this[`${nsp}Nsp`].sockets.get(socketId);
+
+      if (socket) socket.leave(type + "-" + roomId);
+    });
   },
 };
 

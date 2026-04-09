@@ -61,7 +61,7 @@ async function notifyNewMessage(obj, originalRequestData) {
 
       messageCloned.group = result.group;
       messageCloned.mutedUsersGroupRoom = usersWhoMutedGroup.map((user) => user._id.toString());
-      socketApi.flom.emitToRoom(messageCloned.roomID, "newmessage", messageCloned);
+      socketApi.emitToRoom(messageCloned.roomID, "newmessage", messageCloned);
     } else if (chatType == Const.chatTypeRoom) {
       const usersWhoMutedRoom = await User.find(
         { muted: result.room._id.toString() },
@@ -70,7 +70,7 @@ async function notifyNewMessage(obj, originalRequestData) {
 
       messageCloned.room = result.room;
       messageCloned.mutedUsersGroupRoom = usersWhoMutedRoom.map((user) => user._id.toString());
-      socketApi.flom.emitToRoom(messageCloned.roomID, "newmessage", messageCloned);
+      socketApi.emitToRoom(messageCloned.roomID, "newmessage", messageCloned);
     } else if (chatType == Const.chatTypePrivate) {
       const splitAry = messageCloned.roomID.split("-");
       if (splitAry.length < 2) return;
@@ -103,10 +103,10 @@ async function notifyNewMessage(obj, originalRequestData) {
       }
 
       // send to my self
-      socketApi.flom.emitToRoom(fromUser, "newmessage", messageCloned);
+      socketApi.emitToRoom(fromUser, "newmessage", messageCloned);
 
       // send to user who got message
-      socketApi.flom.emitToRoom(toUser, "newmessage", messageCloned);
+      socketApi.emitToRoom(toUser, "newmessage", messageCloned);
     }
 
     if (chatType == Const.chatTypeBroadcastAdmin) {
@@ -121,7 +121,7 @@ async function notifyNewMessage(obj, originalRequestData) {
       }).lean();
 
       const flomAgent = await User.findById(Config.flomSupportAgentId).lean();
-      socketApi.flom.emitToRoom(flomAgent, "newmessage", messageCloned);
+      socketApi.emitToRoom(flomAgent, "newmessage", messageCloned);
 
       for (const user of usersToNotify) {
         await Utils.wait(0.2);

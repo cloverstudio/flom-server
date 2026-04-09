@@ -122,7 +122,7 @@ router.post("/end", auth({ allowUser: true }), async function (request, response
     }
 
     try {
-      socketApi.flom.emitAll("userStoppedStreaming", {
+      socketApi.emitAll("userStoppedStreaming", {
         userId,
         liveStreamId,
       });
