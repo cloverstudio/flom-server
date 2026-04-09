@@ -9,7 +9,6 @@ const { User, Room, Organization } = require("#models");
 const { socketApi } = require("#sockets");
 const { updateHistory } = require("#logics");
 const fsp = require("fs/promises");
-const formidable = require("formidable");
 const easyimg = require("easyimage");
 
 /**
@@ -69,10 +68,7 @@ const easyimg = require("easyimage");
 
 router.post("/", auth({ allowUser: true }), async function (request, response) {
   try {
-    const form = new formidable.IncomingForm();
-    let errCode = null;
-
-    const { fields = {}, files = {} } = await form.parse(request);
+    const { fields = {}, files = {} } = await Utils.formParse(request);
     const file = files.file || null;
 
     const organization = await Organization.findById(request.user.organizationId).lean();
