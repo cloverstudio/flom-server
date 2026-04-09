@@ -1,6 +1,7 @@
 "use strict";
 
 const router = require("express").Router();
+const { logger } = require("#infra");
 const Base = require("../../Base");
 const { Const } = require("#config");
 const Utils = require("#utils");
@@ -124,6 +125,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed, { room: updatedRoom });
   } catch (error) {
+    logger.error("RemoveUsersFromRoomController", error);
     return Base.errorResponse(response, Const.httpCodeServerError);
   }
 });
