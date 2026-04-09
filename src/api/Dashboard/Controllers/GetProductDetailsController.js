@@ -661,6 +661,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
           obj.created = bless.created;
 
           if (bless.transferType !== Const.transferTypeSprayBless) {
+            console.log("bless.productName", bless.productName);
             obj.bless = await BlessPacket.findOne({ title: bless.productName }).lean();
             obj.bless.link = `${Config.webClientUrl}/api/v2/bless/emojis/${obj.bless.emojiFileName}`;
           }
