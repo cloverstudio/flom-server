@@ -96,8 +96,8 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     // check if user who wants to add users to toom is admin
     if (
-      !room.admins.includes(request.user.id.toString()) &&
-      request.user.id.toString() != room.owner.toString()
+      !room.admins.includes(request.user._id.toString()) &&
+      request.user._id.toString() != room.owner.toString()
     ) {
       return Base.successResponse(response, Const.responsecodeAddUsersToRoomUserIsNotAdmin);
     }

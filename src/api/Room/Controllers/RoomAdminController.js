@@ -60,7 +60,7 @@ router.post("/add", auth({ allowUser: true }), async function (request, response
     if (!room) return Base.successResponse(response, Const.responsecodeNoRoomFound);
 
     // check if user who wants to add new admin is admin
-    if (!room.admins.includes(request.user.id.toString()))
+    if (!room.admins.includes(request.user._id.toString()))
       return Base.successResponse(response, Const.responsecodeUserIsNotAdmin);
 
     // check if user is already admin
@@ -142,7 +142,7 @@ router.post("/delete", auth({ allowUser: true }), async function (request, respo
     if (!room) return Base.successResponse(response, Const.responsecodeNoRoomFound);
 
     // check if user who wants to delete admin is admin
-    if (!room.admins.includes(request.user.id.toString()))
+    if (!room.admins.includes(request.user._id.toString()))
       return Base.successResponse(response, Const.responsecodeUserIsNotAdmin);
 
     // check if user to remove is admin

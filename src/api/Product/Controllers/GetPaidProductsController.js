@@ -141,7 +141,7 @@ const { Product, Category, User, Transaction, FlomMessage, Review } = require("#
 
 router.post("/", auth({ allowUser: true }), async function (request, response) {
   try {
-    const userId = request.user.id;
+    const userId = request.user._id;
     const page = request.body.page ? request.body.page : 1;
     const skip = page > 0 ? (page - 1) * Const.pagingRows : 0;
 
