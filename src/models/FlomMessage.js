@@ -71,7 +71,7 @@ schema.statics.findNewMessages = async function (roomID, lastMessageID, limit) {
       query.created = { $gt: lastCreated };
     }
 
-    const messages = await this.find(query).sort({ created: -1 }).limit(limit).lean();
+    const messages = await this.find(query).sort({ created: 1 }).limit(limit).lean();
 
     return messages;
   } catch (error) {
@@ -88,7 +88,7 @@ schema.statics.findNewMessagesCurrentInc = async function (roomID, lastMessageID
       query.created = { $gte: lastCreated };
     }
 
-    const messages = await this.find(query).sort({ created: -1 }).limit(limit).lean();
+    const messages = await this.find(query).sort({ created: 1 }).limit(limit).lean();
 
     return messages;
   } catch (error) {
@@ -105,7 +105,7 @@ schema.statics.findAllMessages = async function (roomID, fromMessageID) {
       query.created = { $gte: lastCreated };
     }
 
-    let messages = await this.find(query).sort({ created: -1 }).lean();
+    let messages = await this.find(query).sort({ created: 1 }).lean();
 
     if (fromMessageID != 0 && messages.length < Const.pagingLimit) {
       messages = await this.findNewMessages(roomID, 0, Const.pagingLimit);
