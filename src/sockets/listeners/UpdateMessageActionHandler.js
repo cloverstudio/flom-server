@@ -3,7 +3,7 @@ const { logger, encryptionManager } = require("#infra");
 const { History, FlomMessage } = require("#models");
 const { notifyUpdateMessage } = require("#logics");
 
-module.exports = function (socket) {
+module.exports = function (socketApi, socket) {
   /**
    * @api {socket} "updateMessage" Update Message
    * @apiName Update Message

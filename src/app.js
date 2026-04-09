@@ -84,8 +84,11 @@ app.use(function (req, res, next) {
     req.headers["access-token"] = req.cookies["access-token"];
   }
 
-  // debug output
-  if (!req.originalUrl.includes("livestreams/cb")) {
+  if (
+    req.originalUrl !== "/" &&
+    !req.originalUrl.includes("livestreams/cb") &&
+    !req.originalUrl.includes("uploads")
+  ) {
     logger.info("method: " + req.method + " | url: " + req.originalUrl);
   }
   next();
@@ -118,7 +121,10 @@ app.use(function (request, response, next) {
       }
     });
 
-    if (!request.originalUrl.includes("livestreams/cb")) {
+    if (
+      !request.originalUrl.includes("livestreams/cb") &&
+      !request.originalUrl.includes("uploads")
+    ) {
       if (
         request.originalUrl.includes("app/startup") ||
         request.originalUrl.includes("user/sync")

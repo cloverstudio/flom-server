@@ -1,7 +1,7 @@
 const { Const } = require("#config");
 const { logger, redis } = require("#infra");
 
-module.exports = function (socket) {
+module.exports = function (socketApi, socket) {
   /**
      * @api {socket} "joinChatAsFlomTeam" Send typing notification
      * @apiName Typing Notification

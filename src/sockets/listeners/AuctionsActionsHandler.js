@@ -4,13 +4,12 @@ const { logger, redis } = require("#infra");
 const { Const } = require("#config");
 const Utils = require("#utils");
 const { User, Auction, LiveStream, Product, SatsReservation } = require("#models");
-const socketApi = require("../socket-api");
 
 const helpers = require("./helpers/auctionHelpers");
 
 let conversionRates = { rates: null, lastUpdated: 0 };
 
-module.exports = function (socket) {
+module.exports = function (socketApi, socket) {
   /**
    * @api {socket} "connection"
    * @apiName connection
@@ -110,7 +109,7 @@ module.exports = function (socket) {
         serverTimeMs: Date.now(),
       };
 
-      socketApi.auctions.emitAll("auctionStarted", dataToSend);
+      socketApi.emitAll("auctionStarted", dataToSend, "auctions");
 
       if (typeof callback === "function") callback(updatedAuction);
     } catch (error) {
@@ -231,7 +230,7 @@ module.exports = function (socket) {
         serverTimeMs: Date.now(),
       };
 
-      socketApi.auctions.emitAll("auctionEnded", dataToSend);
+      socketApi.emitAll("auctionEnded", dataToSend, "auctions");
 
       if (typeof callback === "function") callback(updatedAuction);
 
@@ -454,7 +453,7 @@ module.exports = function (socket) {
         serverTimeMs: Date.now(),
       };
 
-      socketApi.auctions.emitAll(eventName, dataToSend);
+      socketApi.emitAll(eventName, dataToSend, "auctions");
 
       if (typeof callback === "function") callback(updatedAuction);
     } catch (error) {

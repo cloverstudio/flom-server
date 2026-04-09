@@ -1,10 +1,9 @@
 const { Const } = require("#config");
 const { logger, redis } = require("#infra");
 const { CallLog } = require("#models");
-const socketApi = require("../socket-api");
 const { cancelCall } = require("#logics");
 
-module.exports = function (socket) {
+module.exports = function (socketApi, socket) {
   /**
    * @api {socket} "disconnect" Disconnect
    * @apiName Disconnect
@@ -33,7 +32,7 @@ module.exports = function (socket) {
         lastSeenTimestamp: Date.now(),
       });
 
-      socketApi.flom.emitAll("onlineStatus", { userId: userId, online: false });
+      socketApi.emitAll("onlineStatus", { userId: userId, online: false });
 
       return;
     } catch (error) {

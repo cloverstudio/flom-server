@@ -28,7 +28,7 @@ const listeners = {
  * @param {Socket} socket
  * @param {string} [namespace= "flom"]
  */
-function attachListeners(socket, namespace = "flom") {
+function attachListeners(socketApi, socket, namespace = "flom") {
   const namespaceListeners = listeners[namespace];
   if (!namespaceListeners) {
     logger.warn("attachListeners: no listeners found for namespace " + namespace);
@@ -38,7 +38,7 @@ function attachListeners(socket, namespace = "flom") {
   Object.keys(namespaceListeners).forEach((listenerName) => {
     const listener = namespaceListeners[listenerName];
     if (typeof listener === "function") {
-      listener(socket);
+      listener(socketApi, socket);
     } else {
       logger.warn("attachListeners: listener " + listenerName + " is not a function");
     }

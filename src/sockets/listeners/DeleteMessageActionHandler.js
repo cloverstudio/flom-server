@@ -3,7 +3,7 @@ const { logger } = require("#infra");
 const { History, FlomMessage } = require("#models");
 const { notifyUpdateMessage } = require("#logics");
 
-module.exports = function (socket) {
+module.exports = function (socketApi, socket) {
   /**
    * @api {socket} "deleteMessage" Delete Message
    * @apiName Delete Message

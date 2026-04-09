@@ -49,7 +49,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       // send socket
       room.users.forEach((userId) => {
         if (userId) {
-          socketApi.flom.emitToUser(userId, "delete_room", {
+          socketApi.emitToUser(userId, "delete_room", {
             conversation: room,
           });
         }
@@ -63,7 +63,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     // stop sending notification
-    socketApi.flom.leaveFrom(loginUserId, Const.chatTypeRoom, roomId);
+    socketApi.leaveFrom(loginUserId, Const.chatTypeRoom, roomId);
 
     return Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {

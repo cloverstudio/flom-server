@@ -318,7 +318,7 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
       liveStream.isActive = true;
       updatePushRequired = true;
 
-      socketApi.flom.emitAll("userStartedStreaming", {
+      socketApi.emitAll("userStartedStreaming", {
         userId,
         liveStreamId: id,
       });
@@ -346,7 +346,7 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
         },
       );
 
-      socketApi.flom.emitAll("userStoppedStreaming", {
+      socketApi.emitAll("userStoppedStreaming", {
         userId,
         liveStreamId: id,
       });

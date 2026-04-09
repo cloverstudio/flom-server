@@ -167,7 +167,7 @@ async function sendMessage(param) {
 
     if (roomID.includes(Const.FatAiObjectId) && !param.isRecursiveCall) {
       const chatId = Utils.chatIdByUser(result.user, result.receiverUser);
-      socketApi.flom.emitToRoom(result.user._id.toString(), "typing", {
+      socketApi.emitToRoom(result.user._id.toString(), "typing", {
         userID: Const.FatAiObjectId,
         roomID: chatId,
         type: 1,
@@ -197,7 +197,7 @@ async function sendMessage(param) {
           plainTextMessage: true,
           isRecursiveCall: true,
         };
-        socketApi.flom.emitToRoom(result.user._id.toString(), "typing", {
+        socketApi.emitToRoom(result.user._id.toString(), "typing", {
           userID: Const.FatAiObjectId,
           roomID: chatId,
           type: 0,
@@ -223,7 +223,7 @@ async function sendMessage(param) {
           plainTextMessage: true,
           isRecursiveCall: true,
         };
-        socketApi.flom.emitToRoom(result.user._id.toString(), "typing", {
+        socketApi.emitToRoom(result.user._id.toString(), "typing", {
           userID: Const.FatAiObjectId,
           roomID: chatId,
           type: 0,
@@ -243,7 +243,7 @@ async function sendMessage(param) {
 
       if (!flomTeamCurrentChat?.includes(result.user._id.toString())) {
         const chatId = Utils.chatIdByUser(result.user, result.receiverUser);
-        socketApi.flom.emitToRoom(result.user._id.toString(), "typing", {
+        socketApi.emitToRoom(result.user._id.toString(), "typing", {
           userID: Const.FlomTeamObjectId,
           roomID: chatId,
           type: 1,
@@ -263,7 +263,7 @@ async function sendMessage(param) {
           plainTextMessage: true,
           isRecursiveCall: true,
         };
-        socketApi.flom.emitToRoom(result.user._id.toString(), "typing", {
+        socketApi.emitToRoom(result.user._id.toString(), "typing", {
           userID: Const.FlomTeamObjectId,
           roomID: chatId,
           type: 0,

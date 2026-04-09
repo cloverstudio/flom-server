@@ -1,6 +1,7 @@
 "use strict";
 
 const router = require("express").Router();
+const { logger } = require("#infra");
 const Base = require("../../Base");
 const { Const } = require("#config");
 const Utils = require("#utils");
@@ -95,8 +96,8 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     // check if user who wants to add users to toom is admin
     if (
-      !room.admins.includes(request.user.id.toString()) &&
-      request.user.id.toString() != room.owner.toString()
+      !room.admins.includes(request.user._id.toString()) &&
+      request.user._id.toString() != room.owner.toString()
     ) {
       return Base.successResponse(response, Const.responsecodeAddUsersToRoomUserIsNotAdmin);
     }
@@ -112,18 +113,19 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       { users: newUsers, $pull: { admins: { $in: users } } },
       { new: true },
     ).lean();
-    updatedRoom.ownerModel = request.user.toObject();
+    updatedRoom.ownerModel = request.user;
 
     for (const user of usersExists) {
       // stop sending notification
-      socketApi.flom.leaveFrom(user._id.toString(), Const.chatTypeRoom, roomId);
-      socketApi.flom.emitToUser(user._id.toString(), "delete_room", { conversation: updatedRoom });
+      socketApi.leaveFrom(user._id.toString(), Const.chatTypeRoom, roomId);
+      socketApi.emitToUser(user._id.toString(), "delete_room", { conversation: updatedRoom });
 
       await History.deleteMany({ chatId: roomId, userId: user._id.toString() });
     }
 
     return Base.successResponse(response, Const.responsecodeSucceed, { room: updatedRoom });
   } catch (error) {
+    logger.error("RemoveUsersFromRoomController", error);
     return Base.errorResponse(response, Const.httpCodeServerError);
   }
 });

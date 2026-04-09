@@ -86,11 +86,11 @@ router.patch("/:tribeId/leave", auth({ allowUser: true }), async (request, respo
         { new: true },
       );
 
-      socketApi.flom.leaveFrom(requestUserId, Const.chatTypeTribeGroupChat, tribe.roomId);
+      socketApi.leaveFrom(requestUserId, Const.chatTypeTribeGroupChat, tribe.roomId);
 
       await History.deleteOne({ chatId: tribe.roomId, userId: requestUserId });
 
-      socketApi.flom.emitToUser(requestUserId, "delete_room", {
+      socketApi.emitToUser(requestUserId, "delete_room", {
         conversation: room.toObject(),
       });
     } else if (tribe.members.requested.find((member) => member.id === requestUserId)) {

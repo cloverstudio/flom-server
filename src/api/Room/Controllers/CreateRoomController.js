@@ -9,7 +9,6 @@ const { User, Room, Organization } = require("#models");
 const { socketApi } = require("#sockets");
 const { updateHistory } = require("#logics");
 const fsp = require("fs/promises");
-const formidable = require("formidable");
 const easyimg = require("easyimage");
 
 /**
@@ -69,11 +68,8 @@ const easyimg = require("easyimage");
 
 router.post("/", auth({ allowUser: true }), async function (request, response) {
   try {
-    const form = new formidable.IncomingForm();
-    let errCode = null;
-
-    const { fields, files } = await form.parse(request);
-    const file = files.file;
+    const { fields = {}, files = {} } = await Utils.formParse(request);
+    const file = files.file || null;
 
     const organization = await Organization.findById(request.user.organizationId).lean();
     if (!organization) {
@@ -111,7 +107,12 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     );
 
     if (!resultRoom) {
-      return Base.errorResponse(response, Const.httpCodeServerError);
+      return Base.errorResponse(
+        response,
+        Const.httpCodeServerError,
+        "CreateRoomController",
+        "Failed to create room",
+      );
     }
 
     const roomId = resultRoom._id.toString();
@@ -121,7 +122,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     // send socket
     resultRoom.users.forEach((userId) => {
       if (userId) {
-        socketApi.flom.emitToUser(userId, "new_room", { conversation: resultRoom });
+        socketApi.emitToUser(userId, "new_room", { conversation: resultRoom });
       }
     });
 
@@ -130,13 +131,13 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       : [];
     usersArray.push(request.user._id.toString());
     usersArray.forEach((userId) => {
-      socketApi.flom.joinTo(userId, Const.chatTypeRoom, roomId);
+      socketApi.joinTo(userId, Const.chatTypeRoom, roomId);
     });
 
     return Base.successResponse(response, Const.responsecodeSucceed, { room: resultRoom });
   } catch (error) {
     console.error("Error in CreateRoomController:", error);
-    return Base.errorResponse(response, error);
+    return Base.errorResponse(response, Const.httpCodeServerError, "CreateRoomController", error);
   }
 });
 

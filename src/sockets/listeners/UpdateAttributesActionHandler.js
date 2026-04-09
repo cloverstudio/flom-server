@@ -4,7 +4,7 @@ const { logger } = require("#infra");
 const { FlomMessage } = require("#models");
 const { updateHistory, notifyUpdateMessage } = require("#logics");
 
-module.exports = function (socket) {
+module.exports = function (socketApi, socket) {
   /**
    * @api {socket} "updateAttributes" Update Attributes
    * @apiName Update Attributes

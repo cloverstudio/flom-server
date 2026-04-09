@@ -114,7 +114,7 @@ router.patch(
       if (userStatus) {
         tribe.members.accepted.push(requestToJoin);
         await Room.updateOne({ _id: tribe.roomId }, { $push: { users: memberId } });
-        socketApi.flom.joinTo(memberId, Const.chatTypeTribeGroupChat, tribe.roomId);
+        socketApi.joinTo(memberId, Const.chatTypeTribeGroupChat, tribe.roomId);
       }
 
       await updateRequestedUserNotification({

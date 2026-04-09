@@ -17,9 +17,9 @@ async function notifyUpdateMessage(message) {
 
     // Websocket
     if (chatType == Const.chatTypeGroup) {
-      socketApi.flom.emitToRoom(message.roomID, "updatemessages", [message]);
+      socketApi.emitToRoom(message.roomID, "updatemessages", [message]);
     } else if (chatType == Const.chatTypeRoom) {
-      socketApi.flom.emitToRoom(message.roomID, "updatemessages", [message]);
+      socketApi.emitToRoom(message.roomID, "updatemessages", [message]);
     } else if (chatType == Const.chatTypePrivate) {
       const splitAry = message.roomID.split("-");
 
@@ -39,8 +39,8 @@ async function notifyUpdateMessage(message) {
         fromUserId = user2;
       }
 
-      socketApi.flom.emitToRoom(fromUserId, "updatemessages", [message]);
-      socketApi.flom.emitToRoom(toUserId, "updatemessages", [message]);
+      socketApi.emitToRoom(fromUserId, "updatemessages", [message]);
+      socketApi.emitToRoom(toUserId, "updatemessages", [message]);
     }
 
     const fromUser = await User.findById(fromUserId).lean();

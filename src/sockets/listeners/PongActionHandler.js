@@ -1,7 +1,7 @@
 const { Const } = require("#config");
 const { logger } = require("#infra");
 
-module.exports = async function (socket) {
+module.exports = async function (socketApi, socket) {
   /**
      * @api {socket} "pingok" ping ok
      * @apiName ping ok

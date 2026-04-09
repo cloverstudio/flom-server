@@ -154,7 +154,7 @@ schema.statics.populateMessages = async function (messages) {
     }
 
     messages = await this.find({ user: { $in: oldIds } })
-      .sort({ created: 1 })
+      .sort({ created: -1 })
       .limit(500)
       .lean();
 

@@ -97,7 +97,7 @@ router.post("/start", auth({ allowUser: true }), async function (request, respon
     );
     await recombee.deactivateLiveStreams({ liveStreams: deadStreams || [] });
 
-    socketApi.flom.emitAll("userStartedStreaming", {
+    socketApi.emitAll("userStartedStreaming", {
       userId,
       liveStreamId,
     });

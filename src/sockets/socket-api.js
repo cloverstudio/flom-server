@@ -1,31 +1,56 @@
-const { Namespace } = require("socket.io");
-const { redis } = require("#infra");
-const { Const } = require("#config");
+const { redis, logger } = require("#infra");
+const { Config, Const } = require("#config");
 
-class SocketApi {
-  /**
-   * @type {Namespace}
-   */
-  nsp = null;
+const socketApi = {
+  io: null,
+  flomNsp: null,
+  auctionsNsp: null,
+  init: async function (io) {
+    this.io = io;
+    this.flomNsp = io.of(Config.socketNameSpace);
+    this.auctionsNsp = io.of(Config.socketAuctionsNameSpace);
 
-  constructor() {
-    this.nsp = null;
-  }
+    this.flomNsp.on("connection", (socket) => {
+      logger.debug("Flom namespace connected: ", socket.id);
+      logger.debug("Flom socket data printout: ", JSON.stringify(socket.data, null, 2));
 
-  attachNamespace(namespace) {
-    this.nsp = namespace;
-  }
+      socket.on("disconnect", async (reason) => {
+        try {
+          const value = await redis.get("flom_team_current_chat");
+          if (value?.includes(socket.id)) {
+            await redis.del("flom_team_current_chat");
+          }
+        } catch (error) {
+          logger.error("disconnect socket error", error);
+        }
+      });
 
-  emitAll(command, param) {
-    this.nsp.emit(command, param);
-  }
+      if (Config.serverType === "socket") {
+        const attachListeners = require("./listeners");
+        attachListeners(this, socket);
+      }
+    });
 
-  emitToSocket(socketId, command, param) {
-    this.nsp.to(socketId).emit(command, param);
-  }
+    this.auctionsNsp.on("connection", (socket) => {
+      logger.debug("Auctions namespace connected: ", socket.id);
+      logger.debug("Auctions socket data printout: ", JSON.stringify(socket.data, null, 2));
 
-  temporaryListener(socketId, command, timeout, callBack) {
-    const socket = this.nsp.sockets.get(socketId);
+      socket.on("disconnect", async (reason) => {});
+
+      if (Config.serverType === "socket") {
+        const attachListeners = require("./listeners");
+        attachListeners(this, socket, "auctions");
+      }
+    });
+  },
+  emitAll(command, param, nsp = "flom") {
+    this[`${nsp}Nsp`].emit(command, param);
+  },
+  emitToSocket(socketId, command, param, nsp = "flom") {
+    this[`${nsp}Nsp`].to(socketId).emit(command, param);
+  },
+  temporaryListener(socketId, command, timeout, nsp = "flom") {
+    const socket = this[`${nsp}Nsp`].sockets.get(socketId);
 
     if (!socket) {
       return;
@@ -38,51 +63,35 @@ class SocketApi {
     socket.on(command, function () {
       socket.removeAllListeners(command);
     });
-  }
-
-  emitToUser(userId, command, param) {
-    this.nsp.emitToRoom(userId, command, param);
-  }
-
-  emitToRoom(roomName, command, param) {
-    this.nsp.to(roomName).emit(command, param);
-  }
-
-  async joinTo(userId, type, roomId) {
+  },
+  emitToUser(userId, command, param, nsp = "flom") {
+    this.emitToRoom(userId, command, param, nsp);
+  },
+  emitToRoom(roomName, command, param, nsp = "flom") {
+    this[`${nsp}Nsp`].to(roomName).emit(command, param);
+  },
+  async joinTo(userId, type, roomId, nsp = "flom") {
     const value = await redis.get(Const.redisKeyUserId + userId);
     if (!value) return;
 
     value.forEach((socket) => {
       const socketId = socket.socketId;
-      socket = this.nsp.sockets.get(socketId);
+      socket = this[`${nsp}Nsp`].sockets.get(socketId);
 
       if (socket) socket.join(type + "-" + roomId);
     });
-  }
-
-  async leaveFrom(userId, type, roomId) {
+  },
+  async leaveFrom(userId, type, roomId, nsp = "flom") {
     const value = await redis.get(Const.redisKeyUserId + userId);
     if (!value) return;
 
     value.forEach((socket) => {
       const socketId = socket.socketId;
-      socket = this.nsp.sockets.get(socketId);
+      socket = this[`${nsp}Nsp`].sockets.get(socketId);
 
       if (socket) socket.leave(type + "-" + roomId);
     });
-  }
-}
+  },
+};
 
-const flom = new SocketApi();
-const auctions = new SocketApi();
-
-function initNamespaces(ns = {}) {
-  if (!ns.flom || !ns.auctions) {
-    throw new Error("initNamespaces: no namespaces provided");
-  }
-
-  flom.attachNamespace(ns.flom);
-  auctions.attachNamespace(ns.auctions);
-}
-
-module.exports = { flom, auctions, initNamespaces };
+module.exports = socketApi;

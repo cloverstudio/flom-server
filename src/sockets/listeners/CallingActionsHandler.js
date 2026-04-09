@@ -2,10 +2,9 @@ const { Const } = require("#config");
 const Utils = require("#utils");
 const { logger, redis } = require("#infra");
 const { CallLog, User } = require("#models");
-const socketApi = require("../socket-api");
 const { deleteCallByUserId, cancelCall, sendMessage, sendPush } = require("#logics");
 
-module.exports = function (socket) {
+module.exports = function (socketApi, socket) {
   /**
    * @api {socket} "call_request" make call request
    * @apiName make call request
@@ -97,7 +96,7 @@ module.exports = function (socket) {
         validatedTokens = validatedTokens.filter((obj) => obj.token.length < 65);
 
         if (validatedTokens.length === 0) {
-          return socketApi.flom.emitToSocket(socket.id, "call_failed", {
+          return socketApi.emitToSocket(socket.id, "call_failed", {
             failedType: Const.callFaildUserBusy,
           });
         } else {
@@ -110,7 +109,7 @@ module.exports = function (socket) {
             (!userIsCallerInLatestCall && latestCall.calleeDevice === "web")
           ) {
             logger.error("call_request socketerror, callee user is talking on web!!");
-            return socketApi.flom.emitToSocket(socket.id, "call_failed", {
+            return socketApi.emitToSocket(socket.id, "call_failed", {
               failedType: Const.callFaildUserBusy,
             });
           }
@@ -184,7 +183,7 @@ module.exports = function (socket) {
       Utils.stripPrivateData(userFrom);
 
       if (!userHasAnotherCall) {
-        socketApi.flom.emitToRoom(userId, "call_request", {
+        socketApi.emitToRoom(userId, "call_request", {
           user: userFrom,
           mediaType: param.mediaType,
           callRoomId: callRoomId,
@@ -193,7 +192,7 @@ module.exports = function (socket) {
     } catch (error) {
       logger.error("call_request socketerror", error);
 
-      socketApi.flom.emitToSocket(socket.id, "call_failed", {
+      socketApi.emitToSocket(socket.id, "call_failed", {
         failedType: Const.callFaildUserBusy,
       });
     }
@@ -276,13 +275,13 @@ module.exports = function (socket) {
         );
       }
 
-      socketApi.flom.emitToRoom(userId, "call_failed", {
+      socketApi.emitToRoom(userId, "call_failed", {
         failedType: param.rejectType,
         callRoomId: param.callRoomId || null,
       });
 
       if (userFrom) {
-        socketApi.flom.emitToRoom(userFrom._id, "call_reject_mine", {
+        socketApi.emitToRoom(userFrom._id, "call_reject_mine", {
           callRoomId: param.callRoomId || null,
         });
       }
@@ -374,7 +373,7 @@ module.exports = function (socket) {
       }
 
       logger.info("call received sent " + userId);
-      socketApi.flom.emitToRoom(userId, "call_received", {});
+      socketApi.emitToRoom(userId, "call_received", {});
     } catch (error) {
       logger.error("call_received", error);
     }
@@ -403,7 +402,7 @@ module.exports = function (socket) {
       const userId = param.userId;
       const calleeDevice = param.device || "web";
 
-      socketApi.flom.emitToRoom(userId, "call_answer", {
+      socketApi.emitToRoom(userId, "call_answer", {
         failedType: param.rejectType,
       });
 
@@ -499,7 +498,7 @@ module.exports = function (socket) {
         setShortTtl: true,
       });
 
-      socketApi.flom.emitToRoom(userFrom._id, "call_answer_mine", {
+      socketApi.emitToRoom(userFrom._id, "call_answer_mine", {
         callRoomId: param.callRoomId || null,
       });
     } catch (error) {
@@ -569,7 +568,7 @@ module.exports = function (socket) {
         );
       }
 
-      socketApi.flom.emitToRoom(userId, "call_close", { callRoomId: param.callRoomId });
+      socketApi.emitToRoom(userId, "call_close", { callRoomId: param.callRoomId });
     } catch (error) {
       logger.error("call_close error: ", error);
     }

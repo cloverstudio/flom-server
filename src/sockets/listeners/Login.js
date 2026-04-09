@@ -2,52 +2,51 @@ const { logger, redis } = require("#infra");
 const { Const } = require("#config");
 const { Group, Room } = require("#models");
 const Base = require("./Base");
-const socketApi = require("../socket-api");
 
 let timer;
 
-function setTimer(socket, callData) {
-  clearTimeout(timer);
-  timer = setTimeout(() => {
-    socketApi.flom.emitToSocket(socket.id, "call_request", {
-      user: callData.user,
-      mediaType: callData.mediaType,
-      callRoomId: callData.callRoomId,
-    });
-  }, 1000);
-}
-
-async function newSocketConnection(socket, user) {
-  try {
-    const socketId = socket.id;
-    const userId = user._id.toString();
-
-    // make user online
-    await redis.set(Const.redisKeyOnlineStatus + userId, {
-      onlineTimestamp: Date.now(),
-    });
-
-    // save user data
-    await redis.set(Const.redisKeySocketId + socketId, user);
-
-    // add socket id to the user
-    let val = await redis.get(Const.redisKeyUserId + userId);
-    if (!val) val = [];
-    val.push({
-      socketId: socketId,
-      connected: Date.now(),
-    });
-
-    await redis.set(Const.redisKeyUserId + userId, val);
-
-    return true;
-  } catch (error) {
-    logger.error("login listener, newSocketConnection", error);
-    return false;
+module.exports = function (socketApi, socket) {
+  function setTimer(socket, callData) {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      socketApi.emitToSocket(socket.id, "call_request", {
+        user: callData.user,
+        mediaType: callData.mediaType,
+        callRoomId: callData.callRoomId,
+      });
+    }, 1000);
   }
-}
 
-module.exports = function (socket) {
+  async function newSocketConnection(socket, user) {
+    try {
+      const socketId = socket.id;
+      const userId = user._id.toString();
+
+      // make user online
+      await redis.set(Const.redisKeyOnlineStatus + userId, {
+        onlineTimestamp: Date.now(),
+      });
+
+      // save user data
+      await redis.set(Const.redisKeySocketId + socketId, user);
+
+      // add socket id to the user
+      let val = await redis.get(Const.redisKeyUserId + userId);
+      if (!val) val = [];
+      val.push({
+        socketId: socketId,
+        connected: Date.now(),
+      });
+
+      await redis.set(Const.redisKeyUserId + userId, val);
+
+      return true;
+    } catch (error) {
+      logger.error("login listener, newSocketConnection", error);
+      return false;
+    }
+  }
+
   socket.on("login", async function (param) {
     try {
       param.socketid = socket.id;
@@ -102,7 +101,7 @@ module.exports = function (socket) {
       if (status) {
         socket.emit("logined", { user });
       }
-      socketApi.flom.emitAll("onlineStatus", { userId, online: status });
+      socketApi.emitAll("onlineStatus", { userId, online: status });
 
       return;
     } catch (error) {

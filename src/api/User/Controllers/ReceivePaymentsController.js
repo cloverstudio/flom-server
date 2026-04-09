@@ -36,7 +36,7 @@ const { User } = require("#models");
 
 router.get("/", auth({ allowUser: true }), async function (request, response) {
   try {
-    const user = request.user.toObject();
+    const user = request.user;
     const phoneNumber = user.phoneNumber;
 
     user.bankAccounts = await Utils.getAllBankAccountsWithMsisdn(phoneNumber);
@@ -84,7 +84,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
   try {
     const { merchantDOB, accountNumber } = request.body;
 
-    const user = request.user.toObject();
+    const user = request.user;
     const phoneNumber = user.phoneNumber;
 
     user.bankAccounts = await Utils.getAllBankAccountsWithMsisdn(phoneNumber);
