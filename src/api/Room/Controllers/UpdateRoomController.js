@@ -86,9 +86,13 @@ const easyimg = require("easyimage");
 router.post("/", auth({ allowUser: true }), async function (request, response) {
   try {
     const form = new formidable.IncomingForm();
-    const { fields, files } = await form.parse(request);
+    const { fields = {}, files = {} } = await form.parse(request);
     const roomId = fields.roomId;
     const userId = request.user._id.toString();
+
+    if (!roomId || !Utils.isObjectId(roomId)) {
+      return Base.successResponse(response, Const.responsecodeUpdateRoomWrongRoomId);
+    }
 
     const room = await Room.findById(roomId).lean();
     if (!room) {

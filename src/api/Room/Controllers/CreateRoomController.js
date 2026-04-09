@@ -72,8 +72,8 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const form = new formidable.IncomingForm();
     let errCode = null;
 
-    const { fields, files } = await form.parse(request);
-    const file = files.file;
+    const { fields = {}, files = {} } = await form.parse(request);
+    const file = files.file || null;
 
     const organization = await Organization.findById(request.user.organizationId).lean();
     if (!organization) {
@@ -111,7 +111,12 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     );
 
     if (!resultRoom) {
-      return Base.errorResponse(response, Const.httpCodeServerError);
+      return Base.errorResponse(
+        response,
+        Const.httpCodeServerError,
+        "CreateRoomController",
+        "Failed to create room",
+      );
     }
 
     const roomId = resultRoom._id.toString();
@@ -136,7 +141,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     return Base.successResponse(response, Const.responsecodeSucceed, { room: resultRoom });
   } catch (error) {
     console.error("Error in CreateRoomController:", error);
-    return Base.errorResponse(response, error);
+    return Base.errorResponse(response, Const.httpCodeServerError, "CreateRoomController", error);
   }
 });
 
