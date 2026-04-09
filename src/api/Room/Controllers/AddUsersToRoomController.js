@@ -108,7 +108,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       { users: newUserIds },
       { new: true, lean: true },
     );
-    updatedRoom.ownerModel = request.user.toObject();
+    updatedRoom.ownerModel = request.user;
     users.forEach((user) => {
       socketApi.joinTo(user._id, Const.chatTypeRoom, roomId);
     });

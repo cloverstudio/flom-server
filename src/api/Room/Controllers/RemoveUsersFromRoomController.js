@@ -112,7 +112,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       { users: newUsers, $pull: { admins: { $in: users } } },
       { new: true },
     ).lean();
-    updatedRoom.ownerModel = request.user.toObject();
+    updatedRoom.ownerModel = request.user;
 
     for (const user of usersExists) {
       // stop sending notification

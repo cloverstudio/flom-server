@@ -153,7 +153,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     const updatedRoom = await Room.findByIdAndUpdate(roomId, updateData, { new: true, lean: true });
-    updatedRoom.ownerModel = request.user.toObject();
+    updatedRoom.ownerModel = request.user;
 
     return Base.successResponse(response, Const.responsecodeSucceed, { room: updatedRoom });
   } catch (error) {
