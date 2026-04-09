@@ -1,6 +1,5 @@
 const { redis, logger } = require("#infra");
 const { Config, Const } = require("#config");
-const attachListeners = require("./listeners");
 
 const socketApi = {
   io: null,
@@ -27,6 +26,7 @@ const socketApi = {
       });
 
       if (Config.serverType === "socket") {
+        const attachListeners = require("./listeners");
         attachListeners(this, socket);
       }
     });
@@ -38,6 +38,7 @@ const socketApi = {
       socket.on("disconnect", async (reason) => {});
 
       if (Config.serverType === "socket") {
+        const attachListeners = require("./listeners");
         attachListeners(this, socket, "auctions");
       }
     });
