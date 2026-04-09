@@ -27,7 +27,7 @@ const socketApi = {
       });
 
       if (Config.serverType === "socket") {
-        attachListeners(socket);
+        attachListeners(this, socket);
       }
     });
 
@@ -38,7 +38,7 @@ const socketApi = {
       socket.on("disconnect", async (reason) => {});
 
       if (Config.serverType === "socket") {
-        attachListeners(socket, "auctions");
+        attachListeners(this, socket, "auctions");
       }
     });
   },

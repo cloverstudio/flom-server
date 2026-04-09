@@ -2,9 +2,8 @@ const { Const } = require("#config");
 const Utils = require("#utils");
 const { logger } = require("#infra");
 const { FlomMessage, History, User, Room } = require("#models");
-const socketApi = require("../socket-api");
 
-module.exports = function (socket) {
+module.exports = function (socketApi, socket) {
   /**
    * @api {socket} "messageReaction" Update reaction to message
    * @apiName Send Message

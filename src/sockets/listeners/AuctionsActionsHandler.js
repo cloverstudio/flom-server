@@ -4,13 +4,12 @@ const { logger, redis } = require("#infra");
 const { Const } = require("#config");
 const Utils = require("#utils");
 const { User, Auction, LiveStream, Product, SatsReservation } = require("#models");
-const socketApi = require("../socket-api");
 
 const helpers = require("./helpers/auctionHelpers");
 
 let conversionRates = { rates: null, lastUpdated: 0 };
 
-module.exports = function (socket) {
+module.exports = function (socketApi, socket) {
   /**
    * @api {socket} "connection"
    * @apiName connection

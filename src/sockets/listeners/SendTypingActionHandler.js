@@ -1,9 +1,8 @@
 const { Const } = require("#config");
 const { logger } = require("#infra");
 const { User } = require("#models");
-const socketApi = require("../socket-api");
 
-module.exports = function (socket) {
+module.exports = function (socketApi, socket) {
   /**
      * @api {socket} "sendTyping" Send typing notification
      * @apiName Typing Notification

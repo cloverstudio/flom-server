@@ -1,10 +1,9 @@
 const { Const } = require("#config");
 const { logger } = require("#infra");
 const { User, FlomMessage } = require("#models");
-const socketApi = require("../socket-api");
 const { updateHistory } = require("#logics");
 
-module.exports = function (socket) {
+module.exports = function (socketApi, socket) {
   /**
    * @api {socket} "deliverMessage" Deliver Message
    * @apiName Deliver Message

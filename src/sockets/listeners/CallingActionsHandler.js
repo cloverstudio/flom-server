@@ -2,10 +2,9 @@ const { Const } = require("#config");
 const Utils = require("#utils");
 const { logger, redis } = require("#infra");
 const { CallLog, User } = require("#models");
-const socketApi = require("../socket-api");
 const { deleteCallByUserId, cancelCall, sendMessage, sendPush } = require("#logics");
 
-module.exports = function (socket) {
+module.exports = function (socketApi, socket) {
   /**
    * @api {socket} "call_request" make call request
    * @apiName make call request

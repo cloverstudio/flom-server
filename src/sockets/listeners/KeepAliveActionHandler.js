@@ -2,7 +2,7 @@ const { Const } = require("#config");
 const { logger, redis } = require("#infra");
 const { CallLog } = require("#models");
 
-module.exports = function (socket) {
+module.exports = function (socketApi, socket) {
   /**
      * @api {socket} "keepalive" keepalive
      * @apiName keepalive

@@ -2,7 +2,7 @@ const { Const } = require("#config");
 const { logger } = require("#infra");
 const { sendMessage } = require("#logics");
 
-module.exports = function (socket) {
+module.exports = function (socketApi, socket) {
   /**
    * @api {socket} "sendMessage" Send New Message
    * @apiName Send Message
