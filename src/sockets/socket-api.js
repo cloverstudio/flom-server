@@ -8,9 +8,7 @@ const socketApi = {
   init: async function (io) {
     this.io = io;
     this.flomNsp = io.of(Config.socketNameSpace);
-    console.log(this.flomNsp);
     this.auctionsNsp = io.of(Config.socketAuctionsNameSpace);
-    console.log(this.auctionsNsp);
 
     this.flomNsp.on("connection", (socket) => {
       logger.debug("Flom namespace connected: ", socket.id);
@@ -67,8 +65,7 @@ const socketApi = {
     });
   },
   emitToUser(userId, command, param, nsp = "flom") {
-    const target = nsp === "flom" ? this.flomNsp : this.auctionsNsp;
-    target.emitToRoom(userId, command, param);
+    this.emitToRoom(userId, command, param, nsp);
   },
   emitToRoom(roomName, command, param, nsp = "flom") {
     this[`${nsp}Nsp`].to(roomName).emit(command, param);
