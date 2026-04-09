@@ -71,7 +71,6 @@ async function messageList({ userID, roomId, lastMessageId, direction, encrypt }
 
     await FlomMessage.bulkWrite(messageUpdateOperations, { ordered: false });
 
-    //messages.sort((a, b) => b.created - a.created);
     let lastMessage = null;
     messages.forEach((msg) => {
       if (!lastMessage || msg.created > lastMessage.created) {

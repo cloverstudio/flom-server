@@ -65,13 +65,20 @@ schema.statics.findOldMessages = async function (roomID, lastMessageID, limit) {
 schema.statics.findNewMessages = async function (roomID, lastMessageID, limit) {
   try {
     const query = { roomID: roomID };
+    let sortOrder = "desc";
+
     if (lastMessageID != 0) {
       const message = await this.findById(lastMessageID).lean();
       const lastCreated = message.created;
       query.created = { $gt: lastCreated };
+      sortOrder = "asc";
     }
 
-    const messages = await this.find(query).sort({ created: 1 }).limit(limit).lean();
+    const messages = await this.find(query).sort({ created: sortOrder }).limit(limit).lean();
+
+    if (lastMessageID == 0) {
+      messages.sort((a, b) => a.created - b.created);
+    }
 
     return messages;
   } catch (error) {
@@ -82,13 +89,20 @@ schema.statics.findNewMessages = async function (roomID, lastMessageID, limit) {
 schema.statics.findNewMessagesCurrentInc = async function (roomID, lastMessageID, limit) {
   try {
     const query = { roomID: roomID };
+    let sortOrder = "desc";
+
     if (lastMessageID != 0) {
       const message = await this.findById(lastMessageID).lean();
       const lastCreated = message.created;
       query.created = { $gte: lastCreated };
+      sortOrder = "asc";
     }
 
-    const messages = await this.find(query).sort({ created: 1 }).limit(limit).lean();
+    const messages = await this.find(query).sort({ created: sortOrder }).limit(limit).lean();
+
+    if (lastMessageID == 0) {
+      messages.sort((a, b) => a.created - b.created);
+    }
 
     return messages;
   } catch (error) {
@@ -99,16 +113,22 @@ schema.statics.findNewMessagesCurrentInc = async function (roomID, lastMessageID
 schema.statics.findAllMessages = async function (roomID, fromMessageID) {
   try {
     const query = { roomID: roomID };
+    let sortOrder = "desc";
+
     if (fromMessageID != 0) {
       const message = await this.findById(fromMessageID).lean();
       const lastCreated = message.created;
       query.created = { $gte: lastCreated };
+      sortOrder = "asc";
     }
 
-    let messages = await this.find(query).sort({ created: 1 }).lean();
+    let messages = await this.find(query).sort({ created: sortOrder }).lean();
 
     if (fromMessageID != 0 && messages.length < Const.pagingLimit) {
       messages = await this.findNewMessages(roomID, 0, Const.pagingLimit);
+    }
+    if (fromMessageID == 0) {
+      messages.sort((a, b) => a.created - b.created);
     }
 
     return messages;
