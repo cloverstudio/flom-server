@@ -95,6 +95,7 @@ module.exports = Object.freeze({
   sendSMS: require("./sendSMS"),
   sendSmsNew: require("./sendSmsNew"),
   sendSMSv2: require("./sendSMSv2"),
+  sendWhatsAppMessage: require("./sendWhatsAppMessage"),
   sendWritingNewsLetterFromTemplate: require("./sendWritingNewsLetterFromTemplate"),
 
   setCookies: require("./setCookies"),
