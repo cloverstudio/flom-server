@@ -27,7 +27,7 @@ async function sendWhatsAppMessage({ to, message, instruction = false }) {
 
     const result = await sendRequest({
       method: "POST",
-      url: `https://graph.facebook.com/v18.0/${id}/messages`,
+      url: `https://graph.facebook.com/v25.0/${id}/messages`,
       headers: {
         Authorization: `Bearer ${Config.whatsAppAccessToken}`,
         "Content-Type": "application/json",
