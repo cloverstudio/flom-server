@@ -20,9 +20,14 @@ async function sendWhatsAppMessage({ to, message, instruction = false }) {
       };
     }
 
+    const id =
+      Config.environment === "production"
+        ? Config.whatsAppPhoneNumberId
+        : Config.whatsAppDevPhoneNumberId;
+
     const result = await sendRequest({
       method: "POST",
-      url: `https://graph.facebook.com/v23.0/${Config.whatsAppPhoneNumberId}/messages`,
+      url: `https://graph.facebook.com/v18.0/${id}/messages`,
       headers: {
         Authorization: `Bearer ${Config.whatsAppAccessToken}`,
         "Content-Type": "application/json",
