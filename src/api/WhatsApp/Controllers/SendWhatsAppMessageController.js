@@ -37,6 +37,14 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       message: `${senderUser.userName}: ${message}`,
     });
 
+    if (!wamId) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeSendingWhatsAppMessageFailed,
+        message: "SendWhatsAppMessageController: failed to send WhatsApp message",
+      });
+    }
+
     let roomId = null;
     if (receiverUser && senderUser.created < receiverUser.created) {
       roomId = `1-${senderUser._id.toString()}-${receiverUser?._id.toString()}`;

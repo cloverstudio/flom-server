@@ -445,6 +445,7 @@
   "443947": "Missing shipping provider name.",
   "443948": "Invalid tracking number.",
   "443950": "Address not found.",
+  "443951": "Failed to send WhatsApp message.",
 
   "444000": "Your country has been temporarily banned.",
   "444001": "Your app version is too old, please update.",
