@@ -130,6 +130,7 @@ async function sendMessage(param) {
       attributes: param.attributes,
       created: param.created || Date.now(),
       sentTo: result.sentTo,
+      wamId: param.wamId,
     };
 
     if (result.receiverPhoneNumber) objMessage.receiverPhoneNumber = result.receiverPhoneNumber;

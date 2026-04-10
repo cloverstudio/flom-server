@@ -39,6 +39,7 @@ const schema = new mongoose.Schema(
     deliveredTo: [{ userId: String, at: Number, _id: false }],
     sentTo: [String], // user ids
     isAdminMessage: { type: Boolean, default: false },
+    wamId: String,
   },
   { timestamps: true },
 );
