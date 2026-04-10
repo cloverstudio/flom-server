@@ -27,7 +27,7 @@ async function sendWhatsAppMessage({ to, message, instruction = false }) {
         Authorization: `Bearer ${Config.whatsAppAccessToken}`,
         "Content-Type": "application/json",
       },
-      data,
+      body: data,
     });
 
     const status = result?.messages?.[0]?.message_status ?? null;
