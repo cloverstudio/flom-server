@@ -13,6 +13,7 @@ const loadRoutes = require("./api");
 const app = express();
 const router = express.Router();
 
+app.set("trust proxy", true);
 app.use(compression());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
