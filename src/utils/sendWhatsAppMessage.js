@@ -20,6 +20,15 @@ async function sendWhatsAppMessage({ to, message, instruction = false }) {
       };
     }
 
+    if (true) {
+      data.type = "template";
+      delete data.text;
+      data.template = {
+        name: "test_template",
+        language: { code: "en" },
+      };
+    }
+
     const id =
       Config.environment === "production"
         ? Config.whatsAppPhoneNumberId
