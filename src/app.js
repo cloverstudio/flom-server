@@ -88,7 +88,8 @@ app.use(function (req, res, next) {
   if (
     req.originalUrl !== "/" &&
     !req.originalUrl.includes("livestreams/cb") &&
-    !req.originalUrl.includes("uploads")
+    !req.originalUrl.includes("uploads") &&
+    !req.originalUrl.includes("images")
   ) {
     logger.info("method: " + req.method + " | url: " + req.originalUrl);
   }
@@ -124,7 +125,8 @@ app.use(function (request, response, next) {
 
     if (
       !request.originalUrl.includes("livestreams/cb") &&
-      !request.originalUrl.includes("uploads")
+      !request.originalUrl.includes("uploads") &&
+      !request.originalUrl.includes("images")
     ) {
       if (
         request.originalUrl.includes("app/startup") ||
