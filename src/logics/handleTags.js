@@ -1,4 +1,4 @@
-const { Tag } = require("#models");
+const { FlomTag } = require("#models");
 
 async function handleTags({ oldTags = "", newTags = "" }) {
   if (!newTags) {
@@ -12,7 +12,7 @@ async function handleTags({ oldTags = "", newTags = "" }) {
 
   const tagsMap = {};
 
-  const tagsFromDb = await Tag.find({ name: { $in: tagsArray } }).lean();
+  const tagsFromDb = await FlomTag.find({ name: { $in: tagsArray } }).lean();
   tagsFromDb?.forEach((tag) => {
     tagsMap[tag.name] = {
       id: tag._id.toString(),
@@ -45,18 +45,18 @@ async function handleTags({ oldTags = "", newTags = "" }) {
     }
   }
 
-  const newTagsInDb = await Tag.create(
+  const newTagsInDb = await FlomTag.create(
     tagsToAdd.map((tag) => {
-      return { name: tag, count: 1 };
-    })
+      return { name: tag, normalizedName: tag.toLowerCase(), count: 1 };
+    }),
   );
   newTagsInDb?.forEach((tag) => {
     tagsMap[tag.name] = { id: tag._id.toString(), count: tag.count };
   });
 
-  await Tag.deleteMany({ name: { $in: tagsToDelete } });
-  await Tag.updateMany({ name: { $in: tagsToIncrease } }, { $inc: { count: 1 } });
-  await Tag.updateMany({ name: { $in: tagsToDecrease } }, { $inc: { count: -1 } });
+  await FlomTag.deleteMany({ name: { $in: tagsToDelete } });
+  await FlomTag.updateMany({ name: { $in: tagsToIncrease } }, { $inc: { count: 1 } });
+  await FlomTag.updateMany({ name: { $in: tagsToDecrease } }, { $inc: { count: -1 } });
 
   return {
     tags: "#" + newTagsArray.join(" #"),

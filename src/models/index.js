@@ -93,7 +93,7 @@ module.exports = Object.freeze({
   SubType: require("./SubType"),
   SupportTicket: require("./SupportTicket"),
 
-  Tag: require("./Tag"),
+  FlomTag: require("./FlomTag"),
   TaxRate: require("./TaxRate"),
   TemporaryBan: require("./TemporaryBan"),
   Test: require("./Test"),

@@ -6,7 +6,7 @@ const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
-const { Product, Tag } = require("#models");
+const { Product, FlomTag } = require("#models");
 const { recombee } = require("#services");
 const fsp = require("fs/promises");
 
@@ -67,17 +67,17 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     await Promise.all(
       product._doc.hashtags.map(async (hashtag) => {
         //find to check count
-        const tag = await Tag.findOne({ _id: hashtag });
+        const tag = await FlomTag.findOne({ _id: hashtag });
         const tagRes = tag?.toObject();
 
         //when product is deleted, hashtag counter must be reduced by 1 or hashtag must be deleted when counter drops to zero
         if (tag.count > 1) {
-          const tagToBeSaved = await Tag.findOneAndUpdate(
+          const tagToBeSaved = await FlomTag.findOneAndUpdate(
             { _id: hashtag },
             { count: tag.count - 1 },
           );
         } else if (tag.count == 1) {
-          await Tag.deleteOne({ _id: hashtag });
+          await FlomTag.deleteOne({ _id: hashtag });
         }
       }),
     );

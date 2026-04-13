@@ -8,6 +8,7 @@ const mongoose = require("mongoose");
 const schema = new mongoose.Schema(
   {
     name: { type: String, required: true, unique: true },
+    normalizedName: { type: String, required: true },
     count: { type: Number, required: true },
     created: { type: Number, default: Date.now },
   },
@@ -15,5 +16,6 @@ const schema = new mongoose.Schema(
 );
 
 schema.index({ name: "text" });
+schema.index({ normalizedName: "text" });
 
-module.exports = db.db1.model("Tag", schema, "flom_tags");
+module.exports = db.db1.model("FlomTag", schema, "flom_tags");
