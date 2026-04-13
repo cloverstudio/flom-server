@@ -1,12 +1,15 @@
-const path = require("path");
+const getPaths = require("./dir-config");
 
-const Config = {};
+const environment = process.env.NODE_ENV === "local" ? "development" : process.env.NODE_ENV;
+const paths = getPaths(environment);
 
+const Config = { ...paths };
+
+Config.environment = environment;
 Config.host = "localhost";
 Config.serverType = process.env.SERVER_TYPE || "api";
 Config.port = { api: process.env.API_PORT || 8084, socket: process.env.SOCKET_PORT || 8085 };
 Config.useSSL = false;
-Config.environment = process.env.NODE_ENV === "local" ? "development" : process.env.NODE_ENV;
 
 Config.preSelfRegistrationPostUrl = process.env.preSelfRegistrationPostUrl;
 Config.selfRegistrationPostUrl = process.env.selfRegistrationPostUrl;
@@ -95,24 +98,6 @@ Config.hashSalt = process.env.HASH_SALT;
 Config.hackSalt = process.env.HACK_SALT;
 Config.username = process.env.ADMIN_USERNAME;
 Config.password = process.env.ADMIN_PASWORD;
-
-Config.publicPath =
-  Config.environment === "production"
-    ? path.resolve("/nfs/flom_v1/public/")
-    : path.resolve(__dirname, "../..", "public");
-Config.uploadPath =
-  Config.environment === "production"
-    ? path.resolve("/nfs/flom_v1/uploads/")
-    : path.resolve(__dirname, "../..", "public/uploads/");
-Config.carrierLogoPath = path.resolve(Config.publicPath, "logos/carrier_logos");
-Config.paymentMethodLogoPath = path.resolve(Config.publicPath, "logos/payment_method_logos");
-Config.idPhotosPath = path.resolve(Config.uploadPath, "id_photos");
-Config.wallpaperPath = path.resolve(Config.publicPath, "wallpapers");
-Config.soundalikePath =
-  Config.environment === "production"
-    ? path.resolve(__dirname, "../../..", "soundalike/soundalike")
-    : path.resolve(__dirname, "../../../../../..", "soundalike/soundalike");
-Config.supportFilesPath = path.resolve(Config.uploadPath, "support");
 
 Config.socketNameSpace = "/flom";
 Config.socketAuctionsNameSpace = "/auctions";
