@@ -1,14 +1,7 @@
 # third party modules
 node_modules
 
-# generated files
-public/uploads
-public/doc/JS
-public/doc/API
-public/dist
-hostid
-nohup.out
-out
+public/
 
 .env
 .env.dev
@@ -22,24 +15,4 @@ id_photos
 build
 *.traineddata
 
-public/**
-!public/logo_emails.png
-!public/logo_emails.svg
-!public/assets/**
-!public/connector/**
-!public/css/**
-!public/doc/**
-!public/downloads/**
-!public/favicons/**
-!public/fonts/**
-!public/images
-!public/images/**
-!public/js/**
-!public/sounds
-!public/sounds/**
-!public/index.html
-!public/logos
-!public/logos/**
-!public/wallpapers
-!public/wallpapers/**
 
