@@ -96,7 +96,10 @@ Config.hackSalt = process.env.HACK_SALT;
 Config.username = process.env.ADMIN_USERNAME;
 Config.password = process.env.ADMIN_PASWORD;
 
-Config.publicPath = path.resolve(__dirname, "../..", "public");
+Config.publicPath =
+  Config.environment === "production"
+    ? path.resolve("/nfs/flom_v1/public/")
+    : path.resolve(__dirname, "../..", "public");
 Config.uploadPath =
   Config.environment === "production"
     ? path.resolve("/nfs/flom_v1/uploads/")
@@ -416,5 +419,9 @@ Config.recombee = {
 };
 
 Config.instance = process.env.NODE_APP_INSTANCE;
+
+Config.whatsAppAccessToken = process.env.WA_ACCESS_TOKEN;
+Config.whatsAppPhoneNumberId = process.env.WA_PHONE_NUMBER_ID;
+Config.whatsAppDevPhoneNumberId = process.env.WA_DEV_PHONE_NUMBER_ID;
 
 module.exports = Object.freeze(Config);

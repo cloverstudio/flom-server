@@ -135,6 +135,7 @@ Constants.messageTypeGif = 114;
 Constants.messageTypeNewLiveStream = 16;
 Constants.messageTypeLiveStreamCohostInvitation = 17;
 Constants.messageTypeAuctionOffer = 18;
+Constants.messageTypeWhatsApp = 22;
 
 Constants.pushTypeNewMessage = 1;
 Constants.pushTypeCall = 2;

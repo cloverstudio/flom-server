@@ -816,6 +816,8 @@ ResponseCodes.responsecodeMissingShippingProviderName = 443947;
 ResponseCodes.responsecodeInvalidTrackingNumber = 443948;
 ResponseCodes.responsecodeAddressNotFound = 443950;
 
+ResponseCodes.responsecodeSendingWhatsAppMessageFailed = 443951;
+
 ResponseCodes.responsecodeCountryTemporarilyBanned = 444000;
 ResponseCodes.responsecodeAppVersionTooOld = 444001;
 
