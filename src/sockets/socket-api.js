@@ -43,32 +43,17 @@ const socketApi = {
       }
     });
   },
-  emitAll(command, param, nsp = "flom") {
-    this[`${nsp}Nsp`].emit(command, param);
+  emitAll(event, param, nsp = "flom") {
+    this[`${nsp}Nsp`].emit(event, param);
   },
-  emitToSocket(socketId, command, param, nsp = "flom") {
-    this[`${nsp}Nsp`].to(socketId).emit(command, param);
+  emitToSocket(socketId, event, param, nsp = "flom") {
+    this[`${nsp}Nsp`].to(socketId).emit(event, param);
   },
-  temporaryListener(socketId, command, timeout, nsp = "flom") {
-    const socket = this[`${nsp}Nsp`].sockets.get(socketId);
-
-    if (!socket) {
-      return;
-    }
-
-    setTimeout(() => {
-      socket.removeAllListeners(command);
-    }, timeout);
-
-    socket.on(command, function () {
-      socket.removeAllListeners(command);
-    });
+  emitToUser(userId, event, param, nsp = "flom") {
+    this.emitToRoom(userId, event, param, nsp);
   },
-  emitToUser(userId, command, param, nsp = "flom") {
-    this.emitToRoom(userId, command, param, nsp);
-  },
-  emitToRoom(roomName, command, param, nsp = "flom") {
-    this[`${nsp}Nsp`].to(roomName).emit(command, param);
+  emitToRoom(roomName, event, param, nsp = "flom") {
+    this[`${nsp}Nsp`].to(roomName).emit(event, param);
   },
   async joinTo(userId, type, roomId, nsp = "flom") {
     const value = await redis.get(Const.redisKeyUserId + userId);
