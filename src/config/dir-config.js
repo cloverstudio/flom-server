@@ -7,13 +7,17 @@ function getPaths(env) {
   }
 
   const publicPath =
-    env === "production"
+    env === "local"
+      ? path.resolve(__dirname, "../..", "public")
+      : env === "production"
       ? path.resolve("/nfs/flom_v1/public/")
-      : path.resolve(__dirname, "../..", "public");
+      : path.resolve("/shared/storage/public");
   const uploadPath =
-    env === "production"
+    env === "local"
+      ? path.resolve(__dirname, "../..", "public/uploads/")
+      : env === "production"
       ? path.resolve("/nfs/flom_v1/uploads/")
-      : path.resolve(__dirname, "../..", "public/uploads/");
+      : path.resolve("/shared/storage/uploads/");
 
   const paths = Object.freeze({
     production: {
