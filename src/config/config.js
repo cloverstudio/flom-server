@@ -96,7 +96,10 @@ Config.hackSalt = process.env.HACK_SALT;
 Config.username = process.env.ADMIN_USERNAME;
 Config.password = process.env.ADMIN_PASWORD;
 
-Config.publicPath = path.resolve(__dirname, "../..", "public");
+Config.publicPath =
+  Config.environment === "production"
+    ? path.resolve("/nfs/flom_v1/public/")
+    : path.resolve(__dirname, "../..", "public");
 Config.uploadPath =
   Config.environment === "production"
     ? path.resolve("/nfs/flom_v1/uploads/")
