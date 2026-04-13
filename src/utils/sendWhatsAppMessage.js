@@ -44,6 +44,8 @@ async function sendWhatsAppMessage({ to, message, instruction = false }) {
       body: data,
     });
 
+    logger.info("sendWhatsAppMessage result: " + JSON.stringify(result));
+
     const status = result?.messages?.[0]?.message_status ?? null;
     if (status !== "accepted" && status !== "sent" && status !== "delivered") {
       logger.error("sendWhatsAppMessage error, message not accepted");
