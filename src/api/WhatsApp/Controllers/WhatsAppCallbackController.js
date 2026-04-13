@@ -279,3 +279,47 @@ module.exports = router;
   ]
 }
 */
+
+/*
+{
+   "object":"whatsapp_business_account",
+   "entry":[
+      {
+         "id":"1799673154249994",
+         "changes":[
+            {
+               "value":{
+                  "messaging_product":"whatsapp",
+                  "metadata":{
+                     "display_phone_number":"56942794765",
+                     "phone_number_id":"828448387028500"
+                  },
+                  "statuses":[
+                     {
+                        "id":"wamid.HBgMMzg1OTU4NzEwMjA3FQIAERgSRjhCRjQ0Qzg3RThFREFDQUY0AA==",
+                        "status":"sent",  delivered, read
+                        "timestamp":"1776085049",
+                        "recipient_id":"385958710207",
+                        "conversation":{
+                           "id":"94a66415aeea225d03e46aa7a1a98d9f",
+                           "expiration_timestamp":"1776085049",
+                           "origin":{
+                              "type":"marketing"
+                           }
+                        },
+                        "pricing":{
+                           "billable":true,
+                           "pricing_model":"PMP",
+                           "category":"marketing",
+                           "type":"regular"
+                        }
+                     }
+                  ]
+               },
+               "field":"messages"
+            }
+         ]
+      }
+   ]
+}
+*/
