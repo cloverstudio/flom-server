@@ -1,6 +1,6 @@
 const getPaths = require("./dir-config");
 
-const environment = process.env.NODE_ENV === "local" ? "development" : process.env.NODE_ENV;
+const environment = process.env.NODE_ENV || "development";
 const paths = getPaths(environment);
 
 const Config = { ...paths };

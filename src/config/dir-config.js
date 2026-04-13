@@ -21,6 +21,8 @@ function getPaths(env) {
 
   const paths = Object.freeze({
     production: {
+      publicPath,
+      uploadPath,
       carrierLogoPath: path.resolve(publicPath, "logos/carrier_logos"),
       paymentMethodLogoPath: path.resolve(publicPath, "logos/payment_method_logos"),
       idPhotosPath: path.resolve(uploadPath, "id_photos"),
@@ -29,6 +31,8 @@ function getPaths(env) {
       supportFilesPath: path.resolve(uploadPath, "support"),
     },
     development: {
+      publicPath,
+      uploadPath,
       carrierLogoPath: path.resolve(publicPath, "logos/carrier_logos"),
       paymentMethodLogoPath: path.resolve(publicPath, "logos/payment_method_logos"),
       idPhotosPath: path.resolve(uploadPath, "id_photos"),
@@ -37,6 +41,8 @@ function getPaths(env) {
       supportFilesPath: path.resolve(uploadPath, "support"),
     },
     local: {
+      publicPath,
+      uploadPath,
       carrierLogoPath: path.resolve(publicPath, "logos/carrier_logos"),
       paymentMethodLogoPath: path.resolve(publicPath, "logos/payment_method_logos"),
       idPhotosPath: path.resolve(uploadPath, "id_photos"),
