@@ -115,6 +115,7 @@ module.exports = Object.freeze({
   ViewForYou: require("./ViewForYou"),
 
   Webhook: require("./Webhook"),
+  WhatsAppPrice: require("./WhatsAppPrice"),
 
   TalkTicket: require("./TalkTicket"),
 });

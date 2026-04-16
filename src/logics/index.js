@@ -33,4 +33,6 @@ module.exports = Object.freeze({
   messageList: require("./messageList"), // MessageList MessageListLogic
   sendMessage: require("./sendMessage"), // SendMessageLogic SendMessage
   notifyNewMessage: require("./notifyNewMessage"),
+
+  updateWhatsAppPrices: require("./updateWhatsAppPrices"),
 });
