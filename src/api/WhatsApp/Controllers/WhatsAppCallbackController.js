@@ -120,14 +120,6 @@ async function handleNewChatMessage({ from, msgBody, wamId, timeStamp }) {
   const matches = [...msgBody.matchAll(regex)];
   const toUserName = matches.length > 0 ? matches[0][1] : "WhatsApp User";
 
-  const arr = msgBody.split(": ");
-  if (arr.length < 2) {
-    logger.error(
-      "WhatsAppCallbackController, cb: message body does not contain ': ' separator: " + msgBody,
-    );
-    return;
-  }
-
   const fromUser = await User.findOne({ phoneNumber: from }).lean();
   if (!fromUser) {
     logger.error("WhatsAppCallbackController, cb: fromUser not found with phoneNumber: " + from);
