@@ -92,7 +92,7 @@ async function getUserId(rawPhoneNumber) {
   user.hasLoggedIn = Const.userShadowUser;
   user.organizationId = Const.organizationId;
   user.groups = [Const.groupId];
-  user.created = Utils.now();
+  user.created = Date.now();
   user.phoneNumber = phoneNumber;
   user.inAppUser = false;
   user.countryCode = Utils.getCountryCodeFromPhoneNumber({ phoneNumber });
@@ -125,7 +125,7 @@ async function getUserId(rawPhoneNumber) {
   } while (stringExists);
 
   const newToken = Utils.getRandomString(Const.tokenLength);
-  const now = Utils.now();
+  const now = Date.now();
 
   const tokenObj = {
     token: newToken,

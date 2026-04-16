@@ -155,7 +155,7 @@ router.post(
         {
           $set: {
             "featured.isFeatured": 1,
-            "featured.created": Utils.now(),
+            "featured.created": Date.now(),
             ...(countryCode && { "featured.countryCode": countryCode }),
           },
         },

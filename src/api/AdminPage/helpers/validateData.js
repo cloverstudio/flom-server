@@ -57,7 +57,7 @@ async function validateAndUpdateUserData({
     if (usernameTaken) {
       if (
         usernameTaken.emailVerification.verified ||
-        usernameTaken.created + Config.usernameProtectionPeriod > Utils.now()
+        usernameTaken.created + Config.usernameProtectionPeriod > Date.now()
       ) {
         return {
           code: Const.responsecodeProfileUsernameTaken,
@@ -86,7 +86,7 @@ async function validateAndUpdateUserData({
     user.emailVerification.verified = false;
     user.emailVerification.code = emailCode;
     user.emailVerification.token = emailToken;
-    user.emailVerification.emailOut = Utils.now();
+    user.emailVerification.emailOut = Date.now();
   }
   if (firstName && firstName !== "" && user.firstName !== firstName) {
     user.firstName = firstName;

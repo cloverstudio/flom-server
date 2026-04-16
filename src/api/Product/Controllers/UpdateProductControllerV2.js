@@ -523,7 +523,7 @@ router.patch(
           autoApprove && !isWatermarked
             ? Const.moderationStatusApproved
             : Const.moderationStatusPending;
-        product.created = Utils.now();
+        product.created = Date.now();
       } else if (!visibilityCheck && product.moderation.status === Const.moderationStatusApproved) {
         product.moderation.status =
           autoApprove && !isWatermarked

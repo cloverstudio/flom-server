@@ -28,7 +28,7 @@ router.get("/", async function (request, response) {
       { _id: user._id.toString() },
       {
         $set: {
-          isDeleted: { value: false, created: Utils.now() },
+          isDeleted: { value: false, created: Date.now() },
           phoneNumber: user.deletedUserInfo.phoneNumber,
           userName: user.deletedUserInfo.userName ?? "",
           name: user.deletedUserInfo.name ?? "",

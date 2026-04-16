@@ -447,7 +447,7 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
     product.description = productDescription;
     product.ownerId = user._id;
     product.countryCode = user.countryCode;
-    product.created = Utils.now();
+    product.created = Date.now();
     product.status = 1;
     product.itemCount = itemCount;
     product.isNegotiable = isNegotiable;

@@ -154,7 +154,7 @@ router.post("/", (request, response) => {
 
           // generate token
           const newToken = Utils.getRandomString(Const.tokenLength);
-          const now = Utils.now();
+          const now = Date.now();
 
           const tokenObj = {
             token: newToken,
@@ -177,7 +177,7 @@ router.post("/", (request, response) => {
           // Insert
           let UUIDObj = {
             UUID: UUID,
-            lastLogin: Utils.now(),
+            lastLogin: Date.now(),
             blocked: false,
             lastToken: user.token,
             pushTokens: [],

@@ -92,7 +92,7 @@ router.post("/verify", async (request, response) => {
     if (
       (code && code !== user.emailVerification.code) ||
       (token && token !== user.emailVerification.token) ||
-      Utils.now() - user.emailVerification.emailOut > Config.expireTimeForEmail
+      Date.now() - user.emailVerification.emailOut > Config.expireTimeForEmail
     ) {
       return Base.newErrorResponse({
         response,
@@ -179,7 +179,7 @@ router.post("/resend", async (request, response) => {
 
     user.emailVerification.code = emailCode;
     user.emailVerification.token = emailToken;
-    user.emailVerification.emailOut = Utils.now();
+    user.emailVerification.emailOut = Date.now();
     await user.save();
 
     Base.successResponse(response, Const.responsecodeSucceed);

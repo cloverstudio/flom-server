@@ -74,7 +74,7 @@ router.post("/", async function (request, response) {
     const UUID = request.body.UUID;
 
     // check secret first
-    const tenSec = Math.floor(Utils.now() / 1000 / 10);
+    const tenSec = Math.floor(Date.now() / 1000 / 10);
     const salt = Config.hashSalt;
     const candidate1 = salt + tenSec;
     const candidate2 = salt + (tenSec - 1);
@@ -271,7 +271,7 @@ router.post("/guest", async function (request, response) {
     const secret = request.body.secret;
 
     // check secret first
-    const tenSec = Math.floor(Utils.now() / 1000 / 10);
+    const tenSec = Math.floor(Date.now() / 1000 / 10);
     const salt = Config.hashSalt;
     const candidate1 = salt + tenSec;
     const candidate2 = salt + (tenSec - 1);

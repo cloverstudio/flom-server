@@ -112,7 +112,7 @@ router.post("/", async (request, response) => {
     if (user) {
       if (
         user.emailVerification.verified ||
-        user.created + Config.usernameProtectionPeriod > Utils.now()
+        user.created + Config.usernameProtectionPeriod > Date.now()
       ) {
         return Base.newErrorResponse({
           response,

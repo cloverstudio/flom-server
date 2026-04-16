@@ -333,7 +333,7 @@ router.post("", async (request, response) => {
     }
 
     const newToken = Utils.getRandomString(Const.tokenLength);
-    const now = Utils.now();
+    const now = Date.now();
 
     const tokenObj = {
       token: newToken,

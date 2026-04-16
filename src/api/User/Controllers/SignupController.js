@@ -78,7 +78,7 @@ router.post("/sendSms", async (request, response) => {
 
       const newUser = new User({
         organizationId: organization._id,
-        created: Utils.now(),
+        created: Date.now(),
         phoneNumber: phoneNumber,
         userid: phoneNumber,
         activationCode: activationCode,

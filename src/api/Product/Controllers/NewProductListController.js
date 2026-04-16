@@ -488,7 +488,7 @@ async function checkTokenAndRole({
         return tokenObjInAry.token == token;
       });
 
-      diff = Utils.now() - tokenObj.generateAt;
+      diff = Date.now() - tokenObj.generateAt;
       if (diff > Const.tokenValidInterval) {
         return { code: Const.responsecodeSigninInvalidToken };
       }
@@ -505,7 +505,7 @@ async function checkTokenAndRole({
         return { code: Const.responsecodeSigninInvalidToken };
       }
 
-      diff = Utils.now() - user.token.generatedAt;
+      diff = Date.now() - user.token.generatedAt;
       if (diff > Const.adminPageTokenValidInterval) {
         return { code: Const.responsecodeSigninInvalidToken };
       }

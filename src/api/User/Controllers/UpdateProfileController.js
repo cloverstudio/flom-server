@@ -297,7 +297,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
       if (
         (!oldMessagesFatAi || !oldMessagesFatAi.length) &&
-        (Utils.now() - user.dateOfBirth) / Const.milisInYear >= 16
+        (Date.now() - user.dateOfBirth) / Const.milisInYear >= 16
       ) {
         const messageParamsFatAi = {
           roomID: chatIdFatAiIncluded,
