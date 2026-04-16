@@ -16,7 +16,7 @@ process.on("unhandledRejection", (reason, promise) => {
 
 const http = require("http");
 const { Config } = require("./config");
-const { db, logger, redis } = require("./infra");
+const { db, logger, redis, webRtc } = require("./infra");
 
 async function startServer() {
   await db.init();
@@ -24,7 +24,8 @@ async function startServer() {
   const server = http.createServer();
 
   const sockets = require("./sockets");
-  await sockets.init(server);
+  const io = await sockets.init(server);
+  webRtc.init(io);
 
   server.listen(Config.port.socket, () => {
     logger.notice(`Socket server is running on port ${Config.port.socket}`);

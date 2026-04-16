@@ -20,6 +20,15 @@ async function sendWhatsAppMessage({ to, message, instruction = false }) {
       };
     }
 
+    if (true) {
+      data.type = "template";
+      delete data.text;
+      data.template = {
+        name: "test_template",
+        language: { code: "en" },
+      };
+    }
+
     const id =
       Config.environment === "production"
         ? Config.whatsAppPhoneNumberId
@@ -35,9 +44,12 @@ async function sendWhatsAppMessage({ to, message, instruction = false }) {
       body: data,
     });
 
+    logger.info("sendWhatsAppMessage result: " + JSON.stringify(result));
+
     const status = result?.messages?.[0]?.message_status ?? null;
     if (status !== "accepted" && status !== "sent" && status !== "delivered") {
-      logger.error("sendWhatsAppMessage error, message not accepted", { to, message, result });
+      logger.error("sendWhatsAppMessage error, message not accepted");
+      logger.error("sendWhatsAppMessage error, response: " + JSON.stringify(result));
       return null;
     }
 

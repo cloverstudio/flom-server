@@ -6,7 +6,7 @@ const { logger } = require("#infra");
 const { Const } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
-const { Product, Category, User, Tribe, Tag, LiveStream } = require("#models");
+const { Product, Category, User, Tribe, LiveStream } = require("#models");
 const { recombee } = require("#services");
 const countryIso = require("country-iso");
 

@@ -16,7 +16,7 @@ process.on("unhandledRejection", (reason, promise) => {
 
 const http = require("http");
 const { Config } = require("./config");
-const { db, logger, redis, webRtc } = require("./infra");
+const { db, logger, redis } = require("./infra");
 
 async function startServer() {
   await db.init();
@@ -29,7 +29,6 @@ async function startServer() {
 
   const server = http.createServer(app);
   const io = await initSockets(server);
-  webRtc.init(io);
 
   onlineStatusChecker.start();
 

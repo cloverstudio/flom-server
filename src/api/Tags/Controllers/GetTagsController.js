@@ -3,7 +3,7 @@
 const router = require("express").Router();
 const Base = require("../../Base");
 const { Const } = require("#config");
-const { Tag } = require("#models");
+const { FlomTag } = require("#models");
 
 /**
  * @api {get} /api/v2/tags/popular Get First 20 Popular Tags
@@ -43,7 +43,7 @@ router.get("/", async function (request, response) {
   try {
     const partOfName = request.query.name;
 
-    const tags = await Tag.find({ name: new RegExp(partOfName, "i") })
+    const tags = await FlomTag.find({ normalizedName: new RegExp(partOfName) })
       .sort({ count: -1 })
       .limit(20)
       .lean();

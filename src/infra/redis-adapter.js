@@ -18,35 +18,35 @@ async function redisAdapter(io) {
   });
   const subClient = pubClient.duplicate();
 
-  pubClient.on("error", (error) => logger.error("Redis pubClient error", error));
-  pubClient.on("connect", () => logger.notice("Redis pubClient connecting..."));
-  pubClient.on("ready", () => logger.notice("Redis pubClient ready"));
-  pubClient.on("reconnecting", () => logger.notice("Redis pubClient reconnecting"));
-  pubClient.on("end", () => logger.error("Redis pubClient connection closed"));
+  pubClient.on("error", (error) => logger.error("Redis adapter pubClient error", error));
+  pubClient.on("connect", () => logger.notice("Redis adapter pubClient connecting..."));
+  pubClient.on("ready", () => logger.notice("Redis adapter pubClient ready"));
+  pubClient.on("reconnecting", () => logger.notice("Redis adapter pubClient reconnecting"));
+  pubClient.on("end", () => logger.error("Redis adapter pubClient connection closed"));
   const originalPubQuit = pubClient.quit.bind(pubClient);
   pubClient.quit = () => {
-    logger.error("Redis pubClient, quit called!");
+    logger.error("Redis adapter pubClient, quit called!");
   };
 
-  subClient.on("error", (error) => logger.error("Redis subClient error", error));
-  subClient.on("connect", () => logger.notice("Redis subClient connecting..."));
-  subClient.on("ready", () => logger.notice("Redis subClient ready"));
-  subClient.on("reconnecting", () => logger.notice("Redis subClient reconnecting"));
-  subClient.on("end", () => logger.error("Redis subClient connection closed"));
+  subClient.on("error", (error) => logger.error("Redis adapter subClient error", error));
+  subClient.on("connect", () => logger.notice("Redis adapter subClient connecting..."));
+  subClient.on("ready", () => logger.notice("Redis adapter subClient ready"));
+  subClient.on("reconnecting", () => logger.notice("Redis adapter subClient reconnecting"));
+  subClient.on("end", () => logger.error("Redis adapter subClient connection closed"));
   const originalSubQuit = subClient.quit.bind(subClient);
   subClient.quit = () => {
-    logger.error("Redis subClient, quit called!");
+    logger.error("Redis adapter subClient, quit called!");
   };
 
   try {
     await pubClient.connect();
   } catch (error) {
-    logger.error("Failed to connect pubClient", error);
+    logger.error("Failed to connect Redis adapter pubClient", error);
   }
   try {
     await subClient.connect();
   } catch (error) {
-    logger.error("Failed to connect subClient", error);
+    logger.error("Failed to connect Redis adapter subClient", error);
   }
 
   io.adapter(createAdapter(pubClient, subClient));

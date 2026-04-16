@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const } = require("#config");
 const Utils = require("#utils");
-const { Product, Category, User, Tribe, AdminPageUser, Tag, LiveStream } = require("#models");
+const { Product, Category, User, Tribe, AdminPageUser, FlomTag, LiveStream } = require("#models");
 const countryIso = require("country-iso");
 
 /**
@@ -790,7 +790,7 @@ async function generateQuery({
 
     await Promise.all(
       arrayOfTags.map(async (hashtag) => {
-        const tag = await Tag.findOne({ name: hashtag });
+        const tag = await FlomTag.findOne({ name: hashtag });
         const tagObj = tag?.toObject();
 
         if (tagObj) {

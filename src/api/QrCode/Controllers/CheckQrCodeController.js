@@ -21,6 +21,15 @@ router.get("/:code", async function (request, response) {
 
     const value = await redis.get(Const.redisKeyQrCode + code);
 
+    if (!value || !value.userId) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserNotFound,
+        type: Const.logTypeLogin,
+        message: `CheckQrCodeController, user not found`,
+      });
+    }
+
     const user = await User.findById(value.userId);
     if (!user) {
       return Base.newErrorResponse({
