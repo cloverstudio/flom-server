@@ -148,7 +148,7 @@ async function handleNewChatMessage({ from, msgBody, wamId, timeStamp }) {
     type: Const.messageTypeWhatsApp,
     userID: fromUser._id.toString(),
     roomID: roomId,
-    message: encryptionManager.encryptText(msgBody),
+    message: msgBody,
     created: timeStamp,
     wamId,
   };
@@ -196,6 +196,7 @@ async function handleReplyMessage({ from, msgBody, wamId, timeStamp, contextId }
         userId: toUser._id.toString(),
         userName: toUser.userName,
         message: encryptionManager.encryptText(originalMessage.message), // encrypted
+        decryptedMessage: originalMessage.message,
       },
     },
   };
