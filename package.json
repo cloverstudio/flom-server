@@ -84,6 +84,7 @@
     },
     "scripts": {
         "start-local-win": "node checkNodeVersion.js&& set NODE_ENV=development&& node src/api-server.js",
-        "check-external-dependencies": "./check-external-dependencies.sh"
+        "check-external-dependencies": "./check-external-dependencies.sh",
+        "lint": "npx eslint src"
     }
 }
