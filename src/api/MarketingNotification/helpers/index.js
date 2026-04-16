@@ -3,6 +3,7 @@
 const { Const } = require("#config");
 const Utils = require("#utils");
 const { Product, User } = require("#models");
+const mongoose = require("mongoose");
 
 async function validateMarketingNotificationData({
   requestUserId,
@@ -114,7 +115,7 @@ async function getUserIds({ requestUserId, allSubscribers, requestUserIds }) {
     const checkedUserIds = [];
     for (let i = 0; i < rawUserIds.length; i++) {
       if (Utils.isValidObjectId(rawUserIds[i])) {
-        checkedUserIds.push(Utils.toObjectId(rawUserIds[i]));
+        checkedUserIds.push(new mongoose.Types.ObjectId(`${rawUserIds[i]}`));
       }
     }
 

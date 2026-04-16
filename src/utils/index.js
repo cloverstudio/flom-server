@@ -100,7 +100,6 @@ module.exports = Object.freeze({
   shorten: require("./shorten"),
   stripPrivateData: require("./stripPrivateData"),
   syncProductsCategories: require("./syncProductsCategories"),
-  toObjectId: require("./toObjectId"),
 
   wait: require("./wait"),
 
