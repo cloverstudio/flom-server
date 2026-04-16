@@ -43,5 +43,6 @@ router.use(
   require("./Controllers/UpdateFlomAgentsBalanceController.js"),
 );
 router.use("/admin-page/user", require("./Controllers/UpdateUserDetailsController.js"));
+router.use("/admin-page/whatsapp", require("./Controllers/AdminWhatsAppController.js"));
 
 module.exports = router;
