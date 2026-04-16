@@ -37,7 +37,7 @@ async function startServer() {
   }
 
   if (Config.environment === "development") {
-    require("./services/check-whatsapp-prices");
+    require("./scripts/check-whatsapp-prices");
   }
 
   server.listen(Config.port.api, () => {
