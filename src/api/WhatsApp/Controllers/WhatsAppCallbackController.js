@@ -45,9 +45,10 @@ router.post("/", async function (request, response) {
 
     const value = change.value;
     const messages = value.messages ?? [];
+    const statuses = value.statuses ?? [];
 
-    if (!messages.length) {
-      logger.debug("WhatsAppCallbackController, no messages in callback");
+    if (!messages.length && !statuses.length) {
+      logger.debug("WhatsAppCallbackController, no messages or statuses in callback");
       return;
     }
 
@@ -71,10 +72,16 @@ router.post("/", async function (request, response) {
         const wamId = message.id;
         const timeStamp = +message.timestamp * 1000;
         const msgBody = message.text?.body ?? "";
+        const expiration = timeStamp + 24 * 60 * 60 * 1000; // 24h
 
         console.log(`${flomNumber} message from ${from}: ${msgBody}`);
 
         const contextId = message.context?.id ?? null;
+
+        await User.updateOne(
+          { phoneNumber: from },
+          { $set: { whatsAppWindowExpiresAt: expiration } },
+        );
 
         if (!contextId) {
           await handleNewChatMessage({ from, msgBody, wamId, timeStamp });
@@ -82,7 +89,22 @@ router.post("/", async function (request, response) {
           await handleReplyMessage({ from, msgBody, wamId, timeStamp, contextId });
         }
       } catch (error) {
-        logger.error("WhatsAppCallbackController, cb: message processing error", error);
+        logger.error("WhatsAppCallbackController, cb: incoming message processing error", error);
+        continue;
+      }
+    }
+
+    for (const message of statuses) {
+      try {
+        const to = "+" + message.recipient_id;
+        const wamId = message.id;
+        const status = message.status;
+
+        console.log(`${flomNumber} message to ${to}: ${wamId}, status: ${status}`);
+
+        await handleOutgoingMessage({ to, status, wamId });
+      } catch (error) {
+        logger.error("WhatsAppCallbackController, cb: outgoing message processing error", error);
         continue;
       }
     }
@@ -94,6 +116,10 @@ router.post("/", async function (request, response) {
 });
 
 async function handleNewChatMessage({ from, msgBody, wamId, timeStamp }) {
+  const regex = /(?<!\w)@([a-zA-Z0-9_]+)/g;
+  const matches = [...msgBody.matchAll(regex)];
+  const toUserName = matches.length > 0 ? matches[0][1] : "WhatsApp User";
+
   const arr = msgBody.split(": ");
   if (arr.length < 2) {
     logger.error(
@@ -107,9 +133,6 @@ async function handleNewChatMessage({ from, msgBody, wamId, timeStamp }) {
     logger.error("WhatsAppCallbackController, cb: fromUser not found with phoneNumber: " + from);
     return;
   }
-
-  const toUserName = arr.length > 1 ? arr[0] : "WhatsApp User";
-  const messageText = arr.length > 1 ? arr[1] : msgBody;
 
   const toUser = await User.findOne({ userName: toUserName }).lean();
   if (!toUser) {
@@ -133,7 +156,7 @@ async function handleNewChatMessage({ from, msgBody, wamId, timeStamp }) {
     type: Const.messageTypeWhatsApp,
     userID: fromUser._id.toString(),
     roomID: roomId,
-    message: encryptionManager.encryptText(messageText),
+    message: encryptionManager.encryptText(msgBody),
     created: timeStamp,
     wamId,
   };
@@ -188,6 +211,55 @@ async function handleReplyMessage({ from, msgBody, wamId, timeStamp, contextId }
   await sendMessage(params);
 
   return;
+}
+
+async function handleOutgoingMessage({ to, status, wamId }) {
+  const user = await User.findOne({ phoneNumber: to }).lean();
+  const flomMessage = await FlomMessage.findOne({ wamId }).lean();
+
+  if (status === "sent") {
+    await FlomMessage.updateOne({ wamId }, { $addToSet: { sentTo: user._id.toString() } });
+  } else if (status === "delivered") {
+    const deliveredTo = flomMessage?.deliveredTo;
+
+    let alreadyDelivered = false;
+    if (deliveredTo) {
+      for (const item of deliveredTo) {
+        if (item.userId === user._id.toString()) {
+          item.at = Date.now();
+          alreadyDelivered = true;
+          await FlomMessage.updateOne({ wamId }, { $set: { deliveredTo: deliveredTo } });
+          break;
+        }
+      }
+    }
+
+    if (!alreadyDelivered) {
+      await FlomMessage.updateOne(
+        { wamId },
+        { $addToSet: { deliveredTo: { userId: user._id.toString(), at: Date.now() } } },
+      );
+    }
+  } else if (status === "read") {
+    const seenBy = flomMessage?.seenBy ?? [];
+
+    let alreadySeen = false;
+    for (const item of seenBy) {
+      if (item.user === user._id.toString()) {
+        item.at = Date.now();
+        alreadySeen = true;
+        await FlomMessage.updateOne({ wamId }, { $set: { seenBy: seenBy } });
+        break;
+      }
+    }
+
+    if (!alreadySeen) {
+      await FlomMessage.updateOne(
+        { wamId },
+        { $addToSet: { seenBy: { user: user._id.toString(), at: Date.now() } } },
+      );
+    }
+  }
 }
 
 module.exports = router;

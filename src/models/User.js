@@ -235,6 +235,7 @@ const schema = new mongoose.Schema(
     bannedFromAuctionsUntil: { type: Number, default: 0 },
     timeZone: String,
     shippingOptions: { shippingInterval: Number },
+    whatsAppWindowExpiresAt: Number,
   },
   { timestamps: true },
 );
