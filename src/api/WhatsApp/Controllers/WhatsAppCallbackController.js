@@ -99,10 +99,11 @@ router.post("/", async function (request, response) {
         const to = "+" + message.recipient_id;
         const wamId = message.id;
         const status = message.status;
+        const errors = message.errors ?? null;
 
         console.log(`${flomNumber} message to ${to}: ${wamId}, status: ${status}`);
 
-        await handleOutgoingMessage({ to, status, wamId });
+        await handleOutgoingMessage({ to, status, wamId, errors });
       } catch (error) {
         logger.error("WhatsAppCallbackController, cb: outgoing message processing error", error);
         continue;
@@ -206,7 +207,7 @@ async function handleReplyMessage({ from, msgBody, wamId, timeStamp, contextId }
   return;
 }
 
-async function handleOutgoingMessage({ to, status, wamId }) {
+async function handleOutgoingMessage({ to, status, wamId, errors }) {
   const user = await User.findOne({ phoneNumber: to }).lean();
   const flomMessage = await FlomMessage.findOne({ wamId }).lean();
 
@@ -252,6 +253,8 @@ async function handleOutgoingMessage({ to, status, wamId }) {
         { $addToSet: { seenBy: { user: user._id.toString(), at: Date.now() } } },
       );
     }
+  } else if (status === "failed" || !!errors) {
+    await FlomMessage.updateOne({ wamId }, { $set: { "attributes.errors": errors } });
   }
 }
 
