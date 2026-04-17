@@ -35,4 +35,5 @@ module.exports = Object.freeze({
   notifyNewMessage: require("./notifyNewMessage"),
 
   updateWhatsAppPrices: require("./updateWhatsAppPrices"),
+  getWhatsAppPrice: require("./getWhatsAppPrice"),
 });
