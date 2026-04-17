@@ -1,8 +1,19 @@
 const { logger } = require("#infra");
 const { WhatsAppPrice } = require("#models");
 
-async function getWhatsAppPrice(countryCode = "XX") {
+async function getWhatsAppPrice({ countryCode = "XX", user = {} }) {
   try {
+    if (
+      user.whatsApp &&
+      user.whatsApp.windowExpiresAt &&
+      user.whatsApp.windowExpiresAt > Date.now()
+    ) {
+      return {
+        marketing: 0,
+        utility: 0,
+      };
+    }
+
     const prices = await WhatsAppPrice.find({
       countryCode: { $in: [countryCode, "default"] },
     }).lean();

@@ -80,7 +80,7 @@ router.post("/", async function (request, response) {
 
         await User.updateOne(
           { phoneNumber: from },
-          { $set: { whatsAppWindowExpiresAt: expiration } },
+          { $set: { "whatsApp.windowExpiresAt": expiration } },
         );
 
         if (!contextId) {
