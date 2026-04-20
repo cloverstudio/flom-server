@@ -70,7 +70,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    logger.error("SendWhatsAppMessageController, cb", error);
+    return Base.newErrorResponse({ response, message: "SendWhatsAppMessageController", error });
   }
 });
 

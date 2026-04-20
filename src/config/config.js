@@ -408,5 +408,6 @@ Config.instance = process.env.NODE_APP_INSTANCE;
 Config.whatsAppAccessToken = process.env.WA_ACCESS_TOKEN;
 Config.whatsAppPhoneNumberId = process.env.WA_PHONE_NUMBER_ID;
 Config.whatsAppDevPhoneNumberId = process.env.WA_DEV_PHONE_NUMBER_ID;
+Config.whatsAppPhoneNumber = process.env.WA_PHONE_NUMBER;
 
 module.exports = Object.freeze(Config);
