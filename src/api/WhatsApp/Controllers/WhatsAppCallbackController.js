@@ -117,19 +117,31 @@ router.post("/", async function (request, response) {
 });
 
 async function handleNewChatMessage({ from, msgBody, wamId, timeStamp }) {
-  const regex = /(?<!\w)@([a-zA-Z0-9_]+)/g;
-  const matches = [...msgBody.matchAll(regex)];
-  const toUserName = matches.length > 0 ? matches[0][1] : "WhatsApp User";
+  let toUser = null;
+
+  const regexRef = /ref_([A-Za-z]+)/;
+  const refMatch = msgBody.match(regexRef);
+  if (refMatch) {
+    const reference = refMatch[1];
+    toUser = await User.findOne({ "whatsApp.reference": reference }).lean();
+  }
+
+  if (!toUser) {
+    const regexMention = /(?<!\w)@([a-zA-Z0-9_]+)/g;
+    const matches = [...msgBody.matchAll(regexMention)];
+    const toUserName = matches.length > 0 ? matches[0][1] : "WhatsApp User";
+
+    toUser = await User.findOne({ userName: toUserName }).lean();
+  }
+
+  if (!toUser) {
+    logger.error("WhatsAppCallbackController, cb: toUser not found from message: " + msgBody);
+    return;
+  }
 
   const fromUser = await User.findOne({ phoneNumber: from }).lean();
   if (!fromUser) {
     logger.error("WhatsAppCallbackController, cb: fromUser not found with phoneNumber: " + from);
-    return;
-  }
-
-  const toUser = await User.findOne({ userName: toUserName }).lean();
-  if (!toUser) {
-    logger.error("WhatsAppCallbackController, cb: toUser not found with userName: " + toUserName);
     return;
   }
 

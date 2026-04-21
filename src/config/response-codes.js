@@ -817,6 +817,8 @@ ResponseCodes.responsecodeInvalidTrackingNumber = 443948;
 ResponseCodes.responsecodeAddressNotFound = 443950;
 
 ResponseCodes.responsecodeSendingWhatsAppMessageFailed = 443951;
+ResponseCodes.responsecodeMentionSlugNotAvailable = 443952;
+ResponseCodes.responsecodeMentionSlugAlreadyChanged = 443953;
 
 ResponseCodes.responsecodeCountryTemporarilyBanned = 444000;
 ResponseCodes.responsecodeAppVersionTooOld = 444001;

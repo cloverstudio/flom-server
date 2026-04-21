@@ -36,4 +36,5 @@ module.exports = Object.freeze({
 
   updateWhatsAppPrices: require("./updateWhatsAppPrices"),
   getWhatsAppPrice: require("./getWhatsAppPrice"),
+  generateMentionSlug: require("./generateMentionSlug"),
 });
