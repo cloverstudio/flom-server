@@ -437,6 +437,7 @@ async function addOwners(products) {
         created: currentUser.created,
         avatar: currentUser.avatar || {},
         isAppUser: currentUser.isAppUser,
+        whatsApp: currentUser.whatsApp,
       };
     }
   }

@@ -758,6 +758,7 @@ async function addUsers(userIdsAndDate, username) {
         created: currentUser.created,
         avatar: currentUser.avatar || {},
         isAppUser: currentUser.isAppUser,
+        whatsApp: currentUser.whatsApp,
       };
     } else {
       userIdsAndDate = userIdsAndDate.filter((userAndDate) => {
@@ -795,6 +796,7 @@ async function addUsersForSold(sold, username) {
         created: currentUser.created,
         avatar: currentUser.avatar || {},
         isAppUser: currentUser.isAppUser,
+        whatsApp: currentUser.whatsApp,
       };
     } else {
       sold = sold.filter((user) => {

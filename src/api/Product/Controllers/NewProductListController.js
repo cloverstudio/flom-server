@@ -839,6 +839,7 @@ async function addOwners(products) {
         isAppUser: currentUser.isAppUser,
         internationalUser: currentUser.internationalUser,
         activeLiveStream,
+        whatsApp: currentUser.whatsApp,
       };
     }
   }
