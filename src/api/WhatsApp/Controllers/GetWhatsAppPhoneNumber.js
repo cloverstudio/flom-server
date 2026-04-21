@@ -32,7 +32,7 @@ const Base = require("../../Base");
 const { Const, Config } = require("#config");
 const { auth } = require("#middleware");
 
-router.get("/", auth({ allowUser: true }), async function (request, response) {
+router.get("/", async function (request, response) {
   try {
     return Base.successResponse(response, Const.responsecodeSucceed, {
       phoneNumber: Config.whatsAppPhoneNumber || "",
