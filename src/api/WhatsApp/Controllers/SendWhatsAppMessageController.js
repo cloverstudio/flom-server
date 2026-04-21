@@ -58,7 +58,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     const params = {
       isRecursiveCall: false,
-      type: Const.messageTypeWhatsApp,
+      type: Const.messageTypeText,
       userID: senderUser._id.toString(),
       roomID: roomId,
       message,

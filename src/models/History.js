@@ -20,6 +20,7 @@ const schema = new mongoose.Schema(
     ownerRemoved: { type: Boolean, sparse: true },
     firstMessageUserId: { type: String, index: false },
     reaction: {},
+    channel: String, // internal, whatsapp
   },
   { timestamps: true },
 );

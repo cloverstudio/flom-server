@@ -50,7 +50,7 @@ async function resetUnreadCount(obj) {
 
     await History.updateOne(
       { userId, chatId },
-      { unreadCount: 0, lastUpdateUnreadCount: Date.now() }
+      { unreadCount: 0, lastUpdateUnreadCount: Date.now() },
     );
 
     return;
@@ -362,6 +362,9 @@ async function updateData(data, rawMessageObj) {
 
       if (data.chatType === Const.chatTypePrivate)
         data.firstMessageUserId = data.lastUpdateUser._id.toString();
+
+      if (!!rawMessageObj.wamId) data.channel = "whatsapp";
+      else data.channel = "internal";
 
       result = await History.create(data);
       result = result.toObject();

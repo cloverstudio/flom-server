@@ -163,6 +163,15 @@ async function sendMessage(param) {
       }
     }
 
+    if (param.channel === "whatsapp") {
+      const wamId = await Utils.sendWhatsAppMessage({
+        to: objMessage.receiverPhoneNumber.replace("+", ""),
+        message: `${objMessage.senderName}: ${objMessage.message}`,
+      });
+
+      objMessage.wamId = wamId;
+    }
+
     const newMessage = await FlomMessage.create(objMessage);
     result.message = newMessage.toObject();
 

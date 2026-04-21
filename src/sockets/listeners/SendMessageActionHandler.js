@@ -1,6 +1,7 @@
 const { Const } = require("#config");
 const { logger } = require("#infra");
 const { sendMessage } = require("#logics");
+const { History } = require("#models");
 
 module.exports = function (socketApi, socket) {
   /**
@@ -53,6 +54,11 @@ module.exports = function (socketApi, socket) {
 
       if (!param.ipAddress) {
         param.ipAddress = socket.handshake.address;
+      }
+
+      const history = await History.findOne({ chatId: param.roomID }).lean();
+      if (history && history.channel === "whatsapp") {
+        param.channel = "whatsapp";
       }
 
       const messageObj = await sendMessage(param);

@@ -6,7 +6,7 @@ const { logger, encryptionManager } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
 const { FlomMessage, User } = require("#models");
-const { sendMessage } = require("#logics");
+const Logics = require("#logics");
 
 router.get("/", async function (request, response) {
   try {
@@ -54,17 +54,6 @@ router.post("/", async function (request, response) {
 
     const flomNumber = value.metadata?.display_phone_number ?? null;
     const phoneNumberId = value.metadata?.phone_number_id ?? null;
-
-    if (Config.environment === "production" && phoneNumberId === Config.whatsAppDevPhoneNumberId) {
-      await Utils.sendRequest({
-        method: "POST",
-        url: `${Config.devWebClientUrl}/api/v2/whatsapp/cb`,
-        headers: { "Content-Type": "application/json" },
-        body: request.body,
-      });
-
-      return;
-    }
 
     for (const message of messages) {
       try {
@@ -139,10 +128,15 @@ async function handleNewChatMessage({ from, msgBody, wamId, timeStamp }) {
     return;
   }
 
-  const fromUser = await User.findOne({ phoneNumber: from }).lean();
+  let fromUser = await User.findOne({ phoneNumber: from }).lean();
   if (!fromUser) {
-    logger.error("WhatsAppCallbackController, cb: fromUser not found with phoneNumber: " + from);
-    return;
+    fromUser = await Logics.createNewUser({
+      phoneNumber: from,
+      isAppUser: false,
+      shadow: true,
+      hasLoggedIn: Const.userShadowUser,
+      phoneNumberStatus: Const.phoneNumberUntested,
+    });
   }
 
   let roomId = null;
@@ -158,7 +152,7 @@ async function handleNewChatMessage({ from, msgBody, wamId, timeStamp }) {
 
   const params = {
     isRecursiveCall: false,
-    type: Const.messageTypeWhatsApp,
+    type: Const.messageTypeText,
     userID: fromUser._id.toString(),
     roomID: roomId,
     message: msgBody,
@@ -166,7 +160,7 @@ async function handleNewChatMessage({ from, msgBody, wamId, timeStamp }) {
     wamId,
   };
 
-  await sendMessage(params);
+  await Logics.sendMessage(params);
 
   return;
 }
@@ -194,7 +188,7 @@ async function handleReplyMessage({ from, msgBody, wamId, timeStamp, contextId }
 
   const params = {
     isRecursiveCall: false,
-    type: Const.messageTypeWhatsApp,
+    type: Const.messageTypeText,
     userID: fromUser._id.toString(),
     roomID: originalMessage.roomID,
     message: msgBody,
@@ -214,7 +208,7 @@ async function handleReplyMessage({ from, msgBody, wamId, timeStamp, contextId }
     },
   };
 
-  await sendMessage(params);
+  await Logics.sendMessage(params);
 
   return;
 }

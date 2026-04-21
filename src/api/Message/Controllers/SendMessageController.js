@@ -4,6 +4,7 @@ const router = require("express").Router();
 const Base = require("../../Base");
 const { Const, Config } = require("#config");
 const { auth } = require("#middleware");
+const { History } = require("#models");
 const { sendMessage } = require("#logics");
 const { createOfferMessage } = require("../helpers");
 const mediaHandler = require("#media");
@@ -99,6 +100,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         code: Const.responsecodeFailedToSendMessage,
         message: `SendMessageController, error in getting gif dimensions`,
       });
+    }
+
+    const history = await History.findOne({ chatId: request.body.roomID }).lean();
+    if (history && history.channel === "whatsapp") {
+      request.body.channel = "whatsapp";
     }
 
     let result;
