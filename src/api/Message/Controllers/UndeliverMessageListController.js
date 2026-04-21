@@ -5,6 +5,7 @@ const Base = require("../../Base");
 const { Const } = require("#config");
 const { auth } = require("#middleware");
 const { FlomMessage, User } = require("#models");
+const Logics = require("#logics");
 
 /**
       * @api {get} /api/v2/message/undeliver/list/:chatId Get Undelivered Messages
@@ -69,21 +70,19 @@ async function handleRequest(request, response) {
     */
 
     const messageQuery = {
-      senderPhoneNumber: user.phoneNumber,
+      receiverPhoneNumber: user.phoneNumber,
       $or: [{ deliveredTo: { $exists: false } }, { deliveredTo: { $exists: true, $eq: [] } }],
     };
     if (chatId) messageQuery.roomID = chatId;
 
     const messages = await FlomMessage.find(messageQuery)
       .sort({ created: "desc" })
-      .limit(100)
+      .limit(10)
       .lean();
 
-    const populatedMessages = await FlomMessage.populateMessages(messages);
+    // const populatedMessages = await Logics.populateMessages(messages, user);
 
-    return Base.successResponse(response, Const.responsecodeSucceed, {
-      messages: populatedMessages,
-    });
+    return Base.successResponse(response, Const.responsecodeSucceed, { messages });
   } catch (error) {
     return Base.errorResponse(
       response,
