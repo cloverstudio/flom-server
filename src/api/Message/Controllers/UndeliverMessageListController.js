@@ -53,10 +53,11 @@ const { FlomMessage, User } = require("#models");
     
     **/
 
-router.get("/:chatId", auth({ allowUser: true }), async function (request, response) {
-  try {
-    console.log("Hello from UndeliverMessageListController");
+router.get("/:chatId", auth({ allowUser: true }), handleRequest);
+router.get("/", auth({ allowUser: true }), handleRequest);
 
+async function handleRequest(request, response) {
+  try {
     const chatId = request.params.chatId;
     const user = request.user;
 
@@ -91,6 +92,6 @@ router.get("/:chatId", auth({ allowUser: true }), async function (request, respo
       error,
     );
   }
-});
+}
 
 module.exports = router;
