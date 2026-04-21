@@ -55,16 +55,20 @@ const { FlomMessage, User } = require("#models");
 
 router.get("/:chatId", auth({ allowUser: true }), async function (request, response) {
   try {
+    console.log("Hello from UndeliverMessageListController");
+
     const chatId = request.params.chatId;
     const user = request.user;
 
+    /*
     const users = await User.find({
       organizationId: user.organizationId,
       status: Const.userStatus.enabled,
     }).lean();
+    */
 
     const messageQuery = {
-      userID: { $in: users.map((user) => user._id.toString()) },
+      senderPhoneNumber: user.phoneNumber,
       $or: [{ deliveredTo: { $exists: false } }, { deliveredTo: { $exists: true, $eq: [] } }],
     };
     if (chatId) messageQuery.roomID = chatId;
@@ -73,6 +77,7 @@ router.get("/:chatId", auth({ allowUser: true }), async function (request, respo
       .sort({ created: "desc" })
       .limit(100)
       .lean();
+
     const populatedMessages = await FlomMessage.populateMessages(messages);
 
     return Base.successResponse(response, Const.responsecodeSucceed, {
