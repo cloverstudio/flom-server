@@ -204,6 +204,8 @@ const fsp = require("fs/promises");
  * @apiError (Errors) 400680 Category not found
  * @apiError (Errors) 443824 Invalid state code (Canadian user)
  * @apiError (Errors) 443825 Invalid state code or zip code (American user)
+ * @apiError (Errors) 443952 Mention slug not available
+ * @apiError (Errors) 443953 Mention slug has already been changed
  * @apiError (Errors) 4000007 Token not valid
  */
 
