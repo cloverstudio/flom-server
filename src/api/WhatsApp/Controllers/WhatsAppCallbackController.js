@@ -158,6 +158,7 @@ async function handleNewChatMessage({ from, msgBody, wamId, timeStamp }) {
     message: msgBody,
     created: timeStamp,
     wamId,
+    plainTextMessage: true,
   };
 
   await Logics.sendMessage(params);
@@ -194,6 +195,7 @@ async function handleReplyMessage({ from, msgBody, wamId, timeStamp, contextId }
     message: msgBody,
     created: timeStamp,
     wamId,
+    plainTextMessage: true,
     attributes: {
       replyMessage: {
         _id: originalMessage._id.toString(),
