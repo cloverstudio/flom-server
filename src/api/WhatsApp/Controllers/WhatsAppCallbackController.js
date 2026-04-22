@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { logger, encryptionManager } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { FlomMessage, User } = require("#models");
+const { FlomMessage, User, WhatsAppUserMapping } = require("#models");
 const Logics = require("#logics");
 
 router.get("/", async function (request, response) {
@@ -136,6 +136,12 @@ async function handleNewChatMessage({ from, msgBody, wamId, timeStamp }) {
       shadow: true,
       hasLoggedIn: Const.userShadowUser,
       phoneNumberStatus: Const.phoneNumberUntested,
+    });
+
+    // mapping is reversed (sender is receiver etc) because we want to find the mapping with sender and receiver phone numbers when sending message from app to whatsapp
+    await WhatsAppUserMapping.create({
+      senderPhoneNumber: toUser.phoneNumber,
+      receiverPhoneNumber: from,
     });
   }
 

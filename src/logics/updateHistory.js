@@ -363,9 +363,6 @@ async function updateData(data, rawMessageObj) {
       if (data.chatType === Const.chatTypePrivate)
         data.firstMessageUserId = data.lastUpdateUser._id.toString();
 
-      if (!!rawMessageObj.wamId) data.channel = "whatsapp";
-      else data.channel = "internal";
-
       result = await History.create(data);
       result = result.toObject();
     }

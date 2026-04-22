@@ -4,7 +4,7 @@ const router = require("express").Router();
 const Base = require("../../Base");
 const { Const, Config } = require("#config");
 const { auth } = require("#middleware");
-const { History } = require("#models");
+const { WhatsAppUserMapping } = require("#models");
 const { sendMessage } = require("#logics");
 const { createOfferMessage } = require("../helpers");
 const mediaHandler = require("#media");
@@ -102,9 +102,27 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       });
     }
 
-    const history = await History.findOne({ chatId: request.body.roomID }).lean();
-    if (history && history.channel === "whatsapp") {
-      request.body.channel = "whatsapp";
+    const { userID, roomID } = request.body;
+
+    const arr = roomID.split("-");
+    if (arr[0] == Const.chatTypePrivate) {
+      let s, r;
+      if (arr[1] == userID) {
+        s = arr[1];
+        r = arr[2];
+      } else {
+        s = arr[2];
+        r = arr[1];
+      }
+
+      const whatsappMapping = await WhatsAppUserMapping.findOne({
+        senderPhoneNumber: s,
+        receiverPhoneNumber: r,
+      }).lean();
+
+      if (whatsappMapping) {
+        request.body.wa = true;
+      }
     }
 
     let result;

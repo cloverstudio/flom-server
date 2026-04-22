@@ -163,7 +163,7 @@ async function sendMessage(param) {
       }
     }
 
-    if (param.channel === "whatsapp") {
+    if (!!param.wa) {
       const wamId = await Utils.sendWhatsAppMessage({
         to: objMessage.receiverPhoneNumber.replace("+", ""),
         message: `${objMessage.senderName}: ${objMessage.message}`,

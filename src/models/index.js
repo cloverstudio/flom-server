@@ -116,6 +116,7 @@ module.exports = Object.freeze({
 
   Webhook: require("./Webhook"),
   WhatsAppPrice: require("./WhatsAppPrice"),
+  WhatsAppUserMapping: require("./WhatsAppUserMapping"),
 
   TalkTicket: require("./TalkTicket"),
 });

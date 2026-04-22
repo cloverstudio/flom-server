@@ -1,7 +1,7 @@
 const { Const } = require("#config");
 const { logger } = require("#infra");
 const { sendMessage } = require("#logics");
-const { History } = require("#models");
+const { WhatsAppUserMapping } = require("#models");
 
 module.exports = function (socketApi, socket) {
   /**
@@ -56,9 +56,25 @@ module.exports = function (socketApi, socket) {
         param.ipAddress = socket.handshake.address;
       }
 
-      const history = await History.findOne({ chatId: param.roomID }).lean();
-      if (history && history.channel === "whatsapp") {
-        param.channel = "whatsapp";
+      const arr = param.roomID.split("-");
+      if (arr[0] == Const.chatTypePrivate) {
+        let s, r;
+        if (arr[1] == param.userID) {
+          s = arr[1];
+          r = arr[2];
+        } else {
+          s = arr[2];
+          r = arr[1];
+        }
+
+        const whatsappMapping = await WhatsAppUserMapping.findOne({
+          senderPhoneNumber: s,
+          receiverPhoneNumber: r,
+        }).lean();
+
+        if (whatsappMapping) {
+          param.wa = true;
+        }
       }
 
       const messageObj = await sendMessage(param);
