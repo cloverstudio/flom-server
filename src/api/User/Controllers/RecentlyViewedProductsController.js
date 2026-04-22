@@ -154,6 +154,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
           phoneNumber: 1,
           userName: 1,
           avatar: 1,
+          whatsApp: 1,
         },
       ).lean();
 
