@@ -79,5 +79,6 @@ router.use("/user", require("./Controllers/UserEmailController"));
 router.use("/user/bank-account", require("./Controllers/UsersBankAccountsController"));
 router.use("/user/bank-accounts", require("./Controllers/UpdateUsersBankAccountController"));
 router.use("/user/social-media", require("./Controllers/UserSocialMediaController"));
+router.use("/user/notification-options", require("./Controllers/NotificationOptionsController"));
 
 module.exports = router;

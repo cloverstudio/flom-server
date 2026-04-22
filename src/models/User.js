@@ -243,6 +243,16 @@ const schema = new mongoose.Schema(
       reference: String,
       windowExpiresAt: Number,
     },
+    notificationOptions: {
+      whatsApp: {
+        enabled: { type: Boolean, default: false },
+        enabledIntended: { type: Boolean, default: false }, // track if user has ever tried to change whatsapp notification settings
+        goLive: { type: Boolean, default: false },
+        pendingPayment: { type: Boolean, default: false },
+        shippingUpdate: { type: Boolean, default: false },
+        secondChance: { type: Boolean, default: false },
+      },
+    },
   },
   { timestamps: true },
 );

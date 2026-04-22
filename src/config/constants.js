@@ -1300,4 +1300,6 @@ Constants.shippingProviders = [
   { type: "other", displayName: "Other" },
 ];
 
+Constants.whatsAppMarkupRate = 1.3;
+
 module.exports = Object.freeze(Constants);
