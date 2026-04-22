@@ -242,6 +242,7 @@ const schema = new mongoose.Schema(
       oldMentionSlugExpiresAt: Number,
       reference: String,
       windowExpiresAt: Number,
+      subscriptions: [String],
     },
     notificationOptions: {
       whatsApp: {
