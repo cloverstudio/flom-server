@@ -12,7 +12,6 @@ async function sendRequest({
   responseType = "json",
   timeout = 0,
   resolveWithFullResponse = false,
-  auth = undefined, // { username: "username", passowrd: "password" }
   returnHeaders = false,
   returnErrorAsData = false,
 }) {
@@ -25,7 +24,6 @@ async function sendRequest({
       headers,
       url: urlWithQuery,
       data: body,
-      auth,
     };
 
     if (!allow && url.includes("valuetopup")) {
@@ -50,7 +48,9 @@ async function sendRequest({
     return resp.data;
   } catch (error) {
     if (!error.response) {
-      const errorMessage = `send request error: ${error.stack}`;
+      const errorMessage = !error.stack
+        ? `send request error: ${error.message}`
+        : `send request error: ${error.stack}`;
       if (returnErrorAsData) {
         return { error: errorMessage };
       }
