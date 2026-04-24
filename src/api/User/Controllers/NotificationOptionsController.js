@@ -2,11 +2,11 @@
 
 const router = require("express").Router();
 const Base = require("../../Base");
-const { Const } = require("#config");
+const { Const, countries } = require("#config");
 const Utils = require("#utils");
 const Logics = require("#logics");
 const { auth } = require("#middleware");
-const { User } = require("#models");
+const { User, SatsReservation, ConversionRate } = require("#models");
 
 /**
  * @api {get} /api/v2/user/notification-options Get users notification options flom_v1
@@ -55,6 +55,18 @@ const { User } = require("#models");
  *             "currencyLocal": "EUR",
  *             "marketingLocal": 0.1,
  *             "utilityLocal": 0.02
+ *         },
+ *         "satsBalance": 918,
+ *         "availableSatsBalance": 918,
+ *         "localSatsBalance": {
+ *             "countryCode": "HR",
+ *             "currency": "EUR",
+ *             "value": 0.61
+ *         },
+ *         "localAvailableSatsBalance": {
+ *             "countryCode": "HR",
+ *             "currency": "EUR",
+ *             "value": 0.61
  *         }
  *     }
  * }
@@ -70,13 +82,53 @@ const { User } = require("#models");
 
 router.get("/", auth({ allowUser: true }), async function (request, response) {
   try {
-    const opts = request.user.notificationOptions;
+    const user = request.user;
 
-    const whatsAppPrices = await Logics.getWhatsAppPrices({
-      countryCode: request.user.countryCode,
-    });
+    const satsBalance = !user.satsBalance || isNaN(user.satsBalance) ? 0 : user.satsBalance;
+    const countryCode =
+      user.countryCode || Utils.getCountryCodeFromPhoneNumber({ phoneNumber: user.phoneNumber });
+
+    const opts = user.notificationOptions;
+
+    const whatsAppPrices = await Logics.getWhatsAppPrices({ countryCode });
 
     const responseData = { notificationOptions: opts, whatsAppPrices };
+
+    const satsReservations = await SatsReservation.find({
+      userId: user.id,
+      isActive: true,
+      source: "flom_v1",
+    }).lean();
+    const reservedBalance = satsReservations.reduce(
+      (acc, reservation) => acc + reservation.value,
+      0,
+    );
+    const availableSatsBalance = satsBalance - reservedBalance;
+
+    const conversionRates = await ConversionRate.find({}).sort({ date: -1 }).limit(1).lean();
+    const satsRate =
+      conversionRates && conversionRates.length > 0 ? conversionRates[0].rates["SAT"] : null;
+    const currency = countries[countryCode] ? countries[countryCode].currency.split(",")[0] : null;
+    const localRate =
+      conversionRates && conversionRates.length > 0 && currency
+        ? conversionRates[0].rates[currency]
+        : null;
+
+    if (satsRate && localRate) {
+      responseData.satsBalance = satsBalance;
+      responseData.availableSatsBalance = availableSatsBalance;
+
+      responseData.localSatsBalance = {
+        countryCode,
+        currency,
+        value: Utils.roundNumber(satsBalance * (localRate / satsRate), 2),
+      };
+      responseData.localAvailableSatsBalance = {
+        countryCode,
+        currency,
+        value: Utils.roundNumber(availableSatsBalance * (localRate / satsRate), 2),
+      };
+    }
 
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
