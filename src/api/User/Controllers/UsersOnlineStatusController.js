@@ -42,14 +42,26 @@ const { getUsersOnlineStatus } = require("#logics");
 
 router.post("/", async (request, response) => {
   try {
-    const { userIds } = request.body;
+    let { userIds } = request.body;
 
-    if (typeof userIds === "undefined") {
+    if (
+      typeof userIds === "undefined" ||
+      userIds === null ||
+      userIds === "" ||
+      userIds === undefined ||
+      userIds.length === 0
+    ) {
+      console.error("UsersOnlineStatusController: userIds is not defined");
       return Base.successResponse(response, Const.responsecodeUserIdsMustBeDefined);
     }
 
     if (!Array.isArray(userIds)) {
-      return Base.successResponse(response, Const.responsecodeUserIdsMustBeArray);
+      userIds = userIds.split(",");
+    }
+
+    if (userIds.length === 0) {
+      console.error("UsersOnlineStatusController: userIds empty array");
+      return Base.successResponse(response, Const.responsecodeUserIdsMustBeDefined);
     }
 
     const onlineStatus = await getUsersOnlineStatus(userIds);
