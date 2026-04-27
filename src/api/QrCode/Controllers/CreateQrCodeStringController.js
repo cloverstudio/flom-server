@@ -45,44 +45,18 @@ router.get("/", async function (request, response) {
       loginType: "ussd",
     });
 
-    /*
-      await detectFlooding();
-
-      const countryBan = await CountryWideBan
-        .findOne({
-          countryCode: userCountryCode,
-          created: { $gt: Date.now() - Const.millisecondsPerDay },
-        })
-        .lean();
-
-      if (countryBan && countryBan.countryCode === userCountryCode) {
-        const diff = Date.now() - countryBan.updated;
-        const banDurationInMilliseconds =
-          Utils.getCountryBanDuration(countryBan.occurences) * 60 * 1000;
-
-        if (diff < banDurationInMilliseconds) {
-          return Base.newErrorResponse({
-            response,
-            code: Const.responsecodeCountryTemporarilyBanned,
-            type: Const.logTypeLogin,
-            message: `CreateQrCodeStringController, ${userCountryCode} - country temporarily banned`,
-          });
-        }
-      }
-        */
-
     const code = Utils.generateRandomNumber(8).toString();
 
-    await redis.set(Const.redisKeyQrCode + code, {
-      code,
-      uuid,
-      otherDevice,
-      deviceType,
-    });
-
-    setTimeout(async () => {
-      await redis.del(Const.redisKeyQrCode + code);
-    }, timeout || Config.expireTimeForQRCode);
+    await redis.set(
+      Const.redisKeyQrCode + code,
+      {
+        code,
+        uuid,
+        otherDevice,
+        deviceType,
+      },
+      120,
+    );
 
     Base.successResponse(response, Const.responsecodeSucceed, { code });
   } catch (error) {
@@ -93,74 +67,5 @@ router.get("/", async function (request, response) {
     });
   }
 });
-
-async function detectFlooding() {
-  const records = await AccessRecord.find({
-    created: { $gt: Date.now() - Const.floodPeriod },
-  });
-
-  if (records.length < Const.floodLimit) return false;
-
-  const countryObj = {};
-
-  for (const record of records) {
-    if (!countryObj[record.countryCode]) countryObj[record.countryCode] = 0;
-    countryObj[record.countryCode]++;
-  }
-
-  let max = 0,
-    maxCountry;
-  for (const country in countryObj) {
-    if (countryObj[country] > max) {
-      max = countryObj[country];
-      maxCountry = country;
-    }
-  }
-
-  if (max > records.length / 2) {
-    const countryBan = await CountryWideBan.findOne({ countryCode: maxCountry }).lean();
-
-    let updateObj = {};
-
-    if (countryBan && countryBan.created > Date.now() - Const.millisecondsPerDay) {
-      if (countryBan.updated) {
-        const diff = Date.now() - countryBan.updated;
-        const banDurationInMilliseconds =
-          Utils.getCountryBanDuration(countryBan.occurences) * 60 * 1000;
-
-        if (diff > banDurationInMilliseconds) {
-          updateObj = {
-            $set: { countryCode: maxCountry, updated: Date.now() },
-            $inc: { occurences: 1 },
-          };
-        }
-      }
-    } else {
-      updateObj = {
-        $set: { countryCode: maxCountry, updated: Date.now(), created: Date.now(), occurences: 1 },
-      };
-    }
-
-    if (Object.keys(updateObj).length > 0) {
-      await CountryWideBan.updateOne({ countryCode: maxCountry }, updateObj, {
-        upsert: true,
-        setDefaultsOnInsert: true,
-      });
-
-      Utils.sendEmailWithSG(
-        "Flom: Flood detection",
-        `Flood detected at ${Date()} on environment: ${Config.environment}`,
-        "petarb.flom@gmail.com",
-      );
-      Utils.sendEmailWithSG(
-        "Flom: Flood detection",
-        `Flood detected at ${Date()} on environment: ${Config.environment}`,
-        "sinisa.brcina@pontistechnology.com",
-      );
-    }
-  }
-
-  return true;
-}
 
 module.exports = router;
