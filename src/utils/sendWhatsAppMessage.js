@@ -2,8 +2,15 @@ const { Config } = require("#config");
 const { logger } = require("#infra");
 const sendRequest = require("./sendRequest");
 
-async function sendWhatsAppMessage({ to, message, instruction = false }) {
+async function sendWhatsAppMessage({ to, message, type, template }) {
   try {
+    if (!Config.enableWhatsApp) {
+      logger.warn("WhatsApp messaging is disabled, skipping sendWhatsAppMessage");
+      return null;
+    }
+
+    to = to.replace("+", "");
+
     const data = {
       messaging_product: "whatsapp",
       to,
@@ -11,28 +18,20 @@ async function sendWhatsAppMessage({ to, message, instruction = false }) {
       text: { body: message },
     };
 
-    if (instruction) {
+    if (type === "template") {
       data.type = "template";
       delete data.text;
-      data.template = {
-        name: "reply_instruction",
-        language: { code: "en" },
-      };
+
+      data.template = getTemplateParams(template);
+
+      if (!data.template) {
+        logger.error("sendWhatsAppMessage error, invalid template name: " + template);
+        // TODO: whatsapp log
+        return null;
+      }
     }
 
-    if (true) {
-      data.type = "template";
-      delete data.text;
-      data.template = {
-        name: "test_template",
-        language: { code: "en" },
-      };
-    }
-
-    const id =
-      Config.environment === "production"
-        ? Config.whatsAppPhoneNumberId
-        : Config.whatsAppDevPhoneNumberId;
+    const id = Config.whatsAppPhoneNumberId;
 
     const result = await sendRequest({
       method: "POST",
@@ -60,4 +59,75 @@ async function sendWhatsAppMessage({ to, message, instruction = false }) {
   }
 }
 
+function getTemplateParams(templateName) {
+  if (!templateName) return null;
+
+  if (templateName === "goLive") {
+    return {
+      name: "go_live",
+      language: {
+        code: "en_US",
+      },
+      components: [
+        {
+          type: "body",
+          parameters: [
+            {
+              type: "text",
+              text: "",
+            },
+          ],
+        },
+        {
+          type: "button",
+          sub_type: "url",
+          index: "0",
+          parameters: [
+            {
+              type: "text",
+              text: "",
+            },
+          ],
+        },
+      ],
+    };
+  }
+}
+
 module.exports = sendWhatsAppMessage;
+
+/*
+{
+  "messaging_product": "whatsapp",
+  "to": "3859XXXXXXX",
+  "type": "template",
+  "template": {
+    "name": "stream_live_alert",
+    "language": {
+      "code": "en_US"
+    },
+    "components": [
+      {
+        "type": "body",
+        "parameters": [
+          {
+            "type": "text",
+            "text": "Ninja"
+          }
+        ]
+      },
+      {
+        "type": "button",
+        "sub_type": "url",
+        "index": "0",
+        "parameters": [
+          {
+            "type": "text",
+            "text": "1234"
+          }
+        ]
+      }
+    ]
+  }
+}
+*/
