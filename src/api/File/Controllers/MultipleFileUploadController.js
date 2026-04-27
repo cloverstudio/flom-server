@@ -64,7 +64,7 @@ router.post("", async function (request, response) {
           name: file.name,
           mimeType: file.mimetype,
           size: file.size,
-          created: Utils.now(),
+          created: Date.now(),
           duration: mediaDuration,
         });
 
@@ -101,7 +101,7 @@ router.post("", async function (request, response) {
           name: file.name,
           mimeType: file.type,
           size: file.size,
-          created: Utils.now(),
+          created: Date.now(),
         });
 
         let thumbType;
@@ -141,7 +141,7 @@ router.post("", async function (request, response) {
           name: "thumb_" + file.name,
           mimeType: thumbType,
           size: image.size,
-          created: Utils.now(),
+          created: Date.now(),
         });
 
         const resThumb = await thumbObj.save();
@@ -168,7 +168,7 @@ router.post("", async function (request, response) {
           name: file.name,
           mimeType: file.type,
           size: file.size,
-          created: Utils.now(),
+          created: Date.now(),
         });
 
         var res = await newFile.save();

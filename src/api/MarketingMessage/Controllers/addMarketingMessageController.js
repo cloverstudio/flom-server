@@ -68,7 +68,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       message,
       receivers,
       template,
-      created: Utils.now(),
+      created: Date.now(),
       ...(name && { name }),
       ...(marketingAction == 2 && { product }),
       ...(phoneNumbersFromCSV && { phoneNumbersFromCSV }),

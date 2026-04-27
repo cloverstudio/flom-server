@@ -36,6 +36,11 @@ async function startServer() {
     scheduler.init();
   }
 
+  if (Config.environment === "development") {
+    require("./scripts/check-whatsapp-prices");
+    require("./scripts/check-expired-mention-slugs");
+  }
+
   server.listen(Config.port.api, () => {
     logger.notice(`API server is running on port ${Config.port.api}`);
   });

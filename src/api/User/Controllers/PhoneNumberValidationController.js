@@ -102,7 +102,7 @@ router.post("/", async (request, response) => {
     await sendMsg(senderUser, user);
 
     const newToken = Utils.getRandomString(Const.tokenLength);
-    const now = Utils.now();
+    const now = Date.now();
 
     const tokenObj = {
       token: newToken,
@@ -124,7 +124,7 @@ router.post("/", async (request, response) => {
       let uuidAry = [];
       let UUIDObj = {
         UUID: UUID,
-        lastLogin: Utils.now(),
+        lastLogin: Date.now(),
         blocked: false,
         lastToken: user.token,
         pushTokens: [],
@@ -290,7 +290,7 @@ async function sendMsg(senderUser, receiverUser) {
 
   if (
     (!oldMessagesFatAi || !oldMessagesFatAi.length) &&
-    (Utils.now() - receiverUser.dateOfBirth) / Const.milisInYear >= 16
+    (Date.now() - receiverUser.dateOfBirth) / Const.milisInYear >= 16
   ) {
     const messageParamsFatAi = {
       roomID: chatIdFatAiIncluded,

@@ -18,7 +18,9 @@ async function createNewUser(userData, raw) {
       rates,
       latitude,
       longitude,
+      hasLoggedIn,
     } = userData;
+
     const user = new User();
 
     user.name = `Flomer_${user._id.toString()}`;

@@ -835,6 +835,7 @@ async function addUsers(userIdsAndDate) {
         created: currentUser.created,
         avatar: currentUser.avatar || {},
         isAppUser: currentUser.isAppUser,
+        whatsApp: currentUser.whatsApp,
       };
     }
   }
@@ -862,6 +863,7 @@ async function addUsersForSold(sold) {
         created: currentUser.created,
         avatar: currentUser.avatar || {},
         isAppUser: currentUser.isAppUser,
+        whatsApp: currentUser.whatsApp,
       };
     }
   }

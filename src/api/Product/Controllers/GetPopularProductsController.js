@@ -218,7 +218,7 @@ router.get("/", async function (request, response) {
       { value: 1 },
     ).lean();
     const popularProductsFetchPeriodInMs = popularProductsFetchPeriod.value * 60 * 60 * 1000;
-    const currentDate = Utils.now();
+    const currentDate = Date.now();
 
     let resultArray = [];
     let query = {};

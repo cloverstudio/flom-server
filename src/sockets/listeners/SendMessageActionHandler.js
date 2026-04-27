@@ -1,6 +1,7 @@
 const { Const } = require("#config");
 const { logger } = require("#infra");
 const { sendMessage } = require("#logics");
+const { WhatsAppUserMapping } = require("#models");
 
 module.exports = function (socketApi, socket) {
   /**
@@ -19,7 +20,7 @@ module.exports = function (socketApi, socket) {
 
   socket.on("sendMessage", async (param, callback) => {
     try {
-      logger.info("Sending message - " + JSON.stringify(param));
+      // logger.info("Sending message - " + JSON.stringify(param));
 
       if (!param.roomID || param.roomID.includes("null")) {
         console.error("roomID error - " + Const.resCodeSocketSendMessageNoRoomID);
@@ -53,6 +54,27 @@ module.exports = function (socketApi, socket) {
 
       if (!param.ipAddress) {
         param.ipAddress = socket.handshake.address;
+      }
+
+      const arr = param.roomID.split("-");
+      if (arr[0] == Const.chatTypePrivate) {
+        let s, r;
+        if (arr[1] == param.userID) {
+          s = arr[1];
+          r = arr[2];
+        } else {
+          s = arr[2];
+          r = arr[1];
+        }
+
+        const whatsAppMapping = await WhatsAppUserMapping.findOne({
+          senderPhoneNumber: s,
+          receiverPhoneNumber: r,
+        }).lean();
+
+        if (whatsAppMapping) {
+          param.wa = true;
+        }
       }
 
       const messageObj = await sendMessage(param);

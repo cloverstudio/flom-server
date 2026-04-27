@@ -66,7 +66,7 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
   try {
     const { user } = request;
 
-    if ((Utils.now() - user.dateOfBirth) / Const.milisInYear >= 16) {
+    if ((Date.now() - user.dateOfBirth) / Const.milisInYear >= 16) {
       request.body.phoneNumbers = request.body.phoneNumbers + ",+2340000000000";
     }
 

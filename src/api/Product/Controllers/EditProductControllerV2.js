@@ -633,7 +633,7 @@ router.patch(
         product.moderation.status = autoApprove
           ? Const.moderationStatusApproved
           : Const.moderationStatusPending;
-        product.created = Utils.now();
+        product.created = Date.now();
       } else if (!visibilityCheck && product.moderation.status === Const.moderationStatusApproved) {
         product.moderation.status = autoApprove
           ? Const.moderationStatusApproved
@@ -700,7 +700,7 @@ router.patch(
           : "en";
       }
 
-      product.modified = Utils.now();
+      product.modified = Date.now();
       await product.save();
 
       try {

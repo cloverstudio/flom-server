@@ -235,6 +235,43 @@ const schema = new mongoose.Schema(
     bannedFromAuctionsUntil: { type: Number, default: 0 },
     timeZone: String,
     shippingOptions: { shippingInterval: Number },
+
+    whatsApp: {
+      mentionSlug: String,
+      mentionSlugChanged: Boolean,
+      oldMentionSlug: String,
+      oldMentionSlugExpiresAt: Number,
+      reference: String,
+      windowExpiresAt: Number,
+      subscriptions: [String],
+    },
+
+    notificationOptions: {
+      whatsApp: {
+        enabled: { type: Boolean, default: false },
+        enabledIntended: { type: Boolean, default: false }, // track if user has ever tried to change whatsapp notification settings
+        goLive: { type: Boolean, default: false },
+        pendingPayment: { type: Boolean, default: false },
+        shippingUpdate: { type: Boolean, default: false },
+        secondChance: { type: Boolean, default: false },
+        newDrop: { type: Boolean, default: false },
+        auctionReminder: { type: Boolean, default: false },
+        bookingConfirmation: { type: Boolean, default: false },
+        bookingReminder: { type: Boolean, default: false },
+      },
+      push: {
+        enabled: { type: Boolean, default: true },
+        enabledIntended: { type: Boolean, default: true },
+      },
+      email: {
+        enabled: { type: Boolean, default: true },
+        enabledIntended: { type: Boolean, default: true },
+      },
+      sms: {
+        enabled: { type: Boolean, default: false },
+        enabledIntended: { type: Boolean, default: false },
+      },
+    },
   },
   { timestamps: true },
 );

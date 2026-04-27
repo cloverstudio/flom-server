@@ -3,6 +3,7 @@
 const router = require("express").Router();
 const Base = require("../../Base");
 const { Const } = require("#config");
+const Utils = require("#utils");
 const { Order, Auction } = require("#models");
 const { auth } = require("#middleware");
 
@@ -40,6 +41,14 @@ router.get("/:orderId", auth({ allowUser: true }), async function (request, resp
     const orderId = request.params.orderId;
     const { user } = request;
     const userId = user._id.toString();
+
+    if (!orderId || !Utils.isValidObjectId(orderId)) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeOrderNotFound,
+        message: "GetOrderController, get order details - invalid orderId: " + orderId,
+      });
+    }
 
     const order = await Order.findOne({
       _id: orderId,

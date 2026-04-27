@@ -2,7 +2,14 @@
 
 const { User, Membership } = require("#models");
 
-const findUserProps = { phoneNumber: 1, userName: 1, created: 1, avatar: 1, bankAccounts: 1 };
+const findUserProps = {
+  phoneNumber: 1,
+  userName: 1,
+  created: 1,
+  avatar: 1,
+  bankAccounts: 1,
+  whatsApp: 1,
+};
 
 async function formatLiveStreamResponse({ liveStream }) {
   const streamer = await User.findById(liveStream.userId, findUserProps).lean();
@@ -26,7 +33,7 @@ async function formatLiveStreamResponse({ liveStream }) {
   if (liveStream?.cohosts && liveStream.cohosts.length > 0) {
     liveStream.cohosts = await User.find(
       { _id: { $in: liveStream.cohosts } },
-      findUserProps
+      findUserProps,
     ).lean();
 
     const { mutedCohosts = [], additionalCohostCameras = [] } = liveStream;
@@ -40,7 +47,7 @@ async function formatLiveStreamResponse({ liveStream }) {
 
       if (additionalCohostCameras.length > 0) {
         cohost.additionalCameras = additionalCohostCameras.filter(
-          (camera) => camera.cohostId === cohost._id.toString()
+          (camera) => camera.cohostId === cohost._id.toString(),
         );
       }
     }

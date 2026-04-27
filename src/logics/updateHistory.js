@@ -50,7 +50,7 @@ async function resetUnreadCount(obj) {
 
     await History.updateOne(
       { userId, chatId },
-      { unreadCount: 0, lastUpdateUnreadCount: Date.now() }
+      { unreadCount: 0, lastUpdateUnreadCount: Date.now() },
     );
 
     return;

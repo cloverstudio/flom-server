@@ -4,6 +4,7 @@ const router = require("express").Router();
 const Base = require("../../Base");
 const { Const, Config } = require("#config");
 const { auth } = require("#middleware");
+const { WhatsAppUserMapping } = require("#models");
 const { sendMessage } = require("#logics");
 const { createOfferMessage } = require("../helpers");
 const mediaHandler = require("#media");
@@ -99,6 +100,29 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         code: Const.responsecodeFailedToSendMessage,
         message: `SendMessageController, error in getting gif dimensions`,
       });
+    }
+
+    const { userID, roomID } = request.body;
+
+    const arr = roomID.split("-");
+    if (arr[0] == Const.chatTypePrivate) {
+      let s, r;
+      if (arr[1] == userID) {
+        s = arr[1];
+        r = arr[2];
+      } else {
+        s = arr[2];
+        r = arr[1];
+      }
+
+      const whatsAppMapping = await WhatsAppUserMapping.findOne({
+        senderPhoneNumber: s,
+        receiverPhoneNumber: r,
+      }).lean();
+
+      if (whatsAppMapping) {
+        request.body.wa = true;
+      }
     }
 
     let result;

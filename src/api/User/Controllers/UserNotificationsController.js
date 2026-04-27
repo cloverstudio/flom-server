@@ -19,6 +19,7 @@ const {
   Payout,
 } = require("#models");
 const { Localizer } = require("#services");
+const mongoose = require("mongoose");
 
 let loc;
 
@@ -721,7 +722,7 @@ async function addUserNameToNotifications(notifications) {
     }
   });
 
-  const userIds = [...userIdsSet].map((userId) => Utils.toObjectId(userId));
+  const userIds = [...userIdsSet].map((userId) => new mongoose.Types.ObjectId(`${userId}`));
 
   const users = await User.find(
     {

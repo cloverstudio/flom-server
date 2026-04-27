@@ -78,8 +78,6 @@ module.exports = Object.freeze({
 
   makeHash: require("./makeHash"),
 
-  now: require("./now"),
-
   replaceAll: require("./replaceAll"),
   resizeImage: require("./resizeImage"),
   rotateVideo: require("./rotateVideo"),
@@ -102,7 +100,6 @@ module.exports = Object.freeze({
   shorten: require("./shorten"),
   stripPrivateData: require("./stripPrivateData"),
   syncProductsCategories: require("./syncProductsCategories"),
-  toObjectId: require("./toObjectId"),
 
   wait: require("./wait"),
 

@@ -7,7 +7,7 @@ const { Const, Config } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
 const { User, Category, Product, FlomMessage, ApiAccessLog } = require("#models");
-const { sendMessage, updateOrganizationDiskUsage } = require("#logics");
+const Logics = require("#logics");
 const { recombee } = require("#services");
 const sharp = require("sharp");
 const {
@@ -55,6 +55,7 @@ const fsp = require("fs/promises");
  * @apiParam {String} [stateCode]           Only necessary for USA and Canada
  * @apiParam {String} [zipCode]             Only necessary for USA
  * @apiParam {String} [bonusPaymentMethod]  Payment method for bonuses sent to user ("credits" or "sats")
+ * @apiParam {String} [mentionSlug]         Mention slug for the user
  *
  * @apiSuccessExample {json} Success-Response:
  * {
@@ -203,6 +204,8 @@ const fsp = require("fs/promises");
  * @apiError (Errors) 400680 Category not found
  * @apiError (Errors) 443824 Invalid state code (Canadian user)
  * @apiError (Errors) 443825 Invalid state code or zip code (American user)
+ * @apiError (Errors) 443952 Mention slug not available
+ * @apiError (Errors) 443953 Mention slug has already been changed
  * @apiError (Errors) 4000007 Token not valid
  */
 
@@ -238,6 +241,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       stateCode,
       zipCode,
       bonusPaymentMethod,
+      mentionSlug,
     } = fields;
 
     //verify isCreator and isSeller fields
@@ -297,7 +301,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
       if (
         (!oldMessagesFatAi || !oldMessagesFatAi.length) &&
-        (Utils.now() - user.dateOfBirth) / Const.milisInYear >= 16
+        (Date.now() - user.dateOfBirth) / Const.milisInYear >= 16
       ) {
         const messageParamsFatAi = {
           roomID: chatIdFatAiIncluded,
@@ -308,7 +312,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
           isRecursiveCall: true, //this will prevent call to chatgpt api
         };
 
-        await sendMessage(messageParamsFatAi);
+        await Logics.sendMessage(messageParamsFatAi);
       }
     }
 
@@ -722,7 +726,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       }
 
       // update organization disk usage
-      await updateOrganizationDiskUsage(user.organizationId, size);
+      await Logics.updateOrganizationDiskUsage(user.organizationId, size);
     }
 
     if (pushToken) {
@@ -756,6 +760,30 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
       user.pushToken = updatePushToken(pushToken, user);
       user.UUID = updateUUID(UUID, user.UUID, pushToken);
+    }
+
+    if (mentionSlug && user.mentionSlug !== mentionSlug) {
+      if (user.whatsApp?.mentionSlugChanged) {
+        return Base.successResponse(response, Const.responsecodeMentionSlugAlreadyChanged);
+      }
+
+      if (
+        await User.exists({
+          $or: [
+            { "whatsApp.mentionSlug": mentionSlug },
+            { "whatsApp.oldMentionSlug": mentionSlug },
+          ],
+        })
+      ) {
+        logger.error("UpdateProfileController, responsecodeMentionSlugNotAvailable");
+        return Base.successResponse(response, Const.responsecodeMentionSlugNotAvailable);
+      }
+
+      if (!user.whatsApp) user.whatsApp = {};
+      user.whatsApp.oldMentionSlug = user.whatsApp.mentionSlug;
+      user.whatsApp.mentionSlug = mentionSlug;
+      user.whatsApp.mentionSlugChanged = true;
+      user.whatsApp.oldMentionSlugExpiresAt = Date.now() + 90 * 24 * 60 * 60 * 1000; // expires in 90 days
     }
 
     user.modified = Date.now();

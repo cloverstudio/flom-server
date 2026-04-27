@@ -135,7 +135,6 @@ Constants.messageTypeGif = 114;
 Constants.messageTypeNewLiveStream = 16;
 Constants.messageTypeLiveStreamCohostInvitation = 17;
 Constants.messageTypeAuctionOffer = 18;
-Constants.messageTypeWhatsApp = 22;
 
 Constants.pushTypeNewMessage = 1;
 Constants.pushTypeCall = 2;
@@ -405,6 +404,7 @@ Constants.userSelectQuery = {
   created: 1,
   isAppUser: 1,
   userName: 1,
+  whatsApp: 1,
 };
 
 Constants.millisecondsPerDay = 86400000;
@@ -1299,5 +1299,7 @@ Constants.shippingProviders = [
   { type: "jumia_logistics", displayName: "Jumia Logistics" },
   { type: "other", displayName: "Other" },
 ];
+
+Constants.whatsAppMarkupRate = 1.3;
 
 module.exports = Object.freeze(Constants);

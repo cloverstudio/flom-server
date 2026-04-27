@@ -30,14 +30,14 @@ function successResponse(response, code, data) {
     response.json({
       code,
       errorMessage: loc.e(code, data),
-      time: Utils.now(),
+      time: Date.now(),
     });
   } else {
     Utils.stripPrivateData(data);
 
     response.json({
       code: Const.responsecodeSucceed,
-      time: Utils.now(),
+      time: Date.now(),
       data: !data ? {} : data,
     });
   }
@@ -65,7 +65,7 @@ function newErrorResponse({ response, code, type, message, error, data, param, p
   const responseData = {
     code,
     errorMessage: loc.e(code, param, param2),
-    time: Utils.now(),
+    time: Date.now(),
   };
 
   if (data) {

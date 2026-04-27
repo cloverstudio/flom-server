@@ -6,7 +6,7 @@ const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
 const { AppVersion, User, ApiAccessLog } = require("#models");
-const { formatUserDetailsResponse, sendBonus } = require("#logics");
+const Logics = require("#logics");
 
 /**
  * @api {get} /api/v2/user/detail/:userId User Details Flom v1
@@ -357,6 +357,22 @@ router.get("/:userId", async function (request, response) {
           }
         }
 
+        // set mention slug if not set
+        if (!user.whatsApp?.mentionSlug && !user.userName.startsWith("Flomer_")) {
+          const mentionSlug = await Logics.generateMentionSlug(user.userName);
+          updateObj["whatsApp.mentionSlug"] = mentionSlug;
+          if (!user.whatsApp) user.whatsApp = {};
+          user.whatsApp.mentionSlug = mentionSlug;
+        }
+
+        // set reference if not set
+        if (!user.whatsApp?.reference) {
+          const reference = await Utils.getRandomString(10, "alpha");
+          updateObj["whatsApp.reference"] = reference;
+          if (!user.whatsApp) user.whatsApp = {};
+          user.whatsApp.reference = reference;
+        }
+
         if (Object.keys(updateObj).length > 0) {
           await User.findByIdAndUpdate(userId, updateObj);
         }
@@ -371,12 +387,12 @@ router.get("/:userId", async function (request, response) {
         yesterday.setDate(today.getDate() - 1);
 
         if (today.getTime() !== lastStreakTimestamp) {
-          await sendBonus({ userId, bonusType: Const.bonusTypeVisitingStreak });
+          await Logics.sendBonus({ userId, bonusType: Const.bonusTypeVisitingStreak });
         }
       }
     }
 
-    await formatUserDetailsResponse({
+    await Logics.formatUserDetailsResponse({
       user,
       requestAccessToken: request.headers["access-token"],
     });

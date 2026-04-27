@@ -67,7 +67,7 @@ router.post("/", async function (request, response) {
         const updateData = {};
 
         const newToken = Utils.getRandomString(Const.tokenLength);
-        const now = Utils.now();
+        const now = Date.now();
 
         const tokenObj = {
           token: newToken,
@@ -86,7 +86,7 @@ router.post("/", async function (request, response) {
         const uuidAry = [];
         const UUIDObj = {
           UUID: UUID,
-          lastLogin: Utils.now(),
+          lastLogin: Date.now(),
           blocked: false,
           lastToken: user.token,
           pushTokens: [],

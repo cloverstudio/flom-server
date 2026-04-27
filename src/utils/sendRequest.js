@@ -12,7 +12,8 @@ async function sendRequest({
   responseType = "json",
   timeout = 0,
   resolveWithFullResponse = false,
-  auth = undefined, // { username: "username", passowrd: "password" }
+  returnHeaders = false,
+  returnErrorAsData = false,
 }) {
   try {
     const urlWithQuery = query ? url + "?" + qs.stringify(query) : url;
@@ -23,7 +24,6 @@ async function sendRequest({
       headers,
       url: urlWithQuery,
       data: body,
-      auth,
     };
 
     if (!allow && url.includes("valuetopup")) {
@@ -41,10 +41,19 @@ async function sendRequest({
       return resp;
     }
 
+    if (returnHeaders) {
+      return { data: resp.data, headers: resp.headers };
+    }
+
     return resp.data;
   } catch (error) {
     if (!error.response) {
-      const errorMessage = `send request error: ${error.stack}`;
+      const errorMessage = !error.stack
+        ? `send request error: ${error.message}`
+        : `send request error: ${error.stack}`;
+      if (returnErrorAsData) {
+        return { error: errorMessage };
+      }
       throw new Error(errorMessage);
     }
 
@@ -54,6 +63,9 @@ async function sendRequest({
 
     const errorObj = { method, url, headers, body, status, statusText, data };
     const errorMessage = `send request error: ${JSON.stringify(errorObj)}`;
+    if (returnErrorAsData) {
+      return { error: errorMessage };
+    }
     throw new Error(errorMessage);
   }
 }

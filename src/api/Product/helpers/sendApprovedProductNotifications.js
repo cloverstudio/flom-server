@@ -4,6 +4,7 @@ const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
 const { Notification, User, Tribe } = require("#models");
+const mongoose = require("mongoose");
 
 const sendNotifications = async function ({ product, owner }) {
   try {
@@ -75,7 +76,11 @@ const notifyTribeMembersAndSubscribers = async function ({ product, owner }) {
 
   if (product.visibility === Const.productVisibilityTribes) {
     const tribes = await Tribe.aggregate([
-      { $match: { _id: { $in: product.tribeIds.map((id) => Utils.toObjectId(id)) } } },
+      {
+        $match: {
+          _id: { $in: product.tribeIds.map((id) => new mongoose.Types.ObjectId(`${id}`)) },
+        },
+      },
       { $unwind: "$members.accepted" },
       {
         $group: {
@@ -87,8 +92,8 @@ const notifyTribeMembersAndSubscribers = async function ({ product, owner }) {
 
     let tribeUserIds = [];
     if (tribes.length > 0) {
-      tribeUserIds = [...new Set(tribes[0].members.map((member) => member.id))].map((memberId) =>
-        Utils.toObjectId(memberId),
+      tribeUserIds = [...new Set(tribes[0].members.map((member) => member.id))].map(
+        (memberId) => new mongoose.Types.ObjectId(`${memberId}`),
       );
     }
 

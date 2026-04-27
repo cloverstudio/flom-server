@@ -52,7 +52,7 @@ function checkTokenAndRole({
 
         tokenObj = user.token.find((tokenObjInAry) => tokenObjInAry.token == token);
 
-        diff = Utils.now() - tokenObj.generateAt;
+        diff = Date.now() - tokenObj.generateAt;
         if (diff > Const.tokenValidInterval) {
           return sendInvalidTokenResponse(response, request);
         }
@@ -69,7 +69,7 @@ function checkTokenAndRole({
           return sendInvalidTokenResponse(response, request);
         }
 
-        diff = Utils.now() - user.token.generatedAt;
+        diff = Date.now() - user.token.generatedAt;
         if (diff > Const.adminPageTokenValidInterval) {
           return sendInvalidTokenResponse(response, request);
         }
@@ -113,7 +113,7 @@ function sendInvalidTokenResponse(response, request) {
 
   return response.json({
     code: Const.responsecodeSigninInvalidToken,
-    time: Utils.now(),
+    time: Date.now(),
   });
 }
 
@@ -126,7 +126,7 @@ function sendUnauthorizedResponse(response, request) {
   logger.warn("Error code: 5000001, Unauthorized");
   return response.json({
     code: Const.responsecodeUnauthorized,
-    time: Utils.now(),
+    time: Date.now(),
   });
 }
 

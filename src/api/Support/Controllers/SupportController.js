@@ -505,7 +505,7 @@ async function isTokenValid(token) {
     return false;
   }
   const tokenGenerated = user.token[0].generateAt;
-  const diff = Utils.now() - tokenGenerated;
+  const diff = Date.now() - tokenGenerated;
 
   if (diff > Const.tokenValidInterval) {
     return false;
