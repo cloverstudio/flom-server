@@ -5,6 +5,7 @@ const { logger } = require("#infra");
 const Base = require("../../Base");
 const { Const, Config, countries } = require("#config");
 const Utils = require("#utils");
+const Logics = require("#logics");
 const { Order, User } = require("#models");
 const { auth } = require("#middleware");
 const sharp = require("sharp");
@@ -89,6 +90,8 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
       });
     }
 
+    const buyer = await User.findById(order.buyer._id).lean();
+
     const { fields, files } = await Utils.formParse(request, {
       keepExtensions: true,
       uploadDir: Config.uploadPath,
@@ -125,6 +128,8 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
         new: true,
         lean: true,
       });
+
+      await sendWhatsAppMessage({ order: updatedOrder, buyer, seller: user });
 
       const responseData = { order: updatedOrder };
       return Base.successResponse(response, Const.responsecodeSucceed, responseData);
@@ -222,8 +227,6 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
       lean: true,
     });
 
-    const buyer = await User.findById(order.buyer._id).lean();
-
     if (buyer.email) {
       Utils.sendEmailFromTemplate({
         to: buyer.email,
@@ -232,6 +235,8 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
         templatePath: "src/email-templates/default.html",
       });
     }
+
+    await sendWhatsAppMessage({ order: updatedOrder, buyer, seller: user });
 
     const responseData = { order: updatedOrder };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
@@ -315,6 +320,79 @@ function getPayoutEligibilityDate({ trackingNumber }) {
   } catch (error) {
     logger.error("ShipOrderController, error determining payout eligibility date: ", error);
     return Date.now() + 21 * 24 * 60 * 60 * 1000; // default to 21 days from now
+  }
+}
+
+async function sendWhatsAppMessage({ order, buyer, seller }) {
+  try {
+    if (
+      !buyer.whatsApp ||
+      !buyer.whatsApp.subscribers ||
+      !buyer.whatsApp.subscribers.includes(seller._id.toString())
+    ) {
+      logger.warn(
+        "ShipOrderController, buyer is not subscribed to seller's WhatsApp messages, cannot send WhatsApp message",
+      );
+      return;
+    }
+
+    if (
+      !seller.notificationOptions ||
+      !seller.notificationOptions.whatsApp ||
+      !seller.notificationOptions.whatsApp.shippingUpdate
+    ) {
+      logger.warn(
+        "ShipOrderController, seller does not have WhatsApp shipping update notifications enabled, cannot send WhatsApp message",
+      );
+      return;
+    }
+
+    if (!buyer.phoneNumber) {
+      logger.error(
+        "ShipOrderController, buyer does not have phone number, cannot send WhatsApp message",
+      );
+      return;
+    }
+
+    const prices = await Logics.getWhatsAppPrices({ countryCode: seller.countryCode });
+    const utility = prices ? prices.utility : null;
+    if (utility) {
+      if (seller.satsBalance < utility) {
+        logger.warn(
+          `ShipOrderController, not sending WhatsApp messages, insufficient balance. userId: ${seller._id}, balance: ${seller.satsBalance}, required: ${utility}`,
+        );
+        return;
+      }
+
+      let template = "shippingUpdate";
+      if (
+        !buyer.whatsApp ||
+        !buyer.whatsApp.windowExpiresAt ||
+        buyer.whatsApp.windowExpiresAt < Date.now()
+      ) {
+        template = "sellerMessage";
+      }
+
+      await Utils.sendWhatsAppMessage({
+        to: buyer.phoneNumber,
+        template,
+        shippingStatus: "Shipped",
+        orderId: order._id.toString(),
+        orderName: order.products?.[0]?.name ?? order._id.toString(),
+        mentionSlug: seller.whatsApp?.mentionSlug,
+        message: `Your order "${
+          order.products?.[0]?.name ?? order._id.toString()
+        }" has been shipped.`,
+      });
+
+      await Logics.makeFeeTransfer({
+        fee: utility,
+        feeType: "Shipping update notification",
+        sender: seller,
+      });
+    }
+  } catch (error) {
+    logger.error("ShipOrderController, error sending WhatsApp message: ", error);
   }
 }
 
