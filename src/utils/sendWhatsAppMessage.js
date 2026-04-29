@@ -199,7 +199,8 @@ function getTemplateParams({ template, textParamA = null, textParamB = null, but
   const base = {
     name: templateMap[template],
     language: {
-      code: "en_US",
+      code: "en",
+      //code: "en_US",
     },
     components: [],
   };
