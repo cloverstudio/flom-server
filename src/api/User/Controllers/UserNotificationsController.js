@@ -381,6 +381,10 @@ async function getTransferNotifications({ userId, userPhoneNumber }) {
           title += "Platform fee";
           ignoreActionString = true;
           break;
+        case Const.transferTypeMessagingFee:
+          title += "Messaging fee";
+          ignoreActionString = true;
+          break;
       }
 
       if (senderId === userId && transferType !== Const.transferTypeCreditPackage) {

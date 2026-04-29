@@ -11,13 +11,31 @@ const { sendMessage } = require("#logics");
 
 router.post("/", auth({ allowUser: true }), async function (request, response) {
   try {
-    const { message, receiverId } = request.body;
+    const {
+      message,
+      receiverId,
+      template,
+      userName,
+      liveStreamId,
+      auctionName,
+      auctionId,
+      shippingStatus,
+      orderId,
+      orderName,
+    } = request.body;
 
     if (!receiverId) {
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeUserNotFound,
-        message: "SendWhatsAppMessageController, receiver user not found with id: " + receiverId,
+        message: "SendWhatsAppMessageController, receiver id missing: " + receiverId,
+      });
+    }
+
+    if (!template) {
+      return response.json({
+        success: false,
+        code: "TEMPLATE_NOT_FOUND",
       });
     }
 
@@ -34,7 +52,15 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     const wamId = await Utils.sendWhatsAppMessage({
       to: receiverUser.phoneNumber.replace("+", ""),
-      message: `${senderUser.userName}: ${message}`,
+      ...(message && { message: `${senderUser.userName}: ${message}` }),
+      template,
+      userName,
+      liveStreamId,
+      auctionName,
+      auctionId,
+      shippingStatus,
+      orderId,
+      orderName,
     });
 
     if (!wamId) {
@@ -45,6 +71,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       });
     }
 
+    /*
     let roomId = null;
     if (receiverUser && senderUser.created < receiverUser.created) {
       roomId = `1-${senderUser._id.toString()}-${receiverUser?._id.toString()}`;
@@ -67,6 +94,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     };
 
     await sendMessage(params);
+    */
 
     return Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {

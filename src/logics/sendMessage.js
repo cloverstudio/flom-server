@@ -7,6 +7,8 @@ const socketApi = require("../sockets/socket-api");
 const notifyNewMessage = require("./notifyNewMessage");
 const updateHistory = require("./updateHistory");
 const permissionLogic = require("./permissionLogic");
+const makeFeeTransfer = require("./makeFeeTransfer");
+const getWhatsAppPrices = require("./getWhatsAppPrices");
 
 async function sendMessage(param) {
   try {
@@ -164,12 +166,30 @@ async function sendMessage(param) {
     }
 
     if (!!param.wa) {
+      let template = null;
+      if (receiver?.whatsApp?.windowExpiresAt && receiver.whatsApp.windowExpiresAt < Date.now()) {
+        template = "sellerMessage";
+      }
+
       const wamId = await Utils.sendWhatsAppMessage({
         to: objMessage.receiverPhoneNumber,
-        message: `${objMessage.senderName}: ${objMessage.message}`,
+        message: objMessage.message,
+        template,
+        mentionSlug: user.whatsApp?.mentionSlug,
       });
 
       objMessage.wamId = wamId;
+
+      if (template) {
+        const prices = await getWhatsAppPrices({ countryCode: user.countryCode });
+        const marketing = prices ? prices.marketing : null;
+
+        await makeFeeTransfer({
+          fee: marketing,
+          feeType: "WhatsApp message",
+          sender: user,
+        });
+      }
     }
 
     const newMessage = await FlomMessage.create(objMessage);
