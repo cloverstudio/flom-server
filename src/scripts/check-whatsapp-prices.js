@@ -12,11 +12,11 @@ async function checkWhatsAppPrices() {
     if (!csvUrl) {
       logger.error("checkWhatsAppPrices, csvUrl not found in configuration");
 
-      Utils.sendEmailWithSG({
-        subject: "Whatsapp CSV issue!",
-        text: `csvUrl not found in configuration`,
-        to: "petar.biocic@pontistechnology.com",
-      });
+      Utils.sendEmailWithSG(
+        "Whatsapp CSV issue!",
+        `csvUrl not found in configuration`,
+        "petar.biocic@pontistechnology.com",
+      );
 
       return;
     }
@@ -31,11 +31,11 @@ async function checkWhatsAppPrices() {
     if (csv.error) {
       logger.error("checkWhatsAppPrices, error fetching CSV:", csv.error);
 
-      Utils.sendEmailWithSG({
-        subject: "Whatsapp CSV request issue!",
-        text: `There was an issue requesting the WhatsApp prices CSV. Error details: ${csv.error}`,
-        to: "petar.biocic@pontistechnology.com",
-      });
+      Utils.sendEmailWithSG(
+        "Whatsapp CSV request issue!",
+        `There was an issue requesting the WhatsApp prices CSV. Error details: ${csv.error}`,
+        "petar.biocic@pontistechnology.com",
+      );
 
       return;
     }
