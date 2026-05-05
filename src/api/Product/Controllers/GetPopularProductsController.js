@@ -290,6 +290,8 @@ router.get("/", async function (request, response) {
       { $sort: { count: -1 } },
     ]);
 
+    console.log("productsArray", JSON.stringify(productsArray, null, 2));
+
     if (productsArray && productsArray.length > 0) {
       const productIdsArray = productsArray.map((element) => {
         return element._id;
@@ -299,6 +301,8 @@ router.get("/", async function (request, response) {
       query.isDeleted = false;
       if (blocked.length > 0) query.ownerId = { $nin: blocked };
       if (kidsMode === true) query.appropriateForKids = true;
+
+      console.log("query", JSON.stringify(query, null, 2));
 
       const productObjects = await Product.find(query).lean();
 
