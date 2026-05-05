@@ -290,8 +290,11 @@ router.get("/", async function (request, response) {
       { $sort: { count: -1 } },
     ]);
 
+    let productObjects = [],
+      productIdsArray = [];
+
     if (productsArray && productsArray.length > 0) {
-      const productIdsArray = productsArray.map((element) => {
+      productIdsArray = productsArray.map((element) => {
         return element._id;
       });
 
@@ -300,31 +303,40 @@ router.get("/", async function (request, response) {
       if (blocked.length > 0) query.ownerId = { $nin: blocked };
       if (kidsMode === true) query.appropriateForKids = true;
 
-      const productObjects = await Product.find(query).lean();
+      productObjects = await Product.find(query).lean();
+    } else {
+      query.isDeleted = false;
+      if (blocked.length > 0) query.ownerId = { $nin: blocked };
+      if (kidsMode === true) query.appropriateForKids = true;
 
-      const ownerIdsArray = productObjects.map((product) => product.ownerId);
-      const ownerObjects = await User.find({ _id: ownerIdsArray }).lean();
-      const ownerObjectsEdited = {};
-      for (let i = 0; i < ownerObjects.length; i++) {
-        ownerObjectsEdited[ownerObjects[i]._id] = ownerObjects[i];
-      }
+      productObjects = await Product.find(query).sort({ created: -1 }).limit(20).lean();
+      productIdsArray = productObjects.map((element) => {
+        return element._id.toString();
+      });
+    }
 
-      for (let i = 0; i < productIdsArray.length; i++) {
-        const product = productObjects.find((item) => item._id.toString() === productIdsArray[i]);
-        if (product) {
-          product.recentViews = productsArray[i].count;
-          product.owner = ownerObjectsEdited[product.ownerId];
+    const ownerIdsArray = productObjects.map((product) => product.ownerId);
+    const ownerObjects = await User.find({ _id: ownerIdsArray }).lean();
+    const ownerObjectsEdited = {};
+    for (let i = 0; i < ownerObjects.length; i++) {
+      ownerObjectsEdited[ownerObjects[i]._id] = ownerObjects[i];
+    }
 
-          Utils.addUserPriceToProduct({
-            product,
-            userRate,
-            userCountryCode,
-            userCurrency,
-            conversionRates,
-          });
+    for (let i = 0; i < productIdsArray.length; i++) {
+      const product = productObjects.find((item) => item._id.toString() === productIdsArray[i]);
+      if (product) {
+        product.recentViews = productsArray[i].count;
+        product.owner = ownerObjectsEdited[product.ownerId];
 
-          resultArray.push(product);
-        }
+        Utils.addUserPriceToProduct({
+          product,
+          userRate,
+          userCountryCode,
+          userCurrency,
+          conversionRates,
+        });
+
+        resultArray.push(product);
       }
     }
 
