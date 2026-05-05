@@ -480,7 +480,7 @@ router.post("/", async (request, response) => {
           supportTicketData,
           supportEmailObject,
         });
-      Utils.sendEmailWithSG(supportEmailSubject, text, supportEmail);
+      Utils.sendEmailWithSG({ subject: supportEmailSubject, text, to: supportEmail });
     }
 
     Base.successResponse(response, Const.responsecodeSucceed, { submitted: true });

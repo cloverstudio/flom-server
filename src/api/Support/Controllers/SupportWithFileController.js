@@ -101,7 +101,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       const text = `Support ticket type: ${type}\n` + JSON.stringify({ supportTicketData });
       const supportEmailSubject = "Bug report ticket (Flom v1)";
       const supportEmail = Config.supportEmail;
-      Utils.sendEmailWithSG(supportEmailSubject, text, supportEmail);
+      Utils.sendEmailWithSG({ subject: supportEmailSubject, text, to: supportEmail });
     }
 
     Base.successResponse(response, Const.responsecodeSucceed, { submitted: true });

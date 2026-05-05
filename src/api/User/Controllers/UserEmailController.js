@@ -113,13 +113,14 @@ router.get("/email-code", auth({ allowUser: true }), async (request, response) =
       { "emailActivation.code": code, "emailActivation.timestamp": Date.now() },
     );
 
-    Utils.sendEmailWithSG(
-      "Verify your email address",
-      "Hello.\nWe have received an email address verification request.\nYour temporary code is:\n\n" +
+    Utils.sendEmailWithSG({
+      subject: "Verify your email address",
+      text:
+        "Hello.\nWe have received an email address verification request.\nYour temporary code is:\n\n" +
         code +
         "\n\nThe code is valid for 24 hours.\n\nFLOM\nhttps://flom.app",
-      user.email,
-    );
+      to: user.email,
+    });
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {

@@ -491,16 +491,16 @@ async function detectFlooding() {
         setDefaultsOnInsert: true,
       });
 
-      Utils.sendEmailWithSG(
-        "Flom: Flood detection",
-        `Flood detected at ${Date()} on environment: ${Config.environment}`,
-        "petarb.flom@gmail.com",
-      );
-      Utils.sendEmailWithSG(
-        "Flom: Flood detection",
-        `Flood detected at ${Date()} on environment: ${Config.environment}`,
-        "sinisa.brcina@pontistechnology.com",
-      );
+      Utils.sendEmailWithSG({
+        subject: "Flom: Flood detection",
+        text: `Flood detected at ${Date()} on environment: ${Config.environment}`,
+        to: "petarb.flom@gmail.com",
+      });
+      Utils.sendEmailWithSG({
+        subject: "Flom: Flood detection",
+        text: `Flood detected at ${Date()} on environment: ${Config.environment}`,
+        to: "sinisa.brcina@pontistechnology.com",
+      });
     }
   }
 

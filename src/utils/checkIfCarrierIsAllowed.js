@@ -65,11 +65,11 @@ async function checkIfCarrierIsAllowed(phoneNumber) {
         reason: `Carrier ${carrier.name} not allowed`,
       });
 
-      sendEmailWithSG(
-        "New registration with banned carrier",
-        `New user registration attempt with phone number ${phoneNumberFormatted}, carrier name: ${carrier.name}`,
-        Config.blockedNumberEmail,
-      );
+      sendEmailWithSG({
+        subject: "New registration with banned carrier",
+        text: `New user registration attempt with phone number ${phoneNumberFormatted}, carrier name: ${carrier.name}`,
+        to: Config.blockedNumberEmail,
+      });
 
       return defaultReturnObject;
     }
@@ -91,17 +91,17 @@ async function checkIfCarrierIsAllowed(phoneNumber) {
     });
 
     if (carrier) {
-      sendEmailWithSG(
-        "New registration with voip carrier",
-        `New user registration attempt with phone number ${phoneNumberFormatted}, carrier name: ${carrier.name}`,
-        Config.blockedNumberEmail,
-      );
+      sendEmailWithSG({
+        subject: "New registration with voip carrier",
+        text: `New user registration attempt with phone number ${phoneNumberFormatted}, carrier name: ${carrier.name}`,
+        to: Config.blockedNumberEmail,
+      });
     } else if (line_type) {
-      sendEmailWithSG(
-        "New registration with voip carrier",
-        `New user registration attempt with phone number ${phoneNumberFormatted}, carrier name: ${line_carrier}`,
-        Config.blockedNumberEmail,
-      );
+      sendEmailWithSG({
+        subject: "New registration with voip carrier",
+        text: `New user registration attempt with phone number ${phoneNumberFormatted}, carrier name: ${line_carrier}`,
+        to: Config.blockedNumberEmail,
+      });
     }
 
     return defaultReturnObject;
