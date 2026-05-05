@@ -373,7 +373,7 @@ async function sendWhatsAppMessage({ order, buyer, seller }) {
         template = "sellerMessage";
       }
 
-      await Utils.sendWhatsAppMessage({
+      const wamId = await Utils.sendWhatsAppMessage({
         to: buyer.phoneNumber,
         template,
         shippingStatus: "Shipped",
@@ -385,11 +385,13 @@ async function sendWhatsAppMessage({ order, buyer, seller }) {
         }" has been shipped.`,
       });
 
-      await Logics.makeFeeTransfer({
-        fee: utility,
-        feeType: "Shipping update notification",
-        sender: seller,
-      });
+      if (wamId) {
+        await Logics.makeFeeTransfer({
+          fee: utility,
+          feeType: "Shipping update notification",
+          sender: seller,
+        });
+      }
     }
   } catch (error) {
     logger.error("ShipOrderController, error sending WhatsApp message: ", error);
