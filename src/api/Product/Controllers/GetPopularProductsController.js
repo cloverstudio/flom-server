@@ -325,7 +325,7 @@ router.get("/", async function (request, response) {
     for (let i = 0; i < productIdsArray.length; i++) {
       const product = productObjects.find((item) => item._id.toString() === productIdsArray[i]);
       if (product) {
-        product.recentViews = productsArray[i].count;
+        product.recentViews = productsArray[i]?.count || 1;
         product.owner = ownerObjectsEdited[product.ownerId];
 
         Utils.addUserPriceToProduct({
