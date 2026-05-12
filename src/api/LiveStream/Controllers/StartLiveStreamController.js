@@ -179,58 +179,13 @@ router.post("/start", auth({ allowUser: true }), async function (request, respon
       }
 
       if (whatsAppReceivers.length > 0) {
-        const prices = await Logics.getWhatsAppPrices({ countryCode: user.countryCode });
-        const marketing = prices ? prices.marketing : null;
-
-        if (marketing) {
-          const price = marketing * whatsAppReceivers.length;
-
-          if (user.satsBalance < price) {
-            logger.warn(
-              `StartLiveStreamController, not sending WhatsApp messages, insufficient balance. userId: ${userId}, balance: ${user.satsBalance}, required: ${price}`,
-            );
-            // TODO: whatsapp log
-          } else {
-            let i = 0,
-              realPrice = 0;
-
-            for (const receiver of whatsAppReceivers) {
-              const wamid = await Utils.sendWhatsAppMessage({
-                to: receiver.phoneNumber,
-                template: "goLive",
-                userName: user.userName,
-                liveStreamId,
-              });
-
-              if (wamid) {
-                realPrice += marketing;
-              } else {
-                logger.error(
-                  `StartLiveStreamController, failed to send WhatsApp message to userId: ${receiver._id.toString()}, phoneNumber: ${
-                    receiver.phoneNumber
-                  }`,
-                );
-              }
-
-              i++;
-
-              if (i % 5 === 0) {
-                await Utils.wait(0.1); // Adding delay to avoid hitting rate limits
-              }
-            }
-
-            await Logics.makeFeeTransfer({
-              fee: realPrice,
-              feeType: "Live stream notification",
-              sender: user,
-              numberOfWaMessages: whatsAppReceivers.length,
-            });
-          }
-        } else {
-          logger.error(
-            `StartLiveStreamController, not sending WhatsApp messages, marketing price not found for country code: ${user.countryCode}`,
-          );
-        }
+        await Logics.sendWhatsAppMessages({
+          sender: user,
+          receivers: whatsAppReceivers,
+          template: "goLive",
+          userName: user.userName,
+          liveStreamId,
+        });
       }
     } catch (error) {
       logger.error("StartLiveStreamController, messages", error);

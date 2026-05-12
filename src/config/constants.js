@@ -593,8 +593,9 @@ Constants.notificationTypeAuctionOffer = 19;
 Constants.notificationTypeOverdueShipping = 20;
 Constants.notificationTypeShipByExpired = 21;
 Constants.notificationTypeShippingReminder = 22;
+Constants.notificationTypeLowGlobalBalance = 23;
 
-Constants.notificationTypesFromDb = [5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 17, 18, 19, 20, 21, 22];
+Constants.notificationTypesFromDb = [5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
 
 Constants.tribeActionUserRemoved = 1;
 Constants.tribeActionUserLeft = 2;
@@ -1302,5 +1303,24 @@ Constants.shippingProviders = [
 ];
 
 Constants.whatsAppMarkupRate = 1.3;
+
+Constants.templateMap = {
+  sellerMessage: "seller_message",
+  goLive: "go_live",
+  newDrop: "new_drop",
+  auctionReminder: "auction_reminder",
+  bookingConfirmation: "booking_confirmation",
+  bookingReminder: "booking_reminder",
+  secondChance: "second_chance",
+  shippingUpdate: "shipping_update",
+  pendingPayment: "pending_payment",
+};
+Constants.marketingTemplates = [
+  "sellerMessage",
+  "newDrop",
+  "auctionReminder",
+  "secondChance",
+  "goLive",
+];
 
 module.exports = Object.freeze(Constants);

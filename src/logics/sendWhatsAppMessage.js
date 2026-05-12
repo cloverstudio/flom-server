@@ -1,26 +1,7 @@
-const { Config } = require("#config");
+const { Config, Const } = require("#config");
 const { logger } = require("#infra");
-const sendRequest = require("./sendRequest");
-
-const templateMap = {
-  sellerMessage: "seller_message",
-  goLive: "go_live",
-  newDrop: "new_drop",
-  auctionReminder: "auction_reminder",
-  bookingConfirmation: "booking_confirmation",
-  bookingReminder: "booking_reminder",
-  secondChance: "second_chance",
-  shippingUpdate: "shipping_update",
-  pendingPayment: "pending_payment",
-};
-
-const marketingTemplates = [
-  "sellerMessage",
-  "newDrop",
-  "auctionReminder",
-  "secondChance",
-  "goLive",
-];
+const { WhatsAppLog } = require("#models");
+const sendRequest = require("../utils/sendRequest");
 
 async function sendWhatsAppMessage({
   to,
@@ -34,6 +15,7 @@ async function sendWhatsAppMessage({
   orderId,
   orderName,
   mentionSlug,
+  isFreeMessage = false,
 }) {
   try {
     if (!Config.enableWhatsApp) {
@@ -43,7 +25,7 @@ async function sendWhatsAppMessage({
       return null;
     }
 
-    if (!templateMap[template]) {
+    if (template && !Const.templateMap[template]) {
       logger.warn("sendWhatsAppMessage, Template not found for sendWhatsAppMessage: " + template);
       return null;
     }
@@ -62,9 +44,6 @@ async function sendWhatsAppMessage({
     };
 
     if (template) {
-      data.type = "template";
-      delete data.text;
-
       let textParamA = null;
       let textParamB = null;
       let buttonParam = null;
@@ -157,17 +136,22 @@ async function sendWhatsAppMessage({
           return null;
       }
 
-      data.template = getTemplateParams({ template, textParamA, textParamB, buttonParam });
+      if (isFreeMessage) {
+        message = makeTextMessage({ template, textParamA, textParamB, buttonParam });
+        data.text.body = `@${mentionSlug}: ${message}
+        
+        Quote this message or use the mention slug (@seller_name) to get your reply to the seller.`;
+      } else {
+        data.type = "template";
+        delete data.text;
 
-      if (!data.template) {
-        logger.error("sendWhatsAppMessage error, invalid template name: " + template);
-        return null;
+        data.template = makeTemplateMessage({ template, textParamA, textParamB, buttonParam });
       }
     }
 
     const id = Config.whatsAppPhoneNumberId;
 
-    const result = await sendRequest({
+    const { data: result, error } = await sendRequest({
       method: "POST",
       url: `https://graph.facebook.com/v25.0/${id}/messages`,
       headers: {
@@ -175,29 +159,45 @@ async function sendWhatsAppMessage({
         "Content-Type": "application/json",
       },
       body: data,
+      returnErrorAsData: true,
     });
 
     logger.info("sendWhatsAppMessage result: " + JSON.stringify(result));
 
+    const wamId = result?.messages?.[0]?.id || null;
     const status = result?.messages?.[0]?.message_status ?? null;
+
+    await WhatsAppLog.create({
+      wamId,
+      request: data,
+      response: result,
+      errors: !error ? [] : [error],
+      status,
+    });
+
     if (status !== "accepted" && status !== "sent" && status !== "delivered") {
       logger.error("sendWhatsAppMessage error, message not accepted");
       logger.error("sendWhatsAppMessage error, response: " + JSON.stringify(result));
       return null;
     }
 
-    return result?.messages?.[0]?.id;
+    return wamId;
   } catch (error) {
     logger.error("sendWhatsAppMessage error", error);
     return null;
   }
 }
 
-function getTemplateParams({ template, textParamA = null, textParamB = null, buttonParam = null }) {
-  if (!template || !templateMap[template]) return null;
+function makeTemplateMessage({
+  template,
+  textParamA = null,
+  textParamB = null,
+  buttonParam = null,
+}) {
+  if (!template || !Const.templateMap[template]) return null;
 
   const base = {
-    name: templateMap[template],
+    name: Const.templateMap[template],
     language: {
       code: "en",
       //code: "en_US",
@@ -242,6 +242,42 @@ function getTemplateParams({ template, textParamA = null, textParamB = null, but
   }
 
   return base;
+}
+
+const deepLink = {
+  order: `https://flom.app/order?id=`,
+  auction: `https://flom.app/auction?id=`,
+  liveStream: `https://flom.app/livestream?id=`,
+  product: `https://flom.app/product?id=`,
+};
+
+function makeTextMessage({ template, textParamA = null, textParamB = null, buttonParam = null }) {
+  let text = null;
+
+  switch (template) {
+    case "goLive":
+      text = `${textParamA} is live now!\n\nJoin the live stream: ${deepLink.liveStream}${buttonParam}`;
+      break;
+    case "auctionReminder":
+      text = `Reminder: ${textParamA} auction is live now!\n\nJoin the auction: ${deepLink.liveStream}${buttonParam}`;
+      break;
+    case "secondChance":
+      text = `Second chance to join ${textParamA} auction!\n\nJoin the auction: ${deepLink.auction}${buttonParam}`;
+      break;
+    case "shippingUpdate":
+      text = `Shipping update for your order ${textParamA}: ${textParamB}\n\nTrack your order: ${deepLink.order}${buttonParam}`;
+      break;
+    case "pendingPayment":
+      text = `Your payment for order ${textParamA} is pending. Please complete the payment.\n\nPay now: ${deepLink.order}${buttonParam}`;
+      break;
+    case "sellerMessage":
+      text = `@${textParamA}: ${textParamB}`;
+      break;
+    default:
+      text = null;
+  }
+
+  return text;
 }
 
 module.exports = sendWhatsAppMessage;

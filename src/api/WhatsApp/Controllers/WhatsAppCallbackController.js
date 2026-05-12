@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { logger, encryptionManager } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { FlomMessage, User, WhatsAppUserMapping } = require("#models");
+const { FlomMessage, User, WhatsAppUserMapping, WhatsAppLog } = require("#models");
 const Logics = require("#logics");
 
 router.get("/", async function (request, response) {
@@ -224,6 +224,8 @@ async function handleReplyMessage({ from, msgBody, wamId, timeStamp, contextId }
 async function handleOutgoingMessage({ to, status, wamId, errors }) {
   const user = await User.findOne({ phoneNumber: to }).lean();
   const flomMessage = await FlomMessage.findOne({ wamId }).lean();
+
+  await WhatsAppLog.findOneAndUpdate({ wamId }, { status, errors });
 
   if (status === "sent") {
     await FlomMessage.updateOne({ wamId }, { $addToSet: { sentTo: user._id.toString() } });

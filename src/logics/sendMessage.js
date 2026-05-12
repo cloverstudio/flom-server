@@ -10,6 +10,8 @@ const permissionLogic = require("./permissionLogic");
 const makeFeeTransfer = require("./makeFeeTransfer");
 const getWhatsAppPrices = require("./getWhatsAppPrices");
 
+const sendWhatsAppMessages = require("./sendWhatsAppMessages");
+
 async function sendMessage(param) {
   try {
     if (!param.isRecursiveCall) param.isRecursiveCall = false;
@@ -171,25 +173,15 @@ async function sendMessage(param) {
         template = "sellerMessage";
       }
 
-      const wamId = await Utils.sendWhatsAppMessage({
-        to: objMessage.receiverPhoneNumber,
+      const wamIds = await sendWhatsAppMessages({
+        sender: user,
+        receivers: [receiver],
         message: objMessage.message,
         template,
         mentionSlug: user.whatsApp?.mentionSlug,
       });
 
-      objMessage.wamId = wamId;
-
-      if (template) {
-        const prices = await getWhatsAppPrices({ countryCode: user.countryCode });
-        const marketing = prices ? prices.marketing : null;
-
-        await makeFeeTransfer({
-          fee: marketing,
-          feeType: "WhatsApp message",
-          sender: user,
-        });
-      }
+      objMessage.wamId = wamIds[0];
     }
 
     const newMessage = await FlomMessage.create(objMessage);
