@@ -4,6 +4,7 @@ const { DateTime } = require("luxon");
 const { logger, redis } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
+const Logics = require("#logics");
 const { User, Transfer, Order, Auction } = require("#models");
 const { authorizeNet } = require("#services");
 
@@ -326,4 +327,31 @@ async function sendNotifications({ order, sender, receiver, localAmountSender })
   }
 }
 
-module.exports = { checkToken, handlePayment };
+async function remindWatchers({ auction, liveStream }) {
+  try {
+    const userIdsToRemind = new Set(liveStream.viewerIds || []);
+    const previousAuctions = await Auction.find({ liveStreamId: liveStream._id.toString() }).lean();
+    previousAuctions.forEach((a) => {
+      if (a.bids && a.bids.length > 0) {
+        a.bids.forEach((b) => {
+          userIdsToRemind.add(b.user._id.toString());
+        });
+      }
+    });
+
+    const userIdsArray = Array.from(userIdsToRemind);
+
+    await Logics.sendWhatsAppMessages({
+      senderId: auction.sellerId,
+      receiverIds: userIdsArray,
+      template: "auctionReminder",
+      auctionName: auction.product.name,
+      auctionId: auction._id.toString(),
+      liveStreamId: liveStream._id.toString(),
+    });
+  } catch (error) {
+    logger.error("remindWatchers error: ", error);
+  }
+}
+
+module.exports = { checkToken, handlePayment, remindWatchers };
