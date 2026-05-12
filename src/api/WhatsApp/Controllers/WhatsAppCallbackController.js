@@ -225,7 +225,7 @@ async function handleOutgoingMessage({ to, status, wamId, errors }) {
   const user = await User.findOne({ phoneNumber: to }).lean();
   const flomMessage = await FlomMessage.findOne({ wamId }).lean();
 
-  await WhatsAppLog.findOneAndUpdate({ wamId }, { status, errors });
+  await WhatsAppLog.findOneAndUpdate({ wamId }, { status, failures: errors });
 
   if (status === "sent") {
     await FlomMessage.updateOne({ wamId }, { $addToSet: { sentTo: user._id.toString() } });

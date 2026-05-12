@@ -171,7 +171,7 @@ async function sendWhatsAppMessage({
       wamId,
       request: data,
       response: result,
-      errors: !error ? [] : [error],
+      failures: !error ? [] : [error],
       status,
     });
 

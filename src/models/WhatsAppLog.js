@@ -10,7 +10,7 @@ const schema = new mongoose.Schema(
     wamId: String,
     request: {},
     response: {},
-    errors: [],
+    failures: [],
     status: String,
   },
   { timestamps: true },
