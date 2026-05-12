@@ -236,7 +236,16 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
       });
     }
 
-    await sendWhatsAppMessage({ order: updatedOrder, buyer, seller: user });
+    await Logics.sendWhatsAppMessages({
+      sender: user,
+      receivers: [buyer],
+      template: "shippingUpdate",
+      shippingStatus: "SHIPPED",
+      orderId: order._id.toString(),
+      orderName:
+        order.products.length > 1 ? order.products?.[0]?.name + "..." : order.products?.[0]?.name,
+      mentionSlug: user.whatsApp?.mentionSlug,
+    });
 
     const responseData = { order: updatedOrder };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
