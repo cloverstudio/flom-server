@@ -84,23 +84,22 @@ async function sendWhatsAppMessages({
     mentionSlug = sender.whatsApp?.mentionSlug || mentionSlug; // Use sender's mention slug if available
 
     if (!receivers || receivers.length === 0) {
-      receivers = await User.find({ _id: { $in: receiverIds } }).lean();
+      receivers = await User.find({
+        _id: { $in: receiverIds },
+        "isDeleted.value": false,
+        notificationSubscriptions: {
+          $elemMatch: {
+            userId: sender._id.toString(),
+            enabled: true,
+            whatsApp: true,
+          },
+        },
+      }).lean();
     }
-
-    receivers = receivers.filter((receiver) => {
-      if (
-        receiver.whatsApp?.subscriptions &&
-        receiver.whatsApp.subscriptions.includes(sender._id.toString())
-      ) {
-        return true; // Receiver is subscribed to sender's WhatsApp notifications
-      }
-
-      return false; // Receiver is not subscribed, exclude from the list
-    });
 
     if (receivers.length === 0) {
       logger.warn(
-        `sendWhatsAppMessages, no valid receivers found after filtering for WhatsApp subscriptions. senderId: ${sender._id.toString()}, receiverIds: ${receiverIds.join(
+        `sendWhatsAppMessages, no suubscribed and undeleted receivers found. senderId: ${sender._id.toString()}, receiverIds: ${receiverIds.join(
           ",",
         )}`,
       );

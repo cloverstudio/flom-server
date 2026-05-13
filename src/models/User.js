@@ -243,7 +243,6 @@ const schema = new mongoose.Schema(
       oldMentionSlugExpiresAt: Number,
       reference: String,
       windowExpiresAt: Number,
-      subscriptions: [String],
     },
 
     notificationOptions: {
@@ -272,6 +271,10 @@ const schema = new mongoose.Schema(
         enabledIntended: { type: Boolean, default: false },
       },
     },
+
+    notificationSubscriptions: [
+      { userId: String, enabled: Boolean, whatsApp: Boolean, push: Boolean },
+    ],
   },
   { timestamps: true },
 );

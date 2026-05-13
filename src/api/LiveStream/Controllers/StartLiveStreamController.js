@@ -286,7 +286,13 @@ async function getNotificationReceivers({ liveStream, user }) {
     ? []
     : await User.find({
         "isDeleted.value": false,
-        "whatsApp.subscriptions": userId,
+        notificationSubscriptions: {
+          $elemMatch: {
+            userId: user._id.toString(),
+            enabled: true,
+            whatsApp: true,
+          },
+        },
       }).lean();
 
   return { chatReceivers, pushTokens, notificationListReceiversIds, whatsAppReceivers };
