@@ -1,5 +1,5 @@
 const { logger } = require("#infra");
-const { countries } = require("#config");
+const { countries, Config } = require("#config");
 const Utils = require("#utils");
 const { Configuration, WhatsAppPrice } = require("#models");
 
@@ -30,7 +30,7 @@ async function updateWhatsAppPrices() {
 
       Utils.sendEmailWithSG({
         subject: "Whatsapp CSV issue!",
-        text: `There was an issue fetching CSV URL. Error details: ${error}`,
+        text: `There was an issue fetching CSV URL (${Config.environment}). Error details: ${error}`,
         to: "petar.biocic@pontistechnology.com",
       });
 
@@ -49,7 +49,7 @@ async function updateWhatsAppPrices() {
 
       Utils.sendEmailWithSG({
         subject: "Whatsapp CSV request issue!",
-        text: `There was an issue requesting the WhatsApp prices CSV. Error details: ${csv.error}`,
+        text: `There was an issue requesting the WhatsApp prices CSV (${Config.environment}). Error details: ${csv.error}`,
         to: "petar.biocic@pontistechnology.com",
       });
 
@@ -70,7 +70,7 @@ async function updateWhatsAppPrices() {
 
       Utils.sendEmailWithSG({
         subject: "Whatsapp CSV issue!",
-        text: `There was an issue parsing the WhatsApp prices CSV. Error details: ${parseError}`,
+        text: `There was an issue parsing the WhatsApp prices CSV (${Config.environment}). Error details: ${parseError}`,
         to: "petar.biocic@pontistechnology.com",
       });
 
@@ -82,7 +82,7 @@ async function updateWhatsAppPrices() {
 
       Utils.sendEmailWithSG({
         subject: "Whatsapp CSV issue!",
-        text: `No prices were found in the WhatsApp prices CSV.`,
+        text: `No prices were found in the WhatsApp prices CSV (${Config.environment}).`,
         to: "petar.biocic@pontistechnology.com",
       });
 
