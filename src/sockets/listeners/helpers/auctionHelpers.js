@@ -341,14 +341,16 @@ async function remindWatchers({ auction, liveStream }) {
 
     const userIdsArray = Array.from(userIdsToRemind);
 
-    await Logics.sendWhatsAppMessages({
-      senderId: auction.sellerId,
-      receiverIds: userIdsArray,
-      template: "auctionReminder",
-      auctionName: auction.product.name,
-      auctionId: auction._id.toString(),
-      liveStreamId: liveStream._id.toString(),
-    });
+    if (userIdsArray.length === 0) {
+      await Logics.sendWhatsAppMessages({
+        senderId: auction.sellerId,
+        receiverIds: userIdsArray,
+        template: "auctionReminder",
+        auctionName: auction.product.name,
+        auctionId: auction._id.toString(),
+        liveStreamId: liveStream._id.toString(),
+      });
+    }
   } catch (error) {
     logger.error("remindWatchers error: ", error);
   }
