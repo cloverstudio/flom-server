@@ -422,7 +422,10 @@ async function getTransferNotifications({ userId, userPhoneNumber }) {
           const roomId = !roomIdArray ? null : roomIdArray[roomIdArray.length - 1];
           let transferRoom;
           try {
-            transferRoom = !roomId ? null : await Room.findOne({ _id: roomId }).lean();
+            transferRoom =
+              !roomId || !Utils.isObjectId(roomId)
+                ? null
+                : await Room.findOne({ _id: roomId }).lean();
           } catch (error) {
             logger.error("Error fetching room for transfer notification", error);
           }
