@@ -599,7 +599,7 @@ router.post("/remove", auth({ allowUser: true }), async function (request, respo
  * @apiError (Errors) 4000760 User not found
  */
 
-router.post("/remove", auth({ allowUser: true }), async function (request, response) {
+router.post("/update", auth({ allowUser: true }), async function (request, response) {
   try {
     const { user: requestUser } = request;
 
@@ -636,7 +636,7 @@ router.post("/remove", auth({ allowUser: true }), async function (request, respo
       },
     });
 
-    Base.successResponse(response, Const.responsecodeSucceed);
+    return Base.successResponse(response, Const.responsecodeSucceed);
   } catch (e) {
     if (e.name == "CastError") {
       logger.error("FollowUserController, update user subscription by id", e);
