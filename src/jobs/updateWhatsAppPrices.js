@@ -116,6 +116,8 @@ async function fetchPricesCsvUrl() {
     const response = await fetch(whatsAppPricingUrl);
     const data = await response.text();
 
+    console.log(data);
+
     const jms = `"json_cms_content":"`; // include the opening quote
     const startIndex = data.indexOf(jms);
     const valueStart = startIndex + jms.length; // now points inside the opening quote
