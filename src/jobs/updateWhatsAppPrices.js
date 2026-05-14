@@ -20,8 +20,11 @@ const MiddleEast = "Bahrain,Iraq,Jordan,Kuwait,Lebanon,Oman,Qatar,Yemen";
 
 async function updateWhatsAppPrices() {
   try {
-    const lastUpdate =
-      (await Configuration.findOne({ type: "whatsapp", name: "csv-url-updated" })).value || 0;
+    const configuration = await Configuration.findOne({
+      type: "whatsapp",
+      name: "csv-url-updated",
+    });
+    const lastUpdate = configuration ? configuration.value : 0;
 
     const { url: csvUrl, error } = await fetchPricesCsvUrl();
 
@@ -57,8 +60,7 @@ async function updateWhatsAppPrices() {
     }
 
     const lastModified = csv.headers ? csv.headers["last-modified"] : 0;
-
-    if (lastModified && new Date(lastModified).getTime() < lastUpdate) {
+    if (lastModified && new Date(lastModified).getTime() <= lastUpdate) {
       logger.info("updateWhatsAppPrices, CSV not updated since last check");
       return;
     }

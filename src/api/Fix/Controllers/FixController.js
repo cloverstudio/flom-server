@@ -437,4 +437,19 @@ router.post("/form", async (request, response) => {
   }
 });
 
+router.get("/wa", async (request, response) => {
+  try {
+    const fn = require("../../../jobs/updateWhatsAppPrices");
+
+    await fn();
+
+    Base.successResponse(response, Const.responsecodeSucceed, {});
+  } catch (error) {
+    Base.newErrorResponse({
+      response,
+      message: "FixController - wa",
+    });
+  }
+});
+
 module.exports = router;
