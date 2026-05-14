@@ -113,13 +113,20 @@ async function updateWhatsAppPrices() {
 async function fetchPricesCsvUrl() {
   try {
     // Like the browser fetch API, the default method is GET
-    const response = await fetch(whatsAppPricingUrl);
+    const response = await fetch(whatsAppPricingUrl, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0.0.0 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml",
+      },
+    });
     const data = await response.text();
-
-    console.log(data);
 
     const jms = `"json_cms_content":"`; // include the opening quote
     const startIndex = data.indexOf(jms);
+    if (startIndex === -1) {
+      throw new Error("json_cms_content not found in page");
+    }
     const valueStart = startIndex + jms.length; // now points inside the opening quote
 
     // Walk through chars, tracking escape sequences to find the closing quote

@@ -433,21 +433,67 @@ router.post("/form", async (request, response) => {
     Base.newErrorResponse({
       response,
       message: "FixController - form",
+      error,
     });
   }
 });
 
 router.get("/wa", async (request, response) => {
   try {
-    const fn = require("../../../jobs/updateWhatsAppPrices");
+    const whatsAppPricingUrl =
+      "https://developers.facebook.com/documentation/business-messaging/whatsapp/pricing";
+    // Like the browser fetch API, the default method is GET
+    const r = await fetch(whatsAppPricingUrl, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0.0.0 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml",
+      },
+    });
+    const data = await r.text();
 
-    await fn();
+    const jms = `"json_cms_content":"`; // include the opening quote
+    const startIndex = data.indexOf(jms);
+    if (startIndex === -1) {
+      throw new Error("json_cms_content not found in page");
+    }
+    const valueStart = startIndex + jms.length; // now points inside the opening quote
 
-    Base.successResponse(response, Const.responsecodeSucceed, {});
+    // Walk through chars, tracking escape sequences to find the closing quote
+    let result = "";
+    let i = valueStart;
+    while (i < data.length) {
+      const char = data[i];
+      if (char === "\\") {
+        // skip escaped character
+        result += data[i + 1];
+        i += 2;
+      } else if (char === '"') {
+        // closing quote reached
+        break;
+      } else {
+        result += char;
+        i++;
+      }
+    }
+
+    const parsed = JSON.parse(result);
+    const tables = parsed.children.filter((i) => i.type === "DMCCommonTable");
+    let rates = tables.find(
+      (t) => t.children[0]?.children[0]?.children[0]?.children[0] === `\nCurrency\n`,
+    );
+    rates = rates.children.find((t) => t.type === "DMCCommonTbody");
+    rates = rates.children.find((r) => r.children[0]?.children[0] === `\nUSD\n`);
+    rates = rates.children.find((c) => c?.children?.[0]?.children?.[0] === "USD rates");
+
+    const ratesUrl = rates.children[0].props.href;
+
+    Base.successResponse(response, Const.responsecodeSucceed, { url: ratesUrl });
   } catch (error) {
     Base.newErrorResponse({
       response,
       message: "FixController - wa",
+      error,
     });
   }
 });
