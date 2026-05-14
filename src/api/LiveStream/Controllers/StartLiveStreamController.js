@@ -287,11 +287,7 @@ async function getNotificationReceivers({ liveStream, user }) {
     : await User.find({
         "isDeleted.value": false,
         notificationSubscriptions: {
-          $elemMatch: {
-            userId: user._id.toString(),
-            enabled: true,
-            whatsApp: true,
-          },
+          $elemMatch: { userId: user._id.toString(), whatsApp: true },
         },
       }).lean();
 

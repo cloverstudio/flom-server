@@ -272,7 +272,7 @@ const schema = new mongoose.Schema(
       },
     },
 
-    notificationSubscriptions: [{ userId: String, whatsApp: Boolean, push: Boolean }],
+    notificationSubscriptions: [{ userId: String, whatsApp: Boolean, push: Boolean, _id: false }],
   },
   { timestamps: true },
 );

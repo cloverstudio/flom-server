@@ -88,11 +88,7 @@ async function sendWhatsAppMessages({
         _id: { $in: receiverIds },
         "isDeleted.value": false,
         notificationSubscriptions: {
-          $elemMatch: {
-            userId: sender._id.toString(),
-            enabled: true,
-            whatsApp: true,
-          },
+          $elemMatch: { userId: sender._id.toString(), whatsApp: true },
         },
       }).lean();
     }
