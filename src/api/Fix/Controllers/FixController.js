@@ -452,6 +452,10 @@ router.get("/wa", async (request, response) => {
           "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
       },
     });
+
+    console.log("STATUS:", r.status);
+    console.log("FINAL URL:", r.url);
+
     const data = await r.text();
 
     const jms = `"json_cms_content":"`; // include the opening quote
