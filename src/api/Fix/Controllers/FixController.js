@@ -452,12 +452,6 @@ router.get("/wa", async (request, response) => {
       },
     });
 
-    console.log({
-      status: r.status,
-      redirected: r.redirected,
-      finalUrl: r.url,
-    });
-
     const data = await r.text();
 
     const jms = `"json_cms_content":"`; // include the opening quote
@@ -486,17 +480,27 @@ router.get("/wa", async (request, response) => {
     }
 
     const parsed = JSON.parse(result);
-    const tables = parsed.children.filter((i) => i.type === "DMCCommonTable");
-    let rates = tables.find(
-      (t) => t.children[0]?.children[0]?.children[0]?.children[0] === `\nCurrency\n`,
-    );
-    rates = rates.children.find((t) => t.type === "DMCCommonTbody");
-    rates = rates.children.find((r) => r.children[0]?.children[0] === `\nUSD\n`);
-    rates = rates.children.find((c) => c?.children?.[0]?.children?.[0] === "USD rates");
 
-    const ratesUrl = rates.children[0].props.href;
+    const node = findNode(parsed);
 
-    Base.successResponse(response, Const.responsecodeSucceed, { url: ratesUrl });
+    function findNode(node, parent) {
+      if (typeof node === "string") {
+        if (node.trim() === "USD rates") {
+          return parent;
+        }
+      }
+      if (node.children) {
+        for (const child of node.children) {
+          const found = findNode(child, node);
+          if (found) return found;
+        }
+      }
+      return null;
+    }
+
+    const url = node.props?.href;
+
+    Base.successResponse(response, Const.responsecodeSucceed, { url });
   } catch (error) {
     Base.newErrorResponse({
       response,

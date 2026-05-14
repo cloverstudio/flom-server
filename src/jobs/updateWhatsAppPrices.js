@@ -115,9 +115,10 @@ async function fetchPricesCsvUrl() {
     // Like the browser fetch API, the default method is GET
     const response = await fetch(whatsAppPricingUrl, {
       headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0.0.0 Safari/537.36",
-        Accept: "text/html,application/xhtml+xml",
+        "User-Agent": "Mozilla/5.0",
+        Accept:
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
       },
     });
     const data = await response.text();
@@ -148,15 +149,25 @@ async function fetchPricesCsvUrl() {
     }
 
     const parsed = JSON.parse(result);
-    const tables = parsed.children.filter((i) => i.type === "DMCCommonTable");
-    let rates = tables.find(
-      (t) => t.children[0]?.children[0]?.children[0]?.children[0] === `\nCurrency\n`,
-    );
-    rates = rates.children.find((t) => t.type === "DMCCommonTbody");
-    rates = rates.children.find((r) => r.children[0]?.children[0] === `\nUSD\n`);
-    rates = rates.children.find((c) => c?.children?.[0]?.children?.[0] === "USD rates");
 
-    const ratesUrl = rates.children[0].props.href;
+    const node = findNode(parsed);
+
+    function findNode(node, parent) {
+      if (typeof node === "string") {
+        if (node.trim() === "USD rates") {
+          return parent;
+        }
+      }
+      if (node.children) {
+        for (const child of node.children) {
+          const found = findNode(child, node);
+          if (found) return found;
+        }
+      }
+      return null;
+    }
+
+    const ratesUrl = node.props?.href;
 
     return { url: ratesUrl };
   } catch (error) {
