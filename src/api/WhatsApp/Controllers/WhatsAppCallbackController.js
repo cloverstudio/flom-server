@@ -227,6 +227,11 @@ async function handleOutgoingMessage({ to, status, wamId, errors }) {
 
   await WhatsAppLog.findOneAndUpdate({ wamId }, { status, failures: errors });
 
+  // if no chat message found then it is probably a WA notification
+  if (!flomMessage) {
+    return;
+  }
+
   if (status === "sent") {
     await FlomMessage.updateOne({ wamId }, { $addToSet: { sentTo: user._id.toString() } });
   } else if (status === "delivered") {

@@ -173,6 +173,8 @@ async function sendWhatsAppMessage({
       response: result,
       failures: !error ? [] : [error],
       status,
+      template,
+      to,
     });
 
     if (status !== "accepted" && status !== "sent" && status !== "delivered") {

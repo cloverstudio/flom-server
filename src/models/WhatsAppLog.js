@@ -12,6 +12,8 @@ const schema = new mongoose.Schema(
     response: {},
     failures: [],
     status: String,
+    template: String,
+    to: String,
   },
   { timestamps: true },
 );
