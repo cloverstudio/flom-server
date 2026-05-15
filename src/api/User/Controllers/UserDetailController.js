@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { AppVersion, User, ApiAccessLog } = require("#models");
+const { AppVersion, User, ApiAccessLog, WhatsAppUserMapping } = require("#models");
 const Logics = require("#logics");
 
 /**
@@ -388,6 +388,10 @@ router.get("/:userId", async function (request, response) {
 
         if (today.getTime() !== lastStreakTimestamp) {
           await Logics.sendBonus({ userId, bonusType: Const.bonusTypeVisitingStreak });
+        }
+
+        if (user.hasLoggedIn === Const.userLoggedInAtLeastOnce) {
+          await WhatsAppUserMapping.deleteMany({ receiverPhoneNumber: user.phoneNumber });
         }
       }
     }
