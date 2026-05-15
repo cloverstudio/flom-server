@@ -14,6 +14,7 @@ async function sendWhatsAppMessage({
   shippingStatus,
   orderId,
   orderName,
+  productName,
   mentionSlug,
   isFreeMessage = false,
 }) {
@@ -120,16 +121,18 @@ async function sendWhatsAppMessage({
           textParamA = orderName;
           buttonParam = orderId;
           break;
-        case "sellerMessage":
-          if (!mentionSlug) {
+        case "sellerFollowup":
+          if (!userName || !productName) {
             logger.error(
-              "sendWhatsAppMessage error, missing parameters for sellerMessage template: mentionSlug: " +
-                mentionSlug,
+              "sendWhatsAppMessage error, missing parameters for sellerFollowup template: userName or productName: " +
+                userName +
+                ", " +
+                productName,
             );
             return null;
           }
-          textParamA = mentionSlug;
-          textParamB = message;
+          textParamA = userName;
+          textParamB = productName;
           break;
         default:
           logger.error("sendWhatsAppMessage error, invalid template name: " + template);
@@ -271,9 +274,6 @@ function makeTextMessage({ template, textParamA = null, textParamB = null, butto
       break;
     case "pendingPayment":
       text = `Your payment for order ${textParamA} is pending. Please complete the payment.\n\nPay now: ${deepLink.order}${buttonParam}`;
-      break;
-    case "sellerMessage":
-      text = `@${textParamA}: ${textParamB}`;
       break;
     default:
       text = null;

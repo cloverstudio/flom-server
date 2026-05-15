@@ -243,6 +243,7 @@ const schema = new mongoose.Schema(
       oldMentionSlugExpiresAt: Number,
       reference: String,
       windowExpiresAt: Number,
+      followupMessageSent: { type: Boolean, default: false },
     },
 
     notificationOptions: {

@@ -1305,7 +1305,7 @@ Constants.shippingProviders = [
 Constants.whatsAppMarkupRate = 1.3;
 
 Constants.templateMap = {
-  sellerMessage: "seller_message",
+  sellerFollowup: "seller_followup",
   goLive: "go_live",
   newDrop: "new_drop",
   auctionReminder: "auction_reminder",
@@ -1315,12 +1315,6 @@ Constants.templateMap = {
   shippingUpdate: "shipping_update",
   pendingPayment: "pending_payment",
 };
-Constants.marketingTemplates = [
-  "sellerMessage",
-  "newDrop",
-  "auctionReminder",
-  "secondChance",
-  "goLive",
-];
+Constants.marketingTemplates = ["newDrop", "auctionReminder", "secondChance", "goLive"];
 
 module.exports = Object.freeze(Constants);

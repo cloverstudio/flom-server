@@ -69,7 +69,9 @@ router.post("/", async function (request, response) {
 
         await User.updateOne(
           { phoneNumber: from },
-          { $set: { "whatsApp.windowExpiresAt": expiration } },
+          {
+            $set: { "whatsApp.windowExpiresAt": expiration, "whatsApp.followupMessageSent": false },
+          },
         );
 
         if (!contextId) {
@@ -81,6 +83,10 @@ router.post("/", async function (request, response) {
         logger.error("WhatsAppCallbackController, cb: incoming message processing error", error);
         continue;
       }
+    }
+
+    if (messages.length > 0) {
+      await sendPendingWhatsAppMessages(messages[0].from);
     }
 
     for (const message of statuses) {
@@ -233,7 +239,10 @@ async function handleOutgoingMessage({ to, status, wamId, errors }) {
   }
 
   if (status === "sent") {
-    await FlomMessage.updateOne({ wamId }, { $addToSet: { sentTo: user._id.toString() } });
+    await FlomMessage.updateOne(
+      { wamId },
+      { $addToSet: { sentTo: user._id.toString() }, $set: { wamStatus: status } },
+    );
   } else if (status === "delivered") {
     const deliveredTo = flomMessage?.deliveredTo;
 
@@ -243,7 +252,10 @@ async function handleOutgoingMessage({ to, status, wamId, errors }) {
         if (item.userId === user._id.toString()) {
           item.at = Date.now();
           alreadyDelivered = true;
-          await FlomMessage.updateOne({ wamId }, { $set: { deliveredTo: deliveredTo } });
+          await FlomMessage.updateOne(
+            { wamId },
+            { $set: { deliveredTo: deliveredTo, wamStatus: status } },
+          );
           break;
         }
       }
@@ -252,7 +264,10 @@ async function handleOutgoingMessage({ to, status, wamId, errors }) {
     if (!alreadyDelivered) {
       await FlomMessage.updateOne(
         { wamId },
-        { $addToSet: { deliveredTo: { userId: user._id.toString(), at: Date.now() } } },
+        {
+          $addToSet: { deliveredTo: { userId: user._id.toString(), at: Date.now() } },
+          $set: { wamStatus: status },
+        },
       );
     }
   } else if (status === "read") {
@@ -263,7 +278,7 @@ async function handleOutgoingMessage({ to, status, wamId, errors }) {
       if (item.user === user._id.toString()) {
         item.at = Date.now();
         alreadySeen = true;
-        await FlomMessage.updateOne({ wamId }, { $set: { seenBy: seenBy } });
+        await FlomMessage.updateOne({ wamId }, { $set: { seenBy: seenBy, wamStatus: status } });
         break;
       }
     }
@@ -271,11 +286,121 @@ async function handleOutgoingMessage({ to, status, wamId, errors }) {
     if (!alreadySeen) {
       await FlomMessage.updateOne(
         { wamId },
-        { $addToSet: { seenBy: { user: user._id.toString(), at: Date.now() } } },
+        {
+          $addToSet: { seenBy: { user: user._id.toString(), at: Date.now() } },
+          $set: { wamStatus: status },
+        },
       );
     }
   } else if (status === "failed" || !!errors) {
-    await FlomMessage.updateOne({ wamId }, { $set: { "attributes.errors": errors } });
+    await FlomMessage.updateOne(
+      { wamId },
+      { $set: { "attributes.errors": errors, wamStatus: status } },
+    );
+  }
+}
+
+const userLockMap = {};
+
+async function sendPendingWhatsAppMessages(from) {
+  try {
+    if (!from) {
+      logger.error(
+        "WhatsAppCallbackController, sendPendingWhatsAppMessages error, missing from parameter",
+      );
+      return;
+    }
+
+    if (!from.startsWith("+")) {
+      from = "+" + from;
+    }
+
+    if (userLockMap[from]) {
+      logger.warn(
+        `WhatsAppCallbackController, sendPendingWhatsAppMessages, already sending pending messages for sender: ${from}`,
+      );
+      return;
+    }
+
+    userLockMap[from] = true;
+
+    const receiver = await User.findOne({ phoneNumber: from }).lean();
+    if (!receiver) {
+      logger.error(
+        "WhatsAppCallbackController, sendPendingWhatsAppMessages error, receiver not found with phoneNumber: " +
+          from,
+      );
+      delete userLockMap[from];
+      return;
+    }
+
+    const pendingMessages = await FlomMessage.find({
+      wamStatus: "pending",
+      receiverPhoneNumber: from,
+    })
+      .sort({ created: 1 })
+      .lean();
+
+    if (pendingMessages.length === 0) {
+      delete userLockMap[from];
+      return;
+    }
+
+    logger.info(
+      `WhatsAppCallbackController, sendPendingWhatsAppMessages, found ${pendingMessages.length} pending messages for sender: ${from}`,
+    );
+
+    for (const m of pendingMessages) {
+      const wamIds = await Logics.sendWhatsAppMessages({
+        senderId: m.userID,
+        receivers: [receiver],
+        message: m.message,
+      });
+
+      if (wamIds.length > 0) {
+        await FlomMessage.updateOne({ _id: m._id }, { $set: { wamId: wamIds[0] } });
+
+        let breakLoop = false,
+          attempts = 0,
+          sent = false;
+        const limit = 20;
+
+        while (breakLoop === false && attempts < limit) {
+          const log = await WhatsAppLog.findOne({ wamId: wamIds[0] }).lean();
+          attempts++;
+
+          if (log && log.status && ["delivered", "read"].includes(log.status)) {
+            breakLoop = true;
+          }
+
+          await Utils.wait(3); // wait 3 seconds before checking the status again
+        }
+
+        if (!breakLoop) {
+          logger.error(
+            `WhatsAppCallbackController, sendPendingWhatsAppMessages error, message with id: ${m._id.toString()} was not sent after ${attempts} attempts`,
+          );
+          // await FlomMessage.updateOne({ _id: m._id }, { $set: { wamStatus: "failed" } });
+
+          break;
+        }
+      } else {
+        logger.error(
+          `WhatsAppCallbackController, sendPendingWhatsAppMessages error, failed to send message with id: ${m._id.toString()} to ${from}`,
+        );
+        // await FlomMessage.updateOne({ _id: m._id }, { $set: { wamStatus: "failed" } });
+        break;
+      }
+
+      await Utils.wait(2); // wait 2 seconds between messages
+    }
+
+    delete userLockMap[from];
+    return;
+  } catch (error) {
+    logger.error("WhatsAppCallbackController, sendPendingWhatsAppMessages error", error);
+    delete userLockMap[from];
+    return;
   }
 }
 

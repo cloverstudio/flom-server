@@ -10,7 +10,7 @@ const { User, Notification } = require("#models");
 
 const feeType = {
   goLive: "Live stream notification",
-  sellerMessage: "Seller message",
+  sellerFollowup: "Seller follow-up",
   newDrop: "New drop notification",
   auctionReminder: "Auction reminder",
   secondChance: "Second chance notification",
@@ -34,6 +34,7 @@ async function sendWhatsAppMessages({
   shippingStatus,
   orderId,
   orderName,
+  productName,
   mentionSlug,
 }) {
   try {
@@ -84,12 +85,18 @@ async function sendWhatsAppMessages({
     mentionSlug = sender.whatsApp?.mentionSlug || mentionSlug; // Use sender's mention slug if available
 
     if (!receivers || receivers.length === 0) {
+      const isChatMessage = !template || template === "sellerFollowup";
+
       receivers = await User.find({
         _id: { $in: receiverIds },
         "isDeleted.value": false,
-        notificationSubscriptions: {
-          $elemMatch: { userId: sender._id.toString(), whatsApp: true },
-        },
+        ...(isChatMessage
+          ? {}
+          : {
+              notificationSubscriptions: {
+                $elemMatch: { userId: sender._id.toString(), whatsApp: true },
+              },
+            }),
       }).lean();
     }
 
@@ -107,7 +114,7 @@ async function sendWhatsAppMessages({
 
     const wamIds = [];
 
-    const realPrice = receivers.reduce((acc, receiver) => {
+    let realPrice = receivers.reduce((acc, receiver) => {
       if (receiver.whatsApp?.windowExpiresAt && Date.now() < receiver.whatsApp.windowExpiresAt) {
         receiver.windowExpired = false;
         return acc; // No charge for messages within the 24-hour window
@@ -149,11 +156,21 @@ async function sendWhatsAppMessages({
           shippingStatus,
           orderId,
           orderName,
+          productName,
           mentionSlug,
           isFreeMessage: !receiver.windowExpired && Const.marketingTemplates.includes(template),
         });
 
-        wamIds.push(wamid);
+        if (wamid) {
+          wamIds.push(wamid);
+        } else {
+          logger.error(
+            `sendWhatsAppMessages, failed to send WhatsApp message to receiver: ${receiver._id.toString()}, phoneNumber: ${
+              receiver.phoneNumber
+            }`,
+          );
+          realPrice -= price;
+        }
 
         i++;
 
@@ -162,12 +179,14 @@ async function sendWhatsAppMessages({
         }
       }
 
-      await makeFeeTransfer({
-        fee: realPrice,
-        feeType: feeType[template],
-        sender: sender,
-        numberOfWaMessages: receivers.length,
-      });
+      if (realPrice > 0) {
+        await makeFeeTransfer({
+          fee: realPrice,
+          feeType: feeType[template],
+          sender: sender,
+          numberOfWaMessages: receivers.length,
+        });
+      }
     }
 
     return wamIds;

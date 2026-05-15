@@ -1,7 +1,7 @@
 const { logger, encryptionManager, redis } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { User, FlomMessage, Room, Group, BlockedChatGPTCountry } = require("#models");
+const { User, FlomMessage, Room, Group, BlockedChatGPTCountry, Product } = require("#models");
 const socketApi = require("../sockets/socket-api");
 
 const notifyNewMessage = require("./notifyNewMessage");
@@ -168,20 +168,49 @@ async function sendMessage(param) {
     }
 
     if (!!param.wa) {
-      let template = null;
-      if (receiver?.whatsApp?.windowExpiresAt && receiver.whatsApp.windowExpiresAt < Date.now()) {
-        template = "sellerMessage";
+      let template = null,
+        productName = null,
+        sendWaMessage = true;
+
+      if (
+        !receiver?.whatsApp?.windowExpiresAt ||
+        (receiver?.whatsApp?.windowExpiresAt && receiver.whatsApp.windowExpiresAt < Date.now())
+      ) {
+        if (!receiver.whatsApp?.followupMessageSent) {
+          template = "sellerFollowup";
+          // TODO: get real product name for template message
+          const products = await Product.find({}).sort({ created: -1 }).limit(1).lean();
+          if (products.length > 0) {
+            productName = products[0].name;
+          }
+        } else {
+          objMessage.wamStatus = "pending";
+          sendWaMessage = false;
+        }
       }
 
-      const wamIds = await sendWhatsAppMessages({
-        sender: user,
-        receivers: [receiver],
-        message: objMessage.message,
-        template,
-        mentionSlug: user.whatsApp?.mentionSlug,
-      });
+      let wamIds = [];
 
-      objMessage.wamId = wamIds[0];
+      if (sendWaMessage) {
+        wamIds = await sendWhatsAppMessages({
+          sender: user,
+          receivers: [receiver],
+          message: objMessage.message,
+          template,
+          mentionSlug: user.whatsApp?.mentionSlug,
+          userName: user.userName,
+          productName,
+        });
+      }
+
+      if (template === "sellerFollowup") {
+        await User.updateOne(
+          { _id: receiver._id },
+          { $set: { "whatsApp.followupMessageSent": true } },
+        );
+      }
+
+      objMessage.wamId = !template ? wamIds[0] : null;
     }
 
     const newMessage = await FlomMessage.create(objMessage);
