@@ -5,6 +5,7 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const } = require("#config");
 const Utils = require("#utils");
+const Logics = require("#logics");
 const { auth } = require("#middleware");
 const { Product, Category, User, Tribe, LiveStream } = require("#models");
 const { recombee } = require("#services");
@@ -161,34 +162,61 @@ const countryIso = require("country-iso");
  * @apiError (Errors) 4000007 Token not valid
  */
 
-router.get("/", auth({ allowUser: true }), async function (request, response) {
+router.get("/", async function (request, response) {
   try {
-    const { type, recommId = null, countryCode } = request.query;
+    const accessToken = request.headers["access-token"];
+    const IP = request.headers["x-forwarded-for"] || request.connection.remoteAddress;
+
+    const { type, recommId = null } = request.query;
     const lat = +request.query.lat;
     const lon = +request.query.lon;
-    const user = request.user;
+    let countryCode = request.query.countryCode;
 
-    let userId, userTribeIds, userMembershipIds;
-    const kidsMode = user.kidsMode;
-    const blocked = user.blocked || [];
+    let user,
+      userId,
+      userTribeIds = [],
+      userMembershipIds = [],
+      kidsMode = true,
+      blocked = [];
+
+    if (accessToken) {
+      user = await User.findOne({ "token.token": accessToken }).lean();
+
+      if (!user) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeInvalidToken,
+          message: `GetRecommendedProductsController, invalid token`,
+        });
+      }
+
+      userId = user._id.toString();
+      kidsMode = user.kidsMode;
+      blocked = user.blocked || [];
+
+      const tribes = await Tribe.find(
+        { $or: [{ ownerId: userId }, { "members.accepted.id": userId }] },
+        { _id: 1 },
+      ).lean();
+
+      userTribeIds = tribes.map((tribe) => tribe._id.toString());
+      userMembershipIds = user.memberships?.map((membership) => membership.id.toString());
+
+      if (!countryCode) countryCode = user.countryCode;
+    } else {
+      if (!countryCode) {
+        const ipAddressObj = await Logics.getCountryFromIpAddress({ IP });
+        if (ipAddressObj && !ipAddressObj.isVPN) {
+          countryCode = ipAddressObj.countryCode;
+        }
+      }
+    }
+
     const { userRate, userCountryCode, userCurrency, conversionRates } =
       await Utils.getUsersConversionRate({
-        user: request.user,
+        user,
         accessToken: request.headers["access-token"],
       });
-
-    userId = user._id.toString();
-    const tribes = await Tribe.find(
-      { $or: [{ ownerId: userId }, { "members.accepted.id": userId }] },
-      { _id: 1 },
-    ).lean();
-
-    userTribeIds = tribes.map((tribe) => tribe._id.toString());
-    userMembershipIds = user.memberships?.map((membership) => membership.id.toString());
-
-    if (!userMembershipIds) {
-      userMembershipIds = [];
-    }
 
     const typesArray = ["1", "2", "3", "4", "5"];
     if (type !== undefined && typesArray.indexOf(type) === -1) {
@@ -314,7 +342,7 @@ async function getProducts({
   blocked,
   recommId,
 }) {
-  const userId = user._id.toString();
+  const userId = !user ? null : user._id.toString();
   let recombeeResponse;
 
   if (!recommId) {
@@ -417,7 +445,8 @@ async function generateFilter({
 
   const blockedUsers = await User.find({ blockedProducts: 1 }, { _id: 1 }).lean();
   const blockedUserIds = blockedUsers.map((user) => user._id.toString());
-  const blockedIds = [userId, ...blockedUserIds, ...blocked];
+  const blockedIds = [...blockedUserIds, ...blocked];
+  if (userId) blockedIds.push(userId);
   const blockedFilter =
     blockedIds.length > 0
       ? `'ownerId' not in {${blockedIds.map((id) => `"${id}"`).join(", ")}}`
@@ -460,7 +489,7 @@ async function generateFilter({
   return filter;
 }
 
-async function generateBooster({ user, type, countryCode, lat, lon }) {
+async function generateBooster({ user = {}, type, countryCode, lat, lon }) {
   const distanceToUser = lat
     ? `earth_distance('latitude', 'longitude', ${lat}, ${lon})`
     : `earth_distance('latitude', 'longitude', context_user["latitude"], context_user["longitude"])`;
@@ -496,7 +525,9 @@ async function generateBooster({ user, type, countryCode, lat, lon }) {
   }
 
   logger.debug(
-    `GetRecommendedProductsController, userId: ${user._id.toString()}, booster: ${booster}`,
+    `GetRecommendedProductsController, userId: ${
+      user._id ? user._id.toString() : "unknown"
+    }, booster: ${booster}`,
   );
 
   return booster;
