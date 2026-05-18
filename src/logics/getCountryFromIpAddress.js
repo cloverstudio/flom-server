@@ -1,7 +1,7 @@
 const { logger } = require("#infra");
 const { Config, Const } = require("#config");
 const { IpAddress } = require("#models");
-const sendRequest = require("./sendRequest");
+const Utils = require("#utils");
 
 async function getCountryFromIpAddress({ IP }) {
   try {
@@ -16,7 +16,7 @@ async function getCountryFromIpAddress({ IP }) {
       return ipFromDatabase;
     }
 
-    const response = await sendRequest({
+    const response = await Utils.sendRequest({
       method: "GET",
       url: `${Config.ipCheckUrl}/${IP}`,
       query: {

@@ -252,7 +252,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     const userIP = request.headers["x-forwarded-for"] || request.connection.remoteAddress;
 
-    const countryFromIP = await Utils.getCountryFromIpAddress({ IP: userIP });
+    const countryFromIP = await Logics.getCountryFromIpAddress({ IP: userIP });
     console.log(`Save user payment method from ${userIP} in ${countryFromIP.countryCode}`);
 
     const countryCode = await Logics.countryFromBinNumber(cardNumber.substring(0, 9));

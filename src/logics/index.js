@@ -41,4 +41,5 @@ module.exports = Object.freeze({
   sendWhatsAppMessages: require("./sendWhatsAppMessages"),
 
   countryFromBinNumber: require("./countryFromBinNumber"),
+  getCountryFromIpAddress: require("./getCountryFromIpAddress"),
 });

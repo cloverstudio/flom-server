@@ -1,6 +1,6 @@
 const { Config } = require("#config");
 const { BinLookup } = require("#models");
-const sendRequest = require("./sendRequest");
+const Utils = require("#utils");
 
 async function countryFromBinNumber(binNumber) {
   try {
@@ -30,7 +30,7 @@ async function countryFromBinNumber(binNumber) {
 }
 
 async function lookupBinNumber(bin) {
-  const res = await sendRequest({
+  const res = await Utils.sendRequest({
     method: "POST",
     url: Config.binCheckerUrl + bin,
     headers: Config.binCheckerHeaders,

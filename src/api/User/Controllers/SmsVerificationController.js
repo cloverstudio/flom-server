@@ -5,8 +5,8 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
+const Logics = require("#logics");
 const { User, AccessRecord, BannedNumber, CountryWideBan, TemporaryBan } = require("#models");
-const { createNewUser } = require("#logics");
 
 /*
       * @api {post} /api/v2/user/presendphonenumber/ Verify Phone Number AP
@@ -106,7 +106,7 @@ router.post("/", async (request, response) => {
     // IP Check
     logger.info(`SmsVerificationController - ${phoneNumber} - IP: ${IP}`);
 
-    const ipAddressObj = await Utils.getCountryFromIpAddress({ IP });
+    const ipAddressObj = await Logics.getCountryFromIpAddress({ IP });
     if (!ipAddressObj) {
       return Base.newErrorResponse({
         response,
@@ -333,7 +333,7 @@ router.post("/", async (request, response) => {
 
       await User.findByIdAndUpdate(_id.toString(), { $set: updateObj });
     } else {
-      await createNewUser({
+      await Logics.createNewUser({
         phoneNumber,
         activationCode,
         ref,

@@ -5,6 +5,7 @@ const Base = require("../../Base");
 const { logger, redis } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
+const Logics = require("#logics");
 const { User } = require("#models");
 
 /**
@@ -48,7 +49,7 @@ router.post("/", async function (request, response) {
 
     // IP Check
     logger.info(`CheckUSSDCodeController - ${UUID} - IP: ${IP}`);
-    const ipAddressObj = await Utils.getCountryFromIpAddress({ IP });
+    const ipAddressObj = await Logics.getCountryFromIpAddress({ IP });
 
     const value = await redis.get(Const.redisKeyQrCode + code);
 

@@ -21,7 +21,6 @@ module.exports = Object.freeze({
   convertToDash: require("./convertToDash"),
   convertToHSL: require("./convertToHSL"),
   convertToMP3: require("./convertToMP3"),
-  countryFromIP: require("./countryFromIP"),
 
   deleteHslFile: require("./deleteHslFile"),
 
@@ -46,7 +45,6 @@ module.exports = Object.freeze({
   getConversionRates: require("./getConversionRates"),
   getCountryBanDuration: require("./getCountryBanDuration"),
   getCountryCodeFromPhoneNumber: require("./getCountryCodeFromPhoneNumber"),
-  getCountryFromIpAddress: require("./getCountryFromIpAddress"),
   getCurrencyFromCountryCode: require("./getCurrencyFromCountryCode"),
   getCustomerActivationData: require("./getCustomerActivationData"),
   getDataProductBySku: require("./getDataProductBySku"),

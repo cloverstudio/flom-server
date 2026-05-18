@@ -5,8 +5,8 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
+const Logics = require("#logics");
 const { User, DidWWNumber, DidWWLog, BannedNumber } = require("#models");
-const { createNewUser } = require("#logics");
 
 /**
  * @api {post} /api/v2/login/did/check-number Check registration/login
@@ -196,7 +196,7 @@ router.post("", async (request, response) => {
     // IP Check
     logger.info(`CheckNumberDidWWController - ${phoneNumber} - IP: ${IP}`);
 
-    const ipAddressObj = await Utils.getCountryFromIpAddress({ IP });
+    const ipAddressObj = await Logics.getCountryFromIpAddress({ IP });
 
     if (ipAddressObj?.isVPN && Config.environment === "production") {
       const existingUser = await User.findOne({ phoneNumber, "isDeleted.value": false }).lean();
@@ -255,7 +255,7 @@ router.post("", async (request, response) => {
 
     if (!user) {
       logger.info("didWWNumberLogs ", didWWNumberLogs);
-      user = await createNewUser(
+      user = await Logics.createNewUser(
         {
           phoneNumber,
           deviceType,
