@@ -9,6 +9,7 @@ const schema = new mongoose.Schema(
   {
     senderPhoneNumber: String,
     receiverPhoneNumber: String,
+    enabled: { type: Boolean, default: true },
   },
   { timestamps: true },
 );

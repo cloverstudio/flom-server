@@ -391,7 +391,10 @@ router.get("/:userId", async function (request, response) {
         }
 
         if (user.hasLoggedIn === Const.userLoggedInAtLeastOnce) {
-          await WhatsAppUserMapping.deleteMany({ receiverPhoneNumber: user.phoneNumber });
+          await WhatsAppUserMapping.updateMany(
+            { receiverPhoneNumber: user.phoneNumber },
+            { enabled: false },
+          );
         }
       }
     }
