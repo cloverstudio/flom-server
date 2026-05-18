@@ -14,7 +14,8 @@
  *     "code": 1,
  *     "time": 1776689659273,
  *     "data": {
- *         "status": String  // enabled or disabled
+ *         "status": String,  // enabled or disabled
+ *         "windowExpiresAt": Number
  *     }
  * }
  *
@@ -108,7 +109,15 @@ router.get("/:chatId/status", auth({ allowUser: true }), async function (request
       status = "enabled";
     }
 
-    return Base.successResponse(response, Const.responsecodeSucceed, { status: status });
+    let windowExpiresAt = 0;
+
+    if (mapping.receiverPhoneNumber === user1.phoneNumber) {
+      windowExpiresAt = user1.whatsApp?.windowExpiresAt || 0;
+    } else {
+      windowExpiresAt = user2.whatsApp?.windowExpiresAt || 0;
+    }
+
+    return Base.successResponse(response, Const.responsecodeSucceed, { status, windowExpiresAt });
   } catch (error) {
     return Base.newErrorResponse({ response, message: "GetWhatsAppChatStatus", error });
   }
