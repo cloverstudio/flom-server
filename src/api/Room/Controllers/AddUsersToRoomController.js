@@ -82,7 +82,7 @@ const { socketApi } = require("#sockets");
 router.post("/", auth({ allowUser: true }), async function (request, response) {
   try {
     const roomId = request.body.roomId;
-    const userIds = request.body.users.filter((userId) => Utils.isObjectId(userId));
+    const userIds = request.body.users.filter((userId) => Utils.isValidObjectId(userId));
     const user = request.user;
 
     if (!Array.isArray(userIds) || userIds.length === 0) {

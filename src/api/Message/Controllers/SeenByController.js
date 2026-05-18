@@ -18,7 +18,7 @@ router.get("/:messageid", async function (request, response) {
   try {
     const messageId = request.params.messageid;
 
-    if (!Utils.isObjectId(messageId)) {
+    if (!Utils.isValidObjectId(messageId)) {
       return Base.successResponse(response, Const.responsecodeForwardMessageInvalidChatId);
     }
 
@@ -32,7 +32,7 @@ router.get("/:messageid", async function (request, response) {
     const deliveredToUserIds = message.deliveredTo.map((item) => item.userId);
 
     const userIds = [...new Set([...seenByUserIds, ...deliveredToUserIds])].filter((str) =>
-      Utils.isObjectId(str),
+      Utils.isValidObjectId(str),
     );
 
     const users = await User.find(

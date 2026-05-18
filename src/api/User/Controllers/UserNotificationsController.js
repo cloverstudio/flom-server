@@ -423,7 +423,7 @@ async function getTransferNotifications({ userId, userPhoneNumber }) {
           let transferRoom;
           try {
             transferRoom =
-              !roomId || !Utils.isObjectId(roomId)
+              !roomId || !Utils.isValidObjectId(roomId)
                 ? null
                 : await Room.findOne({ _id: roomId }).lean();
           } catch (error) {

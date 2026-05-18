@@ -88,7 +88,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const roomId = fields.roomId;
     const userId = request.user._id.toString();
 
-    if (!roomId || !Utils.isObjectId(roomId)) {
+    if (!roomId || !Utils.isValidObjectId(roomId)) {
       return Base.successResponse(response, Const.responsecodeUpdateRoomWrongRoomId);
     }
 

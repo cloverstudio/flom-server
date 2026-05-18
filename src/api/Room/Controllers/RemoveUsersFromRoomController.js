@@ -102,7 +102,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       return Base.successResponse(response, Const.responsecodeAddUsersToRoomUserIsNotAdmin);
     }
 
-    const usersFilterd = users.filter((userId) => Utils.isObjectId(userId));
+    const usersFilterd = users.filter((userId) => Utils.isValidObjectId(userId));
     const usersExists = await User.find({ _id: { $in: usersFilterd } }).lean();
     const userIdsExistsStr = usersExists.map((user) => user._id.toString());
     const usersOld = room.users;

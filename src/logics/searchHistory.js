@@ -39,7 +39,7 @@ async function searchHistory(lastUpdate, page, keyword, baseUser, pagingRows) {
     if (histories.length > 100) console.log(lastUpdate, histories[100]);
 
     const userIds = histories
-      .filter((h) => h.chatType == Const.chatTypePrivate && Utils.isObjectId(h.chatId))
+      .filter((h) => h.chatType == Const.chatTypePrivate && Utils.isValidObjectId(h.chatId))
       .map((h) => h.chatId);
 
     const users = await User.find({ _id: { $in: userIds } }, null, { lean: true });
@@ -54,7 +54,7 @@ async function searchHistory(lastUpdate, page, keyword, baseUser, pagingRows) {
       }
     });
     result.list = result.list.filter(
-      (h) => h.user !== undefined || h.chatType != Const.chatTypePrivate
+      (h) => h.user !== undefined || h.chatType != Const.chatTypePrivate,
     );
 
     const groupIds = histories
@@ -73,7 +73,7 @@ async function searchHistory(lastUpdate, page, keyword, baseUser, pagingRows) {
       }
     });
     result.list = result.list.filter(
-      (h) => h.group !== undefined || h.chatType != Const.chatTypeGroup
+      (h) => h.group !== undefined || h.chatType != Const.chatTypeGroup,
     );
 
     const roomIds = histories.filter((h) => h.chatType == Const.chatTypeRoom).map((h) => h.chatId);
@@ -90,7 +90,7 @@ async function searchHistory(lastUpdate, page, keyword, baseUser, pagingRows) {
       }
     });
     result.list = result.list.filter(
-      (h) => h.room !== undefined || h.chatType != Const.chatTypeRoom
+      (h) => h.room !== undefined || h.chatType != Const.chatTypeRoom,
     );
 
     let userIdsFromGroup = [];
@@ -111,7 +111,7 @@ async function searchHistory(lastUpdate, page, keyword, baseUser, pagingRows) {
     const additionalUsers = await User.find(
       { _id: { $in: additionalUserIds } },
       User.getDefaultResponseFields(),
-      { lean: true }
+      { lean: true },
     );
     const additionalUserMap = {};
     additionalUsers.forEach((u) => {
@@ -140,7 +140,7 @@ async function searchHistory(lastUpdate, page, keyword, baseUser, pagingRows) {
     result.list.forEach((history) => {
       if (history.user) {
         const onlineStatusObj = onlineStatuses.find(
-          (os) => os.userId.toString() === history.user._id.toString()
+          (os) => os.userId.toString() === history.user._id.toString(),
         );
         history.user.onlineStatus = !onlineStatusObj ? 0 : onlineStatusObj.onlineStatus;
       }
