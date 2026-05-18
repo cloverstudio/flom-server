@@ -21,7 +21,6 @@ module.exports = Object.freeze({
   convertToDash: require("./convertToDash"),
   convertToHSL: require("./convertToHSL"),
   convertToMP3: require("./convertToMP3"),
-  countryFromBinNumber: require("./countryFromBinNumber"),
   countryFromIP: require("./countryFromIP"),
 
   deleteHslFile: require("./deleteHslFile"),

@@ -39,4 +39,6 @@ module.exports = Object.freeze({
   makeFeeTransfer: require("./makeFeeTransfer"),
   sendWhatsAppMessage: require("./sendWhatsAppMessage"),
   sendWhatsAppMessages: require("./sendWhatsAppMessages"),
+
+  countryFromBinNumber: require("./countryFromBinNumber"),
 });
