@@ -134,8 +134,8 @@ async function sendWhatsAppMessages({
       await User.findByIdAndUpdate(sender._id, { "notificationOptions.whatsApp.enabled": false });
 
       await Notification.create({
-        title: "WhatsApp notifications disabled",
-        text: "Your WhatsApp notifications have been disabled due to insufficient balance. Please top up your balance to continue sending WhatsApp notifications.",
+        title: "WhatsApp messaging disabled",
+        text: "Your WhatsApp messages have been disabled due to insufficient balance. Please top up your balance to continue sending WhatsApp messages.",
         receiverIds: [sender._id.toString()],
         senderId: Config.flomSupportAgentId,
         notificationType: Const.notificationTypeLowGlobalBalance,
