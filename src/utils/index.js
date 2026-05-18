@@ -66,7 +66,6 @@ module.exports = Object.freeze({
   hideBadWords: require("./hideBadWords"),
 
   isEmail: require("./isEmail"),
-  isPositiveInteger: require("./isPositiveInteger"),
   isProductForSale: require("./isProductForSale"),
   isUserCommunityMember: require("./isUserCommunityMember"),
   isUserTribeMember: require("./isUserTribeMember"),
