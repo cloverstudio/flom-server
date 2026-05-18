@@ -7,7 +7,6 @@ const { Const } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
 const { User, UserContact, LiveStream } = require("#models");
-const mongoose = require("mongoose");
 
 /**
  * @api {get} /api/v2/user/follow Get Followed Businesses
@@ -208,7 +207,7 @@ router.get("/followers", auth({ allowUser: true }), async function (request, res
     dataToSend.followers = [];
 
     let contacts = await UserContact.find({ userId });
-    let contactIds = contacts.map((c) => new mongoose.Types.ObjectId(c.contactId));
+    let contactIds = contacts.map((c) => Utils.createObjectID(c.contactId));
     let followers = await User.find(
       {
         $or: [{ followedBusinesses: userId }, { _id: { $in: contactIds } }],

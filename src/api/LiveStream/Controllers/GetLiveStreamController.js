@@ -9,7 +9,6 @@ const { auth } = require("#middleware");
 const { LiveStream, User, Tribe, Membership } = require("#models");
 const { formatLiveStreamResponse } = require("#logics");
 const { recombee } = require("#services");
-const { Types } = require("mongoose");
 
 /**
  * @api {get} /api/v2/livestreams/list Get a list of live streams flom_v1
@@ -409,7 +408,7 @@ router.get("/recommended", auth({ allowUser: true }), async function (request, r
 
     const recommendedProductIds = recombeeResponse.recomms.map((item) => {
       const stringId = `${item.id.replace("l_", "")}`;
-      return new Types.ObjectId(stringId);
+      return Utils.createObjectID(stringId);
     });
     const newRecommId = recombeeResponse.recommId;
 

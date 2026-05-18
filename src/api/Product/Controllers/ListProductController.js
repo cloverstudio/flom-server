@@ -5,7 +5,6 @@ const Base = require("../../Base");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
 const { Product, Category, Transaction, User, Review, Tribe } = require("#models");
-const mongoose = require("mongoose");
 
 /**
  * @api {post} /api/v2/product/list List Products
@@ -351,7 +350,7 @@ function getLocationFromString(locString) {
 function getCategoryIdsFromString(catString) {
   return catString == undefined
     ? undefined
-    : catString.split(",").map((str) => new mongoose.Types.ObjectId(`${str}`));
+    : catString.split(",").map((str) => Utils.createObjectID(str));
 }
 
 function addDistField(product, location) {

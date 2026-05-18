@@ -3,7 +3,6 @@
 const { Const } = require("#config");
 const Utils = require("#utils");
 const { User, Notification } = require("#models");
-const mongoose = require("mongoose");
 
 const getTribeOwnerAndCoOwners = async (tribe) => {
   return User.find({
@@ -20,7 +19,7 @@ const getTribeOwnerAndCoOwners = async (tribe) => {
 
 const getPushTokens = async ({ users, userIds }) => {
   userIds = userIds?.map(function (el) {
-    return new mongoose.Types.ObjectId(`${el}`);
+    return Utils.createObjectID(el);
   });
 
   if (users) {
