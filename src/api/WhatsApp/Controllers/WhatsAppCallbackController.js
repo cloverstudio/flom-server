@@ -67,18 +67,18 @@ router.post("/", async function (request, response) {
 
         const contextId = message.context?.id ?? null;
 
+        if (!contextId) {
+          await handleNewChatMessage({ from, msgBody, wamId, timeStamp });
+        } else {
+          await handleReplyMessage({ from, msgBody, wamId, timeStamp, contextId });
+        }
+
         await User.updateOne(
           { phoneNumber: from },
           {
             $set: { "whatsApp.windowExpiresAt": expiration, "whatsApp.followupMessageSent": false },
           },
         );
-
-        if (!contextId) {
-          await handleNewChatMessage({ from, msgBody, wamId, timeStamp });
-        } else {
-          await handleReplyMessage({ from, msgBody, wamId, timeStamp, contextId });
-        }
       } catch (error) {
         logger.error("WhatsAppCallbackController, cb: incoming message processing error", error);
         continue;
