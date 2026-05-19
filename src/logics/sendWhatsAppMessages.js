@@ -69,13 +69,16 @@ async function sendWhatsAppMessages({
       sender = await User.findById(senderId).lean();
     }
 
-    if (!sender.notificationOptions?.whatsApp?.enabled) {
+    if (template !== "sellerFollowup" && !sender.notificationOptions?.whatsApp?.enabled) {
       logger.warn(
         `sendWhatsAppMessages, not sending WhatsApp messages, user has disabled WhatsApp notifications. userId: ${sender._id.toString()}`,
       );
       return [];
     }
-    if (!sender.notificationOptions?.whatsApp || !sender.notificationOptions.whatsApp[template]) {
+    if (
+      template !== "sellerFollowup" &&
+      (!sender.notificationOptions?.whatsApp || !sender.notificationOptions.whatsApp[template])
+    ) {
       logger.warn(
         `sendWhatsAppMessages, not sending WhatsApp messages, user has disabled WhatsApp notifications for this template. userId: ${sender._id.toString()}, template: ${template}`,
       );
@@ -102,7 +105,7 @@ async function sendWhatsAppMessages({
 
     if (receivers.length === 0) {
       logger.warn(
-        `sendWhatsAppMessages, no suubscribed and undeleted receivers found. senderId: ${sender._id.toString()}, receiverIds: ${receiverIds.join(
+        `sendWhatsAppMessages, no subscribed and undeleted receivers found. senderId: ${sender._id.toString()}, receiverIds: ${receiverIds.join(
           ",",
         )}`,
       );
@@ -124,7 +127,7 @@ async function sendWhatsAppMessages({
       return acc + price;
     }, 0);
 
-    if (sender.satsBalance < realPrice) {
+    if (template !== "sellerFollowup" && sender.satsBalance < realPrice) {
       logger.warn(
         `sendWhatsAppMessages, not sending WhatsApp messages, insufficient balance. userId: ${sender._id.toString()}, balance: ${
           sender.satsBalance
