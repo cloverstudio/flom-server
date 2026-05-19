@@ -32,6 +32,7 @@
 
 const router = require("express").Router();
 const Base = require("../../Base");
+const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const { auth } = require("#middleware");
 const { WhatsAppUserMapping, User } = require("#models");
@@ -40,55 +41,43 @@ router.get("/:chatId/status", auth({ allowUser: true }), async function (request
   try {
     const chatId = request.params.chatId;
 
+    let status = "disabled",
+      windowExpiresAt = 0;
+
     if (!chatId) {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeChatIdNotFound,
-        message: `GetWhatsAppChatStatus, chatId is required`,
-      });
+      logger.warn("GetWhatsAppChatStatus, chatId is required");
+      return Base.successResponse(response, Const.responsecodeSucceed, { status, windowExpiresAt });
     }
 
     const temp = chatId.split("-");
 
     const chatType = temp[0];
     if (chatType != "1") {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeChatIdNotFound,
-        message: `GetWhatsAppChatStatus, invalid chatId, wrong type: ${chatType}`,
-      });
+      logger.warn("GetWhatsAppChatStatus, invalid chatId, wrong type: " + chatType);
+      return Base.successResponse(response, Const.responsecodeSucceed, { status, windowExpiresAt });
     }
 
     const userId1 = temp[1];
     const userId2 = temp[2];
 
     if (!userId1 || !userId2) {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeChatIdNotFound,
-        message: `GetWhatsAppChatStatus, invalid chatId, missing userIds: ${userId1}, ${userId2}`,
-      });
+      logger.warn(
+        "GetWhatsAppChatStatus, invalid chatId, missing userIds: " + userId1 + ", " + userId2,
+      );
+      return Base.successResponse(response, Const.responsecodeSucceed, { status, windowExpiresAt });
     }
 
     const user1 = await User.findById(userId1).lean();
     if (!user1) {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeUserNotFound,
-        message: `GetWhatsAppChatStatus, invalid chatId, user1 not found`,
-      });
+      logger.warn("GetWhatsAppChatStatus, invalid chatId, user1 not found: " + userId1);
+      return Base.successResponse(response, Const.responsecodeSucceed, { status, windowExpiresAt });
     }
 
     const user2 = await User.findById(userId2).lean();
     if (!user2) {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeUserNotFound,
-        message: `GetWhatsAppChatStatus, invalid chatId, user2 not found`,
-      });
+      logger.warn("GetWhatsAppChatStatus, invalid chatId, user2 not found: " + userId2);
+      return Base.successResponse(response, Const.responsecodeSucceed, { status, windowExpiresAt });
     }
-
-    let status = "disabled";
 
     const mapping = await WhatsAppUserMapping.findOne({
       $or: [
@@ -107,14 +96,12 @@ router.get("/:chatId/status", auth({ allowUser: true }), async function (request
 
     if (mapping) {
       status = "enabled";
-    }
 
-    let windowExpiresAt = 0;
-
-    if (mapping.receiverPhoneNumber === user1.phoneNumber) {
-      windowExpiresAt = user1.whatsApp?.windowExpiresAt || 0;
-    } else {
-      windowExpiresAt = user2.whatsApp?.windowExpiresAt || 0;
+      if (mapping.receiverPhoneNumber === user1.phoneNumber) {
+        windowExpiresAt = user1.whatsApp?.windowExpiresAt || 0;
+      } else {
+        windowExpiresAt = user2.whatsApp?.windowExpiresAt || 0;
+      }
     }
 
     return Base.successResponse(response, Const.responsecodeSucceed, { status, windowExpiresAt });
