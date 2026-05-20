@@ -180,7 +180,7 @@ async function sendWhatsAppMessage({
       to,
     });
 
-    if (status !== "accepted" && status !== "sent" && status !== "delivered") {
+    if (!wamId) {
       logger.error("sendWhatsAppMessage error, message not accepted");
       logger.error("sendWhatsAppMessage error, response: " + JSON.stringify(result));
       return null;
