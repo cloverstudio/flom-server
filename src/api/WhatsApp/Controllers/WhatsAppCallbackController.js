@@ -149,7 +149,9 @@ async function handleNewChatMessage({ from, msgBody, wamId, timeStamp }) {
   // mapping is reversed (sender is receiver etc) because we want to find the mapping with sender and receiver phone numbers when sending message from app to whatsapp
   await WhatsAppUserMapping.findOneAndUpdate(
     {
+      senderId: toUser._id.toString(),
       senderPhoneNumber: toUser.phoneNumber,
+      receiverId: fromUser._id.toString(),
       receiverPhoneNumber: from,
     },
     { $set: { enabled: true } },

@@ -88,7 +88,10 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
 
     await Product.updateMany({ ownerId: user._id }, { $set: { isDeleted: true } });
 
-    await WhatsAppUserMapping.updateMany({ receiverPhoneNumber: userId }, { enabled: true });
+    await WhatsAppUserMapping.updateMany(
+      { receiverPhoneNumber: user.phoneNumber },
+      { enabled: true },
+    );
 
     // remove user from rooms he is in
     const roomPromises = [];
