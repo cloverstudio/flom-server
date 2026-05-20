@@ -166,6 +166,7 @@ Constants.pushTypeMessageReactionSent = 850;
 Constants.pushTypeNewLiveStream = 901;
 Constants.pushTypeLiveStreamCohostInvitation = 902;
 Constants.pushTypeAuctionWin = 910;
+Constants.pushTypeLowGlobalBalance = 100;
 
 Constants.muteActionMute = "mute";
 Constants.muteActionUnmute = "unmute";

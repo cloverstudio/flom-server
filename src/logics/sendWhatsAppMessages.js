@@ -144,6 +144,15 @@ async function sendWhatsAppMessages({
         notificationType: Const.notificationTypeLowGlobalBalance,
         created: Date.now(),
       });
+
+      await Utils.sendFlomPush({
+        senderId: Config.flomSupportAgentId,
+        receiverUser: sender,
+        message: `Your WhatsApp messages have been disabled due to insufficient balance.`,
+        messageiOs: `Your WhatsApp messages have been disabled due to insufficient balance.`,
+        pushType: Const.pushTypeLowGlobalBalance,
+        isMuted: false,
+      });
     } else {
       let i = 0;
 
