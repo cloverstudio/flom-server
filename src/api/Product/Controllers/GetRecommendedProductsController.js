@@ -484,7 +484,7 @@ async function generateFilter({
     .filter((q) => q !== null)
     .join(" and ");
 
-  logger.debug(`GetRecommendedProductsController, userId: ${userId}, filter: ${filter}`);
+  // logger.debug(`GetRecommendedProductsController, userId: ${userId}, filter: ${filter}`);
 
   return filter;
 }
@@ -524,11 +524,13 @@ async function generateBooster({ user = {}, type, countryCode, lat, lon }) {
       break;
   }
 
+  /*
   logger.debug(
     `GetRecommendedProductsController, userId: ${
       user._id ? user._id.toString() : "unknown"
     }, booster: ${booster}`,
   );
+  */
 
   return booster;
 }

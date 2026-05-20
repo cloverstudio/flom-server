@@ -359,7 +359,7 @@ async function generateFilter({
     .filter((q) => q !== null)
     .join(" and ");
 
-  logger.debug(`GetProductsForYouControllerV2, userId: ${userId}, filter: ${filter}`);
+  // logger.debug(`GetProductsForYouControllerV2, userId: ${userId}, filter: ${filter}`);
 
   return filter;
 }
@@ -398,9 +398,11 @@ async function generateBooster({ user, userTribeIds, userMembershipIds, userFoll
     booster += ` * (${isFromFollowedUsers})`;
   }
 
+  /*
   logger.debug(
     `GetProductsForYouControllerV2, userId: ${user._id.toString()}, booster: ${booster}`,
   );
+  */
 
   return booster;
 }
