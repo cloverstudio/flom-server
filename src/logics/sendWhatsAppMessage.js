@@ -174,7 +174,7 @@ async function sendWhatsAppMessage({
       wamId,
       request: data,
       response: result,
-      failures: !error ? [] : [error],
+      failures: !error ? [] : [JSON.stringify(error, null, 2)],
       status,
       template,
       to,
@@ -220,18 +220,15 @@ function makeTemplateMessage({
         },
       ],
     });
+
+    if (textParamB) {
+      base.components[0].parameters.push({
+        type: "text",
+        text: textParamB,
+      });
+    }
   }
-  if (textParamB) {
-    base.components.push({
-      type: "body",
-      parameters: [
-        {
-          type: "text",
-          text: textParamB,
-        },
-      ],
-    });
-  }
+
   if (buttonParam) {
     base.components.push({
       type: "button",
