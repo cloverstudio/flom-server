@@ -135,11 +135,8 @@ async function handleNewChatMessage({ from, msgBody, wamId, timeStamp }) {
   }
 
   let fromUser = await User.findOne({ phoneNumber: from }).lean();
-  if (
-    !fromUser ||
-    fromUser.hasLoggedIn === Const.userShadowUser ||
-    fromUser.hasLoggedIn === Const.userNeverLoggedIn
-  ) {
+
+  if (!fromUser) {
     fromUser = await Logics.createNewUser({
       phoneNumber: from,
       isAppUser: false,
@@ -147,13 +144,17 @@ async function handleNewChatMessage({ from, msgBody, wamId, timeStamp }) {
       hasLoggedIn: Const.userShadowUser,
       phoneNumberStatus: Const.phoneNumberUntested,
     });
+  }
 
-    // mapping is reversed (sender is receiver etc) because we want to find the mapping with sender and receiver phone numbers when sending message from app to whatsapp
-    await WhatsAppUserMapping.create({
+  // mapping is reversed (sender is receiver etc) because we want to find the mapping with sender and receiver phone numbers when sending message from app to whatsapp
+  await WhatsAppUserMapping.findOneAndUpdate(
+    {
       senderPhoneNumber: toUser.phoneNumber,
       receiverPhoneNumber: from,
-    });
-  }
+    },
+    { $set: { enabled: true } },
+    { upsert: true },
+  );
 
   let roomId = null;
   if (toUser && fromUser.created < toUser.created) {
