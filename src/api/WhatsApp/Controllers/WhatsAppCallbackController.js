@@ -344,6 +344,8 @@ async function sendPendingWhatsAppMessages(from) {
     const pendingMessages = await FlomMessage.find({
       wamStatus: "pending",
       receiverPhoneNumber: from,
+      type: Const.messageTypeText,
+      $and: [{ message: { $ne: null } }, { message: { $ne: "" } }], // filter out messages with empty or null message field and deleted messages
     })
       .sort({ created: 1 })
       .lean();
