@@ -124,9 +124,9 @@ async function handleNewChatMessage({ from, msgBody, wamId, timeStamp }) {
   if (!toUser) {
     const regexMention = /(?<!\w)@([a-zA-Z0-9_]+)/g;
     const matches = [...msgBody.matchAll(regexMention)];
-    const toUserName = matches.length > 0 ? matches[0][1] : "WhatsApp User";
+    const toUserName = matches.length > 0 ? matches[0][1] : "FlomWhatsAppUser";
 
-    toUser = await User.findOne({ userName: toUserName }).lean();
+    toUser = await User.findOne({ "whatsApp.mentionSlug": toUserName }).lean();
   }
 
   if (!toUser) {
