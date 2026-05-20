@@ -47,10 +47,6 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const { user } = request;
     const { chatId, productId } = request.body;
 
-    let status = "disabled",
-      windowExpiresAt = 0,
-      followupMessageSent = false;
-
     if (!chatId) {
       return Base.newErrorResponse({
         response,
@@ -131,6 +127,24 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
           "SendFollowupMessageController, no WhatsApp message sent, user may have disabled notifications or insufficient balance",
       });
     }
+
+    const params = {
+      isRecursiveCall: false,
+      type: Const.messageTypeWhatsAppFollowup,
+      userID: user._id.toString(),
+      roomID: chatId,
+      message: "",
+      created: Date.now(),
+      plainTextMessage: true,
+      attributes: {
+        senderName: user.userName,
+        productName: product.name,
+      },
+    };
+
+    await Logics.sendMessage(params);
+
+    await User.updateOne({ _id: receiver._id }, { $set: { "whatsApp.followupMessageSent": true } });
 
     return Base.successResponse(response, Const.responsecodeSucceed, {});
   } catch (error) {

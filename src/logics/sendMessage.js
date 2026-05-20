@@ -168,25 +168,14 @@ async function sendMessage(param) {
     }
 
     if (!!param.wa) {
-      let template = null,
-        productName = null,
-        sendWaMessage = true;
+      let sendWaMessage = true;
 
       if (
         !receiver?.whatsApp?.windowExpiresAt ||
         (receiver?.whatsApp?.windowExpiresAt && receiver.whatsApp.windowExpiresAt < Date.now())
       ) {
-        if (!receiver.whatsApp?.followupMessageSent) {
-          template = "sellerFollowup";
-          // TODO: get real product name for template message
-          const products = await Product.find({}).sort({ created: -1 }).limit(1).lean();
-          if (products.length > 0) {
-            productName = products[0].name;
-          }
-        } else {
-          objMessage.wamStatus = "pending";
-          sendWaMessage = false;
-        }
+        objMessage.wamStatus = "pending";
+        sendWaMessage = false;
       }
 
       let wamIds = [];
@@ -196,21 +185,12 @@ async function sendMessage(param) {
           sender: user,
           receivers: [receiver],
           message: objMessage.message,
-          template,
           mentionSlug: user.whatsApp?.mentionSlug,
           userName: user.userName,
-          productName,
         });
       }
 
-      if (template === "sellerFollowup") {
-        await User.updateOne(
-          { _id: receiver._id },
-          { $set: { "whatsApp.followupMessageSent": true } },
-        );
-      }
-
-      objMessage.wamId = !template ? wamIds[0] : null;
+      objMessage.wamId = wamIds[0] || null;
     }
 
     const newMessage = await FlomMessage.create(objMessage);
