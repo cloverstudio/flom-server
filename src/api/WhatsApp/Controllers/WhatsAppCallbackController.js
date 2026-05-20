@@ -135,7 +135,7 @@ async function handleNewChatMessage({ from, msgBody, wamId, timeStamp }) {
   }
 
   let fromUser = await User.findOne({ phoneNumber: from }).lean();
-  if (!fromUser) {
+  if (!fromUser || fromUser.hasLoggedIn === Const.userShadowUser) {
     fromUser = await Logics.createNewUser({
       phoneNumber: from,
       isAppUser: false,
