@@ -136,6 +136,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       message: "",
       created: Date.now(),
       plainTextMessage: true,
+      wamId: wamIds[0],
       attributes: {
         senderName: user.userName,
         productName: product.name,
