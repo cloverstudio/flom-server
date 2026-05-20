@@ -167,12 +167,8 @@ async function sendMessage(param) {
       }
     }
 
-    console.log("param wa: ", param.wa);
-
     if (!!param.wa) {
       let sendWaMessage = true;
-
-      console.log("receiver: ", JSON.stringify(receiver, null, 2));
 
       if (
         !receiver?.whatsApp?.windowExpiresAt ||
@@ -181,9 +177,6 @@ async function sendMessage(param) {
         objMessage.wamStatus = "pending";
         sendWaMessage = false;
       }
-
-      console.log("wamStatus: ", objMessage.wamStatus);
-      console.log("sendWaMessage: ", sendWaMessage);
 
       let wamIds = [];
 
