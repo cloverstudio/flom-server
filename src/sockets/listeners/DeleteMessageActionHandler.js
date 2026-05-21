@@ -16,6 +16,8 @@ module.exports = function (socketApi, socket) {
 
   socket.on("deleteMessage", async function (param) {
     try {
+      logger.debug("deleteMessage param:" + JSON.stringify(param));
+
       if (!param.messageID) {
         socket.emit("socketerror", { code: Const.resCodeSocketDeleteNoMessageID });
         return;
