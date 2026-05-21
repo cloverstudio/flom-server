@@ -31,6 +31,7 @@ router.use(
 );
 router.use("/product/file", require("./Controllers/ProductFilesController"));
 router.use("/product/getbyid", require("./Controllers/GetProductById"));
+router.use("/product/getbyslug", require("./Controllers/GetProductBySlug"));
 router.use("/product/search", require("./Controllers/GetProductBySearchTerm"));
 router.use("/product/paid", require("./Controllers/GetPaidProductsController"));
 router.use("/product/merchant", require("./Controllers/SearchMerchantProductsController"));

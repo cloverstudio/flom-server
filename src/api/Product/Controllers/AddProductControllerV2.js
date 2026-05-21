@@ -446,6 +446,7 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
     }
 
     product.name = productName;
+    product.slug = await Product.createSlug(productName);
     product.description = productDescription;
     product.ownerId = user._id;
     product.countryCode = user.countryCode;

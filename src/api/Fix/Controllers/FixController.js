@@ -7,7 +7,7 @@ const { Const, Config, countries } = require("#config");
 const Utils = require("#utils");
 const Logics = require("#logics");
 const { auth } = require("#middleware");
-const { User, FlomMessage, Test, NonFlomContact } = require("#models");
+const { User, FlomMessage, Test, NonFlomContact, Product } = require("#models");
 const fs = require("fs");
 const path = require("path");
 const { recombee } = require("#services");
@@ -439,73 +439,50 @@ router.post("/form", async (request, response) => {
   }
 });
 
-router.get("/wa", async (request, response) => {
+router.get("/product-slugs", async (request, response) => {
   try {
-    const whatsAppPricingUrl =
-      "https://developers.facebook.com/documentation/business-messaging/whatsapp/pricing";
-    // Like the browser fetch API, the default method is GET
-    const r = await fetch(whatsAppPricingUrl, {
-      headers: {
-        "User-Agent": "Mozilla/5.0",
-        Accept:
-          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.9",
-      },
-    });
+    let breakLoop = false,
+      i = 0;
 
-    const data = await r.text();
+    while (!breakLoop) {
+      console.log("Fixing product slugs, batch " + i);
+      const products = await Product.find({
+        slug: { $exists: false },
+        $and: [{ name: { $exists: true } }, { name: { $ne: null } }, { name: { $ne: "" } }],
+      }).limit(100);
 
-    const jms = `"json_cms_content":"`; // include the opening quote
-    const startIndex = data.indexOf(jms);
-    if (startIndex === -1) {
-      throw new Error("json_cms_content not found in page");
-    }
-    const valueStart = startIndex + jms.length; // now points inside the opening quote
-
-    // Walk through chars, tracking escape sequences to find the closing quote
-    let result = "";
-    let i = valueStart;
-    while (i < data.length) {
-      const char = data[i];
-      if (char === "\\") {
-        // skip escaped character
-        result += data[i + 1];
-        i += 2;
-      } else if (char === '"') {
-        // closing quote reached
-        break;
-      } else {
-        result += char;
-        i++;
+      if (products.length === 0) {
+        breakLoop = true;
       }
+
+      const bulkOps = [];
+
+      for (const p of products) {
+        const slug = await Product.createSlug(p.name);
+        console.log("Fixing product slug: ", p._id.toString(), p.name, slug);
+
+        bulkOps.push({
+          updateOne: {
+            filter: { _id: p._id },
+            update: { $set: { slug } },
+          },
+        });
+      }
+
+      if (bulkOps.length > 0) {
+        await Product.bulkWrite(bulkOps);
+      }
+
+      i++;
+
+      await Utils.wait(2);
     }
 
-    const parsed = JSON.parse(result);
-
-    const node = findNode(parsed);
-
-    function findNode(node, parent) {
-      if (typeof node === "string") {
-        if (node.trim() === "USD rates") {
-          return parent;
-        }
-      }
-      if (node.children) {
-        for (const child of node.children) {
-          const found = findNode(child, node);
-          if (found) return found;
-        }
-      }
-      return null;
-    }
-
-    const url = node.props?.href;
-
-    Base.successResponse(response, Const.responsecodeSucceed, { url });
+    Base.successResponse(response, Const.responsecodeSucceed, {});
   } catch (error) {
     Base.newErrorResponse({
       response,
-      message: "FixController - wa",
+      message: "FixController - product-slugs",
       error,
     });
   }
