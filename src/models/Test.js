@@ -1,12 +1,5 @@
 const { db } = require("#infra");
 const mongoose = require("mongoose");
-const User = require("./User");
-
-function baseModelPlugin(schema) {
-  schema.statics.testFn = function () {
-    console.log("Test function called");
-  };
-}
 
 /**
  * @type {mongoose.SchemaDefinitionProperty}
@@ -24,16 +17,20 @@ const schema = new mongoose.Schema(
   { timestamps: true },
 );
 
-schema.post("findOne", async function (doc) {
-  if (doc.userId) {
-    const user = await User.findById(doc.userId).lean();
-
-    doc.user = user;
-  }
-
-  return doc;
+schema.post("find", async function (doc) {
+  console.log("Post find hook - Test model");
 });
 
-schema.plugin(baseModelPlugin);
+const Test = db.db1.model("Test", schema, "tests");
 
-module.exports = db.db1.model("Test", schema, "tests");
+class Test2 extends Test {
+  static invokeTestFn(x) {
+    this.testFunction(x);
+  }
+
+  static testFunction(x) {
+    console.log("Test function", x);
+  }
+}
+
+module.exports = Test2;

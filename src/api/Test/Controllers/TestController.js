@@ -14,7 +14,9 @@ router.get("/statics", async (request, response) => {
       throw new Error("Not allowed in production");
     }
 
-    Test.testFn();
+    Test.invokeTestFn("some argument");
+
+    Test.find({});
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
