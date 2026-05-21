@@ -1,15 +1,8 @@
 const { db } = require("#infra");
 const mongoose = require("mongoose");
 const { Const } = require("#config");
+const Utils = require("#utils");
 const Category = require("./Category");
-
-function roundNumber(number, numberOfDigits, direction = "round") {
-  const roundFunction =
-    direction === "up" ? Math.ceil : direction === "down" ? Math.floor : Math.round;
-
-  const n = 10 ** numberOfDigits;
-  return roundFunction(number * n) / n;
-}
 
 /**
  * @type {mongoose.SchemaDefinitionProperty}
@@ -256,7 +249,7 @@ class ExtendedProduct extends Product {
 
       Object.keys(originalPrice).forEach((key) => {
         if (key.toLowerCase().includes("value") && originalPrice[key] > 0) {
-          userPrice[key] = roundNumber(originalPrice[key] * (userRate / productRate), 2);
+          userPrice[key] = Utils.roundNumber(originalPrice[key] * (userRate / productRate), 2);
         }
       });
 

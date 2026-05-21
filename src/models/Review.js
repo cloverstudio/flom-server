@@ -1,21 +1,7 @@
 const { db } = require("#infra");
 const mongoose = require("mongoose");
 const { Config } = require("#config");
-
-const BadWordsNext = require("bad-words-next");
-const badWords = new BadWordsNext();
-
-function hideBadWords(text) {
-  const en = require("bad-words-next/data/en.json");
-  const fr = require("bad-words-next/data/fr.json");
-  const es = require("bad-words-next/data/es.json");
-
-  badWords.add(en);
-  badWords.add(fr);
-  badWords.add(es);
-
-  return badWords.filter(text);
-}
+const Utils = require("#utils");
 
 /**
  * @type {mongoose.SchemaDefinitionProperty}
@@ -68,7 +54,7 @@ schema.post("findOne", function (docs) {
 
   if (docs && docs.comment) {
     docs.rawComment = docs.comment;
-    docs.comment = hideBadWords(docs.comment);
+    docs.comment = Utils.hideBadWords(docs.comment);
   }
 
   return docs;
@@ -87,7 +73,7 @@ schema.post("find", function (docs) {
 
       if (doc && doc.comment) {
         doc.rawComment = doc.comment;
-        doc.comment = hideBadWords(doc.comment);
+        doc.comment = Utils.hideBadWords(doc.comment);
       }
 
       return doc;

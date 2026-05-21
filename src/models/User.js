@@ -1,23 +1,11 @@
 const { db } = require("#infra");
 const mongoose = require("mongoose");
 const { Config, Const } = require("#config");
+const Utils = require("#utils");
 
 const Membership = require("./Membership");
 const Tribe = require("./Tribe");
 const ConversionRate = require("./ConversionRate");
-
-const getCountryCodeFromPhoneNumber = require("../utils/getCountryCodeFromPhoneNumber");
-const getCurrencyFromCountryCode = require("../utils/getCurrencyFromCountryCode");
-
-function generateRandomNumber(numberOfDigits) {
-  let base = 1;
-
-  for (let i = 0; i < numberOfDigits - 1; i++) {
-    base *= 10;
-  }
-
-  return Math.floor(base + Math.random() * base);
-}
 
 /**
  * @type {mongoose.SchemaDefinitionProperty}
@@ -431,7 +419,7 @@ class ExtendedUser extends User {
     let merchantCode,
       finished = false;
     do {
-      merchantCode = generateRandomNumber(8).toString();
+      merchantCode = Utils.generateRandomNumber(8).toString();
       const exists = await this.findOne(
         { "bankAccounts.merchantCode": merchantCode },
         { _id: 1 },
@@ -538,9 +526,9 @@ class ExtendedUser extends User {
     }
 
     const userCountryCode =
-      user.countryCode || getCountryCodeFromPhoneNumber({ phoneNumber: user.phoneNumber });
+      user.countryCode || Utils.getCountryCodeFromPhoneNumber({ phoneNumber: user.phoneNumber });
     const conversionRates = await ConversionRate.getRates();
-    const userCurrency = getCurrencyFromCountryCode({
+    const userCurrency = Utils.getCurrencyFromCountryCode({
       countryCode: userCountryCode,
       rates: conversionRates.rates,
     });
