@@ -112,6 +112,18 @@ router.post("/", async function (request, response) {
 });
 
 async function handleNewChatMessage({ from, msgBody, wamId, timeStamp }) {
+  let fromUser = await User.findOne({ phoneNumber: from }).lean();
+
+  if (!fromUser) {
+    fromUser = await Logics.createNewUser({
+      phoneNumber: from,
+      isAppUser: false,
+      shadow: true,
+      hasLoggedIn: Const.userShadowUser,
+      phoneNumberStatus: Const.phoneNumberUntested,
+    });
+  }
+
   let toUser = null;
 
   const regexRef = /ref_([A-Za-z]+)/;
@@ -130,20 +142,20 @@ async function handleNewChatMessage({ from, msgBody, wamId, timeStamp }) {
   }
 
   if (!toUser) {
+    if (!fromUser.whatsApp?.receivedUnknownRecipientNotice) {
+      await Logics.sendWhatsAppMessage({
+        to: from,
+        template: "unknownRecipientNotice",
+      });
+
+      await User.updateOne(
+        { _id: fromUser._id },
+        { $set: { "whatsApp.receivedUnknownRecipientNotice": true } },
+      );
+    }
+
     logger.error("WhatsAppCallbackController, cb: toUser not found from message: " + msgBody);
     return;
-  }
-
-  let fromUser = await User.findOne({ phoneNumber: from }).lean();
-
-  if (!fromUser) {
-    fromUser = await Logics.createNewUser({
-      phoneNumber: from,
-      isAppUser: false,
-      shadow: true,
-      hasLoggedIn: Const.userShadowUser,
-      phoneNumberStatus: Const.phoneNumberUntested,
-    });
   }
 
   // mapping is reversed (sender is receiver etc) because we want to find the mapping with sender and receiver phone numbers when sending message from app to whatsapp

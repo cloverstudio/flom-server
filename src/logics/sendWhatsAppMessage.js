@@ -134,6 +134,8 @@ async function sendWhatsAppMessage({
           textParamA = userName;
           textParamB = productName;
           break;
+        case "unknownRecipientNotice":
+          break;
         default:
           logger.error("sendWhatsAppMessage error, invalid template name: " + template);
           return null;

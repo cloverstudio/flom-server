@@ -1316,6 +1316,7 @@ Constants.templateMap = {
   secondChance: "second_chance",
   shippingUpdate: "shipping_update",
   pendingPayment: "pending_payment",
+  unknownRecipientNotice: "unknown_recipient_notice",
 };
 Constants.marketingTemplates = ["newDrop", "auctionReminder", "secondChance", "goLive"];
 

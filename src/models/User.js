@@ -244,6 +244,7 @@ const schema = new mongoose.Schema(
       reference: String,
       windowExpiresAt: Number,
       followupMessageSent: { type: Boolean, default: false },
+      receivedUnknownRecipientNotice: { type: Boolean, default: false },
     },
 
     notificationOptions: {
