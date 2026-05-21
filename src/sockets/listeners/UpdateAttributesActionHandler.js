@@ -94,16 +94,22 @@ module.exports = function (socketApi, socket) {
         }
       }
 
-      const messages = await FlomMessage.populateMessages(message);
+      // const messages = await FlomMessage.populateMessages(message);
 
-      if (messages.length > 0) {
-        const obj = messages[0];
-        obj.attributes = newAttributes;
-        obj.created = updateParams.created ? updateParams.created : messages[0].created;
+      // if (messages.length > 0) {
+      //   const obj = messages[0];
+      //   obj.attributes = newAttributes;
+      //   obj.created = updateParams.created ? updateParams.created : messages[0].created;
 
-        updateHistory.updateByMessage(obj);
-        notifyUpdateMessage.notify(obj);
-      }
+      //   updateHistory.updateByMessage(obj);
+      //   notifyUpdateMessage(obj);
+      // }
+
+      message.attributes = newAttributes;
+      message.created = updateParams.created ? updateParams.created : message.created;
+
+      updateHistory(message);
+      notifyUpdateMessage(message);
 
       if (typeof callback === "function") callback(message);
     } catch (error) {
