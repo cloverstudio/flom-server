@@ -2,6 +2,12 @@ const { db } = require("#infra");
 const mongoose = require("mongoose");
 const User = require("./User");
 
+function baseModelPlugin(schema) {
+  schema.statics.testFn = function () {
+    console.log("Test function called");
+  };
+}
+
 /**
  * @type {mongoose.SchemaDefinitionProperty}
  */
@@ -27,5 +33,7 @@ schema.post("findOne", async function (doc) {
 
   return doc;
 });
+
+schema.plugin(baseModelPlugin);
 
 module.exports = db.db1.model("Test", schema, "tests");
