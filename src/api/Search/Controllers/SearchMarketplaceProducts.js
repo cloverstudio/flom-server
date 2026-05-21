@@ -247,7 +247,7 @@ router.get("/", auth({ allowUser: true }), async (request, response) => {
 
     productsFiltered = productsToBeReturned;
     productsFiltered.forEach((product) => {
-      Utils.addUserPriceToProduct({
+      Product.addUserPriceToProduct({
         product,
         userRate,
         userCountryCode,

@@ -237,7 +237,7 @@ router.post("/", async function (request, response) {
       product.review = review;
     }
 
-    Utils.addUserPriceToProduct({
+    Product.addUserPriceToProduct({
       product,
       userRate,
       userCountryCode,

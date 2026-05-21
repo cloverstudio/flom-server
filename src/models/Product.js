@@ -2,6 +2,14 @@ const { db } = require("#infra");
 const mongoose = require("mongoose");
 const { Const } = require("#config");
 
+function roundNumber(number, numberOfDigits, direction = "round") {
+  const roundFunction =
+    direction === "up" ? Math.ceil : direction === "down" ? Math.floor : Math.round;
+
+  const n = 10 ** numberOfDigits;
+  return roundFunction(number * n) / n;
+}
+
 /**
  * @type {mongoose.SchemaDefinitionProperty}
  */
@@ -214,4 +222,48 @@ schema.index({ featured: -1 });
 
 schema.index({ _id: -1, isDeleted: -1 });
 
-module.exports = db.db1.model("Product", schema, "products");
+const Product = db.db1.model("Product", schema, "products");
+
+class ExtendedProduct extends Product {
+  static isProductForSale(product) {
+    const { originalPrice } = product;
+
+    if (!originalPrice) return false;
+
+    let hasPrice = false;
+
+    Object.keys(originalPrice).forEach((key) => {
+      if (key.toLowerCase().includes("value") && originalPrice[key] > 0) {
+        hasPrice = true;
+      }
+    });
+
+    return hasPrice;
+  }
+
+  static addUserPriceToProduct({
+    product = {},
+    userRate,
+    userCountryCode,
+    userCurrency,
+    conversionRates,
+  }) {
+    if (userRate && this.isProductForSale(product)) {
+      const productRate = conversionRates.rates[product.originalPrice.currency];
+      const userPrice = { countryCode: userCountryCode, currency: userCurrency };
+      const originalPrice = product.originalPrice;
+
+      Object.keys(originalPrice).forEach((key) => {
+        if (key.toLowerCase().includes("value") && originalPrice[key] > 0) {
+          userPrice[key] = roundNumber(originalPrice[key] * (userRate / productRate), 2);
+        }
+      });
+
+      product.userPrice = userPrice;
+    }
+
+    return;
+  }
+}
+
+module.exports = ExtendedProduct;

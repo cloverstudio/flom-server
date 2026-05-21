@@ -437,7 +437,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         obj.review.phoneNumber = request.user.phoneNumber;
       }
 
-      Utils.addUserPriceToProduct({
+      Product.addUserPriceToProduct({
         product: obj,
         userRate,
         userCountryCode,

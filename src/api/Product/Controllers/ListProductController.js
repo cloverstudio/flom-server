@@ -227,7 +227,7 @@ router.post("/", async function (request, response) {
     );
 
     enrichedProducts.forEach((product) => {
-      Utils.addUserPriceToProduct({
+      Product.addUserPriceToProduct({
         product,
         userRate,
         userCountryCode,

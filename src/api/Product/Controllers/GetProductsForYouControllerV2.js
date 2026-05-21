@@ -295,7 +295,7 @@ async function getProducts({
     if (product.parentCategoryId !== "-1") {
       product.parentCategory = categoriesObj[product.parentCategoryId];
     }
-    Utils.addUserPriceToProduct({
+    Product.addUserPriceToProduct({
       product,
       userRate,
       userCountryCode,

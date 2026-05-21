@@ -93,7 +93,7 @@ async function getSimilarProducts({ product, subscriber }) {
     if (product.parentCategoryId !== "-1") {
       categoriesSet.add(product.parentCategoryId);
     }
-    Utils.addUserPriceToProduct({
+    Product.addUserPriceToProduct({
       product,
       userRate,
       userCountryCode,

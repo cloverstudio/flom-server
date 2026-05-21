@@ -400,7 +400,7 @@ router.post("/", async function (request, response) {
         }
       }
 
-      Utils.addUserPriceToProduct({
+      Product.addUserPriceToProduct({
         product: obj,
         userRate,
         userCountryCode,

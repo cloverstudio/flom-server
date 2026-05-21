@@ -193,7 +193,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       obj.products = [];
       obj.productsCount = data.productsCount;
       data.products.forEach((product) => {
-        Utils.addUserPriceToProduct({
+        Product.addUserPriceToProduct({
           product,
           userRate,
           userCountryCode,

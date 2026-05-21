@@ -275,7 +275,7 @@ router.post("/", async function (request, response) {
       if (product.parentCategoryId !== "-1") {
         categoriesSet.add(product.parentCategoryId);
       }
-      Utils.addUserPriceToProduct({
+      Product.addUserPriceToProduct({
         product,
         userRate,
         userCountryCode,

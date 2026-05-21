@@ -251,7 +251,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
         };
 
         if (!audio.isFree) {
-          Utils.addUserPriceToProduct({
+          Product.addUserPriceToProduct({
             product: audio,
             userRate,
             userCountryCode,

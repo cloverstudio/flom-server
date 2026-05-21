@@ -1,6 +1,4 @@
 module.exports = Object.freeze({
-  addUserPriceToProduct: require("./addUserPriceToProduct"),
-
   callBatchSMSService: require("./callBatchSMSService"),
   callChatGPTApi: require("./callChatGPTApi"),
   callPushService: require("./callPushService"),
@@ -67,7 +65,6 @@ module.exports = Object.freeze({
   hideBadWords: require("./hideBadWords"),
 
   isEmail: require("./isEmail"),
-  isProductForSale: require("./isProductForSale"),
   isUserCommunityMember: require("./isUserCommunityMember"),
   isUserTribeMember: require("./isUserTribeMember"),
   isValidObjectId: require("./isValidObjectId"),

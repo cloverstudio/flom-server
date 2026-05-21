@@ -192,7 +192,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       if (product.parentCategoryId !== "-1") {
         categoryIds.add(product.parentCategoryId);
       }
-      Utils.addUserPriceToProduct({
+      Product.addUserPriceToProduct({
         product,
         userRate,
         userCountryCode,

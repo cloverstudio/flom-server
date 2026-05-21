@@ -252,7 +252,7 @@ async function getProducts({
       product.parentCategory = categoriesObj[product.parentCategoryId];
     }
 
-    Utils.addUserPriceToProduct({
+    Product.addUserPriceToProduct({
       product,
       userRate,
       userCountryCode,
@@ -268,7 +268,7 @@ async function getProducts({
       product.parentCategory = categoriesObj[product.parentCategoryId];
     }
 
-    Utils.addUserPriceToProduct({
+    Product.addUserPriceToProduct({
       product,
       userRate,
       userCountryCode,

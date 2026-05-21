@@ -328,7 +328,7 @@ router.get("/", async function (request, response) {
         product.recentViews = productsArray[i]?.count || 1;
         product.owner = ownerObjectsEdited[product.ownerId];
 
-        Utils.addUserPriceToProduct({
+        Product.addUserPriceToProduct({
           product,
           userRate,
           userCountryCode,

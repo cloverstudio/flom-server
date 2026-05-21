@@ -194,7 +194,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     productsToSend = products.map((product, i) => {
       let obj = product.toObject();
 
-      Utils.addUserPriceToProduct({
+      Product.addUserPriceToProduct({
         product: obj,
         userRate,
         userCountryCode,

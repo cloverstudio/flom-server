@@ -314,7 +314,7 @@ router.get("/", async (request, response) => {
     products.forEach((product) => {
       delete product.__v;
 
-      Utils.addUserPriceToProduct({
+      Product.addUserPriceToProduct({
         product,
         userRate,
         userCountryCode,

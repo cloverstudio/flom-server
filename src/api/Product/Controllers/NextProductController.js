@@ -236,7 +236,7 @@ router.post("/", async function (request, response) {
       productObj.parentCategory = parentCategory;
     }
 
-    Utils.addUserPriceToProduct({
+    Product.addUserPriceToProduct({
       product: productObj,
       userRate,
       userCountryCode,

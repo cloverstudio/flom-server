@@ -306,7 +306,7 @@ router.get("/", async function (request, response) {
           }, {});
       }
 
-      Utils.addUserPriceToProduct({
+      Product.addUserPriceToProduct({
         product,
         userRate,
         userCountryCode,

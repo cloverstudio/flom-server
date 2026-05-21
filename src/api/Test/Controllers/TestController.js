@@ -6,7 +6,7 @@ const { logger } = require("#infra");
 const { Const, Config, countries } = require("#config");
 const Utils = require("#utils");
 const Logics = require("#logics");
-const { Test } = require("#models");
+const { Test, Product } = require("#models");
 
 router.get("/statics", async (request, response) => {
   try {
@@ -14,11 +14,10 @@ router.get("/statics", async (request, response) => {
       throw new Error("Not allowed in production");
     }
 
-    Test.invokeTestFn("some argument");
+    const p = await Product.findOne().lean();
+    const isForSale = Product.isProductForSale(p);
 
-    Test.find({});
-
-    Base.successResponse(response, Const.responsecodeSucceed);
+    Base.successResponse(response, Const.responsecodeSucceed, { isForSale });
   } catch (error) {
     Base.newErrorResponse({
       response,

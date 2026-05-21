@@ -211,7 +211,7 @@ router.get("/:productId", async function (request, response) {
           accessToken: request.headers["access-token"],
         });
 
-      Utils.addUserPriceToProduct({
+      Product.addUserPriceToProduct({
         product,
         userRate,
         userCountryCode,
