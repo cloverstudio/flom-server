@@ -42,4 +42,10 @@ module.exports = Object.freeze({
 
   countryFromBinNumber: require("./countryFromBinNumber"),
   getCountryFromIpAddress: require("./getCountryFromIpAddress"),
+  callChatGPTApi: require("./callChatGPTApi"),
+  checkIfCarrierIsAllowed: require("./checkIfCarrierIsAllowed"),
+  getCarrier: require("./getCarrier"),
+  getCustomerActivationData: require("./getCustomerActivationData"),
+  getGPTAssistantResponse: require("./getGPTAssistantResponse"),
+  sendFlomPush: require("./sendFlomPush"),
 });

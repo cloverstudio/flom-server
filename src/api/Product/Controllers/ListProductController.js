@@ -147,7 +147,7 @@ router.post("/", async function (request, response) {
 
     let kidsMode;
     const { userRate, userCountryCode, userCurrency, conversionRates } =
-      await Utils.getUsersConversionRate({
+      await User.getUsersConversionRate({
         user: request.user,
         accessToken: request.headers["access-token"],
       });
@@ -350,7 +350,7 @@ function getLocationFromString(locString) {
 function getCategoryIdsFromString(catString) {
   return catString == undefined
     ? undefined
-    : catString.split(",").map((str) => Utils.createObjectID(str));
+    : catString.split(",").map((str) => Utils.createObjectId(str));
 }
 
 function addDistField(product, location) {

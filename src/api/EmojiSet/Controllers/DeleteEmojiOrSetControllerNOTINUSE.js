@@ -69,7 +69,7 @@ router.delete(
       if (emojiId) {
         var emojiInSet = await EmojiSet.findOne(
           {
-            "items._id": Utils.createObjectID(emojiId),
+            "items._id": Utils.createObjectId(emojiId),
           },
           { "items.$": 1, _id: 0 },
         ).lean();
@@ -87,7 +87,7 @@ router.delete(
 
       if (emojiId) {
         result = await EmojiSet.updateOne(
-          { _id: emojiSetId, "items._id": Utils.createObjectID(emojiId) },
+          { _id: emojiSetId, "items._id": Utils.createObjectId(emojiId) },
           { $set: { isDeprecated: true, $inc: { itemsCount: -1 } } },
         );
       } else {

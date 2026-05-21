@@ -19,7 +19,7 @@ const getTribeOwnerAndCoOwners = async (tribe) => {
 
 const getPushTokens = async ({ users, userIds }) => {
   userIds = userIds?.map(function (el) {
-    return Utils.createObjectID(el);
+    return Utils.createObjectId(el);
   });
 
   if (users) {

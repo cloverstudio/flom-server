@@ -4,7 +4,7 @@ const router = require("express").Router();
 const Base = require("../../Base");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { BlessPacket } = require("#models");
+const { BlessPacket, User } = require("#models");
 const fsp = require("fs/promises");
 const { addFlomojiLinks } = require("../../Flomoji/helpers");
 const path = require("path");
@@ -116,7 +116,7 @@ router.get("/packets", async function (request, response) {
       });
     }
 
-    const { userRate, userCountryCode, userCurrency } = await Utils.getUsersConversionRate({
+    const { userRate, userCountryCode, userCurrency } = await User.getUsersConversionRate({
       user: request.user,
       accessToken: request.headers["access-token"],
     });

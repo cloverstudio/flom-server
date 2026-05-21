@@ -168,7 +168,7 @@ async function formatUserDetailsResponse({ user, requestAccessToken = "" }) {
     "memberships.id": { $in: creatorMembershipIds },
   });
 
-  user.socialMedia = Utils.generateSocialMediaWithLinks({ socialMedia: user.socialMedia });
+  user.socialMedia = User.generateSocialMediaWithLinks({ socialMedia: user.socialMedia });
 
   let hasReceivedFundsWithoutMerchantCode = false;
 

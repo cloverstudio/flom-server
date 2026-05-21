@@ -96,7 +96,7 @@ router.patch(
 
       var emojiInSet = await EmojiSet.findOne(
         {
-          "items._id": Utils.createObjectID(emojiId),
+          "items._id": Utils.createObjectId(emojiId),
         },
         { "items.$": 1, _id: 0 },
       ).lean();
@@ -220,7 +220,7 @@ router.patch(
       emojiInSet.items[0].modified = Date.now();
 
       await EmojiSet.updateOne(
-        { _id: emojiSetId, "items._id": Utils.createObjectID(emojiId) },
+        { _id: emojiSetId, "items._id": Utils.createObjectId(emojiId) },
         { $set: { "items.$": emojiInSet.items[0] } },
       );
 

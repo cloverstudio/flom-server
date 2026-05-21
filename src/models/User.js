@@ -2,6 +2,23 @@ const { db } = require("#infra");
 const mongoose = require("mongoose");
 const { Config, Const } = require("#config");
 
+const Membership = require("./Membership");
+const Tribe = require("./Tribe");
+const ConversionRate = require("./ConversionRate");
+
+const getCountryCodeFromPhoneNumber = require("../utils/getCountryCodeFromPhoneNumber");
+const getCurrencyFromCountryCode = require("../utils/getCurrencyFromCountryCode");
+
+function generateRandomNumber(numberOfDigits) {
+  let base = 1;
+
+  for (let i = 0; i < numberOfDigits - 1; i++) {
+    base *= 10;
+  }
+
+  return Math.floor(base + Math.random() * base);
+}
+
 /**
  * @type {mongoose.SchemaDefinitionProperty}
  */
@@ -358,45 +375,179 @@ schema.post("find", function (docs) {
   return docs;
 });
 
-schema.statics.getDefaultResponseFields = function () {
-  return {
-    _id: true,
-    description: true,
-    name: true,
-    organizationId: true,
-    userid: true,
-    avatar: true,
-    phoneNumber: true,
-    bankAccounts: true,
-    created: true,
-  };
-};
+const User = db.db1.model("User", schema, "users");
 
-schema.statics.getAvatar = ({ avatar }) => {
-  const formattedAvatar = {
-    picture: {},
-    thumbnail: {},
-  };
-
-  if (avatar && avatar.picture && avatar.picture.nameOnServer) {
-    formattedAvatar.picture = {
-      ...avatar.picture,
-      ...(!avatar.picture.link && {
-        link: `${Config.webClientUrl}/api/v2/avatar/user/${avatar.picture.nameOnServer}`,
-      }),
+class ExtendedUser extends User {
+  static getDefaultResponseFields() {
+    return {
+      _id: true,
+      description: true,
+      name: true,
+      organizationId: true,
+      userid: true,
+      avatar: true,
+      phoneNumber: true,
+      bankAccounts: true,
+      created: true,
     };
   }
 
-  if (avatar && avatar.thumbnail && avatar.thumbnail.nameOnServer) {
-    formattedAvatar.thumbnail = {
-      ...avatar.thumbnail,
-      ...(!avatar.thumbnail.link && {
-        link: `${Config.webClientUrl}/api/v2/avatar/user/${avatar.thumbnail.nameOnServer}`,
-      }),
+  static getAvatar({ avatar }) {
+    const formattedAvatar = {
+      picture: {},
+      thumbnail: {},
     };
+
+    if (avatar && avatar.picture && avatar.picture.nameOnServer) {
+      formattedAvatar.picture = {
+        ...avatar.picture,
+        ...(!avatar.picture.link && {
+          link: `${Config.webClientUrl}/api/v2/avatar/user/${avatar.picture.nameOnServer}`,
+        }),
+      };
+    }
+
+    if (avatar && avatar.thumbnail && avatar.thumbnail.nameOnServer) {
+      formattedAvatar.thumbnail = {
+        ...avatar.thumbnail,
+        ...(!avatar.thumbnail.link && {
+          link: `${Config.webClientUrl}/api/v2/avatar/user/${avatar.thumbnail.nameOnServer}`,
+        }),
+      };
+    }
+
+    return formattedAvatar;
   }
 
-  return formattedAvatar;
-};
+  static filterExpiredMemberships(userMemberships) {
+    if (!userMemberships) return [];
+    const timeNow = Date.now();
+    return userMemberships.filter(
+      (membership) => membership.expirationDate === -1 || membership.expirationDate > timeNow,
+    );
+  }
 
-module.exports = db.db1.model("User", schema, "users");
+  static async generateFakeMerchantCode() {
+    let merchantCode,
+      finished = false;
+    do {
+      merchantCode = generateRandomNumber(8).toString();
+      const exists = await this.findOne(
+        { "bankAccounts.merchantCode": merchantCode },
+        { _id: 1 },
+      ).lean();
+      if (!exists) {
+        finished = true;
+      }
+    } while (!finished);
+    return merchantCode;
+  }
+
+  static generateSocialMediaWithLinks({ socialMedia }) {
+    let socMediaArray = [];
+
+    if (socialMedia && socialMedia.length) {
+      const linkTemplate = Const.socialMediaLinkTemplate;
+      for (let i = 0; i < socialMedia.length; i++) {
+        if (!socialMedia[i]) continue;
+
+        const links = linkTemplate[socialMedia[i]?.type];
+        const username = socialMedia[i]?.username;
+        if (links && username) {
+          if (links.profileWebUrl) {
+            socialMedia[i].profileWebUrl = links.profileWebUrl.replace("{username}", username);
+          }
+          if (links.profileIOSUrl) {
+            socialMedia[i].profileIOSUrl = links.profileIOSUrl.replace("{username}", username);
+          }
+          if (links.profileAndroidUrl) {
+            socialMedia[i].profileAndroidUrl = links.profileAndroidUrl.replace(
+              "{username}",
+              username,
+            );
+          }
+        }
+
+        socMediaArray.push(socialMedia[i]);
+      }
+    }
+    return socMediaArray;
+  }
+
+  static async isUserCommunityMember({ productCommunityIds, userId }) {
+    try {
+      const user = await this.findOne({ _id: userId }).lean();
+
+      if (!productCommunityIds || productCommunityIds.length < 1) {
+        return false;
+      }
+      const filteredCommunityIds = productCommunityIds.filter((id) => id !== "");
+      const productCommunities = await Membership.find({
+        _id: { $in: filteredCommunityIds },
+      }).lean();
+      if (!productCommunities || productCommunities.length === 0) return false;
+      for (let i = 0; i < productCommunities.length; i++) {
+        if (userId === productCommunities[i].creatorId) {
+          return true;
+        }
+      }
+      for (let j = 0; j < filteredCommunityIds.length; j++) {
+        for (let k = 0; k < user.memberships.length; k++) {
+          if (user.memberships[k].id === filteredCommunityIds[j]) return true;
+        }
+      }
+
+      return false;
+    } catch (error) {
+      console.error("isUserCommunityMember error: ", error);
+      throw error;
+    }
+  }
+
+  static async isUserTribeMember({ productTribeIds, userId }) {
+    try {
+      if (!productTribeIds || productTribeIds.length < 1) {
+        return false;
+      }
+      const filteredTribeIds = productTribeIds.filter((id) => id !== "");
+      const productTribes = await Tribe.find({ _id: { $in: filteredTribeIds } }).lean();
+      if (!productTribes || productTribes.length === 0) return false;
+      for (let i = 0; i < productTribes.length; i++) {
+        if (userId === productTribes[i].ownerId) {
+          return true;
+        }
+        for (let j = 0; j < productTribes[i].members.accepted.length; j++) {
+          if (userId === productTribes[i].members.accepted[j].id) return true;
+        }
+      }
+      return false;
+    } catch (error) {
+      console.error("isUserTribeMember error: ", error);
+      throw error;
+    }
+  }
+
+  static async getUsersConversionRate({ user, accessToken }) {
+    if (!user) {
+      if (!accessToken || accessToken.length !== Const.tokenLength)
+        return { userRate: null, userCountryCode: null, userCurrency: null, conversionRates: null };
+
+      user = await this.findOne({ "token.token": accessToken }).lean();
+      if (!user)
+        return { userRate: null, userCountryCode: null, userCurrency: null, conversionRates: null };
+    }
+
+    const userCountryCode =
+      user.countryCode || getCountryCodeFromPhoneNumber({ phoneNumber: user.phoneNumber });
+    const conversionRates = await ConversionRate.getRates();
+    const userCurrency = getCurrencyFromCountryCode({
+      countryCode: userCountryCode,
+      rates: conversionRates.rates,
+    });
+    const userRate = conversionRates.rates[userCurrency];
+
+    return { userRate, userCountryCode, userCurrency, conversionRates };
+  }
+}
+
+module.exports = ExtendedUser;

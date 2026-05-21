@@ -213,7 +213,7 @@ router.get("/", async function (request, response) {
     }
 
     const { userRate, userCountryCode, userCurrency, conversionRates } =
-      await Utils.getUsersConversionRate({
+      await User.getUsersConversionRate({
         user,
         accessToken: request.headers["access-token"],
       });

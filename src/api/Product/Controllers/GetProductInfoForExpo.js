@@ -206,7 +206,7 @@ router.get("/:productId", async function (request, response) {
 
     if (userId) {
       const { userRate, userCountryCode, userCurrency, conversionRates } =
-        await Utils.getUsersConversionRate({
+        await User.getUsersConversionRate({
           user: request.user,
           accessToken: request.headers["access-token"],
         });
@@ -233,10 +233,10 @@ router.get("/:productId", async function (request, response) {
     const productCommunityIds = product.communityIds;
     const isUserTribeMember = !userId
       ? false
-      : await Utils.isUserTribeMember({ userId, productTribeIds });
+      : await User.isUserTribeMember({ userId, productTribeIds });
     const isUserCommunityMember = !userId
       ? false
-      : await Utils.isUserCommunityMember({
+      : await User.isUserCommunityMember({
           userId,
           productCommunityIds,
         });

@@ -379,7 +379,7 @@ router.patch(
         }
 
         if (
-          !Utils.checkProductCategoryGroup({
+          !Product.checkProductCategoryGroup({
             productType: product.type,
             categoryGroups: category.group,
           })

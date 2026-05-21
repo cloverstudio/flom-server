@@ -9,7 +9,8 @@ const updateHistory = require("./updateHistory");
 const permissionLogic = require("./permissionLogic");
 const makeFeeTransfer = require("./makeFeeTransfer");
 const getWhatsAppPrices = require("./getWhatsAppPrices");
-
+const callChatGPTApi = require("./callChatGPTApi");
+const getGPTAssistantResponse = require("./getGPTAssistantResponse");
 const sendWhatsAppMessages = require("./sendWhatsAppMessages");
 
 async function sendMessage(param) {
@@ -237,7 +238,7 @@ async function sendMessage(param) {
 
         sendMessage(messageParams);
       } else {
-        const responseFromGPT = await Utils.callChatGPTApi(
+        const responseFromGPT = await callChatGPTApi(
           param.message,
           result.user.phoneNumber,
           result.receiverUser.phoneNumber,
@@ -281,7 +282,7 @@ async function sendMessage(param) {
           userName: "Flom",
         });
 
-        const responseFromGPT = await Utils.getGPTAssistantResponse(
+        const responseFromGPT = await getGPTAssistantResponse(
           Const.FlomTeamAssistantId,
           result.user._id.toString(),
           param.message,

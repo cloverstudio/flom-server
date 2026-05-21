@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { Const } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
-const { Product, Category, Transaction } = require("#models");
+const { Product, Category, Transaction, User } = require("#models");
 
 /**
  * @api {post} /api/v2/product/list/my List Merchant Products
@@ -135,7 +135,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     const { userRate, userCountryCode, userCurrency, conversionRates } =
-      await Utils.getUsersConversionRate({
+      await User.getUsersConversionRate({
         user: request.user,
         accessToken: request.headers["access-token"],
       });

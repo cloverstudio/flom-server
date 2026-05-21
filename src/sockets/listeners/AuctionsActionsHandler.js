@@ -3,7 +3,7 @@
 const { logger, redis } = require("#infra");
 const { Const } = require("#config");
 const Utils = require("#utils");
-const { User, Auction, LiveStream, Product, SatsReservation } = require("#models");
+const { User, Auction, LiveStream, Product, SatsReservation, ConversionRate } = require("#models");
 
 const helpers = require("./helpers/auctionHelpers");
 
@@ -421,7 +421,7 @@ module.exports = function (socketApi, socket) {
       }
 
       if (!conversionRates.rates || Date.now() - conversionRates.lastUpdated > 1000 * 60 * 30) {
-        const rateObj = await Utils.getConversionRates();
+        const rateObj = await ConversionRate.getRates();
         conversionRates.rates = rateObj.rates;
         conversionRates.lastUpdated = Date.now();
       }

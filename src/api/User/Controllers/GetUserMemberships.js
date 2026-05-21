@@ -91,7 +91,7 @@ const { User, Membership } = require("#models");
 router.get("/", auth({ allowUser: true }), async function (request, response) {
   try {
     const user = await User.findById(request.user._id.toString());
-    const userMemberships = Utils.filterExpiredMemberships(user.memberships);
+    const userMemberships = User.filterExpiredMemberships(user.memberships);
     if (userMemberships.length !== user.memberships.length) {
       user.memberships = userMemberships;
       user.markModified("memberships");

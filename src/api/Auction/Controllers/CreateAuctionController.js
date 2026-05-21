@@ -6,7 +6,7 @@ const { logger } = require("#infra");
 const { Const } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
-const { Auction, User, LiveStream, Product, Tribe } = require("#models");
+const { Auction, User, LiveStream, Product, Tribe, ConversionRate } = require("#models");
 const { socketApi } = require("#sockets");
 
 /**
@@ -121,7 +121,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       });
     }
 
-    const conversionRates = await Utils.getConversionRates();
+    const conversionRates = await ConversionRate.getRates();
 
     const auctionsToCreate = [];
 

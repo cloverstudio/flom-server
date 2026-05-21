@@ -6,6 +6,7 @@ const Utils = require("#utils");
 const getWhatsAppPrices = require("./getWhatsAppPrices");
 const sendWhatsAppMessage = require("./sendWhatsAppMessage");
 const makeFeeTransfer = require("./makeFeeTransfer");
+const sendFlomPush = require("./sendFlomPush");
 const { User, Notification } = require("#models");
 
 const feeType = {
@@ -143,7 +144,7 @@ async function sendWhatsAppMessages({
         created: Date.now(),
       });
 
-      await Utils.sendFlomPush({
+      await sendFlomPush({
         senderId: Config.flomSupportAgentId,
         receiverUser: sender,
         message: `Your WhatsApp messages have been disabled due to insufficient balance.`,

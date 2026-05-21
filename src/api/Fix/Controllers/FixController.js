@@ -5,6 +5,7 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const, Config, countries } = require("#config");
 const Utils = require("#utils");
+const Logics = require("#logics");
 const { auth } = require("#middleware");
 const { User, FlomMessage, Test, NonFlomContact } = require("#models");
 const fs = require("fs");
@@ -171,7 +172,7 @@ router.get("/push", async function (request, response) {
 
     const message = `Test for push type: ${pushType}, isMuted: ${mute}`;
 
-    await Utils.sendFlomPush({
+    await Logics.sendFlomPush({
       newUser: flomAgent,
       receiverUser: user,
       message: message,
@@ -194,7 +195,7 @@ router.get("/test-gpt", async (request, response) => {
   try {
     const { text } = request.query;
 
-    const result = await Utils.callChatGPTApi(text, "0", "0", false);
+    const result = await Logics.callChatGPTApi(text, "0", "0", false);
 
     Base.successResponse(response, Const.responsecodeSucceed, { result });
   } catch (error) {
@@ -277,7 +278,7 @@ router.get("/h", async (request, response) => {
 
 router.get("/test-file-gpt", async (request, response) => {
   try {
-    const res = await Utils.getGPTAssistantResponse(
+    const res = await Logics.getGPTAssistantResponse(
       Const.FlomTeamAssistantId,
       "63de7115a62453346de15d96",
       "what is Flom",
@@ -300,7 +301,7 @@ router.get("/pushtest/:pushType", async (request, response) => {
     const user = await User.findOne({ phoneNumber: "+385958710207" }).lean();
     const sender = await User.findById(Config.flomSupportAgentId).lean();
 
-    await Utils.sendFlomPush({
+    await Logics.sendFlomPush({
       newUser: sender,
       receiverUser: user,
       message: "message",

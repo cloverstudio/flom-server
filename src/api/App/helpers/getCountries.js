@@ -1,11 +1,11 @@
 const { Const } = require("#config");
 const Utils = require("#utils");
-const { TransferType } = require("#models");
+const { TransferType, ConversionRate } = require("#models");
 
 async function getCountries({ phoneNumbers, countryCode }) {
   const numbersGroupedByCountry = groupNumbersByCountry({ phoneNumbers, countryCode });
 
-  const conversionRates = await Utils.getConversionRates();
+  const conversionRates = await ConversionRate.getRates();
   const transferTypes = await TransferType.find().lean();
 
   const countries = [];

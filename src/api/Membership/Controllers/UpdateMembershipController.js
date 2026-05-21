@@ -109,7 +109,7 @@ router.post("/:newMembershipId", auth({ allowUser: true }), async function (requ
       });
     }
 
-    let userMemberships = Utils.filterExpiredMemberships(user.memberships);
+    let userMemberships = User.filterExpiredMemberships(user.memberships);
     if (userMemberships.length !== user.memberships.length) {
       user.memberships = userMemberships;
       await User.findByIdAndUpdate(user._id.toString(), { memberships: userMemberships });

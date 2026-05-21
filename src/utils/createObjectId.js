@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-function createObjectID(id = null) {
+function createObjectId(id = null) {
   if (!id) {
     return new mongoose.Types.ObjectId();
   }
@@ -8,4 +8,4 @@ function createObjectID(id = null) {
   return new mongoose.Types.ObjectId(`${id}`);
 }
 
-module.exports = createObjectID;
+module.exports = createObjectId;

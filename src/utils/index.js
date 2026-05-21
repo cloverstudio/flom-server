@@ -1,14 +1,11 @@
 module.exports = Object.freeze({
   callBatchSMSService: require("./callBatchSMSService"),
-  callChatGPTApi: require("./callChatGPTApi"),
   callPushService: require("./callPushService"),
 
   chatIdByUser: require("./chatIdByUser"),
 
   checkHash: require("./checkHash"),
   checkHashDidWW: require("./checkHashDidWW"),
-  checkIfCarrierIsAllowed: require("./checkIfCarrierIsAllowed"),
-  checkProductCategoryGroup: require("./checkProductCategoryGroup"),
   checkQriosBalance: require("./checkQriosBalance"),
   checkReCaptcha: require("./checkReCaptcha"),
   checkVideoForWatermarks: require("./checkVideoForWatermarks"),
@@ -19,35 +16,26 @@ module.exports = Object.freeze({
   convertToDash: require("./convertToDash"),
   convertToHSL: require("./convertToHSL"),
   convertToMP3: require("./convertToMP3"),
-  createObjectID: require("./createObjectId"),
+  createObjectId: require("./createObjectId"),
 
   deleteHslFile: require("./deleteHslFile"),
 
-  eligibleForUSSD: require("./eligibleForUSSD"),
   encodeLnUrl: require("./encodeLnUrl"),
   escapeRegExp: require("./escapeRegExp"),
   executeCommand: require("./executeCommand"),
 
-  filterExpiredMemberships: require("./filterExpiredMemberships"),
   formatPhoneNumber: require("./formatPhoneNumber"),
   formParse: require("./formParse"),
 
-  generateFakeMerchantCode: require("./generateFakeMerchantCode"),
   generateImageThumbnail: require("./generateImageThumbnail"),
   generateRandomNumber: require("./generateRandomNumber"),
-  generateSocialMediaWithLinks: require("./generateSocialMediaWithLinks"),
   generateThumbnailFromImage: require("./generateThumbnailFromImage"),
 
   getAddressFromCoordinates: require("./getAddressFromCoordinates"),
   getAllBankAccountsWithMsisdn: require("./getAllBankAccountsWithMsisdn"),
-  getCarrier: require("./getCarrier"),
-  getConversionRates: require("./getConversionRates"),
-  getCountryBanDuration: require("./getCountryBanDuration"),
   getCountryCodeFromPhoneNumber: require("./getCountryCodeFromPhoneNumber"),
   getCurrencyFromCountryCode: require("./getCurrencyFromCountryCode"),
-  getCustomerActivationData: require("./getCustomerActivationData"),
   getDataProductBySku: require("./getDataProductBySku"),
-  getGPTAssistantResponse: require("./getGPTAssistantResponse"),
   getHash: require("./getHash"),
   getLocalDateString: require("./getLocalDateString"),
   getMCashErrorCode: require("./getMCashErrorCode"),
@@ -56,7 +44,6 @@ module.exports = Object.freeze({
   getPpnLogoImage: require("./getPpnLogoImage"),
   getRandomString: require("./getRandomString"),
   getTelco: require("./getTelco"),
-  getUsersConversionRate: require("./getUsersConversionRate"),
   getVideoScreenshots: require("./getVideoScreenshots"),
 
   handleAudioFile: require("./handleAudioFile"),
@@ -65,8 +52,6 @@ module.exports = Object.freeze({
   hideBadWords: require("./hideBadWords"),
 
   isEmail: require("./isEmail"),
-  isUserCommunityMember: require("./isUserCommunityMember"),
-  isUserTribeMember: require("./isUserTribeMember"),
   isValidObjectId: require("./isValidObjectId"),
 
   makeHash: require("./makeHash"),
@@ -78,7 +63,6 @@ module.exports = Object.freeze({
 
   sendEmailFromTemplate: require("./sendEmailFromTemplate"),
   sendEmailWithSG: require("./sendEmailWithSG"),
-  sendFlomPush: require("./sendFlomPush"),
   sendMessageToChat: require("./sendMessageToChat"),
   sendMessageToLiveStream: require("./sendMessageToLiveStream"),
   sendPushNotifications: require("./sendPushNotifications"),
@@ -91,7 +75,6 @@ module.exports = Object.freeze({
   setCookies: require("./setCookies"),
   shorten: require("./shorten"),
   stripPrivateData: require("./stripPrivateData"),
-  syncProductsCategories: require("./syncProductsCategories"),
 
   wait: require("./wait"),
 

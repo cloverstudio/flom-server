@@ -3,7 +3,7 @@
 const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { User, LiveStream, Notification, Tribe, Transfer } = require("#models");
+const { User, LiveStream, Notification, Tribe, Transfer, ConversionRate } = require("#models");
 
 async function makeFeeTransfer({ fee, feeType, sender, numberOfWaMessages }) {
   try {
@@ -14,7 +14,7 @@ async function makeFeeTransfer({ fee, feeType, sender, numberOfWaMessages }) {
 
     const flomAgent = await User.findById(Config.flomSettlementAgentId).lean();
 
-    const { rates = null } = await Utils.getConversionRates();
+    const { rates = null } = await ConversionRate.getRates();
 
     if (!rates) {
       logger.error(`makeFeeTransfer, failed to get conversion rates`);

@@ -56,7 +56,7 @@ router.get("", async (request, response) => {
       if (countryBan && countryBan.countryCode === userCountryCode) {
         const diff = Date.now() - countryBan.updated;
         const banDurationInMilliseconds =
-          Utils.getCountryBanDuration(countryBan.occurences) * 60 * 1000;
+          CountryWideBan.getDuration(countryBan.occurences) * 60 * 1000;
 
         if (diff < banDurationInMilliseconds) {
           return Base.newErrorResponse({
@@ -140,7 +140,7 @@ async function detectFlooding() {
       if (countryBan.updated) {
         const diff = Date.now() - countryBan.updated;
         const banDurationInMilliseconds =
-          Utils.getCountryBanDuration(countryBan.occurences) * 60 * 1000;
+          CountryWideBan.getDuration(countryBan.occurences) * 60 * 1000;
 
         if (diff > banDurationInMilliseconds) {
           updateObj = {

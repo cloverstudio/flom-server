@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { Const } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
-const { CreditPackage } = require("#models");
+const { CreditPackage, User } = require("#models");
 
 /**
  * @api {get} /api/v2/credits Get credit packages flom_v1
@@ -190,7 +190,7 @@ router.patch(
 
 router.get("/packages", auth({ allowUser: true, allowAdmin: true }), async (request, response) => {
   try {
-    const { userRate, userCountryCode, userCurrency } = await Utils.getUsersConversionRate({
+    const { userRate, userCountryCode, userCurrency } = await User.getUsersConversionRate({
       user: request.user,
       accessToken: request.headers["access-token"],
     });

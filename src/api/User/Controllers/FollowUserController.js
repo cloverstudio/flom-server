@@ -207,7 +207,7 @@ router.get("/followers", auth({ allowUser: true }), async function (request, res
     dataToSend.followers = [];
 
     let contacts = await UserContact.find({ userId });
-    let contactIds = contacts.map((c) => Utils.createObjectID(c.contactId));
+    let contactIds = contacts.map((c) => Utils.createObjectId(c.contactId));
     let followers = await User.find(
       {
         $or: [{ followedBusinesses: userId }, { _id: { $in: contactIds } }],

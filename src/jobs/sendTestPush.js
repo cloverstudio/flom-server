@@ -1,6 +1,7 @@
 const { Config, Const } = require("#config");
 const { logger } = require("#infra");
 const Utils = require("#utils");
+const Logics = require("#logics");
 const { User, History } = require("#models");
 
 module.exports = async () => {
@@ -36,7 +37,7 @@ module.exports = async () => {
 
       console.log(message);
 
-      await Utils.sendFlomPush({
+      await Logics.sendFlomPush({
         newUser: flomAgent,
         receiverUser: user,
         message: message,

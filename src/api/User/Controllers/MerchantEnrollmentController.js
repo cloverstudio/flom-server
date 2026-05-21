@@ -58,7 +58,7 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
     }
 
     if (Const.fakePhoneNumbers.indexOf(phoneNumber) !== -1) {
-      const merchantCode = await Utils.generateFakeMerchantCode();
+      const merchantCode = await User.generateFakeMerchantCode();
 
       const newBankAccount = {
         ...bankObj,

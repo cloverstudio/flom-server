@@ -118,7 +118,7 @@ router.get("/", auth({ allowUser: true }), async (request, response) => {
 
     var requestUserId, tribes, requestUserTribeIds, requestUserMembershipIds;
     const { userRate, userCountryCode, userCurrency, conversionRates } =
-      await Utils.getUsersConversionRate({
+      await User.getUsersConversionRate({
         user: request.user,
         accessToken: request.headers["access-token"],
       });

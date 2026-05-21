@@ -6,7 +6,7 @@ const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
 const Logics = require("#logics");
-const { User, DidWWNumber, DidWWLog, BannedNumber } = require("#models");
+const { User, DidWWNumber, DidWWLog, BannedNumber, ConversionRate } = require("#models");
 
 /**
  * @api {post} /api/v2/login/did/check-number Check registration/login
@@ -236,7 +236,7 @@ router.post("", async (request, response) => {
         allowed: checkAllowed,
         errorCode,
         errorMessage,
-      } = await Utils.checkIfCarrierIsAllowed(phoneNumber);
+      } = await Logics.checkIfCarrierIsAllowed(phoneNumber);
 
       if (!checkAllowed) {
         return Base.newErrorResponse({
@@ -250,7 +250,7 @@ router.post("", async (request, response) => {
       }
     }
 
-    const { rates } = await Utils.getConversionRates();
+    const { rates } = await ConversionRate.getRates();
     const { latitude, longitude } = ipAddressObj;
 
     if (!user) {

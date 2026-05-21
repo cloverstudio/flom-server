@@ -98,7 +98,7 @@ router.get(
         emojiSet = await EmojiSet.aggregate([
           {
             $match: {
-              _id: Utils.createObjectID(emojiSetId),
+              _id: Utils.createObjectId(emojiSetId),
               isDeprecated: false,
             },
           },
@@ -137,7 +137,7 @@ router.get(
         emojiSet = await EmojiSet.aggregate([
           {
             $match: {
-              _id: Utils.createObjectID(emojiSetId),
+              _id: Utils.createObjectId(emojiSetId),
             },
           },
           {
@@ -184,7 +184,7 @@ router.get(
       const total = await EmojiSet.aggregate([
         {
           $match: {
-            _id: Utils.createObjectID(emojiSetId),
+            _id: Utils.createObjectId(emojiSetId),
           },
         },
         {

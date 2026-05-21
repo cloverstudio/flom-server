@@ -5,8 +5,9 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const } = require("#config");
 const Utils = require("#utils");
+const Logics = require("#logics");
 const { auth } = require("#middleware");
-const { Configuration, ThirdPartyProduct } = require("#models");
+const { Configuration, ThirdPartyProduct, User } = require("#models");
 
 /**
  * @api {get} /api/v2/carriers/list New carrier info list
@@ -127,7 +128,7 @@ router.get("/list", auth({ allowUser: true }), async function (request, response
         getPpn = true;
       }
 
-      phoneObj.defaultCarrier = (await Utils.getCarrier({ phoneNumber, countryCode })) || "";
+      phoneObj.defaultCarrier = (await Logics.getCarrier({ phoneNumber, countryCode })) || "";
 
       formattedPhoneNumbers.push(phoneObj);
     }
@@ -140,7 +141,7 @@ router.get("/list", auth({ allowUser: true }), async function (request, response
       });
     }
 
-    const { userCountryCode, userCurrency, conversionRates } = await Utils.getUsersConversionRate({
+    const { userCountryCode, userCurrency, conversionRates } = await User.getUsersConversionRate({
       user: request.user,
       accessToken: request.headers["access-token"],
     });

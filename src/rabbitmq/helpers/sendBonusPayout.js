@@ -1,5 +1,6 @@
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
+const Logics = require("#logics");
 const { logger } = require("#infra");
 const { Transfer, User, Payout, Notification } = require("#models");
 
@@ -290,7 +291,7 @@ async function handleNotifications({ user, bonusType, message, sendSmsNotificati
   await User.findByIdAndUpdate(user._id.toString(), {
     $inc: { "notifications.unreadCount": 1 },
   });
-  Utils.sendFlomPush({
+  Logics.sendFlomPush({
     newUser: flomAgent,
     receiverUser: user,
     message,

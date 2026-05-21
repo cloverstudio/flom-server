@@ -5,7 +5,15 @@ const Base = require("../../Base");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
-const { Auction, Order, User, Transfer, FlomMessage, Notification } = require("#models");
+const {
+  Auction,
+  Order,
+  User,
+  Transfer,
+  FlomMessage,
+  Notification,
+  ConversionRate,
+} = require("#models");
 
 /**
  * @api {get} /api/v2/auctions/:auctionId/reject Reject second bidder auction offer flom_v1
@@ -83,7 +91,7 @@ router.get("/:auctionId/reject", auth({ allowUser: true }), async function (requ
 
       const receiverFee = Math.ceil(0.7 * restockingFee);
 
-      const { rates = null } = await Utils.getConversionRates();
+      const { rates = null } = await ConversionRate.getRates();
 
       if (!rates) {
         return Base.newErrorResponse({

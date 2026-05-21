@@ -429,7 +429,7 @@ router.post(
         }
 
         if (
-          !Utils.checkProductCategoryGroup({ productType: type, categoryGroups: category.group })
+          !Product.checkProductCategoryGroup({ productType: type, categoryGroups: category.group })
         ) {
           return Base.newErrorResponse({
             response,

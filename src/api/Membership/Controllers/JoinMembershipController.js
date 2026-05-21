@@ -83,7 +83,7 @@ router.post("/:membershipId", auth({ allowUser: true }), async function (request
 
     const creatorId = membership.creatorId;
 
-    const userMemberships = Utils.filterExpiredMemberships(user.memberships);
+    const userMemberships = User.filterExpiredMemberships(user.memberships);
     if (userMemberships.length !== user.memberships.length) {
       user.memberships = userMemberships;
       await User.findByIdAndUpdate(user._id.toString(), { memberships: userMemberships });

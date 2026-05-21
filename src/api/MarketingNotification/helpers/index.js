@@ -114,7 +114,7 @@ async function getUserIds({ requestUserId, allSubscribers, requestUserIds }) {
     const checkedUserIds = [];
     for (let i = 0; i < rawUserIds.length; i++) {
       if (Utils.isValidObjectId(rawUserIds[i])) {
-        checkedUserIds.push(Utils.createObjectID(rawUserIds[i]));
+        checkedUserIds.push(Utils.createObjectId(rawUserIds[i]));
       }
     }
 

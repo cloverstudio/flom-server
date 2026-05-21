@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { Const } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
-const { Category, Product } = require("#models");
+const { Category, Product, User } = require("#models");
 
 /**
  * @api {get} /api/v2/user/products Get users products
@@ -145,7 +145,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     const searchQuery = { ownerId: userId };
 
     const { userRate, userCountryCode, userCurrency, conversionRates } =
-      await Utils.getUsersConversionRate({ user, accessToken: request.headers["access-token"] });
+      await User.getUsersConversionRate({ user, accessToken: request.headers["access-token"] });
 
     searchQuery.isDeleted = false;
 

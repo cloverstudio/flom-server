@@ -5,7 +5,7 @@ const { logger, redis } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
 const Logics = require("#logics");
-const { User, Transfer, Order, Auction } = require("#models");
+const { User, Transfer, Order, Auction, ConversionRate } = require("#models");
 const { authorizeNet } = require("#services");
 
 let conversionRates = { rates: null, lastUpdated: 0 };
@@ -182,7 +182,7 @@ async function handlePayment({ auction, isFromAccept = false }) {
 
 async function getConvertedAmounts({ originalPrice, sender }) {
   if (!conversionRates.rates || Date.now() - conversionRates.lastUpdated > 1000 * 60 * 30) {
-    const rateObj = await Utils.getConversionRates();
+    const rateObj = await ConversionRate.getRates();
     conversionRates.rates = rateObj.rates;
     conversionRates.lastUpdated = Date.now();
   }
@@ -281,7 +281,7 @@ async function getPaymentData({ sender, auctionPaymentMethod }) {
 }
 
 async function sendNotifications({ order, sender, receiver, localAmountSender }) {
-  await Utils.sendFlomPush({
+  await Logics.sendFlomPush({
     senderId: Config.flomSupportAgentId,
     receiverUser: sender,
     message: `You have won an auction, and an order has been prepared.`,
@@ -290,7 +290,7 @@ async function sendNotifications({ order, sender, receiver, localAmountSender })
     isMuted: false,
     orderId: order._id.toString(),
   });
-  await Utils.sendFlomPush({
+  await Logics.sendFlomPush({
     senderId: Config.flomSupportAgentId,
     receiverUser: receiver,
     message: `You have sold an auction, and an order has been prepared.`,

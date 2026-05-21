@@ -6,6 +6,7 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Config, Const } = require("#config");
 const Utils = require("#utils");
+const Logics = require("#logics");
 const { auth } = require("#middleware");
 
 /**
@@ -45,7 +46,7 @@ router.post(
   auth({ allowAdmin: true, role: Const.Role.ADMIN }),
   async function (request, response) {
     try {
-      const customerActivationData = await Utils.getCustomerActivationData();
+      const customerActivationData = await Logics.getCustomerActivationData();
 
       if (customerActivationData.totalSpending > customerActivationData.totalSpendingCap) {
         return Base.newErrorResponse({

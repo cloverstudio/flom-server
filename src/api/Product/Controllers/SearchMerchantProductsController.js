@@ -137,7 +137,7 @@ router.post("/", async function (request, response) {
       countResult,
       kidsMode;
     const { userRate, userCountryCode, userCurrency, conversionRates } =
-      await Utils.getUsersConversionRate({
+      await User.getUsersConversionRate({
         user: request.user,
         accessToken: request.headers["access-token"],
       });

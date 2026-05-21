@@ -408,7 +408,7 @@ router.get("/recommended", auth({ allowUser: true }), async function (request, r
 
     const recommendedProductIds = recombeeResponse.recomms.map((item) => {
       const stringId = `${item.id.replace("l_", "")}`;
-      return Utils.createObjectID(stringId);
+      return Utils.createObjectId(stringId);
     });
     const newRecommId = recombeeResponse.recommId;
 

@@ -4,7 +4,7 @@ const router = require("express").Router();
 const { logger, redis } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { User } = require("#models");
+const { User, ConversionRate } = require("#models");
 const { sendMessage } = require("#logics");
 
 /**
@@ -55,7 +55,7 @@ async function getUserId(rawPhoneNumber) {
 
   const userData = await User.findOne({ phoneNumber });
 
-  const { rates } = await Utils.getConversionRates();
+  const { rates } = await ConversionRate.getRates();
 
   let bankAccounts;
   if (phoneNumber.startsWith("+234")) {

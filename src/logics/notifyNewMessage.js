@@ -5,6 +5,7 @@ const { User, Room, Group } = require("#models");
 const socketApi = require("../sockets/socket-api");
 
 const sendPush = require("./sendPush");
+const sendFlomPush = require("./sendFlomPush");
 const totalUnreadCount = require("./totalUnreadCount");
 const populateMessages = require("./populateMessages");
 
@@ -126,7 +127,7 @@ async function notifyNewMessage(obj, originalRequestData) {
       for (const user of usersToNotify) {
         await Utils.wait(0.2);
 
-        await Utils.sendFlomPush({
+        await sendFlomPush({
           newUser: flomAgent,
           receiverUser: user,
           message: obj.message,

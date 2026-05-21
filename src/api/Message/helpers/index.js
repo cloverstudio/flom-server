@@ -3,7 +3,7 @@
 const { logger } = require("#infra");
 const { Const } = require("#config");
 const Utils = require("#utils");
-const { Product, User } = require("#models");
+const { Product, User, ConversionRate } = require("#models");
 
 const createOfferMessage = async ({ user: buyer, productId, offer, quantity }) => {
   const message = { type: Const.messageTypeOffer, message: "", attributes: {} };
@@ -28,7 +28,7 @@ const createOfferMessage = async ({ user: buyer, productId, offer, quantity }) =
   imageObj.file.size = imageObj.file.size.toString();
   imageObj.thumb.size = imageObj.thumb.size.toString();
 
-  const conversionRates = await Utils.getConversionRates();
+  const conversionRates = await ConversionRate.getRates();
   const buyerCurrency =
     offer.currency ||
     Utils.getCurrencyFromCountryCode({

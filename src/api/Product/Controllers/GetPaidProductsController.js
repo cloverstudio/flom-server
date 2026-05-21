@@ -146,7 +146,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const skip = page > 0 ? (page - 1) * Const.pagingRows : 0;
 
     const { userRate, userCountryCode, userCurrency, conversionRates } =
-      await Utils.getUsersConversionRate({
+      await User.getUsersConversionRate({
         user: request.user,
         accessToken: request.headers["access-token"],
       });

@@ -547,7 +547,7 @@ async function getUserDetails(user, requestToken) {
   const creatorMembershipIds = creatorMemberships.map((membership) => membership._id.toString());
   user.membersCount = await User.countDocuments({ memberships: { $in: creatorMembershipIds } });
 
-  user.socialMedia = Utils.generateSocialMediaWithLinks({ socialMedia: user.socialMedia });
+  user.socialMedia = User.generateSocialMediaWithLinks({ socialMedia: user.socialMedia });
 
   const token = requestToken;
   if (!token) {

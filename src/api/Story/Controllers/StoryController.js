@@ -180,7 +180,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     const users = await User.find({ _id: { $in: userIds } }).lean();
 
     const { userRate, userCountryCode, userCurrency, conversionRates } =
-      await Utils.getUsersConversionRate({
+      await User.getUsersConversionRate({
         user: request.user,
         accessToken: request.headers["access-token"],
       });

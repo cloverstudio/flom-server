@@ -268,7 +268,7 @@ async function getProducts({
     .lean();
 
   const { userRate, userCountryCode, userCurrency, conversionRates } =
-    await Utils.getUsersConversionRate({
+    await User.getUsersConversionRate({
       user: user,
       accessToken: userToken,
     });

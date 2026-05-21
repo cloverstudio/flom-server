@@ -226,7 +226,7 @@ router.get("/", async function (request, response) {
     let kidsMode,
       blocked = [];
     const { userRate, userCountryCode, userCurrency, conversionRates } =
-      await Utils.getUsersConversionRate({
+      await User.getUsersConversionRate({
         user: request.user,
         accessToken: request.headers["access-token"],
       });

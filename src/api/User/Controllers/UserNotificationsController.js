@@ -728,7 +728,7 @@ async function addUserNameToNotifications(notifications) {
     }
   });
 
-  const userIds = [...userIdsSet].map((userId) => Utils.createObjectID(userId));
+  const userIds = [...userIdsSet].map((userId) => Utils.createObjectId(userId));
 
   const users = await User.find(
     {

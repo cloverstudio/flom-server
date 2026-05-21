@@ -313,7 +313,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     merchantApplicationData.idPhotos = allFiles;
 
-    const merchantCode = await Utils.generateFakeMerchantCode();
+    const merchantCode = await User.generateFakeMerchantCode();
     merchantApplicationData.merchantCode = merchantCode;
 
     const merchantApplication = await MerchantApplication.create(merchantApplicationData);
