@@ -171,11 +171,9 @@ schema.statics.populateMessages = async function (messages) {
       return messages;
     }
 
-    /*
     if (oldIds.length == 0) {
       return [];
     }
-      */
 
     messages = await this.find({ user: { $in: oldIds } })
       .sort({ created: -1 })

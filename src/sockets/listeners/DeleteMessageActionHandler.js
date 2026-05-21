@@ -44,13 +44,20 @@ module.exports = function (socketApi, socket) {
         },
       );
 
-      await FlomMessage.findByIdAndUpdate(message._id.toString(), {
-        message: "",
-        file: null,
-        location: null,
-        deleted: deletedMessageTimestamp,
-      });
+      const updatedMessage = await FlomMessage.findByIdAndUpdate(
+        message._id.toString(),
+        {
+          message: "",
+          file: null,
+          location: null,
+          deleted: deletedMessageTimestamp,
+        },
+        { new: true, lean: true },
+      );
 
+      notifyUpdateMessage(updatedMessage);
+
+      /*
       const messages = await FlomMessage.populateMessages(message);
 
       if (messages.length > 0) {
@@ -62,6 +69,7 @@ module.exports = function (socketApi, socket) {
 
         notifyUpdateMessage(obj);
       }
+        */
     } catch (error) {
       logger.error("deleteMessage", error);
       socket.emit("socketerror", { code: Const.resCodeSocketUnknownError });
