@@ -101,10 +101,8 @@ router.get("/durations", auth({ allowUser: true }), async (request, response) =>
       for (let i = 0; i < modes.length; i++) {
         const mode = modes[i];
         requestData.url = baseUrl + `&mode=${mode}`;
-        console.log(requestData.url);
 
         const res = await Utils.sendRequest(requestData);
-        console.log(res);
         const data = res;
 
         if (data?.routes[0]?.legs[0]?.duration.text) {
