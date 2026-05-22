@@ -1,11 +1,10 @@
+const crypto = require("crypto");
+
 function generateRandomNumber(numberOfDigits) {
-  let base = 1;
+  const lowerLimit = Math.pow(10, numberOfDigits - 1);
+  const upperLimit = Math.pow(10, numberOfDigits);
 
-  for (let i = 0; i < numberOfDigits - 1; i++) {
-    base *= 10;
-  }
-
-  return Math.floor(base + Math.random() * base);
+  return crypto.randomInt(lowerLimit, upperLimit);
 }
 
 module.exports = generateRandomNumber;
