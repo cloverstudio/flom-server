@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { Const } = require("#config");
 const { auth } = require("#middleware");
 const { EmojiSet } = require("#models");
-const mongoose = require("mongoose");
+const Utils = require("#utils");
 
 /**
  * @api {get} /api/v2/emoji-set/emojis/:id Get list of emojis in set
@@ -90,7 +90,7 @@ router.get(
         return Base.newErrorResponse({
           response,
           code: Const.responsecodeNoEmojiSetId,
-          message: "EditEmojiSetController - no emoji set id",
+          message: "GetEmojisController - no emoji set id",
         });
       }
       var emojiSet;
@@ -98,7 +98,7 @@ router.get(
         emojiSet = await EmojiSet.aggregate([
           {
             $match: {
-              _id: new mongoose.Types.ObjectId(emojiSetId),
+              _id: Utils.createObjectId(emojiSetId),
               isDeprecated: false,
             },
           },
@@ -137,7 +137,7 @@ router.get(
         emojiSet = await EmojiSet.aggregate([
           {
             $match: {
-              _id: new mongoose.Types.ObjectId(emojiSetId),
+              _id: Utils.createObjectId(emojiSetId),
             },
           },
           {
@@ -184,7 +184,7 @@ router.get(
       const total = await EmojiSet.aggregate([
         {
           $match: {
-            _id: new mongoose.Types.ObjectId(emojiSetId),
+            _id: Utils.createObjectId(emojiSetId),
           },
         },
         {

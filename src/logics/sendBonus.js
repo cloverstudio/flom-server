@@ -2,7 +2,9 @@
 
 const { logger } = require("#infra");
 const Utils = require("#utils");
+const Logics = require("#logics");
 const getRabbitMqChannel = require("../rabbitmq/get-queue");
+const { ConversionRate } = require("#models");
 
 async function sendBonus({
   userId,
@@ -19,10 +21,10 @@ async function sendBonus({
   try {
     const channel = await getRabbitMqChannel();
 
-    const conversionRatesToday = await Utils.getConversionRates();
+    const conversionRatesToday = await ConversionRate.getRates();
     let operator;
     if (bonusType.startsWith("dataFor")) {
-      operator = await Utils.getCarrier({ phoneNumber: userPhoneNumber });
+      operator = await Logics.getCarrier({ phoneNumber: userPhoneNumber });
     }
 
     await channel.sendToQueue(
@@ -40,8 +42,8 @@ async function sendBonus({
           liveStreamName,
           ownerId,
           operator,
-        })
-      )
+        }),
+      ),
     );
 
     return;

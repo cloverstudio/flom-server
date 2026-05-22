@@ -26,7 +26,7 @@ router.get("/:code", async function (request, response) {
         response,
         code: Const.responsecodeUserNotFound,
         type: Const.logTypeLogin,
-        message: `CheckQrCodeController, user not found`,
+        message: `CheckQrCodeController, user not found, value not found in redis`,
       });
     }
 
@@ -36,7 +36,7 @@ router.get("/:code", async function (request, response) {
         response,
         code: Const.responsecodeUserNotFound,
         type: Const.logTypeLogin,
-        message: `CheckQrCodeController, user not found`,
+        message: `CheckQrCodeController, user not found in db`,
       });
     }
 

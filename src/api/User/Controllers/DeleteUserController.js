@@ -14,6 +14,7 @@ const {
   Membership,
   Notification,
   Room,
+  WhatsAppUserMapping,
 } = require("#models");
 
 /**
@@ -86,6 +87,11 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     await User.updateOne({ _id: user._id }, updateObj);
 
     await Product.updateMany({ ownerId: user._id }, { $set: { isDeleted: true } });
+
+    await WhatsAppUserMapping.updateMany(
+      { receiverPhoneNumber: user.phoneNumber },
+      { enabled: true },
+    );
 
     // remove user from rooms he is in
     const roomPromises = [];

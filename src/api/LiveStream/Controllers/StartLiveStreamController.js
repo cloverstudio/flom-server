@@ -3,12 +3,12 @@
 const router = require("express").Router();
 const Base = require("../../Base");
 const { logger } = require("#infra");
-const { Const } = require("#config");
+const { Const, Config } = require("#config");
 const Utils = require("#utils");
+const Logics = require("#logics");
 const { auth } = require("#middleware");
-const { User, LiveStream, Notification, Tribe } = require("#models");
+const { User, LiveStream, Notification, Tribe, Transfer } = require("#models");
 const { socketApi } = require("#sockets");
-const { formatLiveStreamResponse } = require("#logics");
 const { recombee } = require("#services");
 
 /**
@@ -102,7 +102,7 @@ router.post("/start", auth({ allowUser: true }), async function (request, respon
       liveStreamId,
     });
 
-    await formatLiveStreamResponse({ liveStream: updatedLiveStream });
+    await Logics.formatLiveStreamResponse({ liveStream: updatedLiveStream });
 
     const responseData = { updatedLiveStream };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
@@ -125,26 +125,17 @@ router.post("/start", auth({ allowUser: true }), async function (request, respon
         chatReceivers = [],
         pushTokens = [],
         notificationListReceiversIds = [],
-      } = await getNotificationReceivers({
-        liveStream: updatedLiveStream,
-        userId,
-      });
+        whatsAppReceivers = [],
+      } = await getNotificationReceivers({ liveStream: updatedLiveStream, user });
 
-      const notificationInfos = [];
-
-      for (const receiverId of notificationListReceiversIds) {
-        notificationInfos.push({
-          title: `New live stream`,
+      if (notificationListReceiversIds.length > 0) {
+        await Notification.create({
           text: `${user.userName} is live: ${liveStream.name}`,
-          receiverIds: receiverId,
+          receiverIds: notificationListReceiversIds,
           senderId: userId,
           referenceId: liveStreamId,
           notificationType: Const.notificationTypeNewLiveStream,
         });
-      }
-
-      if (notificationInfos.length > 0) {
-        await Notification.create(notificationInfos);
       }
 
       for (const receiver of chatReceivers) {
@@ -179,6 +170,16 @@ router.post("/start", auth({ allowUser: true }), async function (request, respon
           },
         });
       }
+
+      if (whatsAppReceivers.length > 0) {
+        await Logics.sendWhatsAppMessages({
+          sender: user,
+          receivers: whatsAppReceivers,
+          template: "goLive",
+          userName: user.userName,
+          liveStreamId,
+        });
+      }
     } catch (error) {
       logger.error("StartLiveStreamController, messages", error);
     }
@@ -191,8 +192,9 @@ router.post("/start", auth({ allowUser: true }), async function (request, respon
   }
 });
 
-async function getNotificationReceivers({ liveStream, userId }) {
+async function getNotificationReceivers({ liveStream, user }) {
   const { visibility, tribeIds, communityIds, cohosts: cohostIds = [] } = liveStream;
+  const userId = user._id.toString();
 
   let chatReceivers = [],
     pushTokens = [],
@@ -271,7 +273,18 @@ async function getNotificationReceivers({ liveStream, userId }) {
     }
   }
 
-  return { chatReceivers, pushTokens, notificationListReceiversIds };
+  const whatsAppReceivers = !user.notificationOptions?.whatsApp?.enabled
+    ? []
+    : !user.notificationOptions?.whatsApp?.goLive
+    ? []
+    : await User.find({
+        "isDeleted.value": false,
+        notificationSubscriptions: {
+          $elemMatch: { userId: user._id.toString(), whatsApp: true },
+        },
+      }).lean();
+
+  return { chatReceivers, pushTokens, notificationListReceiversIds, whatsAppReceivers };
 }
 
 module.exports = router;

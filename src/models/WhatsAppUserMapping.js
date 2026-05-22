@@ -7,8 +7,11 @@ const mongoose = require("mongoose");
 
 const schema = new mongoose.Schema(
   {
+    senderId: String,
     senderPhoneNumber: String,
+    receiverId: String,
     receiverPhoneNumber: String,
+    enabled: { type: Boolean, default: true },
   },
   { timestamps: true },
 );

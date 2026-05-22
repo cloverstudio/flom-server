@@ -1,76 +1,71 @@
 "use strict";
 
 const router = require("express").Router();
-const Base = require("../../Base");
 const { logger } = require("#infra");
-const { Const } = require("#config");
+const { Const, Config } = require("#config");
 const { auth } = require("#middleware");
-const Utils = require("#utils");
+const Logics = require("#logics");
 const { User } = require("#models");
-const { sendMessage } = require("#logics");
 
-router.post("/", auth({ allowUser: true }), async function (request, response) {
+router.post("/", async function (request, response) {
   try {
-    const { message, receiverId } = request.body;
-
-    if (!receiverId) {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeUserNotFound,
-        message: "SendWhatsAppMessageController, receiver user not found with id: " + receiverId,
-      });
+    const secretToken = request.headers["secret-token"];
+    if (secretToken !== Config.secretToken) {
+      return response.status(401).send("Unauthorized");
     }
 
-    const senderUser = request.user;
-    const receiverUser = await User.findById(receiverId).lean();
+    const {
+      message,
+      senderId,
+      receiverIds,
+      template,
+      userName,
+      liveStreamId,
+      auctionName,
+      auctionId,
+      shippingStatus,
+      orderId,
+      orderName,
+      mentionSlug,
+    } = request.body;
 
-    if (!receiverUser) {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeUserNotFound,
-        message: "SendWhatsAppMessageController, receiver user not found with id: " + receiverId,
-      });
+    if (!receiverIds || !Array.isArray(receiverIds) || receiverIds.length === 0) {
+      return response.status(400).send("Invalid receiverIds");
     }
 
-    const wamId = await Utils.sendWhatsAppMessage({
-      to: receiverUser.phoneNumber.replace("+", ""),
-      message: `${senderUser.userName}: ${message}`,
+    if (!template || !Const.templateMap[template]) {
+      return response.status(400).send("Invalid template");
+    }
+
+    const sender = await User.findById(senderId).lean();
+    const receivers = await User.find({ _id: { $in: receiverIds } }).lean();
+
+    if (!receivers || receivers.length === 0) {
+      return response.status(404).send("Receiver users not found");
+    }
+
+    const wamIds = await Logics.sendWhatsAppMessages({
+      sender,
+      receivers,
+      message,
+      template,
+      userName,
+      liveStreamId,
+      auctionName,
+      auctionId,
+      shippingStatus,
+      orderId,
+      orderName,
+      mentionSlug,
     });
 
-    if (!wamId) {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeSendingWhatsAppMessageFailed,
-        message: "SendWhatsAppMessageController: failed to send WhatsApp message",
-      });
+    if (!wamIds || wamIds.length === 0) {
+      return response.status(500).send("No messages sent");
     }
 
-    let roomId = null;
-    if (receiverUser && senderUser.created < receiverUser.created) {
-      roomId = `1-${senderUser._id.toString()}-${receiverUser?._id.toString()}`;
-    } else if (receiverUser) {
-      roomId = `1-${receiverUser?._id.toString()}-${senderUser._id.toString()}`;
-    }
-    if (!roomId) {
-      logger.error("SendWhatsAppMessageController, cb: invalid roomId");
-      return;
-    }
-
-    const params = {
-      isRecursiveCall: false,
-      type: Const.messageTypeText,
-      userID: senderUser._id.toString(),
-      roomID: roomId,
-      message,
-      created: Date.now(),
-      wamId,
-    };
-
-    await sendMessage(params);
-
-    return Base.successResponse(response, Const.responsecodeSucceed);
+    return response.sendStatus(200);
   } catch (error) {
-    return Base.newErrorResponse({ response, message: "SendWhatsAppMessageController", error });
+    return response.status(500).send("Internal Server Error: " + error.message);
   }
 });
 

@@ -56,7 +56,7 @@ router.get("", async (request, response) => {
       if (countryBan && countryBan.countryCode === userCountryCode) {
         const diff = Date.now() - countryBan.updated;
         const banDurationInMilliseconds =
-          Utils.getCountryBanDuration(countryBan.occurences) * 60 * 1000;
+          CountryWideBan.getDuration(countryBan.occurences) * 60 * 1000;
 
         if (diff < banDurationInMilliseconds) {
           return Base.newErrorResponse({
@@ -140,7 +140,7 @@ async function detectFlooding() {
       if (countryBan.updated) {
         const diff = Date.now() - countryBan.updated;
         const banDurationInMilliseconds =
-          Utils.getCountryBanDuration(countryBan.occurences) * 60 * 1000;
+          CountryWideBan.getDuration(countryBan.occurences) * 60 * 1000;
 
         if (diff > banDurationInMilliseconds) {
           updateObj = {
@@ -161,16 +161,16 @@ async function detectFlooding() {
         setDefaultsOnInsert: true,
       });
 
-      Utils.sendEmailWithSG(
-        "Flom: Flood detection",
-        `Flood detected at ${Date()} on environment: ${Config.environment}`,
-        "petarb.flom@gmail.com",
-      );
-      Utils.sendEmailWithSG(
-        "Flom: Flood detection",
-        `Flood detected at ${Date()} on environment: ${Config.environment}`,
-        "sinisa.brcina@pontistechnology.com",
-      );
+      Utils.sendEmailWithSG({
+        subject: "Flom: Flood detection",
+        text: `Flood detected at ${Date()} on environment: ${Config.environment}`,
+        to: "petarb.flom@gmail.com",
+      });
+      Utils.sendEmailWithSG({
+        subject: "Flom: Flood detection",
+        text: `Flood detected at ${Date()} on environment: ${Config.environment}`,
+        to: "sinisa.brcina@pontistechnology.com",
+      });
     }
   }
 

@@ -43,7 +43,7 @@ async function getSimilarProducts({ product, subscriber }) {
   const ownerId = product.ownerId;
 
   const { userRate, userCountryCode, userCurrency, conversionRates } =
-    await Utils.getUsersConversionRate({ user: subscriber });
+    await User.getUsersConversionRate({ user: subscriber });
 
   const kidsMode = subscriber.kidsMode;
   const blocked = subscriber.blocked || [];
@@ -93,7 +93,7 @@ async function getSimilarProducts({ product, subscriber }) {
     if (product.parentCategoryId !== "-1") {
       categoriesSet.add(product.parentCategoryId);
     }
-    Utils.addUserPriceToProduct({
+    Product.addUserPriceToProduct({
       product,
       userRate,
       userCountryCode,

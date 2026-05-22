@@ -6,7 +6,7 @@ const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
 const { auth, autoApproveProduct } = require("#middleware");
-const { Category, Product, User } = require("#models");
+const { Category, Product, User, ConversionRate } = require("#models");
 const { handleTags } = require("#logics");
 const { recombee } = require("#services");
 const mediaHandler = require("#media");
@@ -246,7 +246,7 @@ router.patch(
         return Base.successResponse(response, Const.responsecodeNotProductOwner);
 
       // check if price has countrycode & currency
-      const conversionRates = await Utils.getConversionRates();
+      const conversionRates = await ConversionRate.getRates();
 
       if (!product.originalPrice.countryCode || !product.originalPrice.currency) {
         product.originalPrice.countryCode =
@@ -456,7 +456,10 @@ router.patch(
         product.originalPrice.maxValue = originalMaxPrice;
       }
 
-      if (productName && productName !== product.name) product.name = productName;
+      if (productName && productName !== product.name) {
+        product.name = productName;
+        product.slug = await Product.createSlug(productName);
+      }
 
       let parentCategory, category;
       if (productCategoryId && productCategoryId !== product.categoryId) {
@@ -478,7 +481,7 @@ router.patch(
         }
 
         if (
-          !Utils.checkProductCategoryGroup({
+          !Product.checkProductCategoryGroup({
             productType: product.type,
             categoryGroups: category.group,
           })
@@ -499,13 +502,13 @@ router.patch(
 
         product.productMainCategoryId = undefined;
         product.productSubCategoryId = undefined;
-        //product = await Utils.syncProductsCategories(product);
+        //product = await Product.syncProductsCategories(product);
       } else if (productMainCategoryId || productSubCategoryId) {
         if (productMainCategoryId) {
           product.productMainCategoryId = productMainCategoryId;
         }
         product.productSubCategoryId = productSubCategoryId;
-        product = await Utils.syncProductsCategories(product);
+        product = await Product.syncProductsCategories(product);
       } else {
         category = await Category.findOne({ _id: product.categoryId }).lean();
       }

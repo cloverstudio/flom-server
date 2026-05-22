@@ -5,6 +5,7 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
+const Logics = require("#logics");
 const { auth } = require("#middleware");
 const { UserContact, User, SmsData, Configuration, NonFlomContact } = require("#models");
 const { sendBonus } = require("#logics");
@@ -143,7 +144,7 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
 
     await syncContacts(flomUsers, user._id);
 
-    const customerActivationData = await Utils.getCustomerActivationData({});
+    const customerActivationData = await Logics.getCustomerActivationData({});
 
     // Sending bonus data package
     if (phoneNumbers.length > 5) {
@@ -282,7 +283,7 @@ async function sendNotifications(phoneNumbers, flomUsers, user, customerActivati
   for (const flomUser of flomUsers) {
     await Utils.wait(0.2);
 
-    await Utils.sendFlomPush({ newUser: user, receiverUser: flomUser });
+    await Logics.sendFlomPush({ newUser: user, receiverUser: flomUser });
   }
 
   const flomPhoneNumbers = flomUsers.map((user) => user.phoneNumber);
@@ -360,7 +361,7 @@ async function notifyUsersContactHasRegistered({ user }) {
     try {
       await Utils.wait(0.2);
 
-      await Utils.sendFlomPush({
+      await Logics.sendFlomPush({
         newUser: flomAgent,
         receiverUser: flomUser,
         message: fixedPushMessageText,

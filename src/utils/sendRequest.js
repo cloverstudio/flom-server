@@ -41,7 +41,7 @@ async function sendRequest({
       return resp;
     }
 
-    if (returnHeaders) {
+    if (returnHeaders || returnErrorAsData) {
       return { data: resp.data, headers: resp.headers };
     }
 

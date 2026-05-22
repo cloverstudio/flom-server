@@ -4,6 +4,7 @@ const router = require("express").Router();
 const Base = require("../../Base");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
+const Logics = require("#logics");
 const { auth } = require("#middleware");
 const { authorizeNet } = require("#services");
 
@@ -251,10 +252,10 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     const userIP = request.headers["x-forwarded-for"] || request.connection.remoteAddress;
 
-    const countryFromIP = await Utils.getCountryFromIpAddress({ IP: userIP });
+    const countryFromIP = await Logics.getCountryFromIpAddress({ IP: userIP });
     console.log(`Save user payment method from ${userIP} in ${countryFromIP.countryCode}`);
 
-    const countryCode = await Utils.countryFromBinNumber(cardNumber.substring(0, 9));
+    const countryCode = await Logics.countryFromBinNumber(cardNumber.substring(0, 9));
     console.log(`Save user payment method with credit card from ${countryCode}`);
 
     const countryFromPhoneNumber = Utils.getCountryCodeFromPhoneNumber({

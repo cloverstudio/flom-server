@@ -3,7 +3,7 @@
 const { logger, redis } = require("#infra");
 const { Const } = require("#config");
 const Utils = require("#utils");
-const { User, Auction, LiveStream, Product, SatsReservation } = require("#models");
+const { User, Auction, LiveStream, Product, SatsReservation, ConversionRate } = require("#models");
 
 const helpers = require("./helpers/auctionHelpers");
 
@@ -27,6 +27,75 @@ module.exports = function (socketApi, socket) {
     if (typeof callback === "function") callback({ success: true });
 
     return;
+  });
+
+  /**
+   * @api {socket} "auctionCountdown"
+   * @apiName Auction Countdown
+   * @apiGroup Socket
+   * @apiDescription Auction Countdown
+   * @apiParam {string} liveStreamId
+   * @apiParam {string} auctionId
+   * @apiParam {string} token
+   *
+   */
+
+  socket.on("auctionCountdown", async function (params, callback) {
+    try {
+      logger.info("auctionCountdown called, params:", params);
+
+      if (typeof callback === "function") callback();
+
+      const { liveStreamId, auctionId, token } = params;
+
+      if (!token) {
+        logger.error("auctionCountdown, token missing - " + Const.resCodeAuctionInvalidToken);
+        return socket.emit("socketerror", { code: Const.resCodeAuctionInvalidToken });
+      }
+
+      const userId = await helpers.checkToken(token, socket);
+
+      if (!userId) {
+        logger.error(
+          "auctionCountdown, user with token not found - " + Const.resCodeAuctionInvalidToken,
+        );
+        return socket.emit("socketerror", { code: Const.resCodeAuctionInvalidToken });
+      }
+
+      if (!liveStreamId) {
+        logger.error(
+          "auctionCountdown, liveStreamId error - " + Const.resCodeAuctionInvalidLiveStreamId,
+        );
+        return socket.emit("socketerror", { code: Const.resCodeAuctionInvalidLiveStreamId });
+      }
+
+      if (!auctionId) {
+        logger.error("auctionCountdown, auctionId error - " + Const.resCodeAuctionInvalidAuctionId);
+        return socket.emit("socketerror", { code: Const.resCodeAuctionInvalidAuctionId });
+      }
+
+      const liveStream = await LiveStream.findById(liveStreamId).lean();
+      if (!liveStream) {
+        logger.error(
+          "auctionCountdown, livestream not found error - " +
+            Const.resCodeAuctionLiveStreamNotFound,
+        );
+        return socket.emit("socketerror", { code: Const.resCodeAuctionLiveStreamNotFound });
+      }
+
+      const auction = await Auction.findById(auctionId).lean();
+      if (!auction) {
+        logger.error(
+          "auctionCountdown, auction not found error - " + Const.resCodeAuctionAuctionNotFound,
+        );
+        return socket.emit("socketerror", { code: Const.resCodeAuctionAuctionNotFound });
+      }
+
+      await helpers.remindWatchers({ auction, liveStream });
+    } catch (error) {
+      logger.error("auctionCountdown, ", error);
+      return socket.emit("socketerror", { code: Const.responsecodeUnknownError });
+    }
   });
 
   /**
@@ -352,7 +421,7 @@ module.exports = function (socketApi, socket) {
       }
 
       if (!conversionRates.rates || Date.now() - conversionRates.lastUpdated > 1000 * 60 * 30) {
-        const rateObj = await Utils.getConversionRates();
+        const rateObj = await ConversionRate.getRates();
         conversionRates.rates = rateObj.rates;
         conversionRates.lastUpdated = Date.now();
       }

@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { Const } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
-const { User, Transfer } = require("#models");
+const { User, Transfer, ConversionRate } = require("#models");
 
 /**
  * @api {get} /api/v2/dashboard Dashboard - Total earned API
@@ -54,7 +54,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     let startDate = request.query.startDate;
     var endDate = request.query.endDate;
 
-    const conversionRates = await Utils.getConversionRates();
+    const conversionRates = await ConversionRate.getRates();
 
     if (!startDate && !endDate) {
       startDate = user.created;

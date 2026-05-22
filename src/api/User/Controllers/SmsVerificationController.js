@@ -5,8 +5,15 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { User, AccessRecord, BannedNumber, CountryWideBan, TemporaryBan } = require("#models");
-const { createNewUser } = require("#logics");
+const Logics = require("#logics");
+const {
+  User,
+  AccessRecord,
+  BannedNumber,
+  CountryWideBan,
+  TemporaryBan,
+  ConversionRate,
+} = require("#models");
 
 /*
       * @api {post} /api/v2/user/presendphonenumber/ Verify Phone Number AP
@@ -106,7 +113,7 @@ router.post("/", async (request, response) => {
     // IP Check
     logger.info(`SmsVerificationController - ${phoneNumber} - IP: ${IP}`);
 
-    const ipAddressObj = await Utils.getCountryFromIpAddress({ IP });
+    const ipAddressObj = await Logics.getCountryFromIpAddress({ IP });
     if (!ipAddressObj) {
       return Base.newErrorResponse({
         response,
@@ -176,7 +183,7 @@ router.post("/", async (request, response) => {
       if (countryBan && countryBan.countryCode === phoneCountryCode) {
         const diff = Date.now() - countryBan.updated;
         const banDurationInMilliseconds =
-          Utils.getCountryBanDuration(countryBan.occurences) * 60 * 1000;
+          CountryWideBan.getDuration(countryBan.occurences) * 60 * 1000;
 
         if (diff < banDurationInMilliseconds) {
           return Base.newErrorResponse({
@@ -219,7 +226,7 @@ router.post("/", async (request, response) => {
         allowed: checkAllowed,
         errorCode,
         errorMessage,
-      } = await Utils.checkIfCarrierIsAllowed(phoneNumber);
+      } = await Logics.checkIfCarrierIsAllowed(phoneNumber);
 
       if (!checkAllowed) {
         return Base.newErrorResponse({
@@ -261,7 +268,7 @@ router.post("/", async (request, response) => {
       }
     }
 
-    const { rates } = await Utils.getConversionRates();
+    const { rates } = await ConversionRate.getRates();
     const { latitude, longitude } = ipAddressObj;
 
     if (existingUser) {
@@ -333,7 +340,7 @@ router.post("/", async (request, response) => {
 
       await User.findByIdAndUpdate(_id.toString(), { $set: updateObj });
     } else {
-      await createNewUser({
+      await Logics.createNewUser({
         phoneNumber,
         activationCode,
         ref,
@@ -410,7 +417,7 @@ function generateActivationCode(phoneNumber, attempt) {
     return activationCode;
   }
 
-  if (Utils.eligibleForUSSD(phoneNumber) && attempt !== 2) {
+  if (eligibleForUSSD(phoneNumber) && attempt !== 2) {
     return createSimpleActivationCode(6);
   }
 
@@ -470,7 +477,7 @@ async function detectFlooding() {
       if (countryBan.updated) {
         const diff = Date.now() - countryBan.updated;
         const banDurationInMilliseconds =
-          Utils.getCountryBanDuration(countryBan.occurences) * 60 * 1000;
+          CountryWideBan.getDuration(countryBan.occurences) * 60 * 1000;
 
         if (diff > banDurationInMilliseconds) {
           updateObj = {
@@ -491,16 +498,16 @@ async function detectFlooding() {
         setDefaultsOnInsert: true,
       });
 
-      Utils.sendEmailWithSG(
-        "Flom: Flood detection",
-        `Flood detected at ${Date()} on environment: ${Config.environment}`,
-        "petarb.flom@gmail.com",
-      );
-      Utils.sendEmailWithSG(
-        "Flom: Flood detection",
-        `Flood detected at ${Date()} on environment: ${Config.environment}`,
-        "sinisa.brcina@pontistechnology.com",
-      );
+      Utils.sendEmailWithSG({
+        subject: "Flom: Flood detection",
+        text: `Flood detected at ${Date()} on environment: ${Config.environment}`,
+        to: "petarb.flom@gmail.com",
+      });
+      Utils.sendEmailWithSG({
+        subject: "Flom: Flood detection",
+        text: `Flood detected at ${Date()} on environment: ${Config.environment}`,
+        to: "sinisa.brcina@pontistechnology.com",
+      });
     }
   }
 
@@ -546,6 +553,26 @@ async function detectUserFlooding({ phoneNumber }) {
   }
 
   return { flood: false };
+}
+
+function eligibleForUSSD(phoneNumber) {
+  if (!phoneNumber.startsWith("+234")) {
+    return false;
+  }
+
+  if (
+    phoneNumber.startsWith("+234809") ||
+    phoneNumber.startsWith("+234817") ||
+    phoneNumber.startsWith("+234818") ||
+    phoneNumber.startsWith("+234909") ||
+    phoneNumber.startsWith("+234908") ||
+    phoneNumber.startsWith("+234803200") ||
+    phoneNumber.startsWith("+234810000")
+  ) {
+    return false;
+  }
+
+  return true;
 }
 
 module.exports = router;

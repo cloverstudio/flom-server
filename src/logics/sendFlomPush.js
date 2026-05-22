@@ -1,6 +1,6 @@
 const { logger } = require("#infra");
 const { User } = require("#models");
-const callPushService = require("./callPushService");
+const Utils = require("#utils");
 
 async function sendFlomPush({
   newUser,
@@ -68,7 +68,7 @@ async function sendFlomPush({
         payload: payload,
       };
 
-      callPushService(data, receiverUser);
+      Utils.callPushService(data, receiverUser);
     });
 
     return;

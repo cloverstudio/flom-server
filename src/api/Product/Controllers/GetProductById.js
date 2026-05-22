@@ -152,7 +152,7 @@ router.post("/", async function (request, response) {
     }
 
     const { userRate, userCountryCode, userCurrency, conversionRates } =
-      await Utils.getUsersConversionRate({
+      await User.getUsersConversionRate({
         user: request.user,
         accessToken: request.headers["access-token"],
       });
@@ -165,8 +165,8 @@ router.post("/", async function (request, response) {
         const productTribeIds = product.tribeIds;
         const productCommunityIds = product.communityIds;
 
-        const isUserTribeMember = await Utils.isUserTribeMember({ userId, productTribeIds });
-        const isUserCommunityMember = await Utils.isUserCommunityMember({
+        const isUserTribeMember = await User.isUserTribeMember({ userId, productTribeIds });
+        const isUserCommunityMember = await User.isUserCommunityMember({
           userId,
           productCommunityIds,
         });
@@ -237,7 +237,7 @@ router.post("/", async function (request, response) {
       product.review = review;
     }
 
-    Utils.addUserPriceToProduct({
+    Product.addUserPriceToProduct({
       product,
       userRate,
       userCountryCode,

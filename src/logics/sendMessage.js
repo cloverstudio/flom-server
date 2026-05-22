@@ -1,12 +1,17 @@
 const { logger, encryptionManager, redis } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { User, FlomMessage, Room, Group, BlockedChatGPTCountry } = require("#models");
+const { User, FlomMessage, Room, Group, BlockedChatGPTCountry, Product } = require("#models");
 const socketApi = require("../sockets/socket-api");
 
 const notifyNewMessage = require("./notifyNewMessage");
 const updateHistory = require("./updateHistory");
 const permissionLogic = require("./permissionLogic");
+const makeFeeTransfer = require("./makeFeeTransfer");
+const getWhatsAppPrices = require("./getWhatsAppPrices");
+const callChatGPTApi = require("./callChatGPTApi");
+const getGPTAssistantResponse = require("./getGPTAssistantResponse");
+const sendWhatsAppMessages = require("./sendWhatsAppMessages");
 
 async function sendMessage(param) {
   try {
@@ -164,12 +169,29 @@ async function sendMessage(param) {
     }
 
     if (!!param.wa) {
-      const wamId = await Utils.sendWhatsAppMessage({
-        to: objMessage.receiverPhoneNumber,
-        message: `${objMessage.senderName}: ${objMessage.message}`,
-      });
+      let sendWaMessage = true;
 
-      objMessage.wamId = wamId;
+      if (
+        !receiver?.whatsApp?.windowExpiresAt ||
+        (receiver?.whatsApp?.windowExpiresAt && receiver.whatsApp.windowExpiresAt < Date.now())
+      ) {
+        objMessage.wamStatus = "pending";
+        sendWaMessage = false;
+      }
+
+      let wamIds = [];
+
+      if (sendWaMessage) {
+        wamIds = await sendWhatsAppMessages({
+          sender: user,
+          receivers: [receiver],
+          message: objMessage.message,
+          mentionSlug: user.whatsApp?.mentionSlug,
+          userName: user.userName,
+        });
+      }
+
+      objMessage.wamId = wamIds[0] || null;
     }
 
     const newMessage = await FlomMessage.create(objMessage);
@@ -216,7 +238,7 @@ async function sendMessage(param) {
 
         sendMessage(messageParams);
       } else {
-        const responseFromGPT = await Utils.callChatGPTApi(
+        const responseFromGPT = await callChatGPTApi(
           param.message,
           result.user.phoneNumber,
           result.receiverUser.phoneNumber,
@@ -260,7 +282,7 @@ async function sendMessage(param) {
           userName: "Flom",
         });
 
-        const responseFromGPT = await Utils.getGPTAssistantResponse(
+        const responseFromGPT = await getGPTAssistantResponse(
           Const.FlomTeamAssistantId,
           result.user._id.toString(),
           param.message,

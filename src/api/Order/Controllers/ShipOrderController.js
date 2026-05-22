@@ -5,6 +5,7 @@ const { logger } = require("#infra");
 const Base = require("../../Base");
 const { Const, Config, countries } = require("#config");
 const Utils = require("#utils");
+const Logics = require("#logics");
 const { Order, User } = require("#models");
 const { auth } = require("#middleware");
 const sharp = require("sharp");
@@ -89,6 +90,8 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
       });
     }
 
+    const buyer = await User.findById(order.buyer._id).lean();
+
     const { fields, files } = await Utils.formParse(request, {
       keepExtensions: true,
       uploadDir: Config.uploadPath,
@@ -124,6 +127,17 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
       const updatedOrder = await Order.findByIdAndUpdate(order._id, updateObj, {
         new: true,
         lean: true,
+      });
+
+      await Logics.sendWhatsAppMessages({
+        sender: user,
+        receivers: [buyer],
+        template: "shippingUpdate",
+        shippingStatus: "SHIPPED",
+        orderId: order._id.toString(),
+        orderName:
+          order.products.length > 1 ? order.products?.[0]?.name + "..." : order.products?.[0]?.name,
+        mentionSlug: user.whatsApp?.mentionSlug,
       });
 
       const responseData = { order: updatedOrder };
@@ -222,8 +236,6 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
       lean: true,
     });
 
-    const buyer = await User.findById(order.buyer._id).lean();
-
     if (buyer.email) {
       Utils.sendEmailFromTemplate({
         to: buyer.email,
@@ -232,6 +244,17 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
         templatePath: "src/email-templates/default.html",
       });
     }
+
+    await Logics.sendWhatsAppMessages({
+      sender: user,
+      receivers: [buyer],
+      template: "shippingUpdate",
+      shippingStatus: "SHIPPED",
+      orderId: order._id.toString(),
+      orderName:
+        order.products.length > 1 ? order.products?.[0]?.name + "..." : order.products?.[0]?.name,
+      mentionSlug: user.whatsApp?.mentionSlug,
+    });
 
     const responseData = { order: updatedOrder };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);

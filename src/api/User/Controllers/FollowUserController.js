@@ -7,7 +7,6 @@ const { Const } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
 const { User, UserContact, LiveStream } = require("#models");
-const mongoose = require("mongoose");
 
 /**
  * @api {get} /api/v2/user/follow Get Followed Businesses
@@ -208,7 +207,7 @@ router.get("/followers", auth({ allowUser: true }), async function (request, res
     dataToSend.followers = [];
 
     let contacts = await UserContact.find({ userId });
-    let contactIds = contacts.map((c) => new mongoose.Types.ObjectId(c.contactId));
+    let contactIds = contacts.map((c) => Utils.createObjectId(c.contactId));
     let followers = await User.find(
       {
         $or: [{ followedBusinesses: userId }, { _id: { $in: contactIds } }],
@@ -348,8 +347,10 @@ router.get("/my-followers", auth({ allowUser: true }), async function (request, 
  *
  * @apiHeader {String} access-token Users unique access-token.
  *
- * @apiParam {String} userId           userId
- * @apiParam {String} [liveStreamId]   liveStreamId
+ * @apiParam {String}   userId           userId
+ * @apiParam {String}   [liveStreamId]   liveStreamId
+ * @apiParam {Boolean}  [push]           True to enable, false to disable push notifications (default: true)
+ * @apiParam {Boolean}  [whatsApp]       True to enable, false to disable WhatsApp notifications (default: true)
  *
  * @apiSuccessExample Success-Response:
  * {
@@ -373,7 +374,7 @@ router.get("/my-followers", auth({ allowUser: true }), async function (request, 
 
 router.post("/add", auth({ allowUser: true }), async function (request, response) {
   try {
-    const { userId, liveStreamId } = request.body;
+    const { userId, liveStreamId, push = true, whatsApp = true } = request.body;
     const { user: requestUser } = request;
 
     if (!userId) return Base.successResponse(response, Const.responsecodeUserNoUserId);
@@ -401,12 +402,41 @@ router.post("/add", auth({ allowUser: true }), async function (request, response
 
     followedBusinesses.push(userId);
 
-    await User.findByIdAndUpdate(request.user._id, {
-      $set: { followedBusinesses: followedBusinesses },
+    requestUser.notificationSubscriptions = requestUser.notificationSubscriptions || [];
+    let sub = { userId };
+    let exists = false;
+    for (const s of requestUser.notificationSubscriptions) {
+      if (s.userId === userId) {
+        sub = s;
+        exists = true;
+        break;
+      }
+    }
+
+    if (push !== undefined && typeof push === "boolean") {
+      sub.push = push;
+    } else {
+      sub.push = true;
+    }
+    if (whatsApp !== undefined && typeof whatsApp === "boolean") {
+      sub.whatsApp = whatsApp;
+    } else {
+      sub.whatsApp = true;
+    }
+
+    if (!exists) {
+      requestUser.notificationSubscriptions.push(sub);
+    }
+
+    await User.findByIdAndUpdate(requestUser._id, {
+      $set: {
+        followedBusinesses: followedBusinesses,
+        notificationSubscriptions: requestUser.notificationSubscriptions,
+      },
     });
 
     if (liveStreamId) {
-      const liveStream = LiveStream.findById(liveStreamId, { comments: -1 }).lean();
+      const liveStream = await LiveStream.findById(liveStreamId, { comments: -1 }).lean();
 
       const dataToSend = {
         messageType: "subscribedToUser",
@@ -473,6 +503,8 @@ router.post("/add", auth({ allowUser: true }), async function (request, response
 
 router.post("/remove", auth({ allowUser: true }), async function (request, response) {
   try {
+    const { user: requestUser } = request;
+
     const userId = request.body.userId;
 
     if (!userId) return Base.successResponse(response, Const.responsecodeUserNoUserId);
@@ -489,7 +521,7 @@ router.post("/remove", auth({ allowUser: true }), async function (request, respo
 
     let followedBusinesses = [];
 
-    if (request.user.followedBusinesses) followedBusinesses = request.user.followedBusinesses;
+    if (requestUser.followedBusinesses) followedBusinesses = requestUser.followedBusinesses;
 
     // check if product is already liked
     const index = followedBusinesses.indexOf(userId);
@@ -504,8 +536,16 @@ router.post("/remove", auth({ allowUser: true }), async function (request, respo
       return Base.successResponse(response, Const.responsecodeUserNotUnFollowed);
     }
 
-    await User.findByIdAndUpdate(request.user._id, {
-      $set: { followedBusinesses: followedBusinesses },
+    requestUser.notificationSubscriptions = requestUser.notificationSubscriptions || [];
+    const notificationSubscriptions = requestUser.notificationSubscriptions.filter(
+      (s) => s.userId !== userId,
+    );
+
+    await User.findByIdAndUpdate(requestUser._id, {
+      $set: {
+        followedBusinesses: followedBusinesses,
+        notificationSubscriptions: notificationSubscriptions,
+      },
     });
 
     Base.successResponse(response, Const.responsecodeSucceed);
@@ -518,6 +558,93 @@ router.post("/remove", auth({ allowUser: true }), async function (request, respo
       response,
       Const.httpCodeServerError,
       "FollowUserController, unfollow user by id",
+      e,
+    );
+    return;
+  }
+});
+
+/**
+ * @api {post} /api/v2/user/follow/update Update User Subscription By Id
+ * @apiVersion 1.0.0
+ * @apiName Update User Subscription By Id
+ * @apiGroup WebAPI User
+ * @apiDescription API for updating user subscription (whatsapp/push) by id
+ *
+ * @apiHeader {String} access-token Users unique access-token.
+ *
+ * @apiParam {String}   userId      userId
+ * @apiParam {Boolean}  [push]      True to enable, false to disable push notifications
+ * @apiParam {Boolean}  [whatsApp]  True to enable, false to disable WhatsApp notifications
+ *
+ * @apiSuccessExample Success-Response:
+ * {
+ *   "code": 1,
+ *   "time": 1540989079012,
+ *   "data": {}
+ * }
+ *
+ * @apiSuccessExample {json} Error Response
+ * {
+ *   "code": ErrorCode,
+ *   "time": 1590000125608
+ * }
+ *
+ * @apiError (Errors) 400810 No userId parameter
+ * @apiError (Errors) 400830 User not followed
+ * @apiError (Errors) 400840 User not unfollowed
+ * @apiError (Errors) 400850 Wrong userId format
+ * @apiError (Errors) 4000007 Token not valid
+ * @apiError (Errors) 4000760 User not found
+ */
+
+router.post("/update", auth({ allowUser: true }), async function (request, response) {
+  try {
+    const { user: requestUser } = request;
+
+    const { userId, push, whatsApp } = request.body;
+
+    if (!userId) return Base.successResponse(response, Const.responsecodeUserNoUserId);
+
+    const user = await User.findOne({ _id: userId }).lean();
+
+    if (!user) {
+      return Base.successResponse(response, Const.responsecodeUserNotFound);
+    }
+
+    if (user.isDeleted.value) {
+      return Base.successResponse(response, Const.responsecodeUserDeleted);
+    }
+
+    requestUser.notificationSubscriptions = requestUser.notificationSubscriptions || [];
+    const sub = requestUser.notificationSubscriptions.find((s) => s.userId === userId);
+    if (!sub) {
+      return Base.successResponse(response, Const.responsecodeUserNotFollowed);
+    }
+
+    if (push !== undefined && typeof push === "boolean") {
+      sub.push = push;
+    }
+    if (whatsApp !== undefined && typeof whatsApp === "boolean") {
+      sub.whatsApp = whatsApp;
+    }
+
+    await User.findByIdAndUpdate(requestUser._id, {
+      $set: {
+        notificationSubscriptions: requestUser.notificationSubscriptions,
+      },
+    });
+
+    return Base.successResponse(response, Const.responsecodeSucceed);
+  } catch (e) {
+    if (e.name == "CastError") {
+      logger.error("FollowUserController, update user subscription by id", e);
+      return Base.successResponse(response, Const.responsecodeUserWrongUserIdFormat);
+    }
+    Base.errorResponse(
+      response,
+      Const.httpCodeServerError,
+      "FollowUserController, update user subscription by id",
       e,
     );
     return;
@@ -561,7 +688,7 @@ router.get("/:userId", auth({ allowUser: true }), async function (request, respo
     let dataToSend = {};
     dataToSend.followedBusinesses = [];
 
-    const user = User.findById(userId);
+    const user = await User.findById(userId);
 
     if (user.followedBusinesses) dataToSend.followedBusinesses = user.followedBusinesses;
 

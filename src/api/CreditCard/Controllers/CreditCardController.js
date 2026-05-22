@@ -3,7 +3,7 @@
 const router = require("express").Router();
 const Base = require("../../Base");
 const { Const } = require("#config");
-const Utils = require("#utils");
+const Logics = require("#logics");
 const { auth } = require("#middleware");
 
 /**
@@ -63,7 +63,7 @@ router.post("/country", auth({ allowUser: true }), async (request, response) => 
     }
     if (binNumber.length > 9) binNumber = binNumber.slice(0, 9);
 
-    const countryCode = (await Utils.countryFromBinNumber(binNumber)) || "US";
+    const countryCode = (await Logics.countryFromBinNumber(binNumber)) || "US";
 
     Base.successResponse(response, Const.responsecodeSucceed, { countryCode });
   } catch (error) {

@@ -34,7 +34,18 @@ module.exports = Object.freeze({
   sendMessage: require("./sendMessage"), // SendMessageLogic SendMessage
   notifyNewMessage: require("./notifyNewMessage"),
 
-  updateWhatsAppPrices: require("./updateWhatsAppPrices"),
   getWhatsAppPrices: require("./getWhatsAppPrices"),
   generateMentionSlug: require("./generateMentionSlug"),
+  makeFeeTransfer: require("./makeFeeTransfer"),
+  sendWhatsAppMessage: require("./sendWhatsAppMessage"),
+  sendWhatsAppMessages: require("./sendWhatsAppMessages"),
+
+  countryFromBinNumber: require("./countryFromBinNumber"),
+  getCountryFromIpAddress: require("./getCountryFromIpAddress"),
+  callChatGPTApi: require("./callChatGPTApi"),
+  checkIfCarrierIsAllowed: require("./checkIfCarrierIsAllowed"),
+  getCarrier: require("./getCarrier"),
+  getCustomerActivationData: require("./getCustomerActivationData"),
+  getGPTAssistantResponse: require("./getGPTAssistantResponse"),
+  sendFlomPush: require("./sendFlomPush"),
 });

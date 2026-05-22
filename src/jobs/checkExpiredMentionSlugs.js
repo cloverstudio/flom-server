@@ -14,4 +14,4 @@ async function checkExpiredMentionSlugs() {
   }
 }
 
-setTimeout(checkExpiredMentionSlugs, 1000 * 60 * 60 * 6); // run every 6 hours
+module.exports = checkExpiredMentionSlugs;

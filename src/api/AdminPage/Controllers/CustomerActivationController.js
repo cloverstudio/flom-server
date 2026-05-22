@@ -4,6 +4,7 @@ const router = require("express").Router();
 const Base = require("../../Base");
 const { Const } = require("#config");
 const Utils = require("#utils");
+const Logics = require("#logics");
 const { auth } = require("#middleware");
 const { Configuration } = require("#models");
 
@@ -161,7 +162,7 @@ router.get("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (reque
       ? undefined
       : +request.query.startDate;
 
-    const customerActivationData = await Utils.getCustomerActivationData({
+    const customerActivationData = await Logics.getCustomerActivationData({
       dateLimit: startDate,
     });
 

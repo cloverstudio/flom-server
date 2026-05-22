@@ -7,7 +7,6 @@ const Utils = require("#utils");
 const { auth } = require("#middleware");
 const { EmojiSet } = require("#models");
 const path = require("path");
-const mongoose = require("mongoose");
 
 /**
  * @api {post} }/api/v2/emoji-set/add-emoji Add emoji to emoji set
@@ -80,9 +79,7 @@ router.post(
         });
       }
 
-      const emojiSet = await EmojiSet.findOne({
-        _id: emojiSetId,
-      }).lean();
+      const emojiSet = await EmojiSet.findById(emojiSetId).lean();
 
       if (!emojiSet) {
         return Base.newErrorResponse({
@@ -169,7 +166,7 @@ router.post(
       const { smallImage, bigImage } = filesObject;
 
       const emoji = {
-        _id: new mongoose.Types.ObjectId(),
+        _id: Utils.createObjectId(),
         name,
         bigImage,
         smallImage,

@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { logger, encryptionManager } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { FlomMessage, User, WhatsAppUserMapping } = require("#models");
+const { FlomMessage, User, WhatsAppUserMapping, WhatsAppLog } = require("#models");
 const Logics = require("#logics");
 
 router.get("/", async function (request, response) {
@@ -67,20 +67,26 @@ router.post("/", async function (request, response) {
 
         const contextId = message.context?.id ?? null;
 
-        await User.updateOne(
-          { phoneNumber: from },
-          { $set: { "whatsApp.windowExpiresAt": expiration } },
-        );
-
         if (!contextId) {
           await handleNewChatMessage({ from, msgBody, wamId, timeStamp });
         } else {
           await handleReplyMessage({ from, msgBody, wamId, timeStamp, contextId });
         }
+
+        await User.updateOne(
+          { phoneNumber: from },
+          {
+            $set: { "whatsApp.windowExpiresAt": expiration, "whatsApp.followupMessageSent": false },
+          },
+        );
       } catch (error) {
         logger.error("WhatsAppCallbackController, cb: incoming message processing error", error);
         continue;
       }
+    }
+
+    if (messages.length > 0) {
+      await sendPendingWhatsAppMessages(messages[0].from);
     }
 
     for (const message of statuses) {
@@ -106,6 +112,18 @@ router.post("/", async function (request, response) {
 });
 
 async function handleNewChatMessage({ from, msgBody, wamId, timeStamp }) {
+  let fromUser = await User.findOne({ phoneNumber: from }).lean();
+
+  if (!fromUser) {
+    fromUser = await Logics.createNewUser({
+      phoneNumber: from,
+      isAppUser: false,
+      shadow: true,
+      hasLoggedIn: Const.userShadowUser,
+      phoneNumberStatus: Const.phoneNumberUntested,
+    });
+  }
+
   let toUser = null;
 
   const regexRef = /ref_([A-Za-z]+)/;
@@ -118,32 +136,39 @@ async function handleNewChatMessage({ from, msgBody, wamId, timeStamp }) {
   if (!toUser) {
     const regexMention = /(?<!\w)@([a-zA-Z0-9_]+)/g;
     const matches = [...msgBody.matchAll(regexMention)];
-    const toUserName = matches.length > 0 ? matches[0][1] : "WhatsApp User";
+    const toUserName = matches.length > 0 ? matches[0][1] : "FlomWhatsAppUser";
 
-    toUser = await User.findOne({ userName: toUserName }).lean();
+    toUser = await User.findOne({ "whatsApp.mentionSlug": toUserName }).lean();
   }
 
   if (!toUser) {
+    if (!fromUser.whatsApp?.receivedUnknownRecipientNotice) {
+      await Logics.sendWhatsAppMessage({
+        to: from,
+        template: "unknownRecipientNotice",
+      });
+
+      await User.updateOne(
+        { _id: fromUser._id },
+        { $set: { "whatsApp.receivedUnknownRecipientNotice": true } },
+      );
+    }
+
     logger.error("WhatsAppCallbackController, cb: toUser not found from message: " + msgBody);
     return;
   }
 
-  let fromUser = await User.findOne({ phoneNumber: from }).lean();
-  if (!fromUser) {
-    fromUser = await Logics.createNewUser({
-      phoneNumber: from,
-      isAppUser: false,
-      shadow: true,
-      hasLoggedIn: Const.userShadowUser,
-      phoneNumberStatus: Const.phoneNumberUntested,
-    });
-
-    // mapping is reversed (sender is receiver etc) because we want to find the mapping with sender and receiver phone numbers when sending message from app to whatsapp
-    await WhatsAppUserMapping.create({
+  // mapping is reversed (sender is receiver etc) because we want to find the mapping with sender and receiver phone numbers when sending message from app to whatsapp
+  await WhatsAppUserMapping.findOneAndUpdate(
+    {
+      senderId: toUser._id.toString(),
       senderPhoneNumber: toUser.phoneNumber,
+      receiverId: fromUser._id.toString(),
       receiverPhoneNumber: from,
-    });
-  }
+    },
+    { $set: { enabled: true } },
+    { upsert: true },
+  );
 
   let roomId = null;
   if (toUser && fromUser.created < toUser.created) {
@@ -225,8 +250,18 @@ async function handleOutgoingMessage({ to, status, wamId, errors }) {
   const user = await User.findOne({ phoneNumber: to }).lean();
   const flomMessage = await FlomMessage.findOne({ wamId }).lean();
 
+  await WhatsAppLog.findOneAndUpdate({ wamId }, { status, failures: errors });
+
+  // if no chat message found then it is probably a WA notification
+  if (!flomMessage) {
+    return;
+  }
+
   if (status === "sent") {
-    await FlomMessage.updateOne({ wamId }, { $addToSet: { sentTo: user._id.toString() } });
+    await FlomMessage.updateOne(
+      { wamId },
+      { $addToSet: { sentTo: user._id.toString() }, $set: { wamStatus: status } },
+    );
   } else if (status === "delivered") {
     const deliveredTo = flomMessage?.deliveredTo;
 
@@ -236,7 +271,10 @@ async function handleOutgoingMessage({ to, status, wamId, errors }) {
         if (item.userId === user._id.toString()) {
           item.at = Date.now();
           alreadyDelivered = true;
-          await FlomMessage.updateOne({ wamId }, { $set: { deliveredTo: deliveredTo } });
+          await FlomMessage.updateOne(
+            { wamId },
+            { $set: { deliveredTo: deliveredTo, wamStatus: status } },
+          );
           break;
         }
       }
@@ -245,7 +283,10 @@ async function handleOutgoingMessage({ to, status, wamId, errors }) {
     if (!alreadyDelivered) {
       await FlomMessage.updateOne(
         { wamId },
-        { $addToSet: { deliveredTo: { userId: user._id.toString(), at: Date.now() } } },
+        {
+          $addToSet: { deliveredTo: { userId: user._id.toString(), at: Date.now() } },
+          $set: { wamStatus: status },
+        },
       );
     }
   } else if (status === "read") {
@@ -256,7 +297,7 @@ async function handleOutgoingMessage({ to, status, wamId, errors }) {
       if (item.user === user._id.toString()) {
         item.at = Date.now();
         alreadySeen = true;
-        await FlomMessage.updateOne({ wamId }, { $set: { seenBy: seenBy } });
+        await FlomMessage.updateOne({ wamId }, { $set: { seenBy: seenBy, wamStatus: status } });
         break;
       }
     }
@@ -264,11 +305,123 @@ async function handleOutgoingMessage({ to, status, wamId, errors }) {
     if (!alreadySeen) {
       await FlomMessage.updateOne(
         { wamId },
-        { $addToSet: { seenBy: { user: user._id.toString(), at: Date.now() } } },
+        {
+          $addToSet: { seenBy: { user: user._id.toString(), at: Date.now() } },
+          $set: { wamStatus: status },
+        },
       );
     }
   } else if (status === "failed" || !!errors) {
-    await FlomMessage.updateOne({ wamId }, { $set: { "attributes.errors": errors } });
+    await FlomMessage.updateOne(
+      { wamId },
+      { $set: { "attributes.errors": errors, wamStatus: status } },
+    );
+  }
+}
+
+const userLockMap = {};
+
+async function sendPendingWhatsAppMessages(from) {
+  try {
+    if (!from) {
+      logger.error(
+        "WhatsAppCallbackController, sendPendingWhatsAppMessages error, missing from parameter",
+      );
+      return;
+    }
+
+    if (!from.startsWith("+")) {
+      from = "+" + from;
+    }
+
+    if (userLockMap[from]) {
+      logger.warn(
+        `WhatsAppCallbackController, sendPendingWhatsAppMessages, already sending pending messages for sender: ${from}`,
+      );
+      return;
+    }
+
+    userLockMap[from] = true;
+
+    const receiver = await User.findOne({ phoneNumber: from }).lean();
+    if (!receiver) {
+      logger.error(
+        "WhatsAppCallbackController, sendPendingWhatsAppMessages error, receiver not found with phoneNumber: " +
+          from,
+      );
+      delete userLockMap[from];
+      return;
+    }
+
+    const pendingMessages = await FlomMessage.find({
+      wamStatus: "pending",
+      receiverPhoneNumber: from,
+      type: Const.messageTypeText,
+      $and: [{ message: { $ne: null } }, { message: { $ne: "" } }], // filter out messages with empty or null message field and deleted messages
+    })
+      .sort({ created: 1 })
+      .lean();
+
+    if (pendingMessages.length === 0) {
+      delete userLockMap[from];
+      return;
+    }
+
+    logger.info(
+      `WhatsAppCallbackController, sendPendingWhatsAppMessages, found ${pendingMessages.length} pending messages for sender: ${from}`,
+    );
+
+    for (const m of pendingMessages) {
+      const wamIds = await Logics.sendWhatsAppMessages({
+        senderId: m.userID,
+        receivers: [receiver],
+        message: m.message,
+      });
+
+      if (wamIds.length > 0) {
+        await FlomMessage.updateOne({ _id: m._id }, { $set: { wamId: wamIds[0] } });
+
+        let breakLoop = false,
+          attempts = 0,
+          sent = false;
+        const limit = 20;
+
+        while (breakLoop === false && attempts < limit) {
+          const log = await WhatsAppLog.findOne({ wamId: wamIds[0] }).lean();
+          attempts++;
+
+          if (log && log.status && ["delivered", "read"].includes(log.status)) {
+            breakLoop = true;
+          }
+
+          await Utils.wait(3); // wait 3 seconds before checking the status again
+        }
+
+        if (!breakLoop) {
+          logger.error(
+            `WhatsAppCallbackController, sendPendingWhatsAppMessages error, message with id: ${m._id.toString()} was not sent after ${attempts} attempts`,
+          );
+          // await FlomMessage.updateOne({ _id: m._id }, { $set: { wamStatus: "failed" } });
+
+          break;
+        }
+      } else {
+        logger.error(
+          `WhatsAppCallbackController, sendPendingWhatsAppMessages error, failed to send message with id: ${m._id.toString()} to ${from}`,
+        );
+        // await FlomMessage.updateOne({ _id: m._id }, { $set: { wamStatus: "failed" } });
+        break;
+      }
+
+      await Utils.wait(2); // wait 2 seconds between messages
+    }
+
+    delete userLockMap[from];
+    return;
+  } catch (error) {
+    logger.error("WhatsAppCallbackController, sendPendingWhatsAppMessages error", error);
+    delete userLockMap[from];
+    return;
   }
 }
 

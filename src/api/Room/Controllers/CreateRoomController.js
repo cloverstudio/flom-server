@@ -89,7 +89,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       useOld = true;
     }
     const userIds = fields.users
-      ? fields.users.split(",").filter((userId) => Utils.isObjectId(userId))
+      ? fields.users.split(",").filter((userId) => Utils.isValidObjectId(userId))
       : [];
 
     if (userIds.length === 0) {
@@ -127,7 +127,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     });
 
     const usersArray = fields.users
-      ? fields.users.split(",").filter((userId) => Utils.isObjectId(userId))
+      ? fields.users.split(",").filter((userId) => Utils.isValidObjectId(userId))
       : [];
     usersArray.push(request.user._id.toString());
     usersArray.forEach((userId) => {
@@ -164,7 +164,7 @@ async function logic(
     },
   });
 
-  if (ownerUserId && Utils.isObjectId(ownerUserId)) {
+  if (ownerUserId && Utils.isValidObjectId(ownerUserId)) {
     ownerUserId = ownerUserId.toString();
   }
 

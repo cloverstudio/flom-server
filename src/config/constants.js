@@ -135,6 +135,7 @@ Constants.messageTypeGif = 114;
 Constants.messageTypeNewLiveStream = 16;
 Constants.messageTypeLiveStreamCohostInvitation = 17;
 Constants.messageTypeAuctionOffer = 18;
+Constants.messageTypeWhatsAppFollowup = 22;
 
 Constants.pushTypeNewMessage = 1;
 Constants.pushTypeCall = 2;
@@ -165,6 +166,7 @@ Constants.pushTypeMessageReactionSent = 850;
 Constants.pushTypeNewLiveStream = 901;
 Constants.pushTypeLiveStreamCohostInvitation = 902;
 Constants.pushTypeAuctionWin = 910;
+Constants.pushTypeLowGlobalBalance = 100;
 
 Constants.muteActionMute = "mute";
 Constants.muteActionUnmute = "unmute";
@@ -593,8 +595,9 @@ Constants.notificationTypeAuctionOffer = 19;
 Constants.notificationTypeOverdueShipping = 20;
 Constants.notificationTypeShipByExpired = 21;
 Constants.notificationTypeShippingReminder = 22;
+Constants.notificationTypeLowGlobalBalance = 23;
 
-Constants.notificationTypesFromDb = [5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 17, 18, 19, 20, 21, 22];
+Constants.notificationTypesFromDb = [5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
 
 Constants.tribeActionUserRemoved = 1;
 Constants.tribeActionUserLeft = 2;
@@ -769,11 +772,12 @@ Constants.transferTypeAuction = 16;
 Constants.transferTypeAuctionPenalty = 17;
 Constants.transferTypeSellerCompensation = 18;
 Constants.transferTypePlatformFee = 19;
+Constants.transferTypeMessagingFee = 20;
 Constants.transferTypeBonus = 97;
 Constants.transferTypeBonusData = 98;
 Constants.transferTypePayout = 99;
 
-Constants.transferTypesForNotification = [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 17, 18, 19];
+Constants.transferTypesForNotification = [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 17, 18, 19, 20];
 Constants.groupTransferTypesForNotification = [1, 2, 6, 8, 10, 13];
 
 Constants.blessEmojiTitles = [
@@ -1301,5 +1305,19 @@ Constants.shippingProviders = [
 ];
 
 Constants.whatsAppMarkupRate = 1.3;
+
+Constants.templateMap = {
+  sellerFollowup: "seller_followup",
+  goLive: "go_live",
+  newDrop: "new_drop",
+  auctionReminder: "auction_reminder",
+  bookingConfirmation: "booking_confirmation",
+  bookingReminder: "booking_reminder",
+  secondChance: "second_chance",
+  shippingUpdate: "shipping_update",
+  pendingPayment: "pending_payment",
+  unknownRecipientNotice: "unknown_recipient_notice",
+};
+Constants.marketingTemplates = ["newDrop", "auctionReminder", "secondChance", "goLive"];
 
 module.exports = Object.freeze(Constants);

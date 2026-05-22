@@ -232,7 +232,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     const audios = filteredAudios.slice(skip, skip + pagingRows);
 
     const { userRate, userCountryCode, userCurrency, conversionRates } =
-      await Utils.getUsersConversionRate({
+      await User.getUsersConversionRate({
         user: request.user,
         accessToken: request.headers["access-token"],
       });
@@ -251,7 +251,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
         };
 
         if (!audio.isFree) {
-          Utils.addUserPriceToProduct({
+          Product.addUserPriceToProduct({
             product: audio,
             userRate,
             userCountryCode,

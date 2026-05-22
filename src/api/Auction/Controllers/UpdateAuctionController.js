@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { Const } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
-const { Auction, Product } = require("#models");
+const { Auction, Product, ConversionRate } = require("#models");
 const { socketApi } = require("#sockets");
 
 /**
@@ -221,7 +221,7 @@ async function checkParams(
       };
     }
 
-    const conversionRates = await Utils.getConversionRates();
+    const conversionRates = await ConversionRate.getRates();
     const valueInSats =
       (minPrice.value / conversionRates.rates[minPrice.currency]) * conversionRates.rates.SAT;
     minPrice.valueInSats = Math.ceil(valueInSats);

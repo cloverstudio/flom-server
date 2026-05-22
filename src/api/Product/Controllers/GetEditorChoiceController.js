@@ -150,7 +150,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     const user = request.user;
 
     const { userRate, userCountryCode, userCurrency, conversionRates } =
-      await Utils.getUsersConversionRate({
+      await User.getUsersConversionRate({
         user: request.user,
         accessToken: request.headers["access-token"],
       });
@@ -252,7 +252,7 @@ async function getProducts({
       product.parentCategory = categoriesObj[product.parentCategoryId];
     }
 
-    Utils.addUserPriceToProduct({
+    Product.addUserPriceToProduct({
       product,
       userRate,
       userCountryCode,
@@ -268,7 +268,7 @@ async function getProducts({
       product.parentCategory = categoriesObj[product.parentCategoryId];
     }
 
-    Utils.addUserPriceToProduct({
+    Product.addUserPriceToProduct({
       product,
       userRate,
       userCountryCode,

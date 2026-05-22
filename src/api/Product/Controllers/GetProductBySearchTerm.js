@@ -254,7 +254,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     let kidsMode;
     const blocked = user.blocked || [];
     const { userRate, userCountryCode, userCurrency, conversionRates } =
-      await Utils.getUsersConversionRate({
+      await User.getUsersConversionRate({
         user: request.user,
         accessToken: request.headers["access-token"],
       });
@@ -437,7 +437,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         obj.review.phoneNumber = request.user.phoneNumber;
       }
 
-      Utils.addUserPriceToProduct({
+      Product.addUserPriceToProduct({
         product: obj,
         userRate,
         userCountryCode,

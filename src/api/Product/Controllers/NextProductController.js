@@ -163,7 +163,7 @@ router.post("/", async function (request, response) {
     let query = [];
 
     const { userRate, userCountryCode, userCurrency, conversionRates } =
-      await Utils.getUsersConversionRate({
+      await User.getUsersConversionRate({
         user: request.user,
         accessToken: request.headers["access-token"],
       });
@@ -236,7 +236,7 @@ router.post("/", async function (request, response) {
       productObj.parentCategory = parentCategory;
     }
 
-    Utils.addUserPriceToProduct({
+    Product.addUserPriceToProduct({
       product: productObj,
       userRate,
       userCountryCode,

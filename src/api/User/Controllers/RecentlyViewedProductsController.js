@@ -123,7 +123,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     const newRecentlyViewedProducts = [];
 
     const { userRate, userCountryCode, userCurrency, conversionRates } =
-      await Utils.getUsersConversionRate({
+      await User.getUsersConversionRate({
         user: request.user,
         accessToken: request.headers["access-token"],
       });
@@ -169,7 +169,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
           const category = await Category.findOne({ _id: product.categoryId }).lean();
           product.category = category;
 
-          Utils.addUserPriceToProduct({
+          Product.addUserPriceToProduct({
             product,
             userRate,
             userCountryCode,

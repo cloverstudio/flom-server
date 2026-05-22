@@ -45,18 +45,24 @@ module.exports = function (socketApi, socket) {
         });
       }
 
-      await FlomMessage.findByIdAndUpdate(message._id.toString(), {
-        message: encryptionManager.decryptText(newMessage),
-      });
+      const updatedMessage = await FlomMessage.findByIdAndUpdate(
+        message._id.toString(),
+        {
+          message: encryptionManager.decryptText(newMessage),
+        },
+        { new: true, lean: true },
+      );
 
-      const messages = await FlomMessage.populateMessages(message);
+      notifyUpdateMessage(updatedMessage);
 
-      if (messages.length > 0) {
-        const obj = messages[0];
-        obj.message = newMessage;
+      // const messages = await FlomMessage.populateMessages(message);
 
-        notifyUpdateMessage(obj);
-      }
+      // if (messages.length > 0) {
+      //   const obj = messages[0];
+      //   obj.message = newMessage;
+
+      //   notifyUpdateMessage(obj);
+      // }
 
       return;
     } catch (error) {

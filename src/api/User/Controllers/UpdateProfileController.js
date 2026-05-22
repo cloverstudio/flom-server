@@ -790,7 +790,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     await User.updateOne({ _id: user._id }, user);
     await recombee.upsertUser(user);
 
-    user.socialMedia = Utils.generateSocialMediaWithLinks({ socialMedia: user.socialMedia });
+    user.socialMedia = User.generateSocialMediaWithLinks({ socialMedia: user.socialMedia });
 
     Base.successResponse(response, Const.responsecodeSucceed, { user });
   } catch (error) {

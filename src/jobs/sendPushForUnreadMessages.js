@@ -1,6 +1,7 @@
 const { Config, Const } = require("#config");
 const { logger } = require("#infra");
 const Utils = require("#utils");
+const Logics = require("#logics");
 const { User, History } = require("#models");
 
 async function sendPushForUnreadMessages() {
@@ -49,7 +50,7 @@ async function sendPushForUnreadMessages() {
 
         const message = Const.unreadMessagesPushMessage.replace("[Number]", `${unreadCount}`);
 
-        await Utils.sendFlomPush({
+        await Logics.sendFlomPush({
           newUser: flomAgent,
           receiverUser: user,
           message: message,

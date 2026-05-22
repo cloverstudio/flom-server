@@ -226,7 +226,7 @@ router.get("/", async function (request, response) {
     let kidsMode,
       blocked = [];
     const { userRate, userCountryCode, userCurrency, conversionRates } =
-      await Utils.getUsersConversionRate({
+      await User.getUsersConversionRate({
         user: request.user,
         accessToken: request.headers["access-token"],
       });
@@ -328,7 +328,7 @@ router.get("/", async function (request, response) {
         product.recentViews = productsArray[i]?.count || 1;
         product.owner = ownerObjectsEdited[product.ownerId];
 
-        Utils.addUserPriceToProduct({
+        Product.addUserPriceToProduct({
           product,
           userRate,
           userCountryCode,

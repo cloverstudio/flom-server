@@ -2,12 +2,6 @@ const { Config } = require("#config");
 const sendRequest = require("./sendRequest");
 
 async function getAllBankAccountsWithMsisdn(phoneNumber) {
-  console.log(
-    "getAllBankAccountsWithMsisdn URL: " +
-      Config.GetAllBankAccountsWithMsisdn +
-      phoneNumber.replace("+234", "234")
-  );
-
   const responseData = await sendRequest({
     method: "GET",
     url: Config.GetAllBankAccountsWithMsisdn + phoneNumber.replace("+234", "234"),

@@ -30,7 +30,6 @@
 const router = require("express").Router();
 const Base = require("../../Base");
 const { Const, Config } = require("#config");
-const { auth } = require("#middleware");
 
 router.get("/", async function (request, response) {
   try {

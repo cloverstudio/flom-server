@@ -199,7 +199,7 @@ router.get("/", async (request, response) => {
 
     var requestUserId, tribes, requestUserTribeIds, requestUserMembershipIds;
     const { userRate, userCountryCode, userCurrency, conversionRates } =
-      await Utils.getUsersConversionRate({
+      await User.getUsersConversionRate({
         user: request.user,
         accessToken: request.headers["access-token"],
       });
@@ -314,7 +314,7 @@ router.get("/", async (request, response) => {
     products.forEach((product) => {
       delete product.__v;
 
-      Utils.addUserPriceToProduct({
+      Product.addUserPriceToProduct({
         product,
         userRate,
         userCountryCode,

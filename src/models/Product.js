@@ -1,6 +1,8 @@
-const { db } = require("#infra");
+const { db, logger } = require("#infra");
 const mongoose = require("mongoose");
 const { Const } = require("#config");
+const Utils = require("#utils");
+const Category = require("./Category");
 
 /**
  * @type {mongoose.SchemaDefinitionProperty}
@@ -196,6 +198,7 @@ const schema = new mongoose.Schema(
     },
     language: String,
     reservations: [{ auctionId: String, quantity: Number }],
+    slug: String,
   },
   { timestamps: true },
 );
@@ -214,4 +217,181 @@ schema.index({ featured: -1 });
 
 schema.index({ _id: -1, isDeleted: -1 });
 
-module.exports = db.db1.model("Product", schema, "products");
+const Product = db.db1.model("Product", schema, "products");
+
+class ExtendedProduct extends Product {
+  static isProductForSale(product) {
+    const { originalPrice } = product;
+
+    if (!originalPrice) return false;
+
+    let hasPrice = false;
+
+    Object.keys(originalPrice).forEach((key) => {
+      if (key.toLowerCase().includes("value") && originalPrice[key] > 0) {
+        hasPrice = true;
+      }
+    });
+
+    return hasPrice;
+  }
+
+  static addUserPriceToProduct({
+    product = {},
+    userRate,
+    userCountryCode,
+    userCurrency,
+    conversionRates,
+  }) {
+    if (userRate && this.isProductForSale(product)) {
+      const productRate = conversionRates.rates[product.originalPrice.currency];
+      const userPrice = { countryCode: userCountryCode, currency: userCurrency };
+      const originalPrice = product.originalPrice;
+
+      Object.keys(originalPrice).forEach((key) => {
+        if (key.toLowerCase().includes("value") && originalPrice[key] > 0) {
+          userPrice[key] = Utils.roundNumber(originalPrice[key] * (userRate / productRate), 2);
+        }
+      });
+
+      product.userPrice = userPrice;
+    }
+
+    return;
+  }
+
+  static checkProductCategoryGroup({ productType, categoryGroups }) {
+    if (categoryGroups.includes(Const.categoryGroupAll)) {
+      return true;
+    }
+
+    if (
+      productType === Const.productTypeProduct &&
+      categoryGroups.includes(Const.categoryGroupMerchants)
+    ) {
+      return true;
+    }
+
+    if (
+      productType !== Const.productTypeProduct &&
+      categoryGroups.includes(Const.categoryGroupCreators)
+    ) {
+      return true;
+    }
+
+    switch (productType) {
+      case Const.productTypeVideo:
+        if (categoryGroups.includes(Const.categoryGroupVideo)) {
+          return true;
+        }
+        break;
+      case Const.productTypeVideoStory:
+        if (categoryGroups.includes(Const.categoryGroupVideoStory)) {
+          return true;
+        }
+        break;
+      case Const.productTypePodcast:
+        if (categoryGroups.includes(Const.categoryGroupPodcast)) {
+          return true;
+        }
+        break;
+      case Const.productTypeTextStory:
+        if (categoryGroups.includes(Const.categoryGroupTextStory)) {
+          return true;
+        }
+        break;
+      case Const.productTypeProduct:
+        if (categoryGroups.includes(Const.categoryGroupProduct)) {
+          return true;
+        }
+        break;
+    }
+    return false;
+  }
+
+  static async syncProductsCategories(product) {
+    try {
+      if (product.categoryId && !product.productMainCategoryId) {
+        let cat = await Category.findOne({ _id: product.categoryId });
+        if (cat.parentId == "-1") {
+          let mainCat = await Category.findOne({ name: cat.name });
+          product.productMainCategoryId = mainCat._id.toString();
+        } else {
+          let parentCat = await Category.findOne({ _id: cat.parentId });
+          let mainCat = await Category.findOne({ name: parentCat.name });
+          let subCat = await Category.findOne({ name: cat.name });
+          product.productMainCategoryId = mainCat._id.toString();
+          product.productSubCategoryId = subCat._id.toString();
+        }
+      } else if (product.productMainCategoryId) {
+        let mainCat = await Category.findOne({ _id: product.productMainCategoryId });
+        if (product.productSubCategoryId) {
+          let subCat = await Category.findOne({ _id: product.productSubCategoryId });
+          if (mainCat.name == "Buy and Sell") {
+            mainCat = await Category.findOne({ _id: subCat.mainCategoryId });
+            product.productMainCategoryId = mainCat._id;
+          }
+          let parentCat = await Category.findOne({ name: mainCat.name, parentId: "-1" });
+          let cat = await Category.findOne({
+            name: subCat.name,
+            parentId: parentCat._id.toString(),
+          });
+          if (!cat) {
+            let newCat = await Category.findOne({ name: "Default" });
+            let oldCat = await Category.findOne({ name: "Default", parentId: "-1" });
+            product.categoryId = oldCat._id;
+            product.productMainCategoryId = newCat._id;
+            product.productSubCategoryId = undefined;
+          } else {
+            product.categoryId = cat._id;
+          }
+        } else {
+          let cat = await Category.findOne({ name: mainCat.name, parentId: "-1" });
+          product.categoryId = cat._id;
+        }
+      }
+      return product;
+    } catch (error) {
+      logger.error("syncProductsCategories error: ", error);
+    }
+  }
+
+  static async createSlug(name) {
+    try {
+      if (!name) throw new Error("Product name is required to create slug");
+
+      let slug = name
+        .trim()
+        .toLowerCase()
+        .replace(/_+/g, "-")
+        .replace(/[^a-z0-9\s-]/g, "")
+        .replace(/\s+/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "");
+
+      const slugArr = slug.split("-");
+      if (slugArr.length > 8) {
+        slug = slugArr.slice(0, 8).join("-");
+      }
+
+      let exists = true;
+      let finalSlug = slug;
+
+      while (exists) {
+        const existingProduct = await this.findOne({ slug: finalSlug });
+        if (existingProduct) {
+          finalSlug = `${slug}-${Utils.generateRandomNumber(3)}`;
+        } else {
+          exists = false;
+        }
+      }
+
+      return finalSlug;
+    } catch (error) {
+      logger.error("createSlug error: ", error);
+      return null;
+    }
+  }
+}
+
+module.exports = ExtendedProduct;

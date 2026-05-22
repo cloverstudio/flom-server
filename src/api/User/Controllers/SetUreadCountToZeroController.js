@@ -30,7 +30,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
   const historyId = request.body.historyId;
   const unreadCount = request.body.unreadCount || 0;
 
-  if (!Utils.isPositiveInteger(unreadCount)) {
+  if (!(Number.isInteger(unreadCount) && unreadCount >= 0)) {
     return Base.successResponse(response, Const.responsecodeInvalidUnreadCount);
   }
 

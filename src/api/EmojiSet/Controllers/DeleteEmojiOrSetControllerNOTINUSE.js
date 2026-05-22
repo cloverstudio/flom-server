@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { Const } = require("#config");
 const { auth } = require("#middleware");
 const { EmojiSet } = require("#models");
-const mongoose = require("mongoose");
+const Utils = require("#utils");
 
 /**
  * @api {delete} /api/v2/emoji-set/delete/:setId/:emojiId? Delete emoji or emoji set
@@ -69,7 +69,7 @@ router.delete(
       if (emojiId) {
         var emojiInSet = await EmojiSet.findOne(
           {
-            "items._id": new mongoose.Types.ObjectId(emojiId),
+            "items._id": Utils.createObjectId(emojiId),
           },
           { "items.$": 1, _id: 0 },
         ).lean();
@@ -87,7 +87,7 @@ router.delete(
 
       if (emojiId) {
         result = await EmojiSet.updateOne(
-          { _id: emojiSetId, "items._id": new mongoose.Types.ObjectId(emojiId) },
+          { _id: emojiSetId, "items._id": Utils.createObjectId(emojiId) },
           { $set: { isDeprecated: true, $inc: { itemsCount: -1 } } },
         );
       } else {

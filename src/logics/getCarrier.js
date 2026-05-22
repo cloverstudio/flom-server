@@ -1,9 +1,7 @@
 const { logger } = require("#infra");
 const { Config, Const } = require("#config");
+const Utils = require("#utils");
 const { NumberDefaultCarrier } = require("#models");
-const sendRequest = require("./sendRequest");
-const getCountryCodeFromPhoneNumber = require("./getCountryCodeFromPhoneNumber");
-const getNigerianCarrier = require("./getNigerianCarrier");
 
 async function getPpnCarrier(phoneNumber) {
   try {
@@ -12,7 +10,7 @@ async function getPpnCarrier(phoneNumber) {
     const fixedPhoneNumber = phoneNumber.startsWith("+") ? phoneNumber.slice(1) : phoneNumber;
 
     try {
-      res = await sendRequest({
+      res = await Utils.sendRequest({
         method: "GET",
         url: `${process.env.PPN_API_V2}/lookup/mobile/${fixedPhoneNumber}`,
         headers: Config.ppnHeaders,
@@ -26,7 +24,9 @@ async function getPpnCarrier(phoneNumber) {
     }
 
     logger.warn(
-      `getPpnCarrier, ppn lookup for number ${phoneNumber} failed, response: ${JSON.stringify(res)}`
+      `getPpnCarrier, ppn lookup for number ${phoneNumber} failed, response: ${JSON.stringify(
+        res,
+      )}`,
     );
 
     return null;
@@ -40,7 +40,7 @@ async function getCarrier({ phoneNumber, countryCode }) {
   try {
     if (!phoneNumber) return "";
 
-    countryCode = !countryCode ? getCountryCodeFromPhoneNumber({ phoneNumber }) : countryCode;
+    countryCode = !countryCode ? Utils.getCountryCodeFromPhoneNumber({ phoneNumber }) : countryCode;
 
     if (!countryCode || countryCode === "US" || countryCode === "ES") return "";
 
@@ -57,7 +57,7 @@ async function getCarrier({ phoneNumber, countryCode }) {
     } else {
       let defaultCarrier =
         countryCode === "NG"
-          ? await getNigerianCarrier(phoneNumber)
+          ? await Utils.getNigerianCarrier(phoneNumber)
           : await getPpnCarrier(phoneNumber);
 
       if (defaultCarrier) {
@@ -70,7 +70,7 @@ async function getCarrier({ phoneNumber, countryCode }) {
             carrier: defaultCarrier,
             modified: Date.now(),
           },
-          { upsert: true }
+          { upsert: true },
         );
 
         return defaultCarrier;

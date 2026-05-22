@@ -448,6 +448,7 @@
   "443951": "Failed to send WhatsApp message.",
   "443952": "The mention slug is not available.",
   "443953": "Mention slug has already been changed.",
+  "443954": "Slug missing.",
 
   "444000": "Your country has been temporarily banned.",
   "444001": "Your app version is too old, please update.",

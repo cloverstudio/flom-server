@@ -394,18 +394,21 @@ router.post("/manage-cohosts", auth({ allowUser: true }), async function (reques
       await Utils.sendMessageToLiveStream({ liveStream, data: dataToSend });
 
       if (sendNotifications) {
-        for (const cohost of newCohostUserModels) {
+        const notificationCohostIds = Array.from(
+          new Set(newCohostUserModels.map((cohost) => cohost._id.toString())),
+        );
+        if (notificationCohostIds.length > 0) {
           await Notification.create({
             title: `Live stream co-host invitation`,
-            text: `${user.userName} is inviting ${cohost?.userName || "you"} to co-host: ${
-              liveStream.name
-            }`,
-            receiverIds: [cohost?._id.toString()],
+            text: `${user.userName} is inviting you to co-host: ${liveStream.name}`,
+            receiverIds: notificationCohostIds,
             senderId: user._id.toString(),
             referenceId: liveStreamId,
             notificationType: Const.notificationTypeLiveStreamCohostInvitation,
           });
+        }
 
+        for (const cohost of newCohostUserModels) {
           let roomId = "";
 
           if (user.created < cohost.created) {

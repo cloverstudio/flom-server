@@ -6,7 +6,7 @@ const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
 const { auth, autoApproveProduct } = require("#middleware");
-const { Category, Product, User, ApiAccessLog } = require("#models");
+const { Category, Product, User, ApiAccessLog, ConversionRate } = require("#models");
 const { handleTags } = require("#logics");
 const { recombee } = require("#services");
 const mediaHandler = require("#media");
@@ -251,7 +251,7 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
     }
 
     if (type !== Const.productTypeProduct) {
-      const conversionRates = await Utils.getConversionRates();
+      const conversionRates = await ConversionRate.getRates();
 
       priceCountryCode =
         user.countryCode ?? Utils.getCountryCodeFromPhoneNumber({ phoneNumber: user.phoneNumber });
@@ -312,7 +312,9 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
         });
       }
 
-      if (!Utils.checkProductCategoryGroup({ productType: type, categoryGroups: category.group })) {
+      if (
+        !Product.checkProductCategoryGroup({ productType: type, categoryGroups: category.group })
+      ) {
         return Base.newErrorResponse({
           response,
           code: Const.responsecodeProductInvalidCategory,
@@ -329,13 +331,13 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
       product.parentCategoryId = parentCategoryId;
       product.productMainCategoryId = undefined;
       product.productSubCategoryId = undefined;
-      //product = await Utils.syncProductsCategories(product);
+      //product = await Product.syncProductsCategories(product);
     } else if (productMainCategoryId || productSubCategoryId) {
       if (productMainCategoryId) {
         product.productMainCategoryId = productMainCategoryId;
       }
       product.productSubCategoryId = productSubCategoryId;
-      product = await Utils.syncProductsCategories(product);
+      product = await Product.syncProductsCategories(product);
     }
 
     const updateUserLocation =
@@ -444,6 +446,7 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
     }
 
     product.name = productName;
+    product.slug = await Product.createSlug(productName);
     product.description = productDescription;
     product.ownerId = user._id;
     product.countryCode = user.countryCode;

@@ -1,14 +1,11 @@
 const twilio = require("twilio");
 const { Config, Const, countries } = require("#config");
+const Utils = require("#utils");
 const { BlockedNumber } = require("#models");
-const sendRequest = require("./sendRequest");
-const formatPhoneNumber = require("./formatPhoneNumber");
-const getCountryCodeFromPhoneNumber = require("./getCountryCodeFromPhoneNumber");
-const sendEmailWithSG = require("./sendEmailWithSG");
 
 async function checkIfCarrierIsAllowed(phoneNumber) {
-  const phoneNumberFormatted = formatPhoneNumber({ phoneNumber });
-  const countryCode = getCountryCodeFromPhoneNumber({ phoneNumber });
+  const phoneNumberFormatted = Utils.formatPhoneNumber({ phoneNumber });
+  const countryCode = Utils.getCountryCodeFromPhoneNumber({ phoneNumber });
   const allowedAmericanCarriers = [
     "t-mobile",
     "t-mobile us",
@@ -65,11 +62,11 @@ async function checkIfCarrierIsAllowed(phoneNumber) {
         reason: `Carrier ${carrier.name} not allowed`,
       });
 
-      sendEmailWithSG(
-        "New registration with banned carrier",
-        `New user registration attempt with phone number ${phoneNumberFormatted}, carrier name: ${carrier.name}`,
-        Config.blockedNumberEmail,
-      );
+      Utils.sendEmailWithSG({
+        subject: "New registration with banned carrier",
+        text: `New user registration attempt with phone number ${phoneNumberFormatted}, carrier name: ${carrier.name}`,
+        to: Config.blockedNumberEmail,
+      });
 
       return defaultReturnObject;
     }
@@ -91,17 +88,17 @@ async function checkIfCarrierIsAllowed(phoneNumber) {
     });
 
     if (carrier) {
-      sendEmailWithSG(
-        "New registration with voip carrier",
-        `New user registration attempt with phone number ${phoneNumberFormatted}, carrier name: ${carrier.name}`,
-        Config.blockedNumberEmail,
-      );
+      Utils.sendEmailWithSG({
+        subject: "New registration with voip carrier",
+        text: `New user registration attempt with phone number ${phoneNumberFormatted}, carrier name: ${carrier.name}`,
+        to: Config.blockedNumberEmail,
+      });
     } else if (line_type) {
-      sendEmailWithSG(
-        "New registration with voip carrier",
-        `New user registration attempt with phone number ${phoneNumberFormatted}, carrier name: ${line_carrier}`,
-        Config.blockedNumberEmail,
-      );
+      Utils.sendEmailWithSG({
+        subject: "New registration with voip carrier",
+        text: `New user registration attempt with phone number ${phoneNumberFormatted}, carrier name: ${line_carrier}`,
+        to: Config.blockedNumberEmail,
+      });
     }
 
     return defaultReturnObject;
@@ -114,7 +111,7 @@ async function getCarrierWithTwilio(phoneNumber) {
 }
 
 async function getCarrierWithNumLookup(phoneNumber) {
-  const result = await sendRequest({
+  const result = await Utils.sendRequest({
     method: "GET",
     url: `https://api.numlookupapi.com/v1/validate/${phoneNumber}?apikey=${Config.numLookupApiKey}`,
   });

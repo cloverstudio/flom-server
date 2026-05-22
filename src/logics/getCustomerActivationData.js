@@ -1,6 +1,6 @@
 const { Const } = require("#config");
+const Utils = require("#utils");
 const { Configuration, SmsData, Transfer } = require("#models");
-const roundNumber = require("./roundNumber");
 
 async function getCustomerActivationData({ dateLimit, noSpending = false }) {
   const { properties: customerActivationData = {} } =
@@ -35,8 +35,8 @@ async function getCustomerActivationData({ dateLimit, noSpending = false }) {
     else adminSum = item.sum;
   }
 
-  customerActivationData.smsAdminSpending = roundNumber(adminSum / 10000, 2);
-  customerActivationData.smsInviteSpending = roundNumber(inviteSum / 10000, 2);
+  customerActivationData.smsAdminSpending = Utils.roundNumber(adminSum / 10000, 2);
+  customerActivationData.smsInviteSpending = Utils.roundNumber(inviteSum / 10000, 2);
 
   const transfers = await Transfer.aggregate([
     {
@@ -63,15 +63,18 @@ async function getCustomerActivationData({ dateLimit, noSpending = false }) {
     else productSum = item.sum;
   }
 
-  customerActivationData.dataForFirstPaymentOrApprovedProductSpending = roundNumber(productSum, 2);
-  customerActivationData.dataForSyncSpending = roundNumber(syncSum, 2);
+  customerActivationData.dataForFirstPaymentOrApprovedProductSpending = Utils.roundNumber(
+    productSum,
+    2,
+  );
+  customerActivationData.dataForSyncSpending = Utils.roundNumber(syncSum, 2);
 
-  customerActivationData.totalSpending = roundNumber(
+  customerActivationData.totalSpending = Utils.roundNumber(
     customerActivationData.smsAdminSpending +
       customerActivationData.smsInviteSpending +
       customerActivationData.dataForFirstPaymentOrApprovedProductSpending +
       customerActivationData.dataForSyncSpending,
-    2
+    2,
   );
 
   return customerActivationData;

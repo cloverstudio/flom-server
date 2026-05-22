@@ -5,7 +5,6 @@ const Base = require("../../Base");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
 const { Product, Category, Transaction, User, Review, Tribe } = require("#models");
-const mongoose = require("mongoose");
 
 /**
  * @api {post} /api/v2/product/list List Products
@@ -148,7 +147,7 @@ router.post("/", async function (request, response) {
 
     let kidsMode;
     const { userRate, userCountryCode, userCurrency, conversionRates } =
-      await Utils.getUsersConversionRate({
+      await User.getUsersConversionRate({
         user: request.user,
         accessToken: request.headers["access-token"],
       });
@@ -228,7 +227,7 @@ router.post("/", async function (request, response) {
     );
 
     enrichedProducts.forEach((product) => {
-      Utils.addUserPriceToProduct({
+      Product.addUserPriceToProduct({
         product,
         userRate,
         userCountryCode,
@@ -351,7 +350,7 @@ function getLocationFromString(locString) {
 function getCategoryIdsFromString(catString) {
   return catString == undefined
     ? undefined
-    : catString.split(",").map((str) => new mongoose.Types.ObjectId(`${str}`));
+    : catString.split(",").map((str) => Utils.createObjectId(str));
 }
 
 function addDistField(product, location) {

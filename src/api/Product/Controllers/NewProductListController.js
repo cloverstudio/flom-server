@@ -204,7 +204,7 @@ router.get("/", async function (request, response) {
       isGuest = true,
       blocked = [];
     const { userRate, userCountryCode, userCurrency, conversionRates } =
-      await Utils.getUsersConversionRate({
+      await User.getUsersConversionRate({
         user: request.user,
         accessToken: request.headers["access-token"],
       });
@@ -432,7 +432,7 @@ router.get("/", async function (request, response) {
             }, {});
         }
 
-        Utils.addUserPriceToProduct({
+        Product.addUserPriceToProduct({
           product,
           userRate,
           userCountryCode,

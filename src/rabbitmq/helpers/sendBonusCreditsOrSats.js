@@ -1,5 +1,6 @@
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
+const Logics = require("#logics");
 const { logger } = require("#infra");
 const { Transfer, User, Product } = require("#models");
 
@@ -203,7 +204,7 @@ async function sendBonusCreditsOrSats({
       bonusPaymentMethod === "credits" ? "Credits" : "Sats",
     );
 
-    Utils.sendFlomPush({
+    Logics.sendFlomPush({
       newUser: sender,
       receiverUser: user,
       message: bonusMessage,

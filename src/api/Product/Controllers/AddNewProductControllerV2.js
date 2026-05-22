@@ -257,6 +257,8 @@ router.post(
         ? fields.language || request.user.deviceLanguage
         : "en";
 
+      const slug = await Product.createSlug(name);
+
       const audioFileNames = !fields.audioFileNames
         ? []
         : fields.audioFileNames.split(",").map((name) => name.trim());
@@ -429,7 +431,7 @@ router.post(
         }
 
         if (
-          !Utils.checkProductCategoryGroup({ productType: type, categoryGroups: category.group })
+          !Product.checkProductCategoryGroup({ productType: type, categoryGroups: category.group })
         ) {
           return Base.newErrorResponse({
             response,
@@ -544,6 +546,7 @@ router.post(
         audiosForExpo,
         originalPrice,
         mediaProcessingInfo: { status: "processing" },
+        slug,
       });
 
       let isWatermarked = false;

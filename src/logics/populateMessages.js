@@ -14,12 +14,12 @@ async function populateMessage(messageList, callerUser) {
     const roomIds = new Set();
 
     messageList.forEach((m) => {
-      if (Utils.isObjectId(m.userID)) userIds.add(m.userID);
+      if (Utils.isValidObjectId(m.userID)) userIds.add(m.userID);
 
       const regex = new RegExp("^" + Const.chatTypeGroup + "-");
       if (regex.test(m.roomID)) {
         const groupId = Utils.getObjectIdFromRoomID(m.roomID);
-        if (groupId && Utils.isObjectId(groupId)) groupIds.add(groupId);
+        if (groupId && Utils.isValidObjectId(groupId)) groupIds.add(groupId);
       }
 
       if (
@@ -28,7 +28,7 @@ async function populateMessage(messageList, callerUser) {
           m.roomID.startsWith(Const.chatTypeBroadcastAdmin + "-"))
       ) {
         const roomId = Utils.getObjectIdFromRoomID(m.roomID);
-        if (roomId && Utils.isObjectId(roomId)) roomIds.add(roomId);
+        if (roomId && Utils.isValidObjectId(roomId)) roomIds.add(roomId);
       }
 
       const roomId = m.roomID;
@@ -36,8 +36,8 @@ async function populateMessage(messageList, callerUser) {
 
       if (temp[0] == Const.chatTypePrivate) {
         if (temp.length > 2) {
-          if (Utils.isObjectId(temp[1])) userIds.add(temp[1]);
-          if (Utils.isObjectId(temp[2])) userIds.add(temp[2]);
+          if (Utils.isValidObjectId(temp[1])) userIds.add(temp[1]);
+          if (Utils.isValidObjectId(temp[2])) userIds.add(temp[2]);
         }
       }
     });

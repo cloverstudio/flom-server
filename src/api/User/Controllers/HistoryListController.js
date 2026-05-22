@@ -597,7 +597,7 @@ async function getList(lastUpdate, page, request, searchObj = null) {
   const userIds = res
     .filter((item) => item.chatType === Const.chatTypePrivate)
     .map((item) => item.chatId)
-    .filter((userId) => Utils.isObjectId(userId));
+    .filter((userId) => Utils.isValidObjectId(userId));
   const users = await User.find({ _id: { $in: userIds } }).lean();
   const usersMap = {};
   users.forEach((user) => {
@@ -648,7 +648,7 @@ async function getList(lastUpdate, page, request, searchObj = null) {
   const groupIds = res
     .filter((item) => item.chatType === Const.chatTypeGroup)
     .map((item) => item.chatId)
-    .filter((groupId) => Utils.isObjectId(groupId));
+    .filter((groupId) => Utils.isValidObjectId(groupId));
   const groups = await Group.find({ _id: { $in: groupIds } }).lean();
   const groupsMap = {};
   groups.forEach((group) => {
@@ -672,7 +672,7 @@ async function getList(lastUpdate, page, request, searchObj = null) {
   const roomIds = res
     .filter((item) => item.chatType === Const.chatTypeRoom)
     .map((item) => item.chatId)
-    .filter((roomId) => Utils.isObjectId(roomId));
+    .filter((roomId) => Utils.isValidObjectId(roomId));
   const rooms = await Room.find({ _id: { $in: roomIds } }).lean();
   const roomsMap = {};
   rooms.forEach((room) => {
@@ -757,7 +757,7 @@ async function getList(lastUpdate, page, request, searchObj = null) {
   const totalUnread = await totalUnreadCount(user._id.toString());
 
   const userIds4 = res
-    .filter((userId) => !!userId && Utils.isObjectId(userId))
+    .filter((userId) => !!userId && Utils.isValidObjectId(userId))
     .map((item) => item.user._id.toString());
 
   const onlineStatusResult = await getUsersOnlineStatus(userIds4);

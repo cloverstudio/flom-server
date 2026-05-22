@@ -5,8 +5,9 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const, Config, countries } = require("#config");
 const Utils = require("#utils");
+const Logics = require("#logics");
 const { auth } = require("#middleware");
-const { User, FlomMessage, Test, NonFlomContact } = require("#models");
+const { User, FlomMessage, Test, NonFlomContact, Product } = require("#models");
 const fs = require("fs");
 const path = require("path");
 const { recombee } = require("#services");
@@ -171,7 +172,7 @@ router.get("/push", async function (request, response) {
 
     const message = `Test for push type: ${pushType}, isMuted: ${mute}`;
 
-    await Utils.sendFlomPush({
+    await Logics.sendFlomPush({
       newUser: flomAgent,
       receiverUser: user,
       message: message,
@@ -194,7 +195,7 @@ router.get("/test-gpt", async (request, response) => {
   try {
     const { text } = request.query;
 
-    const result = await Utils.callChatGPTApi(text, "0", "0", false);
+    const result = await Logics.callChatGPTApi(text, "0", "0", false);
 
     Base.successResponse(response, Const.responsecodeSucceed, { result });
   } catch (error) {
@@ -277,7 +278,7 @@ router.get("/h", async (request, response) => {
 
 router.get("/test-file-gpt", async (request, response) => {
   try {
-    const res = await Utils.getGPTAssistantResponse(
+    const res = await Logics.getGPTAssistantResponse(
       Const.FlomTeamAssistantId,
       "63de7115a62453346de15d96",
       "what is Flom",
@@ -300,7 +301,7 @@ router.get("/pushtest/:pushType", async (request, response) => {
     const user = await User.findOne({ phoneNumber: "+385958710207" }).lean();
     const sender = await User.findById(Config.flomSupportAgentId).lean();
 
-    await Utils.sendFlomPush({
+    await Logics.sendFlomPush({
       newUser: sender,
       receiverUser: user,
       message: "message",
@@ -433,6 +434,56 @@ router.post("/form", async (request, response) => {
     Base.newErrorResponse({
       response,
       message: "FixController - form",
+      error,
+    });
+  }
+});
+
+router.get("/product-slugs", async (request, response) => {
+  try {
+    let breakLoop = false,
+      i = 0;
+
+    while (!breakLoop) {
+      console.log("Fixing product slugs, batch " + i);
+      const products = await Product.find({
+        slug: { $exists: false },
+        $and: [{ name: { $exists: true } }, { name: { $ne: null } }, { name: { $ne: "" } }],
+      }).limit(100);
+
+      if (products.length === 0) {
+        breakLoop = true;
+      }
+
+      const bulkOps = [];
+
+      for (const p of products) {
+        const slug = await Product.createSlug(p.name);
+        console.log("Fixing product slug: ", p._id.toString(), p.name, slug);
+
+        bulkOps.push({
+          updateOne: {
+            filter: { _id: p._id },
+            update: { $set: { slug } },
+          },
+        });
+      }
+
+      if (bulkOps.length > 0) {
+        await Product.bulkWrite(bulkOps);
+      }
+
+      i++;
+
+      await Utils.wait(2);
+    }
+
+    Base.successResponse(response, Const.responsecodeSucceed, {});
+  } catch (error) {
+    Base.newErrorResponse({
+      response,
+      message: "FixController - product-slugs",
+      error,
     });
   }
 });

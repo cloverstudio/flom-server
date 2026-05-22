@@ -1,5 +1,6 @@
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
+const Logics = require("#logics");
 const { logger } = require("#infra");
 const { FlomMessage } = require("#models");
 const { updateHistory, notifyUpdateMessage } = require("#logics");
@@ -71,7 +72,7 @@ module.exports = function (socketApi, socket) {
           const receiver2 = temp[2];
           const message = `Offer${stub}for item ${productName}`;
 
-          Utils.sendFlomPush({
+          Logics.sendFlomPush({
             senderId: Config.flomSupportAgentId,
             receiverId: receiver1,
             message,
@@ -81,7 +82,7 @@ module.exports = function (socketApi, socket) {
             roomId,
           });
 
-          Utils.sendFlomPush({
+          Logics.sendFlomPush({
             senderId: Config.flomSupportAgentId,
             receiverId: receiver2,
             message,
@@ -93,16 +94,22 @@ module.exports = function (socketApi, socket) {
         }
       }
 
-      const messages = await FlomMessage.populateMessages(message);
+      // const messages = await FlomMessage.populateMessages(message);
 
-      if (messages.length > 0) {
-        const obj = messages[0];
-        obj.attributes = newAttributes;
-        obj.created = updateParams.created ? updateParams.created : messages[0].created;
+      // if (messages.length > 0) {
+      //   const obj = messages[0];
+      //   obj.attributes = newAttributes;
+      //   obj.created = updateParams.created ? updateParams.created : messages[0].created;
 
-        updateHistory.updateByMessage(obj);
-        notifyUpdateMessage.notify(obj);
-      }
+      //   updateHistory.updateByMessage(obj);
+      //   notifyUpdateMessage(obj);
+      // }
+
+      message.attributes = newAttributes;
+      message.created = updateParams.created ? updateParams.created : message.created;
+
+      updateHistory(message);
+      notifyUpdateMessage(message);
 
       if (typeof callback === "function") callback(message);
     } catch (error) {

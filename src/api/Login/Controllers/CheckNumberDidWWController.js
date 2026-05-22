@@ -5,8 +5,8 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { User, DidWWNumber, DidWWLog, BannedNumber } = require("#models");
-const { createNewUser } = require("#logics");
+const Logics = require("#logics");
+const { User, DidWWNumber, DidWWLog, BannedNumber, ConversionRate } = require("#models");
 
 /**
  * @api {post} /api/v2/login/did/check-number Check registration/login
@@ -196,7 +196,7 @@ router.post("", async (request, response) => {
     // IP Check
     logger.info(`CheckNumberDidWWController - ${phoneNumber} - IP: ${IP}`);
 
-    const ipAddressObj = await Utils.getCountryFromIpAddress({ IP });
+    const ipAddressObj = await Logics.getCountryFromIpAddress({ IP });
 
     if (ipAddressObj?.isVPN && Config.environment === "production") {
       const existingUser = await User.findOne({ phoneNumber, "isDeleted.value": false }).lean();
@@ -236,7 +236,7 @@ router.post("", async (request, response) => {
         allowed: checkAllowed,
         errorCode,
         errorMessage,
-      } = await Utils.checkIfCarrierIsAllowed(phoneNumber);
+      } = await Logics.checkIfCarrierIsAllowed(phoneNumber);
 
       if (!checkAllowed) {
         return Base.newErrorResponse({
@@ -250,12 +250,12 @@ router.post("", async (request, response) => {
       }
     }
 
-    const { rates } = await Utils.getConversionRates();
+    const { rates } = await ConversionRate.getRates();
     const { latitude, longitude } = ipAddressObj;
 
     if (!user) {
       logger.info("didWWNumberLogs ", didWWNumberLogs);
-      user = await createNewUser(
+      user = await Logics.createNewUser(
         {
           phoneNumber,
           deviceType,

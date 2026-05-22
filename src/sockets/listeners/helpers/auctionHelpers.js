@@ -4,7 +4,8 @@ const { DateTime } = require("luxon");
 const { logger, redis } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { User, Transfer, Order, Auction } = require("#models");
+const Logics = require("#logics");
+const { User, Transfer, Order, Auction, ConversionRate } = require("#models");
 const { authorizeNet } = require("#services");
 
 let conversionRates = { rates: null, lastUpdated: 0 };
@@ -181,7 +182,7 @@ async function handlePayment({ auction, isFromAccept = false }) {
 
 async function getConvertedAmounts({ originalPrice, sender }) {
   if (!conversionRates.rates || Date.now() - conversionRates.lastUpdated > 1000 * 60 * 30) {
-    const rateObj = await Utils.getConversionRates();
+    const rateObj = await ConversionRate.getRates();
     conversionRates.rates = rateObj.rates;
     conversionRates.lastUpdated = Date.now();
   }
@@ -280,7 +281,7 @@ async function getPaymentData({ sender, auctionPaymentMethod }) {
 }
 
 async function sendNotifications({ order, sender, receiver, localAmountSender }) {
-  await Utils.sendFlomPush({
+  await Logics.sendFlomPush({
     senderId: Config.flomSupportAgentId,
     receiverUser: sender,
     message: `You have won an auction, and an order has been prepared.`,
@@ -289,7 +290,7 @@ async function sendNotifications({ order, sender, receiver, localAmountSender })
     isMuted: false,
     orderId: order._id.toString(),
   });
-  await Utils.sendFlomPush({
+  await Logics.sendFlomPush({
     senderId: Config.flomSupportAgentId,
     receiverUser: receiver,
     message: `You have sold an auction, and an order has been prepared.`,
@@ -326,4 +327,33 @@ async function sendNotifications({ order, sender, receiver, localAmountSender })
   }
 }
 
-module.exports = { checkToken, handlePayment };
+async function remindWatchers({ auction, liveStream }) {
+  try {
+    const userIdsToRemind = new Set(liveStream.viewerIds || []);
+    const previousAuctions = await Auction.find({ liveStreamId: liveStream._id.toString() }).lean();
+    previousAuctions.forEach((a) => {
+      if (a.bids && a.bids.length > 0) {
+        a.bids.forEach((b) => {
+          userIdsToRemind.add(b.user._id.toString());
+        });
+      }
+    });
+
+    const userIdsArray = Array.from(userIdsToRemind);
+
+    if (userIdsArray.length === 0) {
+      await Logics.sendWhatsAppMessages({
+        senderId: auction.sellerId,
+        receiverIds: userIdsArray,
+        template: "auctionReminder",
+        auctionName: auction.product.name,
+        auctionId: auction._id.toString(),
+        liveStreamId: liveStream._id.toString(),
+      });
+    }
+  } catch (error) {
+    logger.error("remindWatchers error: ", error);
+  }
+}
+
+module.exports = { checkToken, handlePayment, remindWatchers };

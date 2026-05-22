@@ -410,4 +410,6 @@ Config.whatsAppAccessToken = process.env.WA_ACCESS_TOKEN;
 Config.whatsAppPhoneNumberId = process.env.WA_PHONE_NUMBER_ID;
 Config.whatsAppPhoneNumber = process.env.WA_PHONE_NUMBER;
 
+Config.secretToken = process.env.SECRET_TOKEN;
+
 module.exports = Object.freeze(Config);

@@ -40,6 +40,7 @@ const schema = new mongoose.Schema(
     sentTo: [String], // user ids
     isAdminMessage: { type: Boolean, default: false },
     wamId: String,
+    wamStatus: String,
   },
   { timestamps: true },
 );

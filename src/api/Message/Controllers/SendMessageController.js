@@ -116,8 +116,9 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       }
 
       const whatsAppMapping = await WhatsAppUserMapping.findOne({
-        senderPhoneNumber: s,
-        receiverPhoneNumber: r,
+        senderId: s,
+        receiverId: r,
+        enabled: true,
       }).lean();
 
       if (whatsAppMapping) {

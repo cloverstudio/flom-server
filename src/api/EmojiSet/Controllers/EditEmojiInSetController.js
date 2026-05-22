@@ -7,7 +7,6 @@ const Utils = require("#utils");
 const { auth } = require("#middleware");
 const { EmojiSet } = require("#models");
 const path = require("path");
-const mongoose = require("mongoose");
 const fsp = require("fs/promises");
 
 /**
@@ -97,7 +96,7 @@ router.patch(
 
       var emojiInSet = await EmojiSet.findOne(
         {
-          "items._id": new mongoose.Types.ObjectId(emojiId),
+          "items._id": Utils.createObjectId(emojiId),
         },
         { "items.$": 1, _id: 0 },
       ).lean();
@@ -221,7 +220,7 @@ router.patch(
       emojiInSet.items[0].modified = Date.now();
 
       await EmojiSet.updateOne(
-        { _id: emojiSetId, "items._id": new mongoose.Types.ObjectId(emojiId) },
+        { _id: emojiSetId, "items._id": Utils.createObjectId(emojiId) },
         { $set: { "items.$": emojiInSet.items[0] } },
       );
 
