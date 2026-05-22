@@ -32,19 +32,11 @@ const { auth } = require("#middleware");
  *     "suggestions": [
  *       {
  *         "address": "666 Fifth Avenue",
- *         "zip": ""
- *       },
- *       {
- *         "address": "666 Fifth Street",
- *         "zip": "96134"
- *       },
- *       {
- *         "address": "666 East Fifth Avenue",
- *         "zip": "43201"
- *       },
- *       {
- *         "address": "666 East Fifth Avenue",
- *         "zip": "43130"
+ *         "zip": "",
+ *         "city": "New York",
+ *         "street": "Fifth Avenue",
+ *         "state": "New York",
+ *         "stateCode": "NY"
  *       }
  *     ]
  *   }
@@ -90,10 +82,14 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
         key: Config.locationIqKey,
         q: address,
         countrycodes: countryCode.toLowerCase(),
-        limit: 5,
+        limit: 10,
         dedupe: 1,
         normalizeaddress: 1,
         format: "json",
+        layers: "address,street",
+      },
+      headers: {
+        Accept: "application/json",
       },
     };
 
@@ -128,6 +124,10 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       return {
         address: text.trim(),
         zip: a.postcode || "",
+        city: a.city || "",
+        street: a.road || a.name || "",
+        state: a.state || "",
+        stateCode: Const.UsStateCodes[a.state] || "",
       };
     });
 
