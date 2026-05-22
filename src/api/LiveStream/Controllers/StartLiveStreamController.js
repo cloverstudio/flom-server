@@ -128,21 +128,14 @@ router.post("/start", auth({ allowUser: true }), async function (request, respon
         whatsAppReceivers = [],
       } = await getNotificationReceivers({ liveStream: updatedLiveStream, user });
 
-      const notificationInfos = [];
-
-      for (const receiverId of notificationListReceiversIds) {
-        notificationInfos.push({
-          title: `New live stream`,
+      if (notificationListReceiversIds.length > 0) {
+        await Notification.create({
           text: `${user.userName} is live: ${liveStream.name}`,
-          receiverIds: receiverId,
+          receiverIds: notificationListReceiversIds,
           senderId: userId,
           referenceId: liveStreamId,
           notificationType: Const.notificationTypeNewLiveStream,
         });
-      }
-
-      if (notificationInfos.length > 0) {
-        await Notification.create(notificationInfos);
       }
 
       for (const receiver of chatReceivers) {

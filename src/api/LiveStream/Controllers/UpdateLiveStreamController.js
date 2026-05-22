@@ -686,20 +686,18 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
         const receiversFromPushTokens =
           pushTokens.length === 0 ? [] : await User.find({ pushToken: { $in: pushTokens } }).lean();
         const allReceivers = [...receivers, ...receiversFromPushTokens];
+        const notificationListReceiversIds = Array.from(
+          new Set(allReceivers.map((receiver) => receiver._id.toString())),
+        );
 
-        for (const receiver of allReceivers) {
-          notificationInfos.push({
-            title: `New live stream`,
+        if (notificationListReceiversIds.length > 0) {
+          await Notification.create({
             text: `${user.userName} is live: ${liveStream.name}`,
-            receiverIds: [receiver?._id.toString()],
+            receiverIds: notificationListReceiversIds,
             senderId: user._id.toString(),
             referenceId: id,
             notificationType: Const.notificationTypeNewLiveStream,
           });
-        }
-
-        if (notificationInfos.length > 0) {
-          await Notification.create(notificationInfos);
         }
 
         for (const receiver of receivers) {
@@ -737,20 +735,19 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
       }
 
       if (cohostPushRequired) {
-        const notificationInfos = [];
-
-        for (const receiver of newCohostReceivers) {
-          notificationInfos.push({
+        if (newCohostReceivers.length > 0) {
+          await Notification.create({
             title: `Live stream co-host invitation`,
-            text: `${user.userName} is inviting ${receiver?.userName || "you"} to co-host: ${
-              liveStream.name
-            }`,
-            receiverIds: [receiver?._id.toString()],
+            text: `${user.userName} is inviting you to co-host: ${liveStream.name}`,
+            receiverIds: newCohostReceivers.map((receiver) => receiver._id.toString()),
             senderId: user._id.toString(),
             referenceId: id,
             notificationType: Const.notificationTypeLiveStreamCohostInvitation,
           });
+        }
+        const notificationInfos = [];
 
+        for (const receiver of newCohostReceivers) {
           let roomId = "";
 
           if (user.created < receiver.created) {
@@ -772,10 +769,6 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
             messageData: messageToSend,
             senderToken: user.token[0].token,
           });
-        }
-
-        if (notificationInfos.length > 0) {
-          await Notification.create(notificationInfos);
         }
 
         if (newCohostPushTokens.length > 0) {
