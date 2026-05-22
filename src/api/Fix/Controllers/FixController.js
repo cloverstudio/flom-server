@@ -446,10 +446,13 @@ router.get("/product-slugs", async (request, response) => {
 
     while (!breakLoop) {
       console.log("Fixing product slugs, batch " + i);
+      // const products = await Product.find({
+      //   slug: { $exists: false },
+      //   $and: [{ name: { $exists: true } }, { name: { $ne: null } }, { name: { $ne: "" } }],
+      // }).limit(100);
       const products = await Product.find({
-        slug: { $exists: false },
-        $and: [{ name: { $exists: true } }, { name: { $ne: null } }, { name: { $ne: "" } }],
-      }).limit(100);
+        _id: { $in: ["63e257b09ce0303a9b29c7a3", "63e257449ce0303a9b29c79e"] },
+      }).lean();
 
       if (products.length === 0) {
         breakLoop = true;

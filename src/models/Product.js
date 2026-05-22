@@ -360,6 +360,8 @@ class ExtendedProduct extends Product {
     try {
       if (!name) throw new Error("Product name is required to create slug");
 
+      console.log("Creating slug for product name: ", name);
+
       let slug = name
         .trim()
         .toLowerCase()
@@ -369,22 +371,32 @@ class ExtendedProduct extends Product {
         .replace(/-+/g, "-")
         .replace(/^-|-$/g, "");
 
+      console.log("Initial slug: ", slug);
+
       const slugArr = slug.split("-");
       if (slugArr.length > 8) {
         slug = slugArr.slice(0, 8).join("-");
       }
 
+      console.log("Slug after limiting to 8 words: ", slug);
+
       let exists = true;
       let finalSlug = slug;
+
+      console.log("Final slug before uniqueness check: ", finalSlug);
 
       while (exists) {
         const existingProduct = await this.findOne({ slug: finalSlug });
         if (existingProduct) {
+          console.log(`Slug "${finalSlug}" already exists. Generating a new slug.`);
           finalSlug = `${slug}-${Utils.generateRandomNumber(3)}`;
         } else {
+          console.log(`Slug "${finalSlug}" does not exist. Using this slug.`);
           exists = false;
         }
       }
+
+      console.log("Final slug after uniqueness check: ", finalSlug);
 
       return finalSlug;
     } catch (error) {
