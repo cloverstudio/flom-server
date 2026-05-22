@@ -13,7 +13,7 @@ async function stopDeadLiveStreams() {
     const endStatuses = "finished,error,failed";
 
     for (const stream of activeStreams) {
-      await Utils.wait(1);
+      await Utils.sleep(1000);
 
       const liveStreamId = stream._id.toString();
       const isTooLong = Date.now() - stream.startTimeStamp > 1000 * 60 * 60 * 3;

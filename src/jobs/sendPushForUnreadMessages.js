@@ -46,7 +46,7 @@ async function sendPushForUnreadMessages() {
       const unreadCount = countMap[user._id.toString()];
 
       if (unreadCount && unreadCount > 0) {
-        await Utils.wait(0.2);
+        await Utils.sleep(200);
 
         const message = Const.unreadMessagesPushMessage.replace("[Number]", `${unreadCount}`);
 

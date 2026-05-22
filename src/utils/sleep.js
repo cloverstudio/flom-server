@@ -1,9 +1,9 @@
-function wait(sec) {
+function sleep(msec) {
   return new Promise((res, rej) => {
     setTimeout(() => {
       res();
-    }, sec * 1000);
+    }, msec);
   });
 }
 
-module.exports = wait;
+module.exports = sleep;

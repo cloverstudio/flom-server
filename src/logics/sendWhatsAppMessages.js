@@ -186,7 +186,7 @@ async function sendWhatsAppMessages({
         i++;
 
         if (i % 5 === 0) {
-          await Utils.wait(0.1); // Adding delay to avoid hitting rate limits
+          await Utils.sleep(100); // Adding delay to avoid hitting rate limits
         }
       }
 

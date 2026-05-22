@@ -74,9 +74,8 @@ module.exports = Object.freeze({
 
   setCookies: require("./setCookies"),
   shorten: require("./shorten"),
+  sleep: require("./sleep"),
   stripPrivateData: require("./stripPrivateData"),
-
-  wait: require("./wait"),
 
   yearsFromBirthDate: require("./yearsFromBirthDate"),
 });

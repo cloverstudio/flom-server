@@ -107,7 +107,7 @@ router.get("/durations", auth({ allowUser: true }), async (request, response) =>
           durations[mode] = formatDuration(+data.routes[0].duration);
         }
 
-        await Utils.wait(0.1);
+        await Utils.sleep(100);
       }
     } catch (error) {
       logger.error("DirectionsController, fetching durations", error);
