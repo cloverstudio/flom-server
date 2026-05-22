@@ -10,6 +10,8 @@ const { auth } = require("#middleware");
 const { User, FlomMessage, Test, NonFlomContact, Product } = require("#models");
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
+
 const { recombee } = require("#services");
 
 let runLoop = true;
@@ -444,15 +446,14 @@ router.get("/product-slugs", async (request, response) => {
     let breakLoop = false,
       i = 0;
 
+    const slugs = new Set();
+
     while (!breakLoop) {
       console.log("Fixing product slugs, batch " + i);
-      // const products = await Product.find({
-      //   slug: { $exists: false },
-      //   $and: [{ name: { $exists: true } }, { name: { $ne: null } }, { name: { $ne: "" } }],
-      // }).limit(100);
       const products = await Product.find({
-        _id: { $in: ["63e257b09ce0303a9b29c7a3", "63e257449ce0303a9b29c79e"] },
-      }).lean();
+        slug: { $exists: false },
+        $and: [{ name: { $exists: true } }, { name: { $ne: null } }, { name: { $ne: "" } }],
+      }).limit(100);
 
       if (products.length === 0) {
         breakLoop = true;
@@ -461,13 +462,41 @@ router.get("/product-slugs", async (request, response) => {
       const bulkOps = [];
 
       for (const p of products) {
-        const slug = await Product.createSlug(p.name);
-        console.log("Fixing product slug: ", p._id.toString(), p.name, slug);
+        let slug = p.name
+          .trim()
+          .toLowerCase()
+          .replace(/_+/g, "-")
+          .replace(/[^a-z0-9\s-]/g, "")
+          .replace(/\s+/g, "-")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "");
+
+        const slugArr = slug.split("-");
+        if (slugArr.length > 8) {
+          slug = slugArr.slice(0, 8).join("-");
+        }
+
+        let exists = true;
+        let finalSlug = slug;
+
+        while (exists) {
+          const existingProduct = await Product.findOne({ slug: finalSlug });
+          const existingInSet = slugs.has(finalSlug);
+          if (existingProduct || existingInSet) {
+            const x = crypto.randomInt(0, 999);
+            finalSlug = `${slug}-${x}`;
+          } else {
+            exists = false;
+          }
+        }
+
+        console.log("Fixing product slug: ", p._id.toString(), p.name, finalSlug);
+        slugs.add(finalSlug);
 
         bulkOps.push({
           updateOne: {
             filter: { _id: p._id },
-            update: { $set: { slug } },
+            update: { $set: { slug: finalSlug } },
           },
         });
       }
