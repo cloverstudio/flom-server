@@ -82,32 +82,32 @@ router.get("/durations", auth({ allowUser: true }), async (request, response) =>
       });
     }
 
+    const durations = { driving: "-", bicycling: "-", walking: "-" };
+    const reqModes = ["driving", "walking"];
     const origin = `${Utils.roundNumber(startLat, 5)},${Utils.roundNumber(startLon, 5)}`;
     const destination = `${Utils.roundNumber(endLat, 5)},${Utils.roundNumber(endLon, 5)}`;
-    const baseUrl =
-      Config.directionsBaseUrl +
-      `?key=${Config.directionsApiKey}` +
-      `&origin=${origin}` +
-      `&destination=${destination}`;
-
-    const requestData = {
-      method: "GET",
-      url: "",
-    };
-    const modes = ["driving", "bicycling", "walking"];
-    const durations = { driving: "-", bicycling: "-", walking: "-" };
 
     try {
-      for (let i = 0; i < modes.length; i++) {
-        const mode = modes[i];
-        requestData.url = baseUrl + `&mode=${mode}`;
+      for (const mode of reqModes) {
+        // https://us1.locationiq.com/v1/directions/walking/16.431191277275307,43.515762721856305;16.458801102615958,43.50384642817355?key=pk.f4c8e61030a5c67c3eb241babd751833&overview=false
 
-        const res = await Utils.sendRequest(requestData);
+        const apiRequest = {
+          method: "GET",
+          url: Config.locationIqUrl + "/v1/directions/" + mode + "/" + origin + ";" + destination,
+          query: {
+            key: Config.locationIqKey,
+            overview: "false",
+          },
+        };
+
+        const res = await Utils.sendRequest(apiRequest);
         const data = res;
 
-        if (data?.routes[0]?.legs[0]?.duration.text) {
-          durations[mode] = data.routes[0].legs[0].duration.text;
+        if (data?.routes[0]?.duration) {
+          durations[mode] = formatDuration(+data.routes[0].duration);
         }
+
+        await Utils.sleep(100);
       }
     } catch (error) {
       logger.error("DirectionsController, fetching durations", error);
@@ -122,5 +122,66 @@ router.get("/durations", auth({ allowUser: true }), async (request, response) =>
     });
   }
 });
+
+function formatDuration(duration) {
+  if (duration < 60) {
+    return `${Math.round(duration)}sec`;
+  } else if (duration < 3600) {
+    const minutes = Math.floor(duration / 60);
+    const seconds = Math.round(duration % 60);
+    return `${minutes}min${seconds > 0 ? " " + seconds + "sec" : ""}`;
+  } else if (duration < 86400) {
+    const hours = Math.floor(duration / 3600);
+    const minutes = Math.round((duration % 3600) / 60);
+    return `${hours}h${minutes > 0 ? " " + minutes + "min" : ""}`;
+  } else {
+    const days = Math.floor(duration / 86400);
+    const hours = Math.round((duration % 86400) / 3600);
+    return `${days}days${hours > 0 ? " " + hours + "h" : ""}`;
+  }
+}
+
+/*
+{
+    "code": "Ok",
+    "routes": [
+        {
+            "legs": [
+                {
+                    "steps": [],
+                    "weight": 2255.4,
+                    "summary": "",
+                    "duration": 2255.4,
+                    "distance": 3123.8
+                }
+            ],
+            "weight_name": "duration",
+            "weight": 2255.4,
+            "duration": 2255.4,
+            "distance": 3123.8
+        }
+    ],
+    "waypoints": [
+        {
+            "hint": "_bOvhAC0r4R-AAAAMQEAAAAAAAAAAAAAFy2MQcceKUIAAAAAAAAAAH4AAAAxAQAAAAAAAAAAAABCAAAAaLj6ACn_lwJXuPoAc_-XAgAADwX5lZZZ",
+            "location": [
+                16.431208,
+                43.515689
+            ],
+            "name": "",
+            "distance": 8.335696344
+        },
+        {
+            "hint": "HyBRkCMgUZAyAAAAoAAAADcAAACOAAAAjpniQCyWsEGE__JAvgWeQTIAAACgAAAANwAAAI4AAABCAAAAxCP7AE7QlwIxJPsA5tCXAgIAXwf5lZZZ",
+            "location": [
+                16.458692,
+                43.503694
+            ],
+            "name": "Spinčićeva ulica",
+            "distance": 19.04843064
+        }
+    ]
+}
+*/
 
 module.exports = router;

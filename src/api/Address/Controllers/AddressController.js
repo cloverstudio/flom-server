@@ -32,19 +32,12 @@ const { auth } = require("#middleware");
  *     "suggestions": [
  *       {
  *         "address": "666 Fifth Avenue",
- *         "zip": ""
- *       },
- *       {
- *         "address": "666 Fifth Street",
- *         "zip": "96134"
- *       },
- *       {
- *         "address": "666 East Fifth Avenue",
- *         "zip": "43201"
- *       },
- *       {
- *         "address": "666 East Fifth Avenue",
- *         "zip": "43130"
+ *         "zip": "",
+ *         "city": "New York",
+ *         "street": "Fifth Avenue",
+ *         "houseNumber": "666",
+ *         "state": "New York",
+ *         "stateCode": "NY"
  *       }
  *     ]
  *   }
@@ -85,15 +78,23 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
 
     const apiRequest = {
       method: "GET",
-      url: Config.addressAutocompleteApiUrl,
+      url: Config.locationIqUrl + "/v1/autocomplete",
       query: {
-        api_key: Config.addressAutocompleteApiKey,
-        text: encodeURIComponent(address),
-        layers: address,
+        key: Config.locationIqKey,
+        q: address,
+        countrycodes: countryCode.toLowerCase(),
+        limit: 10,
+        dedupe: 1,
+        normalizeaddress: 1,
+        format: "json",
+        layers: "address,street",
+      },
+      headers: {
+        Accept: "application/json",
       },
     };
 
-    let data;
+    let data = [];
     try {
       data = await Utils.sendRequest(apiRequest);
     } catch (error) {
@@ -103,26 +104,36 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       });
     }
 
-    let suggestions;
-    if (Const.alternativeAddressCountries.includes(countryCode)) {
-      suggestions = data.features.map((suggestion) => {
-        return {
-          address: `${suggestion.properties.name}, ${suggestion.properties.region}, ${suggestion.properties.country}`,
-          zip: suggestion.properties.postalcode || "",
-        };
-      });
-    } else {
-      suggestions = data.features.map((suggestion) => {
-        return {
-          address: `${suggestion.properties.street} , ${suggestion.properties.region}, ${suggestion.properties.country}`,
-          zip: suggestion.properties.postalcode || "",
-        };
-      });
-    }
+    const suggestions = data.map((d) => {
+      const a = d.address;
+      let text = "";
+      if (a.house_number) {
+        text += a.house_number + " ";
+      }
+      if (a.road) {
+        text += a.road + " ";
+      } else {
+        text += a.name + " ";
+      }
+      if (a.neighbourhood) {
+        text += a.neighbourhood + " ";
+      }
+      if (a.city) {
+        text += a.city + " ";
+      }
 
-    Base.successResponse(response, Const.responsecodeSucceed, {
-      suggestions: removeDuplicates(suggestions),
+      return {
+        address: text.trim(),
+        zip: a.postcode || "",
+        city: a.city || "",
+        street: a.road || a.name || "",
+        houseNumber: a.house_number || "",
+        state: a.state || "",
+        stateCode: Const.UsStateCodes[a.state] || "",
+      };
     });
+
+    Base.successResponse(response, Const.responsecodeSucceed, { suggestions });
   } catch (error) {
     Base.newErrorResponse({
       response,
@@ -132,16 +143,39 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
   }
 });
 
-const removeDuplicates = (duplicates) => {
-  const flag = {};
-  const unique = [];
-  duplicates.forEach((duplicate) => {
-    if (!flag[duplicate.zip]) {
-      flag[duplicate.zip] = true;
-      unique.push(duplicate);
+/*
+[
+    {
+        "place_id": "322410501966",
+        "osm_id": "3761799952",
+        "osm_type": "node",
+        "licence": "https://locationiq.com/attribution",
+        "lat": "43.5155981",
+        "lon": "16.4312198",
+        "boundingbox": [
+            "43.5155481",
+            "43.5156481",
+            "16.4311698",
+            "16.4312698"
+        ],
+        "class": "place",
+        "type": "house",
+        "display_name": "14, Jobova, Poljud, Split, Split-Dalmatia County, 21000, Croatia",
+        "display_place": "Jobova",
+        "display_address": "14, Poljud, Split, Split-Dalmatia County, 21000, Croatia",
+        "address": {
+            "name": "Jobova",
+            "house_number": "14",
+            "road": "Jobova",
+            "neighbourhood": "Poljud",
+            "city": "Split",
+            "county": "Split-Dalmatia County",
+            "postcode": "21000",
+            "country": "Croatia",
+            "country_code": "hr"
+        }
     }
-  });
-  return unique;
-};
+]
+*/
 
 module.exports = router;

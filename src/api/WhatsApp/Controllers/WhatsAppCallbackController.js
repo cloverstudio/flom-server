@@ -394,7 +394,7 @@ async function sendPendingWhatsAppMessages(from) {
             breakLoop = true;
           }
 
-          await Utils.wait(3); // wait 3 seconds before checking the status again
+          await Utils.sleep(3000); // wait 3 seconds before checking the status again
         }
 
         if (!breakLoop) {
@@ -413,7 +413,7 @@ async function sendPendingWhatsAppMessages(from) {
         break;
       }
 
-      await Utils.wait(2); // wait 2 seconds between messages
+      await Utils.sleep(2000); // wait 2 seconds between messages
     }
 
     delete userLockMap[from];

@@ -125,7 +125,7 @@ async function notifyNewMessage(obj, originalRequestData) {
       socketApi.emitToRoom(flomAgent, "newmessage", messageCloned);
 
       for (const user of usersToNotify) {
-        await Utils.wait(0.2);
+        await Utils.sleep(200);
 
         await sendFlomPush({
           newUser: flomAgent,

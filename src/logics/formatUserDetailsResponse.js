@@ -30,13 +30,15 @@ async function formatUserDetailsResponse({ user, requestAccessToken = "" }) {
   }
 
   // get online status
-  user.organization = await Organization.findOne(
-    { _id: user.organizationId },
-    {
-      organizationId: 1,
-      name: 1,
-    },
-  ).lean();
+  if (user.organizationId && Utils.isValidObjectId(user.organizationId)) {
+    user.organization = await Organization.findOne(
+      { _id: user.organizationId },
+      {
+        organizationId: 1,
+        name: 1,
+      },
+    ).lean();
+  }
 
   // get online status
   const status = await getUsersOnlineStatus([userId]);

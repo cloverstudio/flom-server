@@ -281,7 +281,7 @@ async function updateExistingContacts(userId, users) {
 async function sendNotifications(phoneNumbers, flomUsers, user, customerActivationData) {
   logger.info(`UserSyncContactsController, should send FLOM push to ${flomUsers.length} numbers!`);
   for (const flomUser of flomUsers) {
-    await Utils.wait(0.2);
+    await Utils.sleep(200);
 
     await Logics.sendFlomPush({ newUser: user, receiverUser: flomUser });
   }
@@ -359,7 +359,7 @@ async function notifyUsersContactHasRegistered({ user }) {
 
   for (const flomUser of usersToNotify) {
     try {
-      await Utils.wait(0.2);
+      await Utils.sleep(200);
 
       await Logics.sendFlomPush({
         newUser: flomAgent,

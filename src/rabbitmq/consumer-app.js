@@ -36,7 +36,7 @@ async function startConsumer() {
       logger.error(JSON.stringify(err));
       connection = null;
       blankQueues();
-      await Utils.wait(3);
+      await Utils.sleep(3000);
       startConsumer();
     });
 
@@ -44,7 +44,7 @@ async function startConsumer() {
       logger.error(`startConsumer, RabbitMQ connection closed, reconnect in 3 seconds.`);
       connection = null;
       blankQueues();
-      await Utils.wait(3);
+      await Utils.sleep(3000);
       startConsumer();
     });
   } catch (err) {
@@ -52,7 +52,7 @@ async function startConsumer() {
     logger.error(JSON.stringify(err));
     connection = null;
     blankQueues();
-    await Utils.wait(3);
+    await Utils.sleep(3000);
     startConsumer();
   }
 }
@@ -77,7 +77,7 @@ async function setupQueue(queue, isInitialSetup = false) {
         `setupQueue, Channel ${queue} error, recreating in 5 seconds if not connected...`,
       );
       logger.error(JSON.stringify(err));
-      await Utils.wait(5);
+      await Utils.sleep(5000);
       if (
         channelState[queue] === "connected" ||
         channelState[queue] === "connecting" ||
@@ -92,7 +92,7 @@ async function setupQueue(queue, isInitialSetup = false) {
       logger.error(
         `setupQueue, Channel ${queue} closed, recreating in 5 seconds if not connected...`,
       );
-      await Utils.wait(5);
+      await Utils.sleep(5000);
       if (
         channelState[queue] === "connected" ||
         channelState[queue] === "connecting" ||
@@ -121,7 +121,7 @@ async function setupQueue(queue, isInitialSetup = false) {
     );
   } catch (error) {
     logger.error(`setupQueue, Error setting up consumer for queue ${queue}:`, error);
-    await Utils.wait(5);
+    await Utils.sleep(5000);
     if (
       channelState[queue] === "connected" ||
       channelState[queue] === "connecting" ||

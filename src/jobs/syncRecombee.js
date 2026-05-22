@@ -18,11 +18,11 @@ async function syncRecombee() {
     const timestamp = !old?.value ? 0 : old.value - 1000 * 60 * 30;
 
     await recombee.syncProducts(timestamp);
-    await Utils.wait(300);
+    await Utils.sleep(300000);
     await recombee.syncLiveStreams(timestamp);
-    await Utils.wait(300);
+    await Utils.sleep(300000);
     await recombee.syncUsers(timestamp);
-    await Utils.wait(300);
+    await Utils.sleep(300000);
     await recombee.syncPurchases(timestamp);
   } catch (error) {
     logger.error("syncRecombee", error);

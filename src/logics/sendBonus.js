@@ -2,7 +2,7 @@
 
 const { logger } = require("#infra");
 const Utils = require("#utils");
-const Logics = require("#logics");
+const getCarrier = require("./getCarrier");
 const getRabbitMqChannel = require("../rabbitmq/get-queue");
 const { ConversionRate } = require("#models");
 
@@ -24,7 +24,7 @@ async function sendBonus({
     const conversionRatesToday = await ConversionRate.getRates();
     let operator;
     if (bonusType.startsWith("dataFor")) {
-      operator = await Logics.getCarrier({ phoneNumber: userPhoneNumber });
+      operator = await getCarrier({ phoneNumber: userPhoneNumber });
     }
 
     await channel.sendToQueue(

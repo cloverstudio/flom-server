@@ -57,7 +57,7 @@ async function startLoop(skip = 0) {
       //console.log("contacts fix, waiting 60 seconds...");
 
       console.log("contacts fix, singles: ", singles);
-      await Utils.wait(2);
+      await Utils.sleep(2000);
     }
   } catch (error) {
     console.error(error);
@@ -387,11 +387,11 @@ router.get("/recombee", async (request, response) => {
   try {
     await recombee.syncUsers(0);
 
-    await Utils.wait(10);
+    await Utils.sleep(10000);
 
     await recombee.syncProducts(0);
 
-    await Utils.wait(10);
+    await Utils.sleep(10000);
 
     await recombee.syncLiveStreams(0);
 
@@ -475,7 +475,7 @@ router.get("/product-slugs", async (request, response) => {
 
       i++;
 
-      await Utils.wait(2);
+      await Utils.sleep(2000);
     }
 
     Base.successResponse(response, Const.responsecodeSucceed, {});

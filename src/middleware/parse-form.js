@@ -1,0 +1,57 @@
+const { logger } = require("#infra");
+const formidable = require("formidable");
+
+async function parseForm(req, res, next) {
+  try {
+    const form = formidable({});
+
+    const { fields = {}, files = {} } = await form.parse(req, {
+      keepExtensions: true,
+      type: "multipart",
+      multiples: true,
+      maxFileSize: 500 * 1024 * 1024,
+    });
+
+    req.fields = fields;
+    req.files = files;
+
+    return next();
+  } catch (error) {
+    logger.error("parseForm error", error);
+    req.fields = {};
+    req.files = {};
+    return next();
+  }
+}
+
+/*
+export interface File {
+  // The size of the uploaded file in bytes.
+  // If the file is still being uploaded (see `'fileBegin'` event),
+  // this property says how many bytes of the file have been written to disk yet.
+  file.size: number;
+
+  // The path this file is being written to. You can modify this in the `'fileBegin'` event in
+  // case you are unhappy with the way formidable generates a temporary path for your files.
+  file.filepath: string;
+
+  // The name this file had according to the uploading client.
+  file.originalFilename: string | null;
+
+  // calculated based on options provided
+  file.newFilename: string | null;
+
+  // The mime type of this file, according to the uploading client.
+  file.mimetype: string | null;
+
+  // A Date object (or `null`) containing the time this file was last written to.
+  // Mostly here for compatibility with the [W3C File API Draft](http://dev.w3.org/2006/webapi/FileAPI/).
+  file.mtime: Date | null;
+
+  file.hashAlgorithm: false | |'sha1' | 'md5' | 'sha256'
+  // If `options.hashAlgorithm` calculation was set, you can read the hex digest out of this var (at the end it will be a string)
+  file.hash: string | object | null;
+}
+*/
+
+module.exports = parseForm;
