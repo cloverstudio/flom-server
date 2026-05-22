@@ -125,19 +125,19 @@ router.get("/durations", auth({ allowUser: true }), async (request, response) =>
 
 function formatDuration(duration) {
   if (duration < 60) {
-    return `${Math.round(duration)} seconds`;
+    return `${Math.round(duration)}sec`;
   } else if (duration < 3600) {
     const minutes = Math.floor(duration / 60);
     const seconds = Math.round(duration % 60);
-    return `${minutes} minutes${seconds > 0 ? " " + seconds + " seconds" : ""}`;
+    return `${minutes}min${seconds > 0 ? " " + seconds + "sec" : ""}`;
   } else if (duration < 86400) {
     const hours = Math.floor(duration / 3600);
     const minutes = Math.round((duration % 3600) / 60);
-    return `${hours} hours${minutes > 0 ? " " + minutes + " minutes" : ""}`;
+    return `${hours}h${minutes > 0 ? " " + minutes + "min" : ""}`;
   } else {
     const days = Math.floor(duration / 86400);
     const hours = Math.round((duration % 86400) / 3600);
-    return `${days} days${hours > 0 ? " " + hours + " hours" : ""}`;
+    return `${days}days${hours > 0 ? " " + hours + "h" : ""}`;
   }
 }
 
