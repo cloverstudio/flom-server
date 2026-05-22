@@ -340,47 +340,30 @@ async function sendMessage(param) {
       }
     }
 
-    if (result.message) {
-      result.message.localID = "";
-      result.message.deleted = 0;
+    const resp = await FlomMessage.populateMessages(result.message);
 
-      if (param.localID) result.message.localID = param.localID;
+    if (resp && resp[0]) {
+      resp[0].localID = "";
+      resp[0].deleted = 0;
+      if (param.localID) resp[0].localID = param.localID;
 
-      if (result.message.type == Const.messageTypeText) {
-        const encryptedMessage = encryptionManager.encryptText(result.message.message);
-        result.message.message = encryptedMessage;
+      if (resp[0].type == Const.messageTypeText) {
+        const encryptedMessage = encryptionManager.encryptText(resp[0].message);
+        resp[0].message = encryptedMessage;
       }
+      result.messagePopulated = resp[0];
 
+      await updateHistory.updateByMessage(resp[0]);
+      await notifyNewMessage(resp[0], param);
+
+      return result.messagePopulated;
+    } else {
       await updateHistory.updateByMessage(result.message);
       await notifyNewMessage(result.message, param);
-
+      const user = await User.findById(userID, User.getDefaultResponseFields()).lean();
+      result.message.user = user;
       return result.message;
     }
-
-    // const resp = await FlomMessage.populateMessages(result.message);
-
-    // if (resp && resp[0]) {
-    //   resp[0].localID = "";
-    //   resp[0].deleted = 0;
-    //   if (param.localID) resp[0].localID = param.localID;
-
-    //   if (resp[0].type == Const.messageTypeText) {
-    //     const encryptedMessage = encryptionManager.encryptText(resp[0].message);
-    //     resp[0].message = encryptedMessage;
-    //   }
-    //   result.messagePopulated = resp[0];
-
-    //   await updateHistory.updateByMessage(resp[0]);
-    //   await notifyNewMessage(resp[0], param);
-
-    //   return result.messagePopulated;
-    // } else {
-    //   await updateHistory.updateByMessage(result.message);
-    //   await notifyNewMessage(result.message, param);
-    //   const user = await User.findById(userID, User.getDefaultResponseFields()).lean();
-    //   result.message.user = user;
-    //   return result.message;
-    // }
   } catch (error) {
     logger.error("sendMessage error: ", error);
     throw new Error(error.message);
