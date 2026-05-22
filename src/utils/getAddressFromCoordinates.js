@@ -1,11 +1,12 @@
 const { logger } = require("#infra");
+const { Config } = require("#config");
 const sendRequest = require("./sendRequest");
 
 async function getAddressFromCoordinates({ lat, lon }) {
   try {
     const res = await sendRequest({
       method: "GET",
-      url: `${process.env.LOCATION_IQ_URL}?key=${process.env.LOCATION_IQ_APIKEY}&lat=${lat}&lon=${lon}&format=json&normalizeaddress=1`,
+      url: `${Config.locationIqUrl}/v1/reverse?key=${Config.locationIqKey}&lat=${lat}&lon=${lon}&format=json&normalizeaddress=1`,
     });
 
     const address = {

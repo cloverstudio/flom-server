@@ -412,4 +412,7 @@ Config.whatsAppPhoneNumber = process.env.WA_PHONE_NUMBER;
 
 Config.secretToken = process.env.SECRET_TOKEN;
 
+Config.locationIqUrl = process.env.LOCATION_IQ_URL;
+Config.locationIqKey = process.env.LOCATION_IQ_APIKEY;
+
 module.exports = Object.freeze(Config);
