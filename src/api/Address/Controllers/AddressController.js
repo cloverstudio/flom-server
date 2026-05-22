@@ -35,6 +35,7 @@ const { auth } = require("#middleware");
  *         "zip": "",
  *         "city": "New York",
  *         "street": "Fifth Avenue",
+ *         "houseNumber": "666",
  *         "state": "New York",
  *         "stateCode": "NY"
  *       }
@@ -126,6 +127,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
         zip: a.postcode || "",
         city: a.city || "",
         street: a.road || a.name || "",
+        houseNumber: a.house_number || "",
         state: a.state || "",
         stateCode: Const.UsStateCodes[a.state] || "",
       };
