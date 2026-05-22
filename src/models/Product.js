@@ -1,4 +1,4 @@
-const { db } = require("#infra");
+const { db, logger } = require("#infra");
 const mongoose = require("mongoose");
 const { Const } = require("#config");
 const Utils = require("#utils");
@@ -198,6 +198,7 @@ const schema = new mongoose.Schema(
     },
     language: String,
     reservations: [{ auctionId: String, quantity: Number }],
+    slug: String,
   },
   { timestamps: true },
 );
@@ -351,7 +352,44 @@ class ExtendedProduct extends Product {
       }
       return product;
     } catch (error) {
-      console.log("syncProductsCategories error: ", error);
+      logger.error("syncProductsCategories error: ", error);
+    }
+  }
+
+  static async createSlug(name) {
+    try {
+      if (!name) throw new Error("Product name is required to create slug");
+
+      let slug = name
+        .trim()
+        .toLowerCase()
+        .replace(/_+/g, "-")
+        .replace(/[^a-z0-9\s-]/g, "")
+        .replace(/\s+/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "");
+
+      const slugArr = slug.split("-");
+      if (slugArr.length > 8) {
+        slug = slugArr.slice(0, 8).join("-");
+      }
+
+      let exists = true;
+      let finalSlug = slug;
+
+      while (exists) {
+        const existingProduct = await this.findOne({ slug: finalSlug });
+        if (existingProduct) {
+          finalSlug = `${slug}-${Utils.generateRandomNumber(3)}`;
+        } else {
+          exists = false;
+        }
+      }
+
+      return finalSlug;
+    } catch (error) {
+      logger.error("createSlug error: ", error);
+      return null;
     }
   }
 }

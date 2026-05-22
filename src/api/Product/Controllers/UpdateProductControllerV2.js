@@ -300,6 +300,7 @@ router.patch(
       }
       if (name && name !== product.name) {
         product.name = name;
+        product.slug = await Product.createSlug(name);
       }
       if (fields.language && fields.language !== product.language) {
         product.language = isLanguageValid(fields.language || request.user.deviceLanguage)

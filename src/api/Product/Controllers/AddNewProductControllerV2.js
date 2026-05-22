@@ -257,6 +257,8 @@ router.post(
         ? fields.language || request.user.deviceLanguage
         : "en";
 
+      const slug = await Product.createSlug(name);
+
       const audioFileNames = !fields.audioFileNames
         ? []
         : fields.audioFileNames.split(",").map((name) => name.trim());
@@ -544,6 +546,7 @@ router.post(
         audiosForExpo,
         originalPrice,
         mediaProcessingInfo: { status: "processing" },
+        slug,
       });
 
       let isWatermarked = false;

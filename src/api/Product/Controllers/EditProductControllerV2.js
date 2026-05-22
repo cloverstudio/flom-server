@@ -456,7 +456,10 @@ router.patch(
         product.originalPrice.maxValue = originalMaxPrice;
       }
 
-      if (productName && productName !== product.name) product.name = productName;
+      if (productName && productName !== product.name) {
+        product.name = productName;
+        product.slug = await Product.createSlug(productName);
+      }
 
       let parentCategory, category;
       if (productCategoryId && productCategoryId !== product.categoryId) {
