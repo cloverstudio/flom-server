@@ -165,6 +165,7 @@ async function sendWhatsAppMessages({
       for (const receiver of receivers) {
         const wamid = await sendWhatsAppMessage({
           to: receiver.phoneNumber,
+          from: sender.phoneNumber,
           message,
           template,
           userName,
