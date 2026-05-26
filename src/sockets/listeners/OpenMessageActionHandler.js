@@ -65,9 +65,12 @@ module.exports = function (socketApi, socket) {
       // websocket notification
       const chatType = updatedMessage.roomID.split("-")[0];
 
-      const user = await User.findById(param.userID, User.getDefaultResponseFields()).lean();
+      const user = await User.findById(
+        updatedMessage.userID,
+        User.getDefaultResponseFields(),
+      ).lean();
       updatedMessage.message.user = user;
-      updatedMessage.user = user;
+      updatedMessage.user = "petar";
 
       if (chatType == Const.chatTypeGroup) {
         socketApi.emitToRoom(updatedMessage.roomID, "updatemessages", [updatedMessage]);
