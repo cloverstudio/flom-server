@@ -322,8 +322,8 @@ const { formatUserDetailsResponse } = require("#logics");
 
 router.get("/:searchTerm", async (request, response) => {
   try {
-    const IP = request.ip || request.headers["x-forwarded-for"];
-    console.log("api/v2/user/username-or-merchant-code called from IP:", IP);
+    // const IP = request.ip || request.headers["x-forwarded-for"];
+    // console.log("api/v2/user/username-or-merchant-code called from IP:", IP);
 
     if (!request.params.searchTerm) {
       return Base.successResponse(response, Const.responsecodeNoMerchantCode);
