@@ -407,6 +407,7 @@ Constants.userSelectQuery = {
   isAppUser: 1,
   userName: 1,
   whatsApp: 1,
+  slug: 1,
 };
 
 Constants.millisecondsPerDay = 86400000;

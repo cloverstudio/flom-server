@@ -836,6 +836,7 @@ async function addUsers(userIdsAndDate) {
         avatar: currentUser.avatar || {},
         isAppUser: currentUser.isAppUser,
         whatsApp: currentUser.whatsApp,
+        slug: currentUser.slug,
       };
     }
   }
@@ -864,6 +865,7 @@ async function addUsersForSold(sold) {
         avatar: currentUser.avatar || {},
         isAppUser: currentUser.isAppUser,
         whatsApp: currentUser.whatsApp,
+        slug: currentUser.slug,
       };
     }
   }
