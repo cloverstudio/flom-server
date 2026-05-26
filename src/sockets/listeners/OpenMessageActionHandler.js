@@ -67,6 +67,7 @@ module.exports = function (socketApi, socket) {
 
       const user = await User.findById(param.userID, User.getDefaultResponseFields()).lean();
       updatedMessage.message.user = user;
+      updatedMessage.user = user;
 
       if (chatType == Const.chatTypeGroup) {
         socketApi.emitToRoom(updatedMessage.roomID, "updatemessages", [updatedMessage]);
