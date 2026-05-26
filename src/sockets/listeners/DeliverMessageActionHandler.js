@@ -41,8 +41,13 @@ module.exports = function (socketApi, socket) {
       const updatedMessage = await FlomMessage.findByIdAndUpdate(
         param.messageID,
         { $push: { deliveredTo: deliveredToRow } },
-        { new: true },
+        { new: true, lean: true },
       );
+      const msgUser = await User.findById(
+        updatedMessage.userID,
+        User.getDefaultResponseFields(),
+      ).lean();
+      updatedMessage.user = msgUser;
 
       await updateHistory.updateLastMessageStatus({
         messageId: param.messageID,

@@ -5,6 +5,7 @@ const sendRequest = require("../utils/sendRequest");
 
 async function sendWhatsAppMessage({
   to,
+  from,
   message,
   template = null,
   userName,
@@ -180,6 +181,10 @@ async function sendWhatsAppMessage({
       status,
       template,
       to,
+      from,
+      direction: "outgoing",
+      providerId: Config.whatsAppPhoneNumberId,
+      providerPhoneNumber: Config.whatsAppPhoneNumber,
     });
 
     if (!wamId) {

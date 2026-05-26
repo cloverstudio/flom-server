@@ -39,6 +39,13 @@ async function sendWhatsAppMessages({
   mentionSlug,
 }) {
   try {
+    if (!Config.enableWhatsApp) {
+      logger.warn(
+        "sendWhatsAppMessages, WhatsApp messaging is disabled, skipping sendWhatsAppMessages",
+      );
+      return [];
+    }
+
     if (!sender && !senderId) {
       logger.error(
         "sendWhatsAppMessages error, missing sender information: sender or senderId: " +
@@ -158,6 +165,7 @@ async function sendWhatsAppMessages({
       for (const receiver of receivers) {
         const wamid = await sendWhatsAppMessage({
           to: receiver.phoneNumber,
+          from: sender.phoneNumber,
           message,
           template,
           userName,

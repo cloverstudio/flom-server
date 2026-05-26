@@ -10,10 +10,15 @@ const schema = new mongoose.Schema(
     wamId: String,
     request: {},
     response: {},
+    callback: {},
     failures: [],
     status: String,
     template: String,
     to: String,
+    from: String,
+    direction: String, // incoming, outgoing
+    providerId: String,
+    providerPhoneNumber: String,
   },
   { timestamps: true },
 );

@@ -67,10 +67,32 @@ router.post("/", async function (request, response) {
 
         const contextId = message.context?.id ?? null;
 
+        const log = await WhatsAppLog.create({
+          wamId,
+          callback: request.body,
+          from,
+          direction: "incoming",
+          providerId: Config.whatsAppPhoneNumberId,
+          providerPhoneNumber: Config.whatsAppPhoneNumber,
+        });
+
         if (!contextId) {
-          await handleNewChatMessage({ from, msgBody, wamId, timeStamp });
+          await handleNewChatMessage({
+            from,
+            msgBody,
+            wamId,
+            timeStamp,
+            logId: log._id.toString(),
+          });
         } else {
-          await handleReplyMessage({ from, msgBody, wamId, timeStamp, contextId });
+          await handleReplyMessage({
+            from,
+            msgBody,
+            wamId,
+            timeStamp,
+            contextId,
+            logId: log._id.toString(),
+          });
         }
 
         await User.updateOne(
@@ -98,7 +120,7 @@ router.post("/", async function (request, response) {
 
         console.log(`${flomNumber} message to ${to}: ${wamId}, status: ${status}`);
 
-        await handleOutgoingMessage({ to, status, wamId, errors });
+        await handleOutgoingMessage({ to, status, wamId, errors, callback: request.body });
       } catch (error) {
         logger.error("WhatsAppCallbackController, cb: outgoing message processing error", error);
         continue;
@@ -111,7 +133,7 @@ router.post("/", async function (request, response) {
   }
 });
 
-async function handleNewChatMessage({ from, msgBody, wamId, timeStamp }) {
+async function handleNewChatMessage({ from, msgBody, wamId, timeStamp, logId }) {
   let fromUser = await User.findOne({ phoneNumber: from }).lean();
 
   if (!fromUser) {
@@ -170,6 +192,8 @@ async function handleNewChatMessage({ from, msgBody, wamId, timeStamp }) {
     { upsert: true },
   );
 
+  await WhatsAppLog.findByIdAndUpdate(logId, { to: toUser.phoneNumber });
+
   let roomId = null;
   if (toUser && fromUser.created < toUser.created) {
     roomId = `1-${fromUser._id.toString()}-${toUser?._id.toString()}`;
@@ -197,7 +221,7 @@ async function handleNewChatMessage({ from, msgBody, wamId, timeStamp }) {
   return;
 }
 
-async function handleReplyMessage({ from, msgBody, wamId, timeStamp, contextId }) {
+async function handleReplyMessage({ from, msgBody, wamId, timeStamp, contextId, logId }) {
   const originalMessage = await FlomMessage.findOne({ wamId: contextId }).lean();
   if (!originalMessage) {
     logger.error("WhatsAppCallbackController, cb: original message not found: ", contextId);
@@ -217,6 +241,8 @@ async function handleReplyMessage({ from, msgBody, wamId, timeStamp, contextId }
     );
     return;
   }
+
+  await WhatsAppLog.findByIdAndUpdate(logId, { to: toUser.phoneNumber });
 
   const params = {
     isRecursiveCall: false,
@@ -246,11 +272,11 @@ async function handleReplyMessage({ from, msgBody, wamId, timeStamp, contextId }
   return;
 }
 
-async function handleOutgoingMessage({ to, status, wamId, errors }) {
+async function handleOutgoingMessage({ to, status, wamId, errors, callback }) {
   const user = await User.findOne({ phoneNumber: to }).lean();
   const flomMessage = await FlomMessage.findOne({ wamId }).lean();
 
-  await WhatsAppLog.findOneAndUpdate({ wamId }, { status, failures: errors });
+  await WhatsAppLog.findOneAndUpdate({ wamId }, { status, callback, failures: errors });
 
   // if no chat message found then it is probably a WA notification
   if (!flomMessage) {
