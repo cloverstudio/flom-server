@@ -1,5 +1,4 @@
 const { Const, Config } = require("#config");
-const Utils = require("#utils");
 const Logics = require("#logics");
 const { logger } = require("#infra");
 const { FlomMessage } = require("#models");
@@ -108,7 +107,7 @@ module.exports = function (socketApi, socket) {
       message.attributes = newAttributes;
       message.created = updateParams.created ? updateParams.created : message.created;
 
-      updateHistory(message);
+      updateHistory.updateByMessage(message);
       notifyUpdateMessage(message);
 
       if (typeof callback === "function") callback(message);
