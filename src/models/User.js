@@ -375,6 +375,8 @@ class ExtendedUser extends User {
       phoneNumber: true,
       bankAccounts: true,
       created: true,
+      whatsApp: true,
+      slug: true,
     };
   }
 
