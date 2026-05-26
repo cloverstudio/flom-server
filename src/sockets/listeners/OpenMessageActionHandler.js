@@ -69,8 +69,7 @@ module.exports = function (socketApi, socket) {
         updatedMessage.userID,
         User.getDefaultResponseFields(),
       ).lean();
-      updatedMessage.message.user = user;
-      updatedMessage.user = "petar";
+      updatedMessage.user = user;
 
       if (chatType == Const.chatTypeGroup) {
         socketApi.emitToRoom(updatedMessage.roomID, "updatemessages", [updatedMessage]);
