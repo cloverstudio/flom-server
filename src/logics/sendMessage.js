@@ -186,7 +186,7 @@ async function sendMessage(param) {
           sender: user,
           receivers: [receiver],
           message: objMessage.message,
-          mentionSlug: user.whatsApp?.mentionSlug,
+          slug: user.slug,
           userName: user.userName,
         });
       }

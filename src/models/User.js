@@ -1,4 +1,4 @@
-const { db } = require("#infra");
+const { db, logger } = require("#infra");
 const mongoose = require("mongoose");
 const { Config, Const } = require("#config");
 const Utils = require("#utils");
@@ -242,10 +242,6 @@ const schema = new mongoose.Schema(
     shippingOptions: { shippingInterval: Number },
 
     whatsApp: {
-      mentionSlug: String,
-      mentionSlugChanged: Boolean,
-      oldMentionSlug: String,
-      oldMentionSlugExpiresAt: Number,
       reference: String,
       windowExpiresAt: Number,
       followupMessageSent: { type: Boolean, default: false },
@@ -280,6 +276,8 @@ const schema = new mongoose.Schema(
     },
 
     notificationSubscriptions: [{ userId: String, whatsApp: Boolean, push: Boolean, _id: false }],
+    slug: String,
+    oldSlug: String,
   },
   { timestamps: true },
 );
@@ -535,6 +533,39 @@ class ExtendedUser extends User {
     const userRate = conversionRates.rates[userCurrency];
 
     return { userRate, userCountryCode, userCurrency, conversionRates };
+  }
+
+  static async createSlug(user) {
+    try {
+      if (!user || !user.userName) throw new Error("User name is required to create slug");
+
+      let slug = Utils.slugify({ text: user.userName, separator: "_" });
+
+      if (!slug) {
+        slug = user._id.toString();
+      }
+
+      if (slug.length > 30) {
+        slug = slug.slice(0, 30);
+      }
+
+      let exists = true;
+      let finalSlug = slug;
+
+      while (exists) {
+        const existingUser = await this.findOne({ slug: finalSlug });
+        if (existingUser) {
+          finalSlug = `${slug}${Utils.generateRandomNumber(2)}`;
+        } else {
+          exists = false;
+        }
+      }
+
+      return finalSlug;
+    } catch (error) {
+      logger.error("user createSlug error: ", error);
+      return null;
+    }
   }
 }
 

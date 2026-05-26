@@ -137,7 +137,7 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
         orderId: order._id.toString(),
         orderName:
           order.products.length > 1 ? order.products?.[0]?.name + "..." : order.products?.[0]?.name,
-        mentionSlug: user.whatsApp?.mentionSlug,
+        slug: user.slug,
       });
 
       const responseData = { order: updatedOrder };
@@ -253,7 +253,7 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
       orderId: order._id.toString(),
       orderName:
         order.products.length > 1 ? order.products?.[0]?.name + "..." : order.products?.[0]?.name,
-      mentionSlug: user.whatsApp?.mentionSlug,
+      slug: user.slug,
     });
 
     const responseData = { order: updatedOrder };

@@ -257,7 +257,9 @@ ResponseCodes.responsecodeSenderInvalidCountry = 400730;
 ResponseCodes.responsecodeInvalidPaymentType = 400740;
 ResponseCodes.responsecodeSenderInvalidReceiverIdOrPhone = 400750;
 ResponseCodes.responsecodeReceiverInvalidCountry = 400731;
-ResponseCodes.responsecodeUserNotFound = 4000760;
+
+// ResponseCodes.responsecodeUserNotFound = 4000760;
+
 ResponseCodes.responsecodeUnknownPushType = 4000770;
 ResponseCodes.responsecodeProductAlreadyLiked = 4000780;
 ResponseCodes.responsecodeProductNotLiked = 400790;
@@ -817,9 +819,10 @@ ResponseCodes.responsecodeInvalidTrackingNumber = 443948;
 ResponseCodes.responsecodeAddressNotFound = 443950;
 
 ResponseCodes.responsecodeSendingWhatsAppMessageFailed = 443951;
-ResponseCodes.responsecodeMentionSlugNotAvailable = 443952;
-ResponseCodes.responsecodeMentionSlugAlreadyChanged = 443953;
-ResponseCodes.responsecodeSlugMissing = 443954;
+ResponseCodes.responsecodeSlugNotAvailable = 443952;
+ResponseCodes.responsecodeSlugAlreadyChanged = 443953;
+ResponseCodes.responsecodeSlugInvalid = 443954;
+ResponseCodes.responsecodeSlugMissing = 443955;
 
 ResponseCodes.responsecodeCountryTemporarilyBanned = 444000;
 ResponseCodes.responsecodeAppVersionTooOld = 444001;

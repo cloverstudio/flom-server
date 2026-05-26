@@ -199,6 +199,7 @@ const schema = new mongoose.Schema(
     language: String,
     reservations: [{ auctionId: String, quantity: Number }],
     slug: String,
+    oldSlugs: [String],
   },
   { timestamps: true },
 );
@@ -360,14 +361,11 @@ class ExtendedProduct extends Product {
     try {
       if (!name) throw new Error("Product name is required to create slug");
 
-      let slug = name
-        .trim()
-        .toLowerCase()
-        .replace(/_+/g, "-")
-        .replace(/[^a-z0-9\s-]/g, "")
-        .replace(/\s+/g, "-")
-        .replace(/-+/g, "-")
-        .replace(/^-|-$/g, "");
+      let slug = Utils.slugify({ text: name });
+
+      if (!slug) {
+        slug = "untitled";
+      }
 
       const slugArr = slug.split("-");
       if (slugArr.length > 8) {
@@ -378,7 +376,9 @@ class ExtendedProduct extends Product {
       let finalSlug = slug;
 
       while (exists) {
-        const existingProduct = await this.findOne({ slug: finalSlug });
+        const existingProduct = await this.findOne({
+          $or: [{ slug: finalSlug }, { oldSlugs: finalSlug }],
+        });
         if (existingProduct) {
           finalSlug = `${slug}-${Utils.generateRandomNumber(3)}`;
         } else {
@@ -388,7 +388,7 @@ class ExtendedProduct extends Product {
 
       return finalSlug;
     } catch (error) {
-      logger.error("createSlug error: ", error);
+      logger.error("product createSlug error: ", error);
       return null;
     }
   }
