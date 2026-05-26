@@ -441,7 +441,8 @@
   "443951": "Neuspjelo slanje WhatsApp poruke.",
   "443952": "Slug nije dostupan.",
   "443953": "Slug je već promijenjen.",
-  "443954": "Slug nedostaje.",
+  "443954": "Neispravan slug.",
+  "443955": "Slug nedostaje.",
 
   "444000": "Vaša zemlja je privremeno zabranjena.",
   "444001": "Vaša verzija aplikacije je previše stara, molim vas ažurirajte.",

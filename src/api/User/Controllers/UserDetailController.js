@@ -358,11 +358,10 @@ router.get("/:userId", async function (request, response) {
         }
 
         // set mention slug if not set
-        if (!user.whatsApp?.mentionSlug && !user.userName.startsWith("Flomer_")) {
-          const mentionSlug = await Logics.generateMentionSlug(user.userName);
-          updateObj["whatsApp.mentionSlug"] = mentionSlug;
-          if (!user.whatsApp) user.whatsApp = {};
-          user.whatsApp.mentionSlug = mentionSlug;
+        if (!user.slug && !user.userName.startsWith("Flomer_")) {
+          const slug = await User.createSlug(user);
+          updateObj.slug = slug;
+          user.slug = slug;
         }
 
         // set reference if not set

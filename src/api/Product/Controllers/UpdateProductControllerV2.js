@@ -300,6 +300,8 @@ router.patch(
       }
       if (name && name !== product.name) {
         product.name = name;
+        product.oldSlugs = product.oldSlugs || [];
+        product.oldSlugs.push(product.slug);
         product.slug = await Product.createSlug(name);
       }
       if (fields.language && fields.language !== product.language) {

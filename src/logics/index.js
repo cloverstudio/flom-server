@@ -35,7 +35,6 @@ module.exports = Object.freeze({
   notifyNewMessage: require("./notifyNewMessage"),
 
   getWhatsAppPrices: require("./getWhatsAppPrices"),
-  generateMentionSlug: require("./generateMentionSlug"),
   makeFeeTransfer: require("./makeFeeTransfer"),
   sendWhatsAppMessage: require("./sendWhatsAppMessage"),
   sendWhatsAppMessages: require("./sendWhatsAppMessages"),

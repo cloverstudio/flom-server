@@ -9,6 +9,7 @@ const findUserProps = {
   avatar: 1,
   bankAccounts: 1,
   whatsApp: 1,
+  slug: 1,
 };
 
 async function formatLiveStreamResponse({ liveStream }) {

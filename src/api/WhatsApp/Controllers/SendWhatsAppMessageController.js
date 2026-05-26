@@ -3,7 +3,6 @@
 const router = require("express").Router();
 const { logger } = require("#infra");
 const { Const, Config } = require("#config");
-const { auth } = require("#middleware");
 const Logics = require("#logics");
 const { User } = require("#models");
 
@@ -26,7 +25,7 @@ router.post("/", async function (request, response) {
       shippingStatus,
       orderId,
       orderName,
-      mentionSlug,
+      slug,
     } = request.body;
 
     if (!receiverIds || !Array.isArray(receiverIds) || receiverIds.length === 0) {
@@ -56,7 +55,7 @@ router.post("/", async function (request, response) {
       shippingStatus,
       orderId,
       orderName,
-      mentionSlug,
+      slug,
     });
 
     if (!wamIds || wamIds.length === 0) {
@@ -65,6 +64,7 @@ router.post("/", async function (request, response) {
 
     return response.sendStatus(200);
   } catch (error) {
+    logger.error("Error in SendWhatsAppMessageController:", error);
     return response.status(500).send("Internal Server Error: " + error.message);
   }
 });

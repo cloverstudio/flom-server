@@ -160,7 +160,7 @@ async function handleNewChatMessage({ from, msgBody, wamId, timeStamp, logId }) 
     const matches = [...msgBody.matchAll(regexMention)];
     const toUserName = matches.length > 0 ? matches[0][1] : "FlomWhatsAppUser";
 
-    toUser = await User.findOne({ "whatsApp.mentionSlug": toUserName }).lean();
+    toUser = await User.findOne({ $or: [{ slug: toUserName }, { oldSlug: toUserName }] }).lean();
   }
 
   if (!toUser) {

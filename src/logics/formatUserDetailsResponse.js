@@ -271,6 +271,10 @@ function sanitizeUser({ user }) {
   delete user.webPushSubscription;
   delete user.paymentProfileId;
   delete user.emailActivation;
+  delete user.paypalEmail;
+  delete user.creditBalance;
+  delete user.satsBalance;
+  // delete user.bankAccounts;
 
   for (let i = 0; i < user.UUID.length; i++) {
     delete user.UUID[i].UUID;

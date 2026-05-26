@@ -119,7 +119,7 @@ const { recombee } = require("#services");
  *   "time": 1590000125608
  *  }
  *
- * @apiError (Errors) 443954 Slug missing
+ * @apiError (Errors) 443955 Slug missing
  * @apiError (Errors) 400160 Product not found
  * @apiError (Errors) 443821 Sensitive content
  * @apiError (Errors) 443822 Restricted content
@@ -140,7 +140,10 @@ router.get("/", async function (request, response) {
       });
     }
 
-    const product = await Product.findOne({ slug, isDeleted: false }).lean();
+    const product = await Product.findOne({
+      $or: [{ slug }, { oldSlugs: slug }],
+      isDeleted: false,
+    }).lean();
 
     let dataToSend = {};
 

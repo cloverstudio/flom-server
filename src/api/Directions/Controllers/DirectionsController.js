@@ -87,30 +87,32 @@ router.get("/durations", auth({ allowUser: true }), async (request, response) =>
     const origin = `${Utils.roundNumber(startLat, 5)},${Utils.roundNumber(startLon, 5)}`;
     const destination = `${Utils.roundNumber(endLat, 5)},${Utils.roundNumber(endLon, 5)}`;
 
-    try {
-      for (const mode of reqModes) {
-        // https://us1.locationiq.com/v1/directions/walking/16.431191277275307,43.515762721856305;16.458801102615958,43.50384642817355?key=pk.f4c8e61030a5c67c3eb241babd751833&overview=false
+    for (const mode of reqModes) {
+      // https://us1.locationiq.com/v1/directions/walking/16.431191277275307,43.515762721856305;16.458801102615958,43.50384642817355?key=pk.f4c8e61030a5c67c3eb241babd751833&overview=false
 
-        const apiRequest = {
-          method: "GET",
-          url: Config.locationIqUrl + "/v1/directions/" + mode + "/" + origin + ";" + destination,
-          query: {
-            key: Config.locationIqKey,
-            overview: "false",
-          },
-        };
+      const apiRequest = {
+        method: "GET",
+        url: Config.locationIqUrl + "/v1/directions/" + mode + "/" + origin + ";" + destination,
+        query: {
+          key: Config.locationIqKey,
+          overview: "false",
+        },
+      };
 
+      let data = {};
+
+      try {
         const res = await Utils.sendRequest(apiRequest);
-        const data = res;
-
-        if (data?.routes[0]?.duration) {
-          durations[mode] = formatDuration(+data.routes[0].duration);
-        }
-
-        await Utils.sleep(100);
+        data = res;
+      } catch (error) {
+        logger.error("DirectionsController, fetching durations", error);
       }
-    } catch (error) {
-      logger.error("DirectionsController, fetching durations", error);
+
+      if (data?.routes?.[0]?.duration) {
+        durations[mode] = formatDuration(+data.routes[0].duration);
+      }
+
+      await Utils.sleep(100);
     }
 
     Base.successResponse(response, Const.responsecodeSucceed, { durations });

@@ -458,6 +458,8 @@ router.patch(
 
       if (productName && productName !== product.name) {
         product.name = productName;
+        product.oldSlugs = product.oldSlugs || [];
+        product.oldSlugs.push(product.slug);
         product.slug = await Product.createSlug(productName);
       }
 

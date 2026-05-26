@@ -55,7 +55,7 @@ const fsp = require("fs/promises");
  * @apiParam {String} [stateCode]           Only necessary for USA and Canada
  * @apiParam {String} [zipCode]             Only necessary for USA
  * @apiParam {String} [bonusPaymentMethod]  Payment method for bonuses sent to user ("credits" or "sats")
- * @apiParam {String} [mentionSlug]         Mention slug for the user
+ * @apiParam {String} [slug]                Mention slug for the user, has to be unique, 3-30 characters, can contain lowercase letters, numbers, hyphens and underscores
  *
  * @apiSuccessExample {json} Success-Response:
  * {
@@ -206,6 +206,7 @@ const fsp = require("fs/promises");
  * @apiError (Errors) 443825 Invalid state code or zip code (American user)
  * @apiError (Errors) 443952 Mention slug not available
  * @apiError (Errors) 443953 Mention slug has already been changed
+ * @apiError (Errors) 443954 Mention slug invalid (less than 3 or more than 30 chars, invalid chars)
  * @apiError (Errors) 4000007 Token not valid
  */
 
@@ -241,7 +242,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       stateCode,
       zipCode,
       bonusPaymentMethod,
-      mentionSlug,
+      slug,
     } = fields;
 
     //verify isCreator and isSeller fields
@@ -762,28 +763,23 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       user.UUID = updateUUID(UUID, user.UUID, pushToken);
     }
 
-    if (mentionSlug && user.mentionSlug !== mentionSlug) {
-      if (user.whatsApp?.mentionSlugChanged) {
-        return Base.successResponse(response, Const.responsecodeMentionSlugAlreadyChanged);
+    if (slug && user.slug !== slug) {
+      if (user.oldSlug) {
+        return Base.successResponse(response, Const.responsecodeSlugAlreadyChanged);
       }
 
-      if (
-        await User.exists({
-          $or: [
-            { "whatsApp.mentionSlug": mentionSlug },
-            { "whatsApp.oldMentionSlug": mentionSlug },
-          ],
-        })
-      ) {
-        logger.error("UpdateProfileController, responsecodeMentionSlugNotAvailable");
-        return Base.successResponse(response, Const.responsecodeMentionSlugNotAvailable);
+      const regex = /^[a-z0-9_-]+$/;
+      if (slug.length < 3 || slug.length > 30 || !regex.test(slug)) {
+        return Base.successResponse(response, Const.responsecodeSlugInvalid);
       }
 
-      if (!user.whatsApp) user.whatsApp = {};
-      user.whatsApp.oldMentionSlug = user.whatsApp.mentionSlug;
-      user.whatsApp.mentionSlug = mentionSlug;
-      user.whatsApp.mentionSlugChanged = true;
-      user.whatsApp.oldMentionSlugExpiresAt = Date.now() + 90 * 24 * 60 * 60 * 1000; // expires in 90 days
+      if (await User.exists({ $or: [{ slug }, { oldSlug: slug }] })) {
+        logger.error("UpdateProfileController, responsecodeSlugNotAvailable");
+        return Base.successResponse(response, Const.responsecodeSlugNotAvailable);
+      }
+
+      user.oldSlug = user.slug;
+      user.slug = slug;
     }
 
     user.modified = Date.now();

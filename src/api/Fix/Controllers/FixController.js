@@ -288,10 +288,10 @@ router.get("/test-file-gpt", async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed, { res });
   } catch (error) {
-    console.error(error);
     Base.newErrorResponse({
       response,
       message: "FixController - test-uuid",
+      error,
     });
   }
 });
@@ -314,10 +314,10 @@ router.get("/pushtest/:pushType", async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    console.error(error);
     Base.newErrorResponse({
       response,
       message: "FixController - pushtest",
+      error,
     });
   }
 });
@@ -332,10 +332,10 @@ router.get("/datetime", async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    console.error(error);
     Base.newErrorResponse({
       response,
       message: "FixController - datetime",
+      error,
     });
   }
 });
@@ -362,10 +362,10 @@ router.post("/contacts", async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    console.error(error);
     Base.newErrorResponse({
       response,
       message: "FixController - contacts",
+      error,
     });
   }
 });
@@ -443,78 +443,140 @@ router.post("/form", async (request, response) => {
 
 router.get("/product-slugs", async (request, response) => {
   try {
+    if (request.headers["secret-token"] !== Config.secretToken) {
+      return Base.successResponse(response, Const.responsecodeSucceed, {
+        message: "Invalid secret token",
+      });
+    }
+
+    const products = await Product.find({}, { name: 1 }).lean();
+
     let breakLoop = false,
       i = 0;
 
     const slugs = new Set();
+    let bulkOps = [];
 
-    while (!breakLoop) {
-      console.log("Fixing product slugs, batch " + i);
-      const products = await Product.find({
-        slug: { $exists: false },
-        $and: [{ name: { $exists: true } }, { name: { $ne: null } }, { name: { $ne: "" } }],
-      }).limit(100);
+    for (const p of products) {
+      let slug = Utils.slugify({ text: p.name });
 
-      if (products.length === 0) {
-        breakLoop = true;
+      if (!slug) {
+        slug = p._id.toString().slice(0, 6);
       }
 
-      const bulkOps = [];
-
-      for (const p of products) {
-        let slug = p.name
-          .trim()
-          .toLowerCase()
-          .replace(/_+/g, "-")
-          .replace(/[^a-z0-9\s-]/g, "")
-          .replace(/\s+/g, "-")
-          .replace(/-+/g, "-")
-          .replace(/^-|-$/g, "");
-
-        const slugArr = slug.split("-");
-        if (slugArr.length > 8) {
-          slug = slugArr.slice(0, 8).join("-");
-        }
-
-        let exists = true;
-        let finalSlug = slug;
-
-        while (exists) {
-          const existingProduct = await Product.findOne({ slug: finalSlug });
-          const existingInSet = slugs.has(finalSlug);
-          if (existingProduct || existingInSet) {
-            const x = crypto.randomInt(0, 999);
-            finalSlug = `${slug}-${x}`;
-          } else {
-            exists = false;
-          }
-        }
-
-        console.log("Fixing product slug: ", p._id.toString(), p.name, finalSlug);
-        slugs.add(finalSlug);
-
-        bulkOps.push({
-          updateOne: {
-            filter: { _id: p._id },
-            update: { $set: { slug: finalSlug } },
-          },
-        });
+      const slugArr = slug.split("-");
+      if (slugArr.length > 8) {
+        slug = slugArr.slice(0, 8).join("-");
       }
 
-      if (bulkOps.length > 0) {
+      let exists = true;
+      let finalSlug = slug;
+
+      while (exists) {
+        const existingInSet = slugs.has(finalSlug);
+        if (existingInSet) {
+          finalSlug = `${slug}-${Utils.generateRandomNumber(3)}`;
+        } else {
+          exists = false;
+        }
+      }
+
+      console.log("Fixing product slug: ", p._id.toString(), p.name, finalSlug);
+      slugs.add(finalSlug);
+
+      bulkOps.push({
+        updateOne: {
+          filter: { _id: p._id },
+          update: { $set: { slug: finalSlug } },
+        },
+      });
+
+      if (bulkOps.length >= 1000) {
         await Product.bulkWrite(bulkOps);
+        bulkOps = [];
+
+        await Utils.sleep(2000);
       }
-
-      i++;
-
-      await Utils.sleep(2000);
     }
+
+    await Product.bulkWrite(bulkOps);
 
     Base.successResponse(response, Const.responsecodeSucceed, {});
   } catch (error) {
     Base.newErrorResponse({
       response,
       message: "FixController - product-slugs",
+      error,
+    });
+  }
+});
+
+router.get("/user-slugs", async (request, response) => {
+  try {
+    if (request.headers["secret-token"] !== Config.secretToken) {
+      return Base.successResponse(response, Const.responsecodeSucceed, {
+        message: "Invalid secret token",
+      });
+    }
+
+    const products = await Product.find({}, { ownerId: 1 }).lean();
+    const ownerIds = [...new Set(products.map((p) => p.ownerId.toString()))];
+    const owners = await User.find(
+      { _id: { $in: ownerIds }, "isDeleted.value": false },
+      { _id: 1, userName: 1 },
+    ).lean();
+
+    const slugs = new Set();
+    let bulkOps = [];
+
+    for (const o of owners) {
+      let slug = Utils.slugify({ text: o.userName, separator: "_" });
+
+      if (!slug || slug.length < 3) {
+        slug = o._id.toString().slice(0, 6);
+      }
+
+      if (slug.length > 16) {
+        slug = slug.slice(0, 16);
+      }
+
+      let exists = true;
+      let finalSlug = slug;
+
+      while (exists) {
+        const existingInSet = slugs.has(finalSlug);
+        if (existingInSet) {
+          finalSlug = `${slug}${Utils.generateRandomNumber(2)}`;
+        } else {
+          exists = false;
+        }
+      }
+
+      console.log("Fixing user slug: ", o._id.toString(), o.userName, finalSlug);
+      slugs.add(finalSlug);
+
+      bulkOps.push({
+        updateOne: {
+          filter: { _id: o._id },
+          update: { $set: { slug: finalSlug } },
+        },
+      });
+
+      if (bulkOps.length >= 1000) {
+        await User.bulkWrite(bulkOps);
+        bulkOps = [];
+
+        await Utils.sleep(2000);
+      }
+    }
+
+    await User.bulkWrite(bulkOps);
+
+    Base.successResponse(response, Const.responsecodeSucceed, {});
+  } catch (error) {
+    Base.newErrorResponse({
+      response,
+      message: "FixController - user-slugs",
       error,
     });
   }

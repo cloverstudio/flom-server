@@ -568,6 +568,7 @@ async function addOwners(products) {
         internationalUser: currentUser.internationalUser,
         activeLiveStream,
         whatsApp: currentUser.whatsApp,
+        slug: currentUser.slug,
       };
     }
   }

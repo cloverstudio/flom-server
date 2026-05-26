@@ -16,7 +16,7 @@ async function sendWhatsAppMessage({
   orderId,
   orderName,
   productName,
-  mentionSlug,
+  slug,
   isFreeMessage = false,
 }) {
   try {
@@ -39,7 +39,7 @@ async function sendWhatsAppMessage({
       to,
       type: "text",
       text: {
-        body: `@${mentionSlug}: ${message}
+        body: `@${slug}: ${message}
         
         Quote this message or use the mention slug (@seller_name) to get your reply to the seller.`,
       },
@@ -144,7 +144,7 @@ async function sendWhatsAppMessage({
 
       if (isFreeMessage) {
         message = makeTextMessage({ template, textParamA, textParamB, buttonParam });
-        data.text.body = `@${mentionSlug}: ${message}
+        data.text.body = `@${slug}: ${message}
         
         Quote this message or use the mention slug (@seller_name) to get your reply to the seller.`;
       } else {

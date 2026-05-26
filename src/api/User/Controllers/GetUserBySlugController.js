@@ -7,13 +7,10 @@ const { User } = require("#models");
 const { formatUserDetailsResponse } = require("#logics");
 
 /**
- * @api {get} /api/v2/user/username-or-merchant-code Get user by username or merchant code
- * @apiName  Get user by username or merchant code
- * @apiGroup WebAPI
- * @apiDescription  Get user by username or merchant code
- *
- *
- * @apiParam [String] searchTerm searchTerm
+ * @api {get} /api/v2/user/slug/:slug Get user by slug flom_v1
+ * @apiName  Get user by slug flom_v1
+ * @apiGroup WebAPI User
+ * @apiDescription  Get user by slug flom_v1
  *
  * @apiSuccessExample Success-Response:
  * {
@@ -318,35 +315,46 @@ const { formatUserDetailsResponse } = require("#logics");
  *         "membersCount": 0
  *     }
  * }
+ *
+ * @apiSuccessExample {json} Error Response
+ * {
+ *   "code": ErrorCode,
+ *   "time": 1590000125608
+ * }
+ *
+ * @apiError (Errors) 443955 Slug missing
+ * @apiError (Errors) 443040 User not found
+ * @apiError (Errors) 400273 User deleted
+ * @apiError (Errors) 4000007 Token not valid
  **/
 
-router.get("/:searchTerm", async (request, response) => {
+router.get("/:slug", async (request, response) => {
   try {
-    // const IP = request.ip || request.headers["x-forwarded-for"];
-    // console.log("api/v2/user/username-or-merchant-code called from IP:", IP);
+    const { slug } = request.params;
 
-    if (!request.params.searchTerm) {
-      return Base.successResponse(response, Const.responsecodeNoMerchantCode);
+    if (!slug) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeSlugMissing,
+        message: "GetUserBySlug, missing slug",
+      });
     }
 
-    let { searchTerm } = request.params;
-    searchTerm = searchTerm.startsWith("*") ? searchTerm.slice(1) : searchTerm;
-    const numberReqExp = RegExp("^[0-9]*$");
-    const isMerchantCode = numberReqExp.test(searchTerm) && searchTerm.length === 8;
-    const userNameRegex = new RegExp(`^${searchTerm}$`, "i");
-    const query = {
-      "isDeleted.value": false,
-      ...(isMerchantCode
-        ? { "bankAccounts.merchantCode": searchTerm }
-        : { userName: userNameRegex }),
-    };
+    const user = await User.findOne({ $or: [{ slug }, { oldSlug: slug }] }).lean();
 
-    const user = await User.findOne(query).lean();
     if (!user) {
-      return Base.successResponse(response, Const.responsecodeSucceed, {});
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserNotFound,
+        message: "GetUserBySlug, user not found: " + slug,
+      });
     }
     if (user?.isDeleted.value) {
-      return Base.successResponse(response, Const.responsecodeUserDeleted);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserDeleted,
+        message: "GetUserBySlug, user deleted: " + slug,
+      });
     }
 
     await formatUserDetailsResponse({
@@ -356,12 +364,12 @@ router.get("/:searchTerm", async (request, response) => {
 
     return Base.successResponse(response, Const.responsecodeSucceed, user);
   } catch (error) {
-    return Base.errorResponse(
+    return Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "getUserByUsernameMerchantCodeController",
+      code: Const.httpCodeServerError,
+      message: "GetUserBySlug",
       error,
-    );
+    });
   }
 });
 
