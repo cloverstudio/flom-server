@@ -544,7 +544,7 @@ class ExtendedUser extends User {
       let slug = Utils.slugify({ text: user.userName, separator: "_" });
 
       if (!slug) {
-        slug = user._id.toString();
+        slug = user._id.toString().slice(0, 8);
       }
 
       if (slug.length > 30) {
