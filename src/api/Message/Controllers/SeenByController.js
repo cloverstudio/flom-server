@@ -38,6 +38,7 @@ router.get("/:messageid", auth({ allowUser: true }), async function (request, re
         return null;
       })
       .filter((id) => id !== null);
+
     const deliveredToUserIds = message.deliveredTo
       .map((item) => {
         if (item.user && Utils.isValidObjectId(item.user)) {
@@ -62,18 +63,37 @@ router.get("/:messageid", auth({ allowUser: true }), async function (request, re
       userMap[user._id.toString()] = user;
     });
 
-    const seenByAry = message.seenBy.map((obj) => {
-      const user = userMap[obj.user] || userMap[obj.userId];
-      delete obj.user;
-      delete obj.userId;
-      return { ...obj, user, userId: user ? user._id : null };
-    });
-    const deliveredToAry = message.deliveredTo.map((obj) => {
-      const user = userMap[obj.user] || userMap[obj.userId];
-      delete obj.user;
-      delete obj.userId;
-      return { ...obj, user, userId: user ? user._id : null };
-    });
+    const seenByCheckAry = [];
+    const deliveredToCheckAry = [];
+
+    const seenByAry = message.seenBy
+      .map((obj) => {
+        const user = userMap[obj.user] || userMap[obj.userId];
+        delete obj.user;
+        delete obj.userId;
+        return { ...obj, user, userId: user ? user._id : null };
+      })
+      .filter((item) => {
+        if (item.userId !== null && !seenByCheckAry.includes(item.userId)) {
+          seenByCheckAry.push(item.userId);
+          return true;
+        }
+        return false;
+      });
+    const deliveredToAry = message.deliveredTo
+      .map((obj) => {
+        const user = userMap[obj.user] || userMap[obj.userId];
+        delete obj.user;
+        delete obj.userId;
+        return { ...obj, user, userId: user ? user._id : null };
+      })
+      .filter((item) => {
+        if (item.userId !== null && !deliveredToCheckAry.includes(item.userId)) {
+          deliveredToCheckAry.push(item.userId);
+          return true;
+        }
+        return false;
+      });
 
     return Base.successResponse(response, Const.responsecodeSucceed, {
       seenBy: seenByAry,
