@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { logger, encryptionManager } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { FlomMessage, User, WhatsAppUserMapping, WhatsAppLog } = require("#models");
+const { FlomMessage, User, WhatsAppUserMapping, WhatsAppLog, WhatsAppSession } = require("#models");
 const Logics = require("#logics");
 
 router.get("/", async function (request, response) {
@@ -52,8 +52,8 @@ router.post("/", async function (request, response) {
       return;
     }
 
-    const flomNumber = value.metadata?.display_phone_number ?? null;
-    const phoneNumberId = value.metadata?.phone_number_id ?? null;
+    const wamNumber = value.metadata?.display_phone_number ?? null;
+    // const wamNumberId = value.metadata?.phone_number_id ?? null;
 
     for (const message of messages) {
       try {
@@ -63,7 +63,7 @@ router.post("/", async function (request, response) {
         const msgBody = message.text?.body ?? "";
         const expiration = timeStamp + 24 * 60 * 60 * 1000; // 24h
 
-        console.log(`${flomNumber} message from ${from}: ${msgBody}`);
+        console.log(`${wamNumber} message from ${from}: ${msgBody}`);
 
         const contextId = message.context?.id ?? null;
 
@@ -118,7 +118,7 @@ router.post("/", async function (request, response) {
         const status = message.status;
         const errors = message.errors ?? null;
 
-        console.log(`${flomNumber} message to ${to}: ${wamId}, status: ${status}`);
+        console.log(`${wamNumber} message to ${to}: ${wamId}, status: ${status}`);
 
         await handleOutgoingMessage({ to, status, wamId, errors, callback: request.body });
       } catch (error) {
@@ -158,9 +158,30 @@ async function handleNewChatMessage({ from, msgBody, wamId, timeStamp, logId }) 
   if (!toUser) {
     const regexMention = /(?<!\w)@([a-zA-Z0-9_]+)/g;
     const matches = [...msgBody.matchAll(regexMention)];
-    const toUserName = matches.length > 0 ? matches[0][1] : "FlomWhatsAppUser";
+    const toUserName = matches.length > 0 ? matches[0][1] : null;
 
-    toUser = await User.findOne({ $or: [{ slug: toUserName }, { oldSlug: toUserName }] }).lean();
+    if (toUserName) {
+      toUser = await User.findOne({ $or: [{ slug: toUserName }, { oldSlug: toUserName }] }).lean();
+    }
+  }
+
+  if (!toUser) {
+    const session = await WhatsAppSession.findOne({ from }).sort({ expiresAt: -1 }).lean();
+
+    if (session && session.expiresAt > new Date()) {
+      toUser = await User.findOne({ phoneNumber: session.to }).lean();
+    } else if (session) {
+      toUser = await User.findOne({ phoneNumber: session.to }).lean();
+
+      await Logics.sendWhatsAppMessage({
+        to: from,
+        message: `Continue with @${session.toSlug}?        
+        If yes, please reply with "yes @${session.toSlug}" and repeat your message, otherwise please reply with the name (@name) or reference (ref_123) of the person you want to contact.`,
+        isFreeMessage: true,
+      });
+
+      return;
+    }
   }
 
   if (!toUser) {
@@ -176,9 +197,20 @@ async function handleNewChatMessage({ from, msgBody, wamId, timeStamp, logId }) 
       );
     }
 
-    logger.error("WhatsAppCallbackController, cb: toUser not found from message: " + msgBody);
+    logger.error(
+      "WhatsAppCallbackController, cb: toUser not found from message: " +
+        msgBody +
+        " and sender: " +
+        from,
+    );
     return;
   }
+
+  await WhatsAppSession.updateOne(
+    { from, to: toUser.phoneNumber },
+    { toSlug: toUser.slug, expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) },
+    { upsert: true },
+  );
 
   // mapping is reversed (sender is receiver etc) because we want to find the mapping with sender and receiver phone numbers when sending message from app to whatsapp
   await WhatsAppUserMapping.findOneAndUpdate(
@@ -241,6 +273,12 @@ async function handleReplyMessage({ from, msgBody, wamId, timeStamp, contextId, 
     );
     return;
   }
+
+  await WhatsAppSession.updateOne(
+    { from, to: toUser.phoneNumber },
+    { toSlug: toUser.slug, expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) },
+    { upsert: true },
+  );
 
   await WhatsAppLog.findByIdAndUpdate(logId, { to: toUser.phoneNumber });
 
@@ -408,8 +446,7 @@ async function sendPendingWhatsAppMessages(from) {
         await FlomMessage.updateOne({ _id: m._id }, { $set: { wamId: wamIds[0] } });
 
         let breakLoop = false,
-          attempts = 0,
-          sent = false;
+          attempts = 0;
         const limit = 20;
 
         while (breakLoop === false && attempts < limit) {
