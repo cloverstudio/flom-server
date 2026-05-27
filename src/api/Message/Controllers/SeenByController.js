@@ -4,7 +4,7 @@ const router = require("express").Router();
 const Base = require("../../Base");
 const { Const } = require("#config");
 const Utils = require("#utils");
-// const { auth } = require("#middleware");
+const { auth } = require("#middleware");
 const { FlomMessage, User } = require("#models");
 
 /**
@@ -14,7 +14,7 @@ const { FlomMessage, User } = require("#models");
  * @apiDescription Returns array of user model
  **/
 
-router.get("/:messageid", async function (request, response) {
+router.get("/:messageid", auth({ allowUser: true }), async function (request, response) {
   try {
     const messageId = request.params.messageid;
 
@@ -28,8 +28,26 @@ router.get("/:messageid", async function (request, response) {
       return Base.successResponse(response, Const.responsecodeForwardMessageInvalidChatId);
     }
 
-    const seenByUserIds = message.seenBy.map((item) => item.user);
-    const deliveredToUserIds = message.deliveredTo.map((item) => item.userId);
+    const seenByUserIds = message.seenBy
+      .map((item) => {
+        if (item.user && Utils.isValidObjectId(item.user)) {
+          return item.user;
+        } else if (item.userId && Utils.isValidObjectId(item.userId)) {
+          return item.userId;
+        }
+        return null;
+      })
+      .filter((id) => id !== null);
+    const deliveredToUserIds = message.deliveredTo
+      .map((item) => {
+        if (item.user && Utils.isValidObjectId(item.user)) {
+          return item.user;
+        } else if (item.userId && Utils.isValidObjectId(item.userId)) {
+          return item.userId;
+        }
+        return null;
+      })
+      .filter((id) => id !== null);
 
     const userIds = [...new Set([...seenByUserIds, ...deliveredToUserIds])].filter((str) =>
       Utils.isValidObjectId(str),
@@ -39,14 +57,22 @@ router.get("/:messageid", async function (request, response) {
       { _id: { $in: userIds } },
       User.getDefaultResponseFields(),
     ).lean();
+    const userMap = {};
+    users.forEach((user) => {
+      userMap[user._id.toString()] = user;
+    });
 
     const seenByAry = message.seenBy.map((obj) => {
-      const user = users.find((userRow) => userRow._id.toString() === obj.user);
-      return { ...obj, user };
+      const user = userMap[obj.user] || userMap[obj.userId];
+      delete obj.user;
+      delete obj.userId;
+      return { ...obj, user, userId: user ? user._id : null };
     });
     const deliveredToAry = message.deliveredTo.map((obj) => {
-      const user = users.find((userRow) => userRow._id.toString() === obj.userId);
-      return { ...obj, user };
+      const user = userMap[obj.user] || userMap[obj.userId];
+      delete obj.user;
+      delete obj.userId;
+      return { ...obj, user, userId: user ? user._id : null };
     });
 
     return Base.successResponse(response, Const.responsecodeSucceed, {
