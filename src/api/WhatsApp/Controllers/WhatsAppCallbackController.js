@@ -8,6 +8,8 @@ const Utils = require("#utils");
 const { FlomMessage, User, WhatsAppUserMapping, WhatsAppLog, WhatsAppSession } = require("#models");
 const Logics = require("#logics");
 
+const alreadyHandledIncomingWamIds = [];
+
 router.get("/", async function (request, response) {
   try {
     const {
@@ -62,6 +64,14 @@ router.post("/", async function (request, response) {
         const timeStamp = +message.timestamp * 1000;
         const msgBody = message.text?.body ?? "";
         const expiration = timeStamp + 24 * 60 * 60 * 1000; // 24h
+
+        if (alreadyHandledIncomingWamIds.includes(wamId)) {
+          logger.warn(
+            `WhatsAppCallbackController, cb: already handled incoming message with wamId: ${wamId}, skipping processing`,
+          );
+          return;
+        }
+        alreadyHandledIncomingWamIds.push(wamId);
 
         console.log(`${wamNumber} message from ${from}: ${msgBody}`);
 
