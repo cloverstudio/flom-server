@@ -16,7 +16,7 @@ async function getCountryFromIpAddress({ IP }) {
       return ipFromDatabase;
     }
 
-    const response = await Utils.sendRequest({
+    const { data: response, err } = await Utils.sendRequest({
       method: "GET",
       url: `${Config.ipCheckUrl}/${IP}`,
       query: {
@@ -27,6 +27,10 @@ async function getCountryFromIpAddress({ IP }) {
         short: "1",
       },
     });
+
+    if (err) {
+      throw new Error("Fetch error: " + err);
+    }
 
     if (response?.status !== "ok") {
       throw new Error("Error in countryFromIP v2, response: " + JSON.stringify(response));

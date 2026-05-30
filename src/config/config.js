@@ -1,11 +1,15 @@
 const getPaths = require("./dir-config");
 
-const environment = process.env.NODE_ENV || "development";
-const paths = getPaths(environment);
+const Config = {};
 
-const Config = { ...paths };
+Config.environment = process.env.NODE_ENV || "development";
 
-Config.environment = environment;
+const paths = getPaths(Config.environment);
+
+for (const key in paths) {
+  Config[key] = paths[key];
+}
+
 Config.host = "localhost";
 Config.serverType = process.env.SERVER_TYPE || "api";
 Config.port = { api: process.env.API_PORT || 8084, socket: process.env.SOCKET_PORT || 8085 };

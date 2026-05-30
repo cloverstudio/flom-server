@@ -77,9 +77,16 @@ router.get("/:liveStreamId/views", auth({ allowUser: true }), async function (re
       ? `${Config.antMediaBaseUrl}/v2/broadcasts/${liveStreamId}/broadcast-statistics`
       : `https://${liveStream.domain}/WebRTCAppEE/rest/v2/broadcasts/${liveStreamId}/broadcast-statistics`;
 
-    const res = await Utils.sendRequest({ method: "GET", url });
+    const { data: res, err } = await Utils.sendRequest({ method: "GET", url });
 
-    const responseData = { views: res };
+    const errorRes = {
+      totalRTMPWatchersCount: 0,
+      totalHLSWatchersCount: 0,
+      totalWebRTCWatchersCount: 0,
+      totalDASHWatchersCount: 0,
+    };
+
+    const responseData = { views: err ? errorRes : res };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
     Base.newErrorResponse({

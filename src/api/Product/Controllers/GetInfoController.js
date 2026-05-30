@@ -9,7 +9,15 @@ const gplay = require("google-play-scraper");
 
 router.get("/", async function (request, response) {
   try {
-    const getInfo = await Utils.sendRequest({ method: "GET", url: Config.appStoreLink });
+    const { data: getInfo, err } = await Utils.sendRequest({
+      method: "GET",
+      url: Config.appStoreLink,
+    });
+
+    if (err) {
+      logger.error("GetInfoController - app store", err);
+      return Base.successResponse(response, Const.responsecodeAppNotfound);
+    }
 
     let icon = getInfo.results[0].artworkUrl100;
     let developer = getInfo.results[0].artistName;

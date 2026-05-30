@@ -248,21 +248,23 @@ async function sendBonusData({
     if (Config.environment !== "production") {
       dataRechargeApiResponse = "DEV";
     } else {
-      try {
-        dataRechargeApiResponse = await Utils.sendRequest({
-          method: "POST",
-          url: dataRechargeUrl,
-          headers: Config.qriosHeaders,
-          body: airtimeData,
-        });
-      } catch (error) {
+      const { data, err } = await Utils.sendRequest({
+        method: "POST",
+        url: dataRechargeUrl,
+        headers: Config.qriosHeaders,
+        body: airtimeData,
+      });
+
+      if (err) {
         await Transfer.findByIdAndUpdate(transferId, {
           status: Const.transferFulfillmentFailed,
-          airtimeAPIResponse: error.message,
+          airtimeAPIResponse: err,
         });
-        logger.error("sendBonusData - Data recharge API", error);
+        logger.error("sendBonusData - Data recharge API", err);
         return;
       }
+
+      dataRechargeApiResponse = data;
     }
 
     await Transfer.findByIdAndUpdate(transferId, {

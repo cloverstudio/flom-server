@@ -1,13 +1,18 @@
 const { logger } = require("#infra");
 const { Config } = require("#config");
-const sendRequest = require("./sendRequest");
+const sendRequest = require("./sendRequestV2");
 
 async function getAddressFromCoordinates({ lat, lon }) {
   try {
-    const res = await sendRequest({
+    const { data: res } = await sendRequest({
       method: "GET",
       url: `${Config.locationIqUrl}/v1/reverse?key=${Config.locationIqKey}&lat=${lat}&lon=${lon}&format=json&normalizeaddress=1`,
     });
+
+    if (!res || !res.address) {
+      logger.error("getAddressFromCoordinates: no address found in response", res);
+      return undefined;
+    }
 
     const address = {
       country: res.address.country ?? "",

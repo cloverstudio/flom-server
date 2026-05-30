@@ -100,13 +100,14 @@ router.get("/durations", auth({ allowUser: true }), async (request, response) =>
       };
 
       let data = {};
+      const { err, data: d } = await Utils.sendRequest(apiRequest);
 
-      try {
-        const res = await Utils.sendRequest(apiRequest);
-        data = res;
-      } catch (error) {
-        logger.error("DirectionsController, fetching durations", error);
+      if (err) {
+        logger.error("DirectionsController error: " + err);
+        return Base.successResponse(response, Const.responsecodeSucceed, { suggestions: [] });
       }
+
+      data = d;
 
       if (data?.routes?.[0]?.duration) {
         durations[mode] = formatDuration(+data.routes[0].duration);

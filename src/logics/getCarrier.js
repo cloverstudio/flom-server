@@ -5,22 +5,21 @@ const { NumberDefaultCarrier } = require("#models");
 
 async function getPpnCarrier(phoneNumber) {
   try {
-    let res;
-
     const fixedPhoneNumber = phoneNumber.startsWith("+") ? phoneNumber.slice(1) : phoneNumber;
 
-    try {
-      res = await Utils.sendRequest({
-        method: "GET",
-        url: `${process.env.PPN_API_V2}/lookup/mobile/${fixedPhoneNumber}`,
-        headers: Config.ppnHeaders,
-      });
-    } catch (error) {
+    const res = await Utils.sendRequest({
+      method: "GET",
+      url: `${process.env.PPN_API_V2}/lookup/mobile/${fixedPhoneNumber}`,
+      headers: Config.ppnHeaders,
+    });
+
+    if (res.err) {
       logger.warn("getPpnCarrier, ppn lookup failed for number: " + phoneNumber);
+      return null;
     }
 
-    if (res?.payLoad && res.payLoad[0]?.operatorName) {
-      return res.payLoad[0].operatorName.toLowerCase();
+    if (res?.data?.payLoad && res.data.payLoad[0]?.operatorName) {
+      return res.data.payLoad[0].operatorName.toLowerCase();
     }
 
     logger.warn(

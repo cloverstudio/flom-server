@@ -1,6 +1,6 @@
 const { logger } = require("#infra");
 const { Config } = require("#config");
-const sendRequest = require("./sendRequest");
+const sendRequest = require("./sendRequestV2");
 
 async function sendMessageToChat({ messageData, senderToken }) {
   if (!senderToken) {
@@ -10,18 +10,14 @@ async function sendMessageToChat({ messageData, senderToken }) {
 
   logger.info(`sendMessageToChat, message : ${JSON.stringify(messageData)}`);
 
-  try {
-    await sendRequest({
-      method: "POST",
-      url: `${Config.webClientUrl}/api/v2/message/send`,
-      headers: {
-        "access-token": senderToken,
-      },
-      body: messageData,
-    });
-  } catch (error) {
-    logger.error(`sendMessageToChat`, error);
-  }
+  await sendRequest({
+    method: "POST",
+    url: `${Config.webClientUrl}/api/v2/message/send`,
+    headers: {
+      "access-token": senderToken,
+    },
+    body: messageData,
+  });
 
   return;
 }

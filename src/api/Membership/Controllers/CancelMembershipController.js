@@ -109,31 +109,32 @@ router.post("/:membershipId", auth({ allowUser: true }), async function (request
       });
     }
 
-    try {
-      const apiResponse = await Utils.sendRequest({
-        method: "POST",
-        url: Config.paymentServiceBaseUrl + "/api/v2/payment/recurring/cancel",
-        headers: {
-          "access-token": request.headers["access-token"],
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({ recurringPaymentId: recurringPayment._id.toString() }),
-      });
-      const data = apiResponse;
-      if (data?.code !== 1) {
-        return Base.newErrorResponse({
-          response,
-          code: data.code,
-          message:
-            data.message || `CancelMembershipController, cancel membership recurring payment`,
-        });
-      }
-    } catch (error) {
+    const { data: apiResponse, err } = await Utils.sendRequest({
+      method: "POST",
+      url: Config.paymentServiceBaseUrl + "/api/v2/payment/recurring/cancel",
+      headers: {
+        "access-token": request.headers["access-token"],
+        "content-type": "application/json",
+      },
+      body: { recurringPaymentId: recurringPayment._id.toString() },
+    });
+
+    if (err) {
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeCallPaymentServiceError,
         message: "CancelMembershipController, call payment service API",
-        error,
+        error: new Error(err),
+      });
+    }
+
+    const data = apiResponse;
+
+    if (data?.code !== 1) {
+      return Base.newErrorResponse({
+        response,
+        code: data.code,
+        message: data.message || `CancelMembershipController, cancel membership recurring payment`,
       });
     }
 

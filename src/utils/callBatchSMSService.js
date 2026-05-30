@@ -1,14 +1,12 @@
 const { logger } = require("#infra");
 const { Config } = require("#config");
-const sendRequest = require("./sendRequest");
+const sendRequest = require("./sendRequestV2");
 
 async function callBatchSMSService(data) {
   if (Config.environment !== "production") {
     logger.info(data.phoneNumbers);
     return;
   }
-
-  logger.info(data.phoneNumbers);
 
   try {
     await sendRequest({

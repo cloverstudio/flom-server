@@ -73,7 +73,6 @@ router.post("/", (request, response) => {
   const sessionId = Math.floor(100000000000000000 + Math.random() * 100000000000000000);
   const UUID = request.body.UUID;
   const newPushToken = request.body.pushToken;
-  let xmlResponseData = {};
 
   //check for required values
   if (!phoneNumber) {
@@ -98,7 +97,7 @@ router.post("/", (request, response) => {
 
   (async () => {
     try {
-      xmlResponseData = await Utils.sendRequest({
+      const { data: xmlResponseData, err } = await Utils.sendRequest({
         method: "POST",
         url: Config.preSelfRegistrationPostUrl,
         body: requestbody,
@@ -106,8 +105,11 @@ router.post("/", (request, response) => {
           "Content-Type": "text/xml",
           charset: "utf-8",
         },
-        // resolveWithFullResponse: true,
       });
+
+      if (err) {
+        throw new Error(`Error sending request: ${err}`);
+      }
 
       const options = { ignoreComment: true, compact: true };
       const jsonData = xml2js(xmlResponseData, options);

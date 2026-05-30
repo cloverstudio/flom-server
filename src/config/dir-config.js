@@ -54,9 +54,10 @@ function getPaths(env) {
 
   if (!paths[env]) {
     console.log(`Dir config, No paths found for environment '${env}', defaulting to 'development'`);
+    return paths.development;
   }
 
-  return paths[env] || paths.development;
+  return paths[env];
 }
 
 module.exports = getPaths;

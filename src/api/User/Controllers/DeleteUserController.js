@@ -118,7 +118,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       var data;
 
       reccurings?.map(async (reccuring) => {
-        const apiResponse = await Utils.sendRequest({
+        const { data: apiResponse } = await Utils.sendRequest({
           method: "POST",
           url: Config.paymentServiceBaseUrl + "/api/v2/recurring-payments/memberships/cancel",
           headers: {
@@ -184,7 +184,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
         );
         tribeMembers = tribeMembers.slice(1, tribeMembers.length);
       }
-      const res = await Tribe.findOneAndUpdate(
+      await Tribe.findOneAndUpdate(
         { _id: tribe._id.toString() },
         { $set: { "members.accepted": tribeCoowners.concat(tribeElders, tribeMembers) } },
       );
@@ -218,7 +218,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       const memberToken = member.token[0].token;
 
       let data;
-      const apiResponse = await Utils.sendRequest({
+      const { data: apiResponse } = await Utils.sendRequest({
         method: "POST",
         url: Config.paymentServiceBaseUrl + "/api/v2/recurring-payments/memberships/cancel",
         headers: {

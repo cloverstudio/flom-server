@@ -1,7 +1,7 @@
 const { Config, Const } = require("#config");
 const { logger } = require("#infra");
 const { WhatsAppLog } = require("#models");
-const sendRequest = require("../utils/sendRequest");
+const Utils = require("#utils");
 
 async function sendWhatsAppMessage({
   to,
@@ -157,7 +157,7 @@ async function sendWhatsAppMessage({
 
     const id = Config.whatsAppPhoneNumberId;
 
-    const { data: result, error } = await sendRequest({
+    const { data: result, err } = await Utils.sendRequest({
       method: "POST",
       url: `https://graph.facebook.com/v25.0/${id}/messages`,
       headers: {
@@ -165,7 +165,6 @@ async function sendWhatsAppMessage({
         "Content-Type": "application/json",
       },
       body: data,
-      returnErrorAsData: true,
     });
 
     logger.info("sendWhatsAppMessage result: " + JSON.stringify(result));
@@ -177,7 +176,7 @@ async function sendWhatsAppMessage({
       wamId,
       request: data,
       response: result,
-      failures: !error ? [] : [JSON.stringify(error, null, 2)],
+      failures: !err ? [] : [err],
       status,
       template,
       to,

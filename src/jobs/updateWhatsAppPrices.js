@@ -40,32 +40,27 @@ async function updateWhatsAppPrices() {
       return;
     }
 
-    const csv = await Utils.sendRequest({
-      method: "GET",
-      url: csvUrl,
-      returnHeaders: true,
-      returnErrorAsData: true,
-    });
+    const { data, err, headers } = await Utils.sendRequest({ method: "GET", url: csvUrl });
 
-    if (csv.error) {
-      logger.error("updateWhatsAppPrices, error fetching CSV:", csv.error);
+    if (err) {
+      logger.error("updateWhatsAppPrices, error fetching CSV:", err);
 
       Utils.sendEmailWithSG({
         subject: "Whatsapp CSV request issue!",
-        text: `There was an issue requesting the WhatsApp prices CSV (${Config.environment}). Error details: ${csv.error}`,
+        text: `There was an issue requesting the WhatsApp prices CSV (${Config.environment}). Error details: ${err}`,
         to: "petar.biocic@pontistechnology.com",
       });
 
       return;
     }
 
-    const lastModified = csv.headers ? csv.headers["last-modified"] : 0;
+    const lastModified = headers ? headers["last-modified"] : 0;
     if (lastModified && new Date(lastModified).getTime() <= lastUpdate) {
       logger.info("updateWhatsAppPrices, CSV not updated since last check");
       return;
     }
 
-    const { formatted: formattedPrices, error: parseError } = await parseCsv(csv.data);
+    const { formatted: formattedPrices, error: parseError } = await parseCsv(data);
 
     if (parseError) {
       logger.error("updateWhatsAppPrices, error parsing CSV:", parseError);
@@ -209,9 +204,9 @@ async function parseCsv(csv) {
             currency,
             marketing,
             utility,
-            authentication,
-            authenticationInternational,
-            service,
+            // authentication,
+            // authenticationInternational,
+            // service,
           ] = elArr;
 
           let waCountries = null;

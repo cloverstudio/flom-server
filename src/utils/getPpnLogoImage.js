@@ -1,6 +1,6 @@
 const fs = require("fs");
 const { Config } = require("#config");
-const sendRequest = require("./sendRequest");
+const sendRequest = require("./sendRequestV2");
 
 async function getPpnLogoImage({ carrier, countryCode, sku }) {
   if (carrier && countryCode) {
@@ -29,14 +29,18 @@ async function getPpnLogoImage({ carrier, countryCode, sku }) {
 }
 
 async function getPpnProductImage(sku) {
-  const res = await sendRequest({
+  const { data: res } = await sendRequest({
     method: "GET",
     url: `${process.env.PPN_API_V1}/catalog/sku/logos?skuId=${sku}`,
     headers: Config.ppnHeaders,
   });
 
-  const data = res && typeof res === "string" ? JSON.parse(res) : res;
-  const payload = data.payLoad;
+  if (!res) {
+    return undefined;
+  }
+
+  const data = typeof res === "string" ? JSON.parse(res) : res;
+  const payload = data?.payLoad;
 
   if (!payload || payload.length === 0) {
     return undefined;
