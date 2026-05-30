@@ -36,7 +36,6 @@ async function sendWhatsAppMessages({
   orderId,
   orderName,
   productName,
-  slug,
 }) {
   try {
     if (!Config.enableWhatsApp) {
@@ -90,8 +89,6 @@ async function sendWhatsAppMessages({
       );
       return [];
     }
-
-    slug = sender.slug || slug; // Use sender's mention slug if available
 
     if (!receivers || receivers.length === 0) {
       const isChatMessage = !template || template === "sellerFollowup";
@@ -176,7 +173,6 @@ async function sendWhatsAppMessages({
           orderId,
           orderName,
           productName,
-          slug,
           isFreeMessage: !receiver.windowExpired && Const.marketingTemplates.includes(template),
         });
 

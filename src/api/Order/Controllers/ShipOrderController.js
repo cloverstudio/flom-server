@@ -3,7 +3,7 @@
 const router = require("express").Router();
 const { logger } = require("#infra");
 const Base = require("../../Base");
-const { Const, Config, countries } = require("#config");
+const { Const, Config } = require("#config");
 const Utils = require("#utils");
 const Logics = require("#logics");
 const { Order, User } = require("#models");
@@ -137,7 +137,6 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
         orderId: order._id.toString(),
         orderName:
           order.products.length > 1 ? order.products?.[0]?.name + "..." : order.products?.[0]?.name,
-        slug: user.slug,
       });
 
       const responseData = { order: updatedOrder };
@@ -253,7 +252,6 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
       orderId: order._id.toString(),
       orderName:
         order.products.length > 1 ? order.products?.[0]?.name + "..." : order.products?.[0]?.name,
-      slug: user.slug,
     });
 
     const responseData = { order: updatedOrder };

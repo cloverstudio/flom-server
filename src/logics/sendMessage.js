@@ -185,7 +185,6 @@ async function sendMessage(param) {
           sender: user,
           receivers: [receiver],
           message: objMessage.message,
-          slug: user.slug,
           userName: user.userName,
         });
       }

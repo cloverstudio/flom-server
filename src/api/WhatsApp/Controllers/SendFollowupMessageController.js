@@ -35,8 +35,7 @@
 
 const router = require("express").Router();
 const Base = require("../../Base");
-const { logger } = require("#infra");
-const { Const, Config } = require("#config");
+const { Const } = require("#config");
 const { auth } = require("#middleware");
 const { User, Product } = require("#models");
 const Utils = require("#utils");

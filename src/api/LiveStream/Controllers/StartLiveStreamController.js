@@ -3,11 +3,11 @@
 const router = require("express").Router();
 const Base = require("../../Base");
 const { logger } = require("#infra");
-const { Const, Config } = require("#config");
+const { Const } = require("#config");
 const Utils = require("#utils");
 const Logics = require("#logics");
 const { auth } = require("#middleware");
-const { User, LiveStream, Notification, Tribe, Transfer } = require("#models");
+const { User, LiveStream, Notification, Tribe } = require("#models");
 const { socketApi } = require("#sockets");
 const { recombee } = require("#services");
 
