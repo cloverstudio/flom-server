@@ -631,3 +631,52 @@ module.exports = router;
    ]
 }
 */
+
+/*
+{
+   "object":"whatsapp_business_account",
+   "entry":[
+      {
+         "id":"1799673154249994",
+         "changes":[
+            {
+               "value":{
+                  "messaging_product":"whatsapp",
+                  "metadata":{
+                     "display_phone_number":"56942794765",
+                     "phone_number_id":"828448387028500"
+                  },
+                  "contacts":[
+                     {
+                        "profile":{
+                           "name":"Petar Biocic"
+                        },
+                        "wa_id":"385958710207",
+                        "user_id":"HR.1512962163722144"
+                     }
+                  ],
+                  "messages":[
+                     {
+                        "from":"385958710207",
+                        "from_user_id":"HR.1512962163722144",
+                        "id":"wamid.HBgMMzg1OTU4NzEwMjA3FQIAEhggQUNBRjg1RjRDMEVCRUNGNjEyRTU3NTYyODM1NjFCQ0UA",
+                        "timestamp":"1780133287",
+                        "type":"image",   video   audio
+                        "image":{  ("video"  or "audio")
+                           "caption":"@petarb", (for video and image)
+                           "voice": true, (only for audio)
+                           "mime_type":"image/jpeg",
+                           "sha256":"N07tTzeqELc9CcXJ6CPdnib1azUI2kxq33J9VtEUvY0=",
+                           "id":"1903466583694780",
+                           "url":"https://lookaside.fbsbx.com/whatsapp_business/attachments/?mid=1903466583694780&source=webhook&ext=1780133590&hash=ARlEE6BBj5SW6bnAxbJ9-oo5ZTS_0eYhdjHlcCZYi2PPOw"
+                        }
+                     }
+                  ]
+               },
+               "field":"messages"
+            }
+         ]
+      }
+   ]
+}
+*/
