@@ -172,7 +172,7 @@ async function sendWhatsAppMessage({
       failures: !err ? [] : [err],
       status,
       template,
-      to,
+      to: "+" + to,
       from,
       direction: "outgoing",
       providerId: Config.whatsAppPhoneNumberId,
