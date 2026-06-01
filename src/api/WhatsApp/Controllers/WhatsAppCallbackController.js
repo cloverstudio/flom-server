@@ -2,12 +2,10 @@
 
 const router = require("express").Router();
 const Base = require("../../Base");
-const { logger } = require("#infra");
+const { logger, redis } = require("#infra");
 const { Const, Config } = require("#config");
 const { User, WhatsAppLog } = require("#models");
 const helpers = require("../helpers");
-
-const alreadyHandledIncomingWamIds = [];
 
 router.get("/", async function (request, response) {
   try {
@@ -64,13 +62,15 @@ router.post("/", async function (request, response) {
         const msgBody = message.text?.body ?? "";
         const expiration = timeStamp + 24 * 60 * 60 * 1000; // 24h
 
-        if (alreadyHandledIncomingWamIds.includes(wamId)) {
+        const handledWamId = await redis.get(`handled_wam_id:${wamId}`);
+
+        if (handledWamId) {
           logger.warn(
             `WhatsAppCallbackController, cb: already handled incoming message with wamId: ${wamId}, skipping processing`,
           );
           return;
         }
-        alreadyHandledIncomingWamIds.push(wamId);
+        await redis.set(`handled_wam_id:${wamId}`, Date.now().toString(), "EX", 24 * 60 * 60); // 24h
 
         console.log(`${wamNumber} message from ${from}: ${msgBody}`);
 
