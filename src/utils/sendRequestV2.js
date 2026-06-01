@@ -1,12 +1,23 @@
 const { logger } = require("#infra");
 const qs = require("qs");
+const fs = require("fs/promises");
+const path = require("path");
 
-async function sendRequestV2({ method = "POST", url, query, headers, body, timeout = 0 }) {
+async function sendRequestV2({
+  method = "POST",
+  url,
+  query,
+  headers,
+  body,
+  filePaths = [],
+  timeout = 0,
+}) {
   try {
     const urlWithQuery = query ? url + "?" + qs.stringify(query) : url;
 
     if (["POST", "PATCH", "PUT"].includes(method.toUpperCase())) {
       const contentType = headers?.["Content-Type"] || headers?.["content-type"];
+
       if (contentType && contentType.includes("application/json") && typeof body === "object") {
         body = JSON.stringify(body);
       } else if (
@@ -24,6 +35,14 @@ async function sendRequestV2({ method = "POST", url, query, headers, body, timeo
         for (const key in body) {
           formData.append(key, body[key]);
         }
+
+        for (const filePath of filePaths) {
+          const fileBuffer = await fs.readFile(filePath);
+          const fileName = path.basename(filePath);
+
+          formData.append("file", new Blob([fileBuffer]), fileName);
+        }
+
         body = formData;
       } else if (body && typeof body !== "string") {
         body = String(body);
