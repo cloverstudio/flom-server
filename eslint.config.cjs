@@ -27,10 +27,10 @@ module.exports = defineConfig([
     },
 
     rules: {
-      //"no-unused-vars": 0,
-      //"no-extra-boolean-cast": 0,
-      //"no-case-declarations": 0,
-      //"no-constant-condition": 0,
+      "no-unused-vars": 0,
+      "no-extra-boolean-cast": 0,
+      "no-case-declarations": 0,
+      "no-constant-condition": 0,
     },
   },
 ]);
