@@ -7,8 +7,8 @@
  * @apiGroup WebAPI WhatsApp
  * @apiDescription Returns the WhatsApp phone number. If userPhoneNumber and businessPhoneNumber parameters are provided, it creates a link between the user's business number and his account phone number. If only userPhoneNumber is provided, it is presumed that the user's business number and account phone number are the same, and the link is created accordingly.
  *
- * @apiParam {Query string}  [userPhoneNumber]      User's phone number
- * @apiParam {Query string}  [businessPhoneNumber]  User's business phone number (if user's number and user's business number are the same, no need to send)
+ * @apiParam (Query string)  [userPhoneNumber]      User's phone number
+ * @apiParam (Query string)  [businessPhoneNumber]  User's business phone number (if user's number and user's business number are the same, no need to send)
  *
  * @apiSuccessExample Success Response
  * {
