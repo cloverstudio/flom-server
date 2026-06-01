@@ -17,6 +17,9 @@ async function sendWhatsAppMessage({
   orderName,
   productName,
   isFreeMessage = false,
+  messageType,
+  location,
+  file,
 }) {
   try {
     if (!Config.enableWhatsApp) {
@@ -40,7 +43,49 @@ async function sendWhatsAppMessage({
       text: { body: message },
     };
 
-    if (template) {
+    if (messageType) {
+      console.log("sendWhatsAppMessage, messageType: " + messageType);
+      console.log("sendWhatsAppMessage, location: " + JSON.stringify(location));
+      console.log("sendWhatsAppMessage, file: " + JSON.stringify(file));
+    }
+
+    if (messageType === Const.messageTypeLocation && location) {
+      data.type = "location";
+      delete data.text;
+
+      data.location = {
+        latitude: location.lat,
+        longitude: location.lng,
+      };
+    } else if (messageType === Const.messageTypeFile && file) {
+      data.type = "document";
+      delete data.text;
+
+      data.document = {
+        link: Config.storageUrl + "/" + file.name,
+        filename: file.name,
+        caption: message,
+      };
+    } else if (
+      [Const.messageTypeAudio, Const.messageTypeImage, Const.messageTypeVideo].includes(
+        messageType,
+      ) &&
+      file
+    ) {
+      data.type =
+        messageType === Const.messageTypeAudio
+          ? "audio"
+          : messageType === Const.messageTypeImage
+          ? "image"
+          : "video";
+
+      delete data.text;
+
+      data[data.type] = {
+        link: Config.storageUrl + "/" + file.name,
+        caption: message,
+      };
+    } else if (template) {
       let textParamA = null;
       let textParamB = null;
       let buttonParam = null;
@@ -139,7 +184,7 @@ async function sendWhatsAppMessage({
 
       if (isFreeMessage) {
         message = makeTextMessage({ template, textParamA, textParamB, buttonParam });
-        data.text.body = message;
+        data.text = { body: message };
       } else {
         data.type = "template";
         delete data.text;

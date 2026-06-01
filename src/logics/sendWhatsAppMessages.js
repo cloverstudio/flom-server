@@ -36,6 +36,9 @@ async function sendWhatsAppMessages({
   orderId,
   orderName,
   productName,
+  messageType,
+  location,
+  file,
 }) {
   try {
     if (!Config.enableWhatsApp) {
@@ -174,6 +177,9 @@ async function sendWhatsAppMessages({
           orderName,
           productName,
           isFreeMessage: !receiver.windowExpired && Const.marketingTemplates.includes(template),
+          messageType,
+          location,
+          file,
         });
 
         if (wamid) {

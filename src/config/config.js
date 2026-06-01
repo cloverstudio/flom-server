@@ -419,4 +419,6 @@ Config.secretToken = process.env.SECRET_TOKEN;
 Config.locationIqUrl = process.env.LOCATION_IQ_URL;
 Config.locationIqKey = process.env.LOCATION_IQ_APIKEY;
 
+Config.storageUrl = process.env.STORAGE_URL;
+
 module.exports = Object.freeze(Config);

@@ -186,6 +186,9 @@ async function sendMessage(param) {
           receivers: [receiver],
           message: objMessage.message,
           userName: user.userName,
+          messageType: param.type,
+          location: param.location,
+          file: param.file?.file,
         });
       }
 
