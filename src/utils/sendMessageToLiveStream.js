@@ -1,7 +1,7 @@
 const uuid = require("uuid").v4;
 const { logger } = require("#infra");
 const { Config } = require("#config");
-const sendRequest = require("./sendRequestV2");
+const sendRequest = require("./sendRequest");
 
 async function sendMessageToLiveStream({ liveStream, data }) {
   try {

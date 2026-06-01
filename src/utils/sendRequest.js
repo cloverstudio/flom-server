@@ -9,25 +9,20 @@ async function sendRequest({
   query,
   headers,
   body,
-  responseType = "json",
   timeout = 0,
-  resolveWithFullResponse = false,
-  returnHeaders = false,
-  returnErrorAsData = false,
 }) {
   try {
     const urlWithQuery = query ? url + "?" + qs.stringify(query) : url;
     const options = {
       method,
       timeout: timeout * 1000,
-      responseType,
       headers,
       url: urlWithQuery,
       data: body,
     };
 
     if (!allow && url.includes("valuetopup")) {
-      return null;
+      return { err: "Request to valuetopup is not allowed" };
 
       /* const agent = new https.Agent({
         rejectUnauthorized: false,
@@ -37,24 +32,14 @@ async function sendRequest({
 
     const resp = await axios(options);
 
-    if (resolveWithFullResponse) {
-      return resp;
-    }
-
-    if (returnHeaders || returnErrorAsData) {
-      return { data: resp.data, headers: resp.headers };
-    }
-
-    return resp.data;
+    return { data: resp.data, headers: resp.headers };
   } catch (error) {
     if (!error.response) {
       const errorMessage = !error.stack
         ? `send request error: ${error.message}`
         : `send request error: ${error.stack}`;
-      if (returnErrorAsData) {
-        return { error: errorMessage };
-      }
-      throw new Error(errorMessage);
+
+      return { err: errorMessage };
     }
 
     const {
@@ -63,10 +48,8 @@ async function sendRequest({
 
     const errorObj = { method, url, headers, body, status, statusText, data };
     const errorMessage = `send request error: ${JSON.stringify(errorObj)}`;
-    if (returnErrorAsData) {
-      return { error: errorMessage };
-    }
-    throw new Error(errorMessage);
+
+    return { err: errorMessage };
   }
 }
 

@@ -1,5 +1,5 @@
 const { Config } = require("#config");
-const sendRequest = require("./sendRequestV2");
+const sendRequest = require("./sendRequest");
 
 async function getAllBankAccountsWithMsisdn(phoneNumber) {
   const { data: responseData = {} } = await sendRequest({

@@ -1,5 +1,5 @@
 const { Config } = require("#config");
-const sendRequest = require("./sendRequestV2");
+const sendRequest = require("./sendRequest");
 
 async function sendSMSv2({ phoneNumber, message, type }) {
   try {

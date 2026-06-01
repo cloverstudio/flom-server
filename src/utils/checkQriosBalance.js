@@ -1,6 +1,6 @@
 const { logger } = require("#infra");
 const { Config } = require("#config");
-const sendRequest = require("./sendRequestV2");
+const sendRequest = require("./sendRequest");
 
 async function checkQriosBalance(amount) {
   try {

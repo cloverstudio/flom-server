@@ -66,7 +66,7 @@ module.exports = Object.freeze({
   sendMessageToChat: require("./sendMessageToChat"),
   sendMessageToLiveStream: require("./sendMessageToLiveStream"),
   sendPushNotifications: require("./sendPushNotifications"),
-  sendRequest: require("./sendRequestV2"),
+  sendRequest: require("./sendRequest"),
   sendSMS: require("./sendSMS"),
   sendSmsNew: require("./sendSmsNew"),
   sendSMSv2: require("./sendSMSv2"),

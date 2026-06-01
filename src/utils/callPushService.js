@@ -1,7 +1,7 @@
 const { logger } = require("#infra");
 const { Config, Const } = require("#config");
 // const { User } = require("#models");
-const sendRequest = require("./sendRequestV2");
+const sendRequest = require("./sendRequest");
 
 async function callPushService(data, receiver = null) {
   try {

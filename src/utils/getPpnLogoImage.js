@@ -1,6 +1,6 @@
 const fs = require("fs");
 const { Config } = require("#config");
-const sendRequest = require("./sendRequestV2");
+const sendRequest = require("./sendRequest");
 
 async function getPpnLogoImage({ carrier, countryCode, sku }) {
   if (carrier && countryCode) {
