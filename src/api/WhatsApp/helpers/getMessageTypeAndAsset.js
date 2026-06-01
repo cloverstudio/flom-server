@@ -78,7 +78,9 @@ async function getMessageTypeAndAsset(message) {
 
       const now = Date.now();
 
-      let fileName = asset.filename ?? now.toString() + "." + extension;
+      let fileName = asset.filename
+        ? now.toString() + "_" + asset.filename
+        : now.toString() + "." + extension;
 
       const outputPath = path.resolve(Const.uploadPath, fileName);
       const res = await Utils.downloadFile({ url, outputPath });
