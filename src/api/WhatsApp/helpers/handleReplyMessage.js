@@ -5,7 +5,17 @@ const { Const } = require("#config");
 const { FlomMessage, User, WhatsAppLog, WhatsAppSession } = require("#models");
 const Logics = require("#logics");
 
-async function handleReplyMessage({ from, msgBody, wamId, timeStamp, contextId, logId }) {
+async function handleReplyMessage({
+  from,
+  msgBody,
+  wamId,
+  timeStamp,
+  contextId,
+  logId,
+  messageType,
+  file,
+  location,
+}) {
   const originalMessage = await FlomMessage.findOne({ wamId: contextId }).lean();
   if (!originalMessage) {
     logger.error("WhatsAppCallbackController, cb: original message not found: ", contextId);
@@ -36,7 +46,7 @@ async function handleReplyMessage({ from, msgBody, wamId, timeStamp, contextId, 
 
   const params = {
     isRecursiveCall: false,
-    type: Const.messageTypeText,
+    type: messageType,
     userID: fromUser._id.toString(),
     roomID: originalMessage.roomID,
     message: msgBody,
@@ -55,6 +65,8 @@ async function handleReplyMessage({ from, msgBody, wamId, timeStamp, contextId, 
         decryptedMessage: originalMessage.message,
       },
     },
+    file,
+    location,
   };
 
   await Logics.sendMessage(params);

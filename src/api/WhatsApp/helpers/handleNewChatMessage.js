@@ -5,7 +5,16 @@ const { Const } = require("#config");
 const { User, WhatsAppUserMapping, WhatsAppLog, WhatsAppSession } = require("#models");
 const Logics = require("#logics");
 
-async function handleNewChatMessage({ from, msgBody, wamId, timeStamp, logId }) {
+async function handleNewChatMessage({
+  from,
+  msgBody,
+  wamId,
+  timeStamp,
+  logId,
+  messageType,
+  file,
+  location,
+}) {
   let fromUser = await User.findOne({ phoneNumber: from }).lean();
 
   if (!fromUser) {
@@ -110,13 +119,15 @@ async function handleNewChatMessage({ from, msgBody, wamId, timeStamp, logId }) 
 
   const params = {
     isRecursiveCall: false,
-    type: Const.messageTypeText,
+    type: messageType,
     userID: fromUser._id.toString(),
     roomID: roomId,
     message: msgBody,
     created: timeStamp,
     wamId,
     plainTextMessage: true,
+    file,
+    location,
   };
 
   await Logics.sendMessage(params);

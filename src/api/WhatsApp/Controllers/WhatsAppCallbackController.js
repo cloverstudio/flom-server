@@ -36,31 +36,33 @@ router.post("/", async function (request, response) {
   Base.successResponse(response, Const.responsecodeSucceed);
 
   try {
-    const change = request.body.entry?.[0]?.changes?.[0] ?? null;
-    if (!change) {
-      logger.debug("WhatsAppCallbackController, no changes in callback");
-      return;
-    }
+    const value = parseCallback(request.body, "value") ?? {};
+    const wamNumber = value.metadata?.display_phone_number ?? null;
+    // const wamNumberId = value.metadata?.phone_number_id ?? null;
 
-    const value = change.value;
-    const messages = value.messages ?? [];
-    const statuses = value.statuses ?? [];
+    const messages = parseCallback(request.body, "messages") ?? [];
+    const statuses = parseCallback(request.body, "statuses") ?? [];
 
     if (!messages.length && !statuses.length) {
       logger.debug("WhatsAppCallbackController, no messages or statuses in callback");
       return;
     }
 
-    const wamNumber = value.metadata?.display_phone_number ?? null;
-    // const wamNumberId = value.metadata?.phone_number_id ?? null;
-
     for (const message of messages) {
       try {
         const from = "+" + message.from;
         const wamId = message.id;
         const timeStamp = +message.timestamp * 1000;
-        const msgBody = message.text?.body ?? "";
         const expiration = timeStamp + 24 * 60 * 60 * 1000; // 24h
+
+        const log = await WhatsAppLog.create({
+          wamId,
+          callback: request.body,
+          from,
+          direction: "incoming",
+          providerId: Config.whatsAppPhoneNumberId,
+          providerPhoneNumber: Config.whatsAppPhoneNumber,
+        });
 
         const handledWamId = await redis.get(`handled_wam_id:${wamId}`);
 
@@ -72,18 +74,18 @@ router.post("/", async function (request, response) {
         }
         await redis.set(`handled_wam_id:${wamId}`, Date.now().toString(), "EX", 24 * 60 * 60); // 24h
 
-        console.log(`${wamNumber} message from ${from}: ${msgBody}`);
+        const { type, messageType, msgBody, file, location } = await helpers.getMessageTypeAndAsset(
+          message,
+        );
+
+        if (!type) {
+          logger.warn(
+            `WhatsAppCallbackController, cb: unsupported message type ${type} for wamId: ${wamId}, skipping processing`,
+          );
+          return;
+        }
 
         const contextId = message.context?.id ?? null;
-
-        const log = await WhatsAppLog.create({
-          wamId,
-          callback: request.body,
-          from,
-          direction: "incoming",
-          providerId: Config.whatsAppPhoneNumberId,
-          providerPhoneNumber: Config.whatsAppPhoneNumber,
-        });
 
         if (!contextId) {
           await helpers.handleNewChatMessage({
@@ -92,6 +94,9 @@ router.post("/", async function (request, response) {
             wamId,
             timeStamp,
             logId: log._id.toString(),
+            messageType,
+            file,
+            location,
           });
         } else {
           await helpers.handleReplyMessage({
@@ -101,6 +106,9 @@ router.post("/", async function (request, response) {
             timeStamp,
             contextId,
             logId: log._id.toString(),
+            messageType,
+            file,
+            location,
           });
         }
 
@@ -141,5 +149,20 @@ router.post("/", async function (request, response) {
     logger.error("WhatsAppCallbackController, cb", error);
   }
 });
+
+function parseCallback(node, keyToFind) {
+  if (node[keyToFind]) {
+    return node[keyToFind];
+  }
+
+  for (const key in node) {
+    if (typeof node[key] === "object") {
+      const result = parseCallback(node[key], keyToFind);
+      if (result) {
+        return result;
+      }
+    }
+  }
+}
 
 module.exports = router;
