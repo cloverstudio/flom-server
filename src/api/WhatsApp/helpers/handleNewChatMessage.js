@@ -15,21 +15,6 @@ async function handleNewChatMessage({
   file,
   location,
 }) {
-  console.log(
-    "new chat message, from: ",
-    from,
-    "msgBody: ",
-    msgBody,
-    "wamId: ",
-    wamId,
-    "messageType: ",
-    messageType,
-    "file: ",
-    file,
-    "location: ",
-    location,
-  );
-
   let fromUser = await User.findOne({ phoneNumber: from }).lean();
 
   if (!fromUser) {
