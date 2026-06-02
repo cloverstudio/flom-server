@@ -22,7 +22,7 @@ async function getMessageTypeAndAsset(message) {
     const type = message.type;
     const messageType = typeToFlomTypeMap[type] || null;
 
-    console.log("getMessageTypeAndAsset, message type:  ", type, "messageType: ", messageType);
+    console.log("getMessageTypeAndAsset, message type:", type, "messageType:", messageType);
 
     if (!messageType) {
       return { type: null };
@@ -45,10 +45,10 @@ async function getMessageTypeAndAsset(message) {
     }
 
     if (["image", "video", "audio", "document"].includes(type)) {
-      console.log("getMessageTypeAndAsset, handling media message of type: ", type);
+      console.log("getMessageTypeAndAsset, handling media message of type:", type);
       const asset = message[type];
 
-      console.log("getMessageTypeAndAsset, asset: ", asset);
+      console.log("getMessageTypeAndAsset, asset:", asset);
 
       if (!asset) {
         logger.warn(
@@ -88,22 +88,24 @@ async function getMessageTypeAndAsset(message) {
         : now.toString() + "." + extension;
 
       console.log(
-        "getMessageTypeAndAsset, fileName: ",
+        "getMessageTypeAndAsset, fileName:",
         fileName,
-        "mimeType: ",
+        "mimeType:",
         mimeType,
-        "url: ",
+        "url:",
         url,
       );
 
       const outputPath = path.resolve(Config.uploadPath, fileName);
-      console.log("getMessageTypeAndAsset, outputPath: ", outputPath);
+      console.log("getMessageTypeAndAsset, outputPath:", outputPath);
 
       const res = await Utils.downloadFile({
         url,
         outputPath,
         headers: { Authorization: `Bearer ${Config.whatsAppAccessToken}` },
       });
+
+      console.log("getMessageTypeAndAsset, downloadFile result:", res);
 
       if (res.error) {
         logger.error(
@@ -112,19 +114,28 @@ async function getMessageTypeAndAsset(message) {
         return { type: null };
       }
 
+      const exists = await fsp.stat(outputPath);
+      console.log("getMessageTypeAndAsset, file exists:", exists);
+
       const fileInfo = { mimeType, name: fileName, created: now };
+      console.log("getMessageTypeAndAsset, initial fileInfo: ", fileInfo);
 
       if (type === "document") {
+        console.log("getMessageTypeAndAsset, getting file size for document");
         const info = await fsp.stat(outputPath);
         fileInfo.size = info.size;
       }
       if (type === "audio" || type === "video") {
+        console.log("getMessageTypeAndAsset, getting media info for", type);
         const info = await mediaHandler.getMediaInfo(outputPath);
+        console.log("getMessageTypeAndAsset, media info: ", info);
         fileInfo.duration = info.duration;
         fileInfo.size = info.size;
       }
       if (type === "image") {
+        console.log("getMessageTypeAndAsset, getting image info");
         const info = await mediaHandler.getImageInfo(outputPath);
+        console.log("getMessageTypeAndAsset, image info: ", info);
         fileInfo.size = info.size;
       }
 
