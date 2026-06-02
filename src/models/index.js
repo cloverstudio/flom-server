@@ -117,6 +117,7 @@ module.exports = Object.freeze({
   Webhook: require("./Webhook"),
   WhatsAppLog: require("./WhatsAppLog"),
   WhatsAppPrice: require("./WhatsAppPrice"),
+  WhatsAppSession: require("./WhatsAppSession"),
   WhatsAppUserMapping: require("./WhatsAppUserMapping"),
 
   TalkTicket: require("./TalkTicket"),

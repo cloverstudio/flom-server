@@ -115,7 +115,7 @@ async function getCarrierWithNumLookup(phoneNumber) {
     method: "GET",
     url: `https://api.numlookupapi.com/v1/validate/${phoneNumber}?apikey=${Config.numLookupApiKey}`,
   });
-  return result;
+  return result.data;
 }
 
 module.exports = checkIfCarrierIsAllowed;

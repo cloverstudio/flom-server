@@ -10,18 +10,14 @@ async function sendMessageToChat({ messageData, senderToken }) {
 
   logger.info(`sendMessageToChat, message : ${JSON.stringify(messageData)}`);
 
-  try {
-    await sendRequest({
-      method: "POST",
-      url: `${Config.webClientUrl}/api/v2/message/send`,
-      headers: {
-        "access-token": senderToken,
-      },
-      body: messageData,
-    });
-  } catch (error) {
-    logger.error(`sendMessageToChat`, error);
-  }
+  await sendRequest({
+    method: "POST",
+    url: `${Config.webClientUrl}/api/v2/message/send`,
+    headers: {
+      "access-token": senderToken,
+    },
+    body: messageData,
+  });
 
   return;
 }

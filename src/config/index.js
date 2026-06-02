@@ -6,10 +6,10 @@ const ResponseCodes = require("./response-codes");
 
 module.exports = {
   Config,
-  Const: {
+  Const: Object.freeze({
     ...Constants,
     ...ResponseCodes,
-  },
+  }),
   countries,
   countries2to3,
 };

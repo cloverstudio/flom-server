@@ -358,7 +358,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         try {
           category = await Category.findOne({ _id: categoryBusinessId }).lean();
         } catch (error) {
-          logger.error("UpdateProfileController, responsecodeCategoryNotFound");
+          logger.error("UpdateProfileController, responsecodeCategoryNotFound", error);
           return Base.successResponse(response, Const.responsecodeCategoryNotFound);
         }
 
@@ -548,12 +548,14 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     if (countryCode === "CA" && stateCode && !zipCode) {
       options.url = Config.taxApiUrlCanada;
 
-      try {
-        res = await Utils.sendRequest(options);
-      } catch (error) {
+      const { data, err } = await Utils.sendRequest(options);
+
+      if (err) {
         logger.error("UpdateProfileController, responsecodeInvalidStateCode");
         return Base.successResponse(response, Const.responsecodeInvalidStateCode);
       }
+
+      res = data;
 
       let hasStateCode = false;
       res.forEach((rate) => {
@@ -572,12 +574,14 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         .replace("ZIP_CODE", zipCode)
         .replace("STATE_CODE", stateCode);
 
-      try {
-        res = await Utils.sendRequest(options);
-      } catch (error) {
+      const { data, err } = await Utils.sendRequest(options);
+
+      if (err) {
         logger.error("UpdateProfileController, responsecodeInvalidStateCodeOrZipCode");
         return Base.successResponse(response, Const.responsecodeInvalidStateCodeOrZipCode);
       }
+
+      res = data;
 
       if (res.combined_use_rate === 0) {
         logger.error("UpdateProfileController, responsecodeInvalidStateCodeOrZipCode");

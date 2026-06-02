@@ -314,7 +314,7 @@ router.patch("/:accountId", auth({ allowUser: true }), async function (request, 
 
     account.title = title;
 
-    const updatedUser = await User.findByIdAndUpdate(
+    await User.findByIdAndUpdate(
       user._id.toString(),
       { nigerianBankAccounts },
       { new: true, lean: true },
@@ -433,12 +433,17 @@ async function validateNigerianBankAccount({ accountNumber, bankCode, phoneNumbe
   let ownerName = "";
 
   try {
-    const data = await Utils.sendRequest({
+    const { data, err } = await Utils.sendRequest({
       method: "POST",
       headers: Config.qriosHeaders,
       url: `${process.env.QRIOS_BASE_URL}/payout/verifyAccountDetails`,
       body: { bankAccountNumber: accountNumber, bankCode },
     });
+
+    if (err) {
+      logger.error("Validate Nigerian bank account, account details error: " + err);
+      return errorObj;
+    }
 
     if (data?.status !== "OK") {
       logger.error(
@@ -454,7 +459,7 @@ async function validateNigerianBankAccount({ accountNumber, bankCode, phoneNumbe
   }
 
   try {
-    const data = await Utils.sendRequest({
+    const { data, err } = await Utils.sendRequest({
       method: "POST",
       headers: Config.qriosHeaders,
       url: `${process.env.QRIOS_BASE_URL}/customer/validate`,
@@ -466,6 +471,11 @@ async function validateNigerianBankAccount({ accountNumber, bankCode, phoneNumbe
         },
       },
     });
+
+    if (err) {
+      logger.error("Validate Nigerian bank account, validate customer error: " + err);
+      return errorObj;
+    }
 
     if (data?.result && data.result === "MATCH") {
       logger.info(`Validate Nigerian bank account, match! ${JSON.stringify(data)}`);

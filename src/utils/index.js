@@ -19,6 +19,7 @@ module.exports = Object.freeze({
   createObjectId: require("./createObjectId"),
 
   deleteHslFile: require("./deleteHslFile"),
+  downloadFile: require("./downloadFile"),
 
   encodeLnUrl: require("./encodeLnUrl"),
   escapeRegExp: require("./escapeRegExp"),

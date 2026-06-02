@@ -13,7 +13,12 @@ const getMerchantsPhoneNumber = async (merchantCode) => {
       timeout: 3000,
     };
 
-    const apiResponse = await Utils.sendRequest(options);
+    const { data: apiResponse, err } = await Utils.sendRequest(options);
+
+    if (err) {
+      console.error("getMerchantsPhoneNumber Err", err);
+      return null;
+    }
 
     return `+${apiResponse.terminalMsisdn}`;
   } catch (error) {

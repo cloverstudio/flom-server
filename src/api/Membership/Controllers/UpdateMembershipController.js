@@ -179,46 +179,47 @@ router.post("/:newMembershipId", auth({ allowUser: true }), async function (requ
       });
     }
 
-    try {
-      const apiResponse = await Utils.sendRequest({
-        method: "POST",
-        url: Config.paymentServiceBaseUrl + "/api/v2/payment/recurring/update",
-        headers: {
-          "access-token": request.headers["access-token"],
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({
-          oldMembershipId,
-          newMembershipId,
-          cardNumber,
-          expirationDate,
-          cardCode,
-          address,
-          zip,
-          firstName,
-          lastName,
-          receiptEmail,
-          paymentMethodType,
-          paymentMethodId,
-          countryCode,
-          userIP,
-        }),
-      });
-      const data = apiResponse;
-      if (data?.code !== 1) {
-        return Base.newErrorResponse({
-          response,
-          code: data.code,
-          message:
-            data.message || `UpdateMembershipController, update membership recurring payment`,
-        });
-      }
-    } catch (error) {
+    const { data: apiResponse, err } = await Utils.sendRequest({
+      method: "POST",
+      url: Config.paymentServiceBaseUrl + "/api/v2/payment/recurring/update",
+      headers: {
+        "access-token": request.headers["access-token"],
+        "content-type": "application/json",
+      },
+      body: {
+        oldMembershipId,
+        newMembershipId,
+        cardNumber,
+        expirationDate,
+        cardCode,
+        address,
+        zip,
+        firstName,
+        lastName,
+        receiptEmail,
+        paymentMethodType,
+        paymentMethodId,
+        countryCode,
+        userIP,
+      },
+    });
+
+    if (err) {
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeCallPaymentServiceError,
         message: "UpdateMembershipController, call payment service API",
-        error,
+        error: new Error(err),
+      });
+    }
+
+    const data = apiResponse;
+
+    if (data?.code !== 1) {
+      return Base.newErrorResponse({
+        response,
+        code: data.code,
+        message: data.message || `UpdateMembershipController, update membership recurring payment`,
       });
     }
 

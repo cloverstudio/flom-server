@@ -368,7 +368,7 @@ async function sendUSSDPush({ phoneNumber, contextData }) {
     headers: Config.qriosHeaders,
   });
 
-  console.log({ response });
+  console.log({ response: response.data });
 }
 
 module.exports = router;

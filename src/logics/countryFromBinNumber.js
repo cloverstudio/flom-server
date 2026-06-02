@@ -40,14 +40,14 @@ async function lookupBinNumber(bin) {
     },
   });
 
-  if (!res?.success) {
+  if (!res?.data?.success) {
     console.error("lookupBinNumber: " + JSON.stringify(res));
     throw new Error("res.success false");
   }
 
-  if (!res?.BIN?.country?.alpha2) throw new Error("res.BIN.country.alpha2 not found");
+  if (!res?.data?.BIN?.country?.alpha2) throw new Error("res.BIN.country.alpha2 not found");
 
-  return res.BIN.country.alpha2;
+  return res.data.BIN.country.alpha2;
 }
 
 module.exports = countryFromBinNumber;

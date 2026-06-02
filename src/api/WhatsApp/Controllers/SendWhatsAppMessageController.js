@@ -25,7 +25,6 @@ router.post("/", async function (request, response) {
       shippingStatus,
       orderId,
       orderName,
-      slug,
     } = request.body;
 
     if (!receiverIds || !Array.isArray(receiverIds) || receiverIds.length === 0) {
@@ -55,7 +54,6 @@ router.post("/", async function (request, response) {
       shippingStatus,
       orderId,
       orderName,
-      slug,
     });
 
     if (!wamIds || wamIds.length === 0) {

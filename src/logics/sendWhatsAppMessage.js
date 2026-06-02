@@ -1,7 +1,7 @@
 const { Config, Const } = require("#config");
 const { logger } = require("#infra");
 const { WhatsAppLog } = require("#models");
-const sendRequest = require("../utils/sendRequest");
+const Utils = require("#utils");
 
 async function sendWhatsAppMessage({
   to,
@@ -16,8 +16,10 @@ async function sendWhatsAppMessage({
   orderId,
   orderName,
   productName,
-  slug,
   isFreeMessage = false,
+  messageType,
+  location,
+  file,
 }) {
   try {
     if (!Config.enableWhatsApp) {
@@ -38,14 +40,52 @@ async function sendWhatsAppMessage({
       messaging_product: "whatsapp",
       to,
       type: "text",
-      text: {
-        body: `@${slug}: ${message}
-        
-        Quote this message or use the mention slug (@seller_name) to get your reply to the seller.`,
-      },
+      text: { body: message },
     };
 
-    if (template) {
+    if (messageType) {
+      console.log("sendWhatsAppMessage, messageType: " + messageType);
+      console.log("sendWhatsAppMessage, location: " + JSON.stringify(location));
+      console.log("sendWhatsAppMessage, file: " + JSON.stringify(file));
+    }
+
+    if (messageType === Const.messageTypeLocation && location) {
+      data.type = "location";
+      delete data.text;
+
+      data.location = {
+        latitude: location.lat,
+        longitude: location.lng,
+      };
+    } else if (messageType === Const.messageTypeFile && file) {
+      data.type = "document";
+      delete data.text;
+
+      data.document = {
+        link: Config.storageUrl + "/" + file.name,
+        filename: file.name,
+        caption: message,
+      };
+    } else if (
+      [Const.messageTypeAudio, Const.messageTypeImage, Const.messageTypeVideo].includes(
+        messageType,
+      ) &&
+      file
+    ) {
+      data.type =
+        messageType === Const.messageTypeAudio
+          ? "audio"
+          : messageType === Const.messageTypeImage
+          ? "image"
+          : "video";
+
+      delete data.text;
+
+      data[data.type] = {
+        link: Config.storageUrl + "/" + file.name,
+        caption: message,
+      };
+    } else if (template) {
       let textParamA = null;
       let textParamB = null;
       let buttonParam = null;
@@ -144,9 +184,7 @@ async function sendWhatsAppMessage({
 
       if (isFreeMessage) {
         message = makeTextMessage({ template, textParamA, textParamB, buttonParam });
-        data.text.body = `@${slug}: ${message}
-        
-        Quote this message or use the mention slug (@seller_name) to get your reply to the seller.`;
+        data.text = { body: message };
       } else {
         data.type = "template";
         delete data.text;
@@ -157,7 +195,7 @@ async function sendWhatsAppMessage({
 
     const id = Config.whatsAppPhoneNumberId;
 
-    const { data: result, error } = await sendRequest({
+    const { data: result, err } = await Utils.sendRequest({
       method: "POST",
       url: `https://graph.facebook.com/v25.0/${id}/messages`,
       headers: {
@@ -165,7 +203,6 @@ async function sendWhatsAppMessage({
         "Content-Type": "application/json",
       },
       body: data,
-      returnErrorAsData: true,
     });
 
     logger.info("sendWhatsAppMessage result: " + JSON.stringify(result));
@@ -177,10 +214,10 @@ async function sendWhatsAppMessage({
       wamId,
       request: data,
       response: result,
-      failures: !error ? [] : [JSON.stringify(error, null, 2)],
+      failures: !err ? [] : [err],
       status,
       template,
-      to,
+      to: "+" + to,
       from,
       direction: "outgoing",
       providerId: Config.whatsAppPhoneNumberId,

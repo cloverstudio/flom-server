@@ -109,7 +109,7 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
       });
     }
 
-    const xmlResponseData = await Utils.sendRequest({
+    const { data: xmlResponseData, err } = await Utils.sendRequest({
       method: "POST",
       url: Config.selfRegistrationPostUrl,
       body: requestBody,
@@ -118,6 +118,9 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
         charset: "utf-8",
       },
     });
+    if (err) {
+      throw new Error("Error sending request to MCash: " + err);
+    }
 
     logger.info(
       "MerchantEnrollmentController, merchant enrolment XML response: " +

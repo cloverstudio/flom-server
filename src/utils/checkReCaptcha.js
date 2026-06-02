@@ -3,7 +3,7 @@ const sendRequest = require("./sendRequest");
 
 async function checkReCaptcha(reCaptchaToken, reCaptchaSecret = Config.reCaptchaSecret) {
   try {
-    const responseData = await sendRequest({
+    const { data: responseData = {} } = await sendRequest({
       method: "POST",
       url: Config.reCaptchaURL,
       headers: {
@@ -14,6 +14,10 @@ async function checkReCaptcha(reCaptchaToken, reCaptchaSecret = Config.reCaptcha
         response: reCaptchaToken,
       },
     });
+    if (!responseData) {
+      console.warn("checkReCaptcha: no response data");
+      return false;
+    }
     if (responseData["error-codes"]) {
       console.warn(responseData["error-codes"]);
     }

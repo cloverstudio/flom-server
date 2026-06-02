@@ -95,14 +95,14 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     };
 
     let data = [];
-    try {
-      data = await Utils.sendRequest(apiRequest);
-    } catch (error) {
-      logger.error("AddressController", error);
-      return Base.successResponse(response, Const.responsecodeSucceed, {
-        suggestions: [],
-      });
+    const { err, data: d } = await Utils.sendRequest(apiRequest);
+
+    if (err) {
+      logger.error("AddressController error: " + err);
+      return Base.successResponse(response, Const.responsecodeSucceed, { suggestions: [] });
     }
+
+    data = d;
 
     const suggestions = data.map((d) => {
       const a = d.address;

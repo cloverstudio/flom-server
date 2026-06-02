@@ -23,18 +23,24 @@ async function sendMessageToLiveStream({ liveStream, data }) {
       ? `${Config.antMediaBaseUrl}/v2/broadcasts/${liveStreamId}/data`
       : `https://${liveStream.domain}/WebRTCAppEE/rest/v2/broadcasts/${liveStreamId}/data`;
 
-    const response = await sendRequest({
+    const { data: response, err } = await sendRequest({
       method: "POST",
       url,
       headers: { "content-type": "application/json" },
       body: data,
     });
 
-    if (response.message && response.message === "Requested WebRTC stream does not exist")
+    if (
+      err ||
+      (response.message && response.message === "Requested WebRTC stream does not exist")
+    ) {
       return false;
+    }
 
-    if (response.success && response.success === "false")
+    if (response.success && response.success === "false") {
       logger.error("Send message to live stream, error: " + JSON.stringify(response));
+      return false;
+    }
 
     return true;
   } catch (error) {

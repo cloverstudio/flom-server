@@ -1,14 +1,12 @@
 const { logger, encryptionManager, redis } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { User, FlomMessage, Room, Group, BlockedChatGPTCountry, Product } = require("#models");
+const { User, FlomMessage, Room, Group, BlockedChatGPTCountry } = require("#models");
 const socketApi = require("../sockets/socket-api");
 
 const notifyNewMessage = require("./notifyNewMessage");
 const updateHistory = require("./updateHistory");
 const permissionLogic = require("./permissionLogic");
-const makeFeeTransfer = require("./makeFeeTransfer");
-const getWhatsAppPrices = require("./getWhatsAppPrices");
 const callChatGPTApi = require("./callChatGPTApi");
 const getGPTAssistantResponse = require("./getGPTAssistantResponse");
 const sendWhatsAppMessages = require("./sendWhatsAppMessages");
@@ -101,6 +99,7 @@ async function sendMessage(param) {
 
     const chatType = roomID.split("-")[0];
     let chatId = roomID.split("-")[1];
+    let findRoom, findGroup;
 
     switch (Number(chatType)) {
       case Const.chatTypePrivate:
@@ -109,14 +108,14 @@ async function sendMessage(param) {
         break;
       case Const.chatTypeRoom:
       case Const.chatTypeBroadcastAdmin:
-        const findRoom = await Room.findById(chatId).lean();
+        findRoom = await Room.findById(chatId).lean();
         if (!findRoom) {
           throw new Error("room model::no room found - chatId: " + chatId);
         }
         result.sentTo = findRoom.users.filter((uid) => uid != userID);
         break;
       case Const.chatTypeGroup:
-        const findGroup = await Group.findById(chatId).lean();
+        findGroup = await Group.findById(chatId).lean();
         if (!findGroup) {
           throw new Error("group model::no group found - chatId: " + chatId);
         }
@@ -168,7 +167,7 @@ async function sendMessage(param) {
       }
     }
 
-    if (!!param.wa) {
+    if (param.wa) {
       let sendWaMessage = true;
 
       if (
@@ -186,8 +185,10 @@ async function sendMessage(param) {
           sender: user,
           receivers: [receiver],
           message: objMessage.message,
-          slug: user.slug,
           userName: user.userName,
+          messageType: param.type,
+          location: param.location,
+          file: param.file?.file,
         });
       }
 

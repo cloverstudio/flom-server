@@ -26,6 +26,11 @@ async function stopDeadLiveStreams() {
 
       try {
         res = await Utils.sendRequest({ method: "GET", url });
+        if (res.err) {
+          res = {};
+        } else {
+          res = res.data;
+        }
       } catch (error) {
         res = {};
       }
@@ -41,6 +46,11 @@ async function stopDeadLiveStreams() {
           let res2;
           try {
             res2 = await Utils.sendRequest({ method: "POST", url: url2 });
+            if (res2.err) {
+              res2 = {};
+            } else {
+              res2 = res2.data;
+            }
           } catch (error) {
             res2 = {};
           }

@@ -8,8 +8,6 @@ async function callBatchSMSService(data) {
     return;
   }
 
-  logger.info(data.phoneNumbers);
-
   try {
     await sendRequest({
       method: "POST",

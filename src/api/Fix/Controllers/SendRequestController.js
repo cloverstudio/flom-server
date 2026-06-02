@@ -12,13 +12,16 @@ router.post(
     try {
       const { method, url, headers, data } = request.body;
 
-      const res = await Utils.sendRequest({
-        allow: true,
+      const { data: res, err } = await Utils.sendRequest({
         method,
         url,
         headers,
         body: data,
       });
+
+      if (err) {
+        throw new Error(err);
+      }
 
       const responseData = { res };
       Base.successResponse(response, Const.responsecodeSucceed, responseData);

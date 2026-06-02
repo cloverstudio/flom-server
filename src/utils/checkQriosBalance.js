@@ -4,7 +4,7 @@ const sendRequest = require("./sendRequest");
 
 async function checkQriosBalance(amount) {
   try {
-    const balance =
+    const { data: balance = {} } =
       (await sendRequest({
         method: "GET",
         url: `https://deep.qrios.com/api/v1/client/balance`,
@@ -18,13 +18,13 @@ async function checkQriosBalance(amount) {
     ) {
       if (balance?.available) {
         logger.error(
-          `Check Qrios balance, ${amount} NGN required, only ${balance?.available} NGN available.`
+          `Check Qrios balance, ${amount} NGN required, only ${balance?.available} NGN available.`,
         );
       } else {
         logger.error(
           `Check Qrios balance, ${amount} NGN required, response from balance api: ${JSON.stringify(
-            balance
-          )}`
+            balance,
+          )}`,
         );
       }
 
@@ -32,7 +32,7 @@ async function checkQriosBalance(amount) {
     }
 
     logger.info(
-      `Check Qrios balance, ${balance.available} NGN in Qrios Flom wallet, taking ~ ${amount} NGN`
+      `Check Qrios balance, ${balance.available} NGN in Qrios Flom wallet, taking ~ ${amount} NGN`,
     );
 
     return true;

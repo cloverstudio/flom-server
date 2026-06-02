@@ -54,7 +54,7 @@ router.post("/", async (request, response) => {
   try {
     const { phoneNumber, message, opId } = request.body;
 
-    const apiResponse = await Utils.sendRequest({
+    const { data: apiResponse, err } = await Utils.sendRequest({
       method: "POST",
       url: "https://deep.qrios.com/api/v1/sms",
       body: {
@@ -66,6 +66,10 @@ router.post("/", async (request, response) => {
       headers: Config.qriosHeaders,
       // resolveWithFullResponse: true,
     });
+
+    if (err) {
+      throw new Error(`Error sending SMS: ${err}`);
+    }
 
     console.log(JSON.stringify(apiResponse, null, 4));
 

@@ -24,9 +24,9 @@ async function updateNumberOfViewers({ liveStream }) {
     ? `${Config.antMediaBaseUrl}/v2/broadcasts/${liveStreamId}/broadcast-statistics`
     : `https://${liveStream.domain}/WebRTCAppEE/rest/v2/broadcasts/${liveStreamId}/broadcast-statistics`;
 
-  const res = await Utils.sendRequest({ method: "GET", url });
+  const { data: res, err } = await Utils.sendRequest({ method: "GET", url });
 
-  const { totalWebRTCWatchersCount } = res;
+  const totalWebRTCWatchersCount = err ? 0 : res.totalWebRTCWatchersCount;
 
   const dataToSend = {
     messageType: "numberOfViewers",

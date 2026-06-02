@@ -15,7 +15,6 @@ async function sendSMSv2({ phoneNumber, message, type }) {
         message,
         type,
       },
-      // resolveWithFullResponse: true,
     });
   } catch (error) {
     console.log("sendSMSv2 error: " + JSON.stringify(error));
