@@ -10,11 +10,13 @@ async function downloadFile({ url, outputPath, headers = {} }) {
       headers,
     });
 
-    response.data.pipe(fs.createWriteStream(outputPath));
+    const writer = fs.createWriteStream(outputPath);
+    response.data.pipe(writer);
 
     await new Promise((resolve, reject) => {
-      response.data.on("finish", resolve);
-      response.data.on("error", reject);
+      writer.on("finish", resolve); // ← correct: "finish" on the writable
+      writer.on("error", reject);
+      response.data.on("error", reject); // also catch read-side errors
     });
 
     return { success: true };
