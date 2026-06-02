@@ -78,7 +78,7 @@ router.post("/", async function (request, response) {
           message,
         );
 
-        if (msgBody.includes("FLOM START")) {
+        if (msgBody && msgBody.includes("FLOM START")) {
           await User.updateOne(
             { "whatsApp.businessPhoneNumber": from },
             { "whatsApp.businessConnected": true },
