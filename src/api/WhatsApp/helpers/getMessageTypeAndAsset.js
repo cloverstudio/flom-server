@@ -1,4 +1,4 @@
-const { logger } = require("#utils");
+const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const { FlomFile } = require("#models");
 const Utils = require("#utils");
