@@ -82,7 +82,7 @@ async function getMessageTypeAndAsset(message) {
         ? now.toString() + "_" + asset.filename
         : now.toString() + "." + extension;
 
-      const outputPath = path.resolve(Const.uploadPath, fileName);
+      const outputPath = path.resolve(Config.uploadPath, fileName);
       const res = await Utils.downloadFile({
         url,
         outputPath,
@@ -118,13 +118,13 @@ async function getMessageTypeAndAsset(message) {
       if (type === "image" || type === "video") {
         let thumbSourcePath = outputPath;
         if (type === "video") {
-          thumbSourcePath = path.resolve(Const.uploadPath, "thumbsource_" + fileName + ".jpg");
+          thumbSourcePath = path.resolve(Config.uploadPath, "thumbsource_" + fileName + ".jpg");
           await Utils.executeCommand({
             command: `ffmpeg -ss 1 -i ${outputPath} -frames:v 1 ${thumbSourcePath}`,
           });
         }
 
-        const thumbOutputPath = path.resolve(Const.uploadPath, "thumb_" + fileName + ".jpg");
+        const thumbOutputPath = path.resolve(Config.uploadPath, "thumb_" + fileName + ".jpg");
         const thumb = await sharp(thumbSourcePath)
           .resize(300, 300, { fit: "inside" })
           .toFile(thumbOutputPath);
