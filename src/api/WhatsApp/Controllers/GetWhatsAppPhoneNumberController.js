@@ -7,6 +7,8 @@
  * @apiGroup WebAPI WhatsApp
  * @apiDescription Returns the WhatsApp phone number. If userPhoneNumber and businessPhoneNumber parameters are provided, it creates a link between the user's business number and his account phone number. If only userPhoneNumber is provided, it is presumed that the user's business number and account phone number are the same, and the link is created accordingly.
  *
+ * @apiHeader {String} [access-token] Users unique access-token. Only needed if userPhoneNumber or businessPhoneNumber query parameters are provided.
+ *
  * @apiParam (Query string)  [userPhoneNumber]      User's phone number
  * @apiParam (Query string)  [businessPhoneNumber]  User's business phone number (if user's number and user's business number are the same, no need to send)
  *
@@ -25,6 +27,7 @@
  *   "time": 1590000125608
  * }
  *
+ * @apiError (Errors) 443040 User not found
  * @apiError (Errors) 4000007 Token not valid
  */
 
@@ -38,23 +41,45 @@ router.get("/", async function (request, response) {
   try {
     let { userPhoneNumber, businessPhoneNumber } = request.query;
 
-    if (userPhoneNumber) {
-      userPhoneNumber = Utils.formatPhoneNumber(userPhoneNumber);
-    }
+    if (userPhoneNumber || businessPhoneNumber) {
+      const token = request.headers["access-token"];
 
-    if (businessPhoneNumber) {
-      businessPhoneNumber = Utils.formatPhoneNumber(businessPhoneNumber);
-    }
+      if (!token) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeSigninInvalidToken,
+          message: "GetWhatsAppPhoneNumber, invalid token",
+        });
+      }
 
-    if (userPhoneNumber && !businessPhoneNumber) {
-      businessPhoneNumber = userPhoneNumber;
-    }
+      const user = await User.findOne({ "token.token": token }).lean();
 
-    if (businessPhoneNumber) {
-      await User.updateOne(
-        { phoneNumber: userPhoneNumber },
-        { "whatsApp.businessPhoneNumber": businessPhoneNumber },
-      );
+      if (!user) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeUserNotFound,
+          message: "GetWhatsAppPhoneNumber, user not found",
+        });
+      }
+
+      if (userPhoneNumber) {
+        userPhoneNumber = Utils.formatPhoneNumber(userPhoneNumber);
+      }
+
+      if (businessPhoneNumber) {
+        businessPhoneNumber = Utils.formatPhoneNumber(businessPhoneNumber);
+      }
+
+      if (userPhoneNumber && !businessPhoneNumber) {
+        businessPhoneNumber = userPhoneNumber;
+      }
+
+      if (businessPhoneNumber) {
+        await User.updateOne(
+          { phoneNumber: userPhoneNumber },
+          { "whatsApp.businessPhoneNumber": businessPhoneNumber },
+        );
+      }
     }
 
     return Base.successResponse(response, Const.responsecodeSucceed, {

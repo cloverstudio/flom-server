@@ -78,6 +78,19 @@ router.post("/", async function (request, response) {
           message,
         );
 
+        if (msgBody.includes("FLOM START")) {
+          await User.updateOne(
+            { "whatsApp.businessPhoneNumber": from },
+            { "whatsApp.businessConnected": true },
+          );
+
+          logger.info(
+            `WhatsAppCallbackController, cb: received FLOM START message, marked business phone number ${from} as connected`,
+          );
+
+          return;
+        }
+
         if (!type) {
           logger.warn(
             `WhatsAppCallbackController, cb: unsupported message type ${type} for wamId: ${wamId}, skipping processing`,
@@ -114,9 +127,7 @@ router.post("/", async function (request, response) {
 
         await User.updateOne(
           { phoneNumber: from },
-          {
-            $set: { "whatsApp.windowExpiresAt": expiration, "whatsApp.followupMessageSent": false },
-          },
+          { "whatsApp.windowExpiresAt": expiration, "whatsApp.followupMessageSent": false },
         );
       } catch (error) {
         logger.error("WhatsAppCallbackController, cb: incoming message processing error", error);
