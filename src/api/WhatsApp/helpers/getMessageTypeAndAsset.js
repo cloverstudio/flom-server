@@ -22,6 +22,8 @@ async function getMessageTypeAndAsset(message) {
     const type = message.type;
     const messageType = typeToFlomTypeMap[type] || null;
 
+    console.log("getMessageTypeAndAsset, message type:  ", type, "messageType: ", messageType);
+
     if (!messageType) {
       return { type: null };
     }
@@ -43,7 +45,10 @@ async function getMessageTypeAndAsset(message) {
     }
 
     if (["image", "video", "audio", "document"].includes(type)) {
+      console.log("getMessageTypeAndAsset, handling media message of type: ", type);
       const asset = message[type];
+
+      console.log("getMessageTypeAndAsset, asset: ", asset);
 
       if (!asset) {
         logger.warn(
@@ -82,7 +87,18 @@ async function getMessageTypeAndAsset(message) {
         ? now.toString() + "_" + asset.filename
         : now.toString() + "." + extension;
 
+      console.log(
+        "getMessageTypeAndAsset, fileName: ",
+        fileName,
+        "mimeType: ",
+        mimeType,
+        "url: ",
+        url,
+      );
+
       const outputPath = path.resolve(Config.uploadPath, fileName);
+      console.log("getMessageTypeAndAsset, outputPath: ", outputPath);
+
       const res = await Utils.downloadFile({
         url,
         outputPath,
@@ -115,6 +131,8 @@ async function getMessageTypeAndAsset(message) {
       const file = {};
       file.file = await FlomFile.create(fileInfo);
 
+      console.log("getMessageTypeAndAsset, file created in DB: ", file.file);
+
       if (type === "image" || type === "video") {
         let thumbSourcePath = outputPath;
         if (type === "video") {
@@ -125,6 +143,7 @@ async function getMessageTypeAndAsset(message) {
         }
 
         const thumbOutputPath = path.resolve(Config.uploadPath, "thumb_" + fileName + ".jpg");
+        console.log("getMessageTypeAndAsset, thumbOutputPath: ", thumbOutputPath);
         const thumb = await sharp(thumbSourcePath)
           .resize(300, 300, { fit: "inside" })
           .toFile(thumbOutputPath);
@@ -144,6 +163,8 @@ async function getMessageTypeAndAsset(message) {
       response.messageType = messageType;
       response.file = file;
       response.msgBody = msgBody;
+
+      console.log("getMessageTypeAndAsset, response: ", response);
 
       return response;
     }
