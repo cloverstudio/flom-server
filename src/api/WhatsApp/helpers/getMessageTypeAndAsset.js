@@ -1,5 +1,5 @@
 const { logger } = require("#utils");
-const { Const } = require("#config");
+const { Const, Config } = require("#config");
 const { FlomFile } = require("#models");
 const Utils = require("#utils");
 const Logics = require("#logics");
@@ -83,7 +83,11 @@ async function getMessageTypeAndAsset(message) {
         : now.toString() + "." + extension;
 
       const outputPath = path.resolve(Const.uploadPath, fileName);
-      const res = await Utils.downloadFile({ url, outputPath });
+      const res = await Utils.downloadFile({
+        url,
+        outputPath,
+        headers: { Authorization: `Bearer ${Config.whatsAppAccessToken}` },
+      });
 
       if (res.error) {
         logger.error(

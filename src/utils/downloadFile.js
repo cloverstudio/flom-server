@@ -1,12 +1,13 @@
 const axios = require("axios");
 const fs = require("fs");
 
-async function downloadFile({ url, outputPath }) {
+async function downloadFile({ url, outputPath, headers = {} }) {
   try {
     const response = await axios({
       method: "GET",
       url,
       responseType: "stream",
+      headers,
     });
 
     response.data.pipe(fs.createWriteStream(outputPath));
