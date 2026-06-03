@@ -372,11 +372,6 @@ router.get("/:userId", async function (request, response) {
           user.whatsApp.reference = reference;
         }
 
-        if (user.whatsApp?.windowExpiresAt) {
-          updateObj["whatsApp.windowExpiresAt"] = null;
-          user.whatsApp.windowExpiresAt = null;
-        }
-
         if (Object.keys(updateObj).length > 0) {
           await User.findByIdAndUpdate(userId, updateObj);
         }
