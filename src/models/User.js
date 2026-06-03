@@ -243,7 +243,7 @@ const schema = new mongoose.Schema(
 
     whatsApp: {
       reference: String,
-      windowExpiresAt: Number,
+      windowExpiresAt: { type: Number, default: 0 },
       followupMessageSent: { type: Boolean, default: false },
       receivedUnknownRecipientNotice: { type: Boolean, default: false },
       businessPhoneNumber: String,
