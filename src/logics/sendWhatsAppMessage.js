@@ -82,7 +82,7 @@ async function sendWhatsAppMessage({
       delete data.text;
 
       data[data.type] = {
-        link: Config.storageUrl + "/" + file.name,
+        link: Config.storageUrl + "/" + (file._id || file.id).toString(),
         caption: message,
       };
     } else if (template) {
