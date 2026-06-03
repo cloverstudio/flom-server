@@ -72,14 +72,14 @@ async function sendPendingWhatsAppMessages(from) {
         const limit = 20;
 
         while (breakLoop === false && attempts < limit) {
+          await Utils.sleep(3000); // wait 3 seconds before checking status
+
           const log = await WhatsAppLog.findOne({ wamId: wamIds[0] }).lean();
           attempts++;
 
-          if (log && log.status && ["delivered", "read"].includes(log.status)) {
+          if (log && log.status && ["sent", "delivered", "read"].includes(log.status)) {
             breakLoop = true;
           }
-
-          await Utils.sleep(3000); // wait 3 seconds before checking the status again
         }
 
         if (!breakLoop) {
