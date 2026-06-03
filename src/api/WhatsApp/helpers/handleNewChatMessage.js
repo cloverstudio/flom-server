@@ -15,6 +15,7 @@ async function handleNewChatMessage({
   file,
   location,
 }) {
+  let createMapping = false;
   let fromUser = await User.findOne({ phoneNumber: from }).lean();
 
   if (!fromUser) {
@@ -25,6 +26,8 @@ async function handleNewChatMessage({
       hasLoggedIn: Const.userShadowUser,
       phoneNumberStatus: Const.phoneNumberUntested,
     });
+
+    createMapping = true;
   }
 
   let toUser = null;
@@ -93,16 +96,18 @@ async function handleNewChatMessage({
   );
 
   // mapping is reversed (sender is receiver etc) because we want to find the mapping with sender and receiver phone numbers when sending message from app to whatsapp
-  await WhatsAppUserMapping.findOneAndUpdate(
-    {
-      senderId: toUser._id.toString(),
-      senderPhoneNumber: toUser.phoneNumber,
-      receiverId: fromUser._id.toString(),
-      receiverPhoneNumber: from,
-    },
-    { $set: { enabled: true } },
-    { upsert: true },
-  );
+  if (createMapping) {
+    await WhatsAppUserMapping.findOneAndUpdate(
+      {
+        senderId: toUser._id.toString(),
+        senderPhoneNumber: toUser.phoneNumber,
+        receiverId: fromUser._id.toString(),
+        receiverPhoneNumber: from,
+      },
+      { $set: { enabled: true } },
+      { upsert: true },
+    );
+  }
 
   await WhatsAppLog.findByIdAndUpdate(logId, { to: toUser.phoneNumber });
 
