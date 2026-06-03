@@ -126,6 +126,8 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       }
     }
 
+    console.log("SendMessageController param:" + JSON.stringify(request.body));
+
     let result;
     try {
       result = await sendMessage(request.body);
