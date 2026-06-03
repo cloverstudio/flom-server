@@ -14,6 +14,9 @@ const sendWhatsAppMessages = require("./sendWhatsAppMessages");
 async function sendMessage(param) {
   try {
     if (!param.isRecursiveCall) param.isRecursiveCall = false;
+
+    console.log("sendMessage logic param:" + JSON.stringify(param));
+
     const userID = param.userID;
     const roomID = param.roomID;
 

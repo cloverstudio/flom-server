@@ -136,6 +136,9 @@ router.post("/", async function (request, response) {
     }
 
     if (messages.length > 0) {
+      logger.info(
+        `WhatsAppCallbackController, cb: processed ${messages.length} incoming messages, checking for pending messages to send to ${messages[0].from}`,
+      );
       await helpers.sendPendingWhatsAppMessages(messages[0].from);
     }
 
