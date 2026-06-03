@@ -40,8 +40,7 @@ async function sendPendingWhatsAppMessages(from) {
     const pendingMessages = await FlomMessage.find({
       wamStatus: "pending",
       receiverPhoneNumber: from,
-      type: Const.messageTypeText,
-      $and: [{ message: { $ne: null } }, { message: { $ne: "" } }], // filter out messages with empty or null message field and deleted messages
+      deleted: { $exists: false },
     })
       .sort({ created: 1 })
       .lean();
@@ -60,6 +59,9 @@ async function sendPendingWhatsAppMessages(from) {
         senderId: m.userID,
         receivers: [receiver],
         message: m.message,
+        messageType: m.type,
+        location: m.location,
+        file: m.file?.file,
       });
 
       if (wamIds.length > 0) {
@@ -84,7 +86,7 @@ async function sendPendingWhatsAppMessages(from) {
           logger.error(
             `sendPendingWhatsAppMessages error, message with id: ${m._id.toString()} was not sent after ${attempts} attempts`,
           );
-          // await FlomMessage.updateOne({ _id: m._id }, { $set: { wamStatus: "failed" } });
+          await FlomMessage.updateOne({ _id: m._id }, { $set: { wamStatus: "failed" } });
 
           break;
         }
@@ -92,7 +94,7 @@ async function sendPendingWhatsAppMessages(from) {
         logger.error(
           `sendPendingWhatsAppMessages error, failed to send message with id: ${m._id.toString()} to ${from}`,
         );
-        // await FlomMessage.updateOne({ _id: m._id }, { $set: { wamStatus: "failed" } });
+        await FlomMessage.updateOne({ _id: m._id }, { $set: { wamStatus: "failed" } });
         break;
       }
 
