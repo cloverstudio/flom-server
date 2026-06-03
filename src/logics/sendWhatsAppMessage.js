@@ -83,8 +83,11 @@ async function sendWhatsAppMessage({
 
       data[data.type] = {
         link: Config.storageUrl + "/" + (file._id || file.id).toString(),
-        caption: message,
       };
+
+      if (data.type !== "audio") {
+        data[data.type].caption = message;
+      }
     } else if (template) {
       let textParamA = null;
       let textParamB = null;
