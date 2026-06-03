@@ -394,12 +394,15 @@ router.get("/:userId", async function (request, response) {
           await Logics.sendBonus({ userId, bonusType: Const.bonusTypeVisitingStreak });
         }
 
+        // TODO: re-enable this after testing
+        /*
         if (user.hasLoggedIn === Const.userLoggedInAtLeastOnce) {
           await WhatsAppUserMapping.updateMany(
             { receiverPhoneNumber: user.phoneNumber },
             { enabled: false },
           );
         }
+          */
       }
     }
 
