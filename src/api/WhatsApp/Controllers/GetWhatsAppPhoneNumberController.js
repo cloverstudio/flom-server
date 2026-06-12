@@ -70,17 +70,23 @@ router.get("/", async function (request, response) {
       }
 
       if (userPhoneNumber) {
+        if (!userPhoneNumber.startsWith("+")) {
+          userPhoneNumber = "+" + userPhoneNumber;
+        }
         userPhoneNumber =
           Config.environment !== "production"
             ? userPhoneNumber
-            : Utils.formatPhoneNumber(userPhoneNumber);
+            : Utils.formatPhoneNumber({ phoneNumber: userPhoneNumber });
       }
 
       if (businessPhoneNumber) {
+        if (!businessPhoneNumber.startsWith("+")) {
+          businessPhoneNumber = "+" + businessPhoneNumber;
+        }
         businessPhoneNumber =
           Config.environment !== "production"
             ? businessPhoneNumber
-            : Utils.formatPhoneNumber(businessPhoneNumber);
+            : Utils.formatPhoneNumber({ phoneNumber: businessPhoneNumber });
       }
 
       if (userPhoneNumber && !businessPhoneNumber) {
