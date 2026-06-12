@@ -42,6 +42,13 @@ router.get("/", async function (request, response) {
     let { userPhoneNumber, businessPhoneNumber } = request.query;
 
     if (userPhoneNumber || businessPhoneNumber) {
+      console.log(
+        "GetWhatsAppPhoneNumber, userPhoneNumber:",
+        userPhoneNumber,
+        "businessPhoneNumber:",
+        businessPhoneNumber,
+      );
+
       const token = request.headers["access-token"];
 
       if (!token) {
