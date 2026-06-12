@@ -70,11 +70,17 @@ router.get("/", async function (request, response) {
       }
 
       if (userPhoneNumber) {
-        userPhoneNumber = Utils.formatPhoneNumber(userPhoneNumber);
+        userPhoneNumber =
+          Config.environment !== "production"
+            ? userPhoneNumber
+            : Utils.formatPhoneNumber(userPhoneNumber);
       }
 
       if (businessPhoneNumber) {
-        businessPhoneNumber = Utils.formatPhoneNumber(businessPhoneNumber);
+        businessPhoneNumber =
+          Config.environment !== "production"
+            ? businessPhoneNumber
+            : Utils.formatPhoneNumber(businessPhoneNumber);
       }
 
       if (userPhoneNumber && !businessPhoneNumber) {
