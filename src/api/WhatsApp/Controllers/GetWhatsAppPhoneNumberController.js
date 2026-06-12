@@ -1,16 +1,15 @@
 "use strict";
 
 /**
- * @api {get} /api/v2/whatsapp/phone-number Get WhatsApp phone number
+ * @api {get} /api/v2/whatsapp/phone-number Get WhatsApp phone number flom_v1
  * @apiVersion 2.0.34
- * @apiName Get WhatsApp phone number
+ * @apiName Get WhatsApp phone number flom_v1
  * @apiGroup WebAPI WhatsApp
- * @apiDescription Returns the WhatsApp phone number. If userPhoneNumber and businessPhoneNumber parameters are provided, it creates a link between the user's business number and his account phone number. If only userPhoneNumber is provided, it is presumed that the user's business number and account phone number are the same, and the link is created accordingly.
+ * @apiDescription Returns the WhatsApp phone number. If businessPhoneNumber parameter is provided, it creates a link between the user's business number and his account phone number. To link the WhatsApp business, a number must be provided even if it is the same as the user's phone number.
  *
- * @apiHeader {String} [access-token] Users unique access-token. Only needed if userPhoneNumber or businessPhoneNumber query parameters are provided.
+ * @apiHeader {String} [access-token] Users unique access-token. Only needed if businessPhoneNumber query parameter is provided.
  *
- * @apiParam (Query string)  [userPhoneNumber]      User's phone number
- * @apiParam (Query string)  [businessPhoneNumber]  User's business phone number (if user's number and user's business number are the same, no need to send)
+ * @apiParam (Query string)  [businessPhoneNumber]  User's business phone number
  *
  * @apiSuccessExample Success Response
  * {
@@ -39,15 +38,18 @@ const { User } = require("#models");
 
 router.get("/", async function (request, response) {
   try {
-    let { userPhoneNumber, businessPhoneNumber } = request.query;
+    let { businessPhoneNumber } = request.query;
 
-    if (userPhoneNumber || businessPhoneNumber) {
-      console.log(
-        "GetWhatsAppPhoneNumber, userPhoneNumber:",
-        userPhoneNumber,
-        "businessPhoneNumber:",
-        businessPhoneNumber,
-      );
+    if (businessPhoneNumber) {
+      console.log("GetWhatsAppPhoneNumber, businessPhoneNumber:", businessPhoneNumber);
+
+      if (!businessPhoneNumber.startsWith("+")) {
+        businessPhoneNumber = "+" + businessPhoneNumber;
+      }
+      businessPhoneNumber =
+        Config.environment !== "production"
+          ? businessPhoneNumber
+          : Utils.formatPhoneNumber({ phoneNumber: businessPhoneNumber });
 
       const token = request.headers["access-token"];
 
@@ -69,35 +71,10 @@ router.get("/", async function (request, response) {
         });
       }
 
-      if (userPhoneNumber) {
-        if (!userPhoneNumber.startsWith("+")) {
-          userPhoneNumber = "+" + userPhoneNumber;
-        }
-        userPhoneNumber =
-          Config.environment !== "production"
-            ? userPhoneNumber
-            : Utils.formatPhoneNumber({ phoneNumber: userPhoneNumber });
-      }
-
       if (businessPhoneNumber) {
-        if (!businessPhoneNumber.startsWith("+")) {
-          businessPhoneNumber = "+" + businessPhoneNumber;
-        }
-        businessPhoneNumber =
-          Config.environment !== "production"
-            ? businessPhoneNumber
-            : Utils.formatPhoneNumber({ phoneNumber: businessPhoneNumber });
-      }
-
-      if (userPhoneNumber && !businessPhoneNumber) {
-        businessPhoneNumber = userPhoneNumber;
-      }
-
-      if (businessPhoneNumber) {
-        await User.updateOne(
-          { phoneNumber: userPhoneNumber },
-          { "whatsApp.businessPhoneNumber": businessPhoneNumber },
-        );
+        await User.findByIdAndUpdate(user._id, {
+          "whatsApp.businessPhoneNumber": businessPhoneNumber,
+        });
       }
     }
 
