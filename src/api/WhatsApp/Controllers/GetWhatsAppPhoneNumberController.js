@@ -71,11 +71,9 @@ router.get("/", async function (request, response) {
         });
       }
 
-      if (businessPhoneNumber) {
-        await User.findByIdAndUpdate(user._id, {
-          "whatsApp.businessPhoneNumber": businessPhoneNumber,
-        });
-      }
+      await User.findByIdAndUpdate(user._id, {
+        "whatsApp.businessPhoneNumber": businessPhoneNumber,
+      });
     }
 
     return Base.successResponse(response, Const.responsecodeSucceed, {
