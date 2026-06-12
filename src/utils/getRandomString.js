@@ -14,9 +14,10 @@ function getRandomString(length, type = "alphanumeric") {
     length = 32;
   }
 
-  const rand = crypto.randomInt(0, possibleChars.length);
-
-  for (let i = 0; i < length; i++) text += possibleChars.charAt(rand);
+  for (let i = 0; i < length; i++) {
+    const rand = crypto.randomInt(0, possibleChars.length);
+    text += possibleChars.charAt(rand);
+  }
 
   return text;
 }
