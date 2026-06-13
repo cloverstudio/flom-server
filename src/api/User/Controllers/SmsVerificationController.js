@@ -171,7 +171,7 @@ router.post("/", async (request, response) => {
     logger.info(`SmsVerificationController - ${phoneNumber} - Passed hash check`);
 
     /*
-      await detectFlooding();
+      await detectFlooding(phoneNumber);
 
       const countryBan = await CountryWideBan
         .findOne({
@@ -445,7 +445,11 @@ async function sendUSSDPush(phoneNumber, message, pushType = 2) {
   return Utils.callPushService(data);
 }
 
-async function detectFlooding() {
+async function detectFlooding(phoneNumber) {
+  if (Const.floodDetectionWhiteList.includes(phoneNumber)) {
+    return false;
+  }
+
   const records = await AccessRecord.find({
     created: { $gt: Date.now() - Const.floodPeriod },
   });
@@ -515,6 +519,10 @@ async function detectFlooding() {
 }
 
 async function detectUserFlooding({ phoneNumber }) {
+  if (Const.floodDetectionWhiteList.includes(phoneNumber)) {
+    return { flood: false };
+  }
+
   const user = await User.findOne({ phoneNumber }).lean();
   if (user && user._id.toString() === Config.flomSupportAgentId) {
     return { flood: false };

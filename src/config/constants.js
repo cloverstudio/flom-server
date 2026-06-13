@@ -1374,4 +1374,6 @@ Constants.UsStateCodes = {
   Wyoming: "WY",
 };
 
+Constants.floodDetectionWhiteList = ["+385976431885", "+385958710207", "+19728788506"];
+
 module.exports = Object.freeze(Constants);
