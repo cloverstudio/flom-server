@@ -1,6 +1,6 @@
 const { Const } = require("#config");
 const { logger } = require("#infra");
-const { History, FlomMessage } = require("#models");
+const { History, FlomMessage, User } = require("#models");
 const { notifyUpdateMessage } = require("#logics");
 
 module.exports = function (socketApi, socket) {
@@ -54,6 +54,7 @@ module.exports = function (socketApi, socket) {
         },
         { new: true, lean: true },
       );
+      updatedMessage.user = await User.findById(updatedMessage.userID).lean();
 
       notifyUpdateMessage(updatedMessage);
 
