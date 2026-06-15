@@ -824,6 +824,10 @@ ResponseCodes.responsecodeSlugAlreadyChanged = 443953;
 ResponseCodes.responsecodeSlugInvalid = 443954;
 ResponseCodes.responsecodeSlugMissing = 443955;
 
+ResponseCodes.responsecodePhoneNumberIsBusinessNumber = 443956;
+ResponseCodes.responsecodeBusinessNumberIsUserNumber = 443957;
+ResponseCodes.responsecodeBusinessNumberAlreadyExists = 443958;
+
 ResponseCodes.responsecodeCountryTemporarilyBanned = 444000;
 ResponseCodes.responsecodeAppVersionTooOld = 444001;
 

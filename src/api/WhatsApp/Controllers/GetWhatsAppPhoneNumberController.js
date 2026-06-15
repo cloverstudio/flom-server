@@ -27,6 +27,9 @@
  * }
  *
  * @apiError (Errors) 443040 User not found
+ * @apiError (Errors) 443957 Given business number is already a user's phone number
+ * @apiError (Errors) 443958 Given business number is already registered as a business number
+ * @apiError (Errors) 443040 User not found
  * @apiError (Errors) 4000007 Token not valid
  */
 
@@ -50,6 +53,28 @@ router.get("/", async function (request, response) {
         Config.environment !== "production"
           ? businessPhoneNumber
           : Utils.formatPhoneNumber({ phoneNumber: businessPhoneNumber });
+
+      const businessUser = await User.findOne({
+        "whatsApp.businessPhoneNumber": businessPhoneNumber,
+        "whatsApp.businessConnected": true,
+        "isDeleted.value": false,
+      });
+      if (businessUser) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeBusinessNumberAlreadyExists,
+          message: `GetWhatsAppPhoneNumber, ${businessPhoneNumber} is existing business phone number, cannot register as business number`,
+        });
+      }
+
+      const existingUser = await User.findOne({ phoneNumber: businessPhoneNumber }).lean();
+      if (existingUser) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeBusinessNumberIsUserNumber,
+          message: `GetWhatsAppPhoneNumber, ${businessPhoneNumber} is existing user's phone number, cannot register as business number`,
+        });
+      }
 
       const token = request.headers["access-token"];
 

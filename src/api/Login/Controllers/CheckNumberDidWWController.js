@@ -193,6 +193,20 @@ router.post("", async (request, response) => {
       });
     }
 
+    const businessUser = await User.findOne({
+      "whatsApp.businessPhoneNumber": phoneNumber,
+      "whatsApp.businessConnected": true,
+      "isDeleted.value": false,
+    });
+    if (businessUser) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodePhoneNumberIsBusinessNumber,
+        type: Const.logTypeLogin,
+        message: `CheckNumberDidWWController, ${phoneNumber} is existing business phone number, cannot register as user`,
+      });
+    }
+
     // IP Check
     logger.info(`CheckNumberDidWWController - ${phoneNumber} - IP: ${IP}`);
 
