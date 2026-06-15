@@ -453,6 +453,7 @@
   "443956": "Phone number is already registered as a user's business number.",
   "443957": "Business number is already a user's phone number",
   "443958": "Business number is already registered as a business number",
+  "443959": "This user already has a business number connected",
 
   "444000": "Your country has been temporarily banned.",
   "444001": "Your app version is too old, please update.",

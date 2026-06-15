@@ -29,6 +29,7 @@
  * @apiError (Errors) 443040 User not found
  * @apiError (Errors) 443957 Given business number is already a user's phone number
  * @apiError (Errors) 443958 Given business number is already registered as a business number
+ * @apiError (Errors) 443959 This user already has a business number connected
  * @apiError (Errors) 443040 User not found
  * @apiError (Errors) 4000007 Token not valid
  */
@@ -67,7 +68,10 @@ router.get("/", async function (request, response) {
         });
       }
 
-      const existingUser = await User.findOne({ phoneNumber: businessPhoneNumber }).lean();
+      const existingUser = await User.findOne({
+        phoneNumber: businessPhoneNumber,
+        hasLoggedIn: { $ne: Const.userShadowUser },
+      }).lean();
       if (existingUser) {
         return Base.newErrorResponse({
           response,
@@ -93,6 +97,14 @@ router.get("/", async function (request, response) {
           response,
           code: Const.responsecodeUserNotFound,
           message: "GetWhatsAppPhoneNumber, user not found",
+        });
+      }
+
+      if (user.whatsApp?.businessConnected) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeBusinessNumberAlreadyConnected,
+          message: "GetWhatsAppPhoneNumber, business already connected for this user",
         });
       }
 

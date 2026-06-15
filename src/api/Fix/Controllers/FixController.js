@@ -7,84 +7,11 @@ const { Const, Config, countries } = require("#config");
 const Utils = require("#utils");
 const Logics = require("#logics");
 const { auth } = require("#middleware");
-const { User, FlomMessage, Test, NonFlomContact, Product } = require("#models");
+const { User, FlomMessage, Test, NonFlomContact, Product, CoreIdentity } = require("#models");
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
-
 const { recombee } = require("#services");
-
-let runLoop = true;
-
-async function startLoop(skip = 0) {
-  try {
-    let singles = 0;
-
-    while (runLoop) {
-      const item = (
-        await NonFlomContact.find({})
-          .skip(skip + singles)
-          .limit(1)
-          .lean()
-      )[0];
-
-      if (item) {
-        console.log("contacts fix, item found: ", item);
-
-        const allItems = await NonFlomContact.find({
-          userId: item.userId,
-          hashedPhoneNumber: item.hashedPhoneNumber,
-        }).lean();
-
-        console.log("contacts fix, allItems length: ", allItems.length);
-
-        if (allItems.length > 1) {
-          allItems.sort((a, b) => {
-            return a._id.toString() < b._id.toString()
-              ? -1
-              : a._id.toString() > b._id.toString()
-              ? 1
-              : 0;
-          });
-
-          const itemsToDelete = allItems.slice(0, -1);
-          await NonFlomContact.deleteMany({
-            _id: { $in: itemsToDelete.map((item) => item._id) },
-          });
-        } else {
-          singles++;
-        }
-      }
-
-      //console.log("contacts fix, waiting 60 seconds...");
-
-      console.log("contacts fix, singles: ", singles);
-      await Utils.sleep(2000);
-    }
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-router.get("/playlist/:fileName", async (request, response) => {
-  try {
-    const filePath = "/shared/playlist-test/" + request.params.fileName;
-
-    if (fs.existsSync(filePath)) {
-      return response.sendFile(filePath);
-    } else {
-      console.log("playlist file doesn't exist");
-    }
-
-    Base.successResponse(response, Const.responsecodeSucceed);
-  } catch (error) {
-    Base.newErrorResponse({
-      response,
-      message: "FixController - playlist files",
-      error,
-    });
-  }
-});
 
 router.get("/env", async (request, response) => {
   try {
@@ -97,39 +24,6 @@ router.get("/env", async (request, response) => {
     Base.newErrorResponse({
       response,
       message: "FixController - env",
-      error,
-    });
-  }
-});
-
-router.get("/distinct", async (request, response) => {
-  try {
-    const distinct = await User.find({ countryCode: "HR" }).distinct("phoneNumber");
-
-    console.log(distinct);
-
-    Base.successResponse(response, Const.responsecodeSucceed);
-  } catch (error) {
-    Base.newErrorResponse({
-      response,
-      message: "FixController - distinct",
-      error,
-    });
-  }
-});
-
-router.get("/symlink", async (request, response) => {
-  try {
-    const filePath = path.resolve(Config.uploadPath, "testmeet/test.txt");
-    console.log(filePath);
-
-    response.sendFile(filePath);
-
-    //Base.successResponse(response, Const.responsecodeSucceed);
-  } catch (error) {
-    Base.newErrorResponse({
-      response,
-      message: "FixController - symlink",
       error,
     });
   }
@@ -265,19 +159,6 @@ router.get("/flom-team-data", async (request, response) => {
   }
 });
 
-router.get("/h", async (request, response) => {
-  try {
-    await Test.create({ headers: request.headers });
-
-    response.redirect("https://index.hr");
-  } catch (error) {
-    Base.newErrorResponse({
-      response,
-      message: "FixController - h",
-    });
-  }
-});
-
 router.get("/test-file-gpt", async (request, response) => {
   try {
     const res = await Logics.getGPTAssistantResponse(
@@ -322,54 +203,6 @@ router.get("/pushtest/:pushType", async (request, response) => {
   }
 });
 
-router.get("/datetime", async (request, response) => {
-  try {
-    const res = await Test.findById("675b743ce16a0d1ac03e6b77");
-    console.log(res.datetime instanceof Date);
-
-    const res2 = await Test.findById("675b743ce16a0d1ac03e6b77").lean();
-    console.log(res2.datetime instanceof Date);
-
-    Base.successResponse(response, Const.responsecodeSucceed);
-  } catch (error) {
-    Base.newErrorResponse({
-      response,
-      message: "FixController - datetime",
-      error,
-    });
-  }
-});
-
-router.post("/contacts", async (request, response) => {
-  try {
-    const action = request.body.action;
-    const skip = parseInt(request.body.skip, 10) || 0;
-
-    console.log(action, skip);
-
-    if (action === "start") {
-      runLoop = true;
-      startLoop(skip);
-    } else if (action === "stop") {
-      runLoop = false;
-    } else {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeInvalidAction,
-        message: "FixController - contacts, invalid action",
-      });
-    }
-
-    Base.successResponse(response, Const.responsecodeSucceed);
-  } catch (error) {
-    Base.newErrorResponse({
-      response,
-      message: "FixController - contacts",
-      error,
-    });
-  }
-});
-
 router.get("/recombeedel", async (request, response) => {
   try {
     await recombee.deleteAllItems();
@@ -381,6 +214,7 @@ router.get("/recombeedel", async (request, response) => {
     Base.newErrorResponse({
       response,
       message: "FixController - recombee",
+      error,
     });
   }
 });
@@ -396,20 +230,6 @@ router.get("/recombee", async (request, response) => {
     await Utils.sleep(10000);
 
     await recombee.syncLiveStreams(0);
-
-    Base.successResponse(response, Const.responsecodeSucceed);
-  } catch (error) {
-    console.error(error);
-    Base.newErrorResponse({
-      response,
-      message: "FixController - recombee",
-    });
-  }
-});
-
-router.get("/rtest", async (request, response) => {
-  try {
-    await recombee.test({ scenario: "for_you" });
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
@@ -441,142 +261,94 @@ router.post("/form", async (request, response) => {
   }
 });
 
-router.get("/product-slugs", async (request, response) => {
+router.get("/core-ids", async (request, response) => {
   try {
-    if (request.headers["secret-token"] !== Config.secretToken) {
-      return Base.successResponse(response, Const.responsecodeSucceed, {
-        message: "Invalid secret token",
-      });
-    }
+    let hasMore = true;
+    const limit = 1000;
+    let offset = 0;
+    const uuids = [];
+    const phoneToUuidMap = {};
 
-    const products = await Product.find({}, { name: 1 }).lean();
+    while (hasMore) {
+      const ops = [];
 
-    let breakLoop = false,
-      i = 0;
-
-    const slugs = new Set();
-    let bulkOps = [];
-
-    for (const p of products) {
-      let slug = Utils.slugify({ text: p.name });
-
-      if (!slug) {
-        slug = p._id.toString().slice(0, 6);
-      }
-
-      const slugArr = slug.split("-");
-      if (slugArr.length > 8) {
-        slug = slugArr.slice(0, 8).join("-");
-      }
-
-      let exists = true;
-      let finalSlug = slug;
-
-      while (exists) {
-        const existingInSet = slugs.has(finalSlug);
-        if (existingInSet) {
-          finalSlug = `${slug}-${Utils.generateRandomNumber(3)}`;
-        } else {
-          exists = false;
-        }
-      }
-
-      console.log("Fixing product slug: ", p._id.toString(), p.name, finalSlug);
-      slugs.add(finalSlug);
-
-      bulkOps.push({
-        updateOne: {
-          filter: { _id: p._id },
-          update: { $set: { slug: finalSlug } },
+      const users = await User.find(
+        { created: { $gt: offset } },
+        {
+          _id: 1,
+          phoneNumber: 1,
+          created: 1,
+          isDeleted: 1,
+          hasLoggedIn: 1,
+          shadow: 1,
+          deletedUserInfo: 1,
         },
-      });
+      )
+        .sort({ created: 1 })
+        .limit(limit)
+        .lean();
 
-      if (bulkOps.length >= 1000) {
-        await Product.bulkWrite(bulkOps);
-        bulkOps = [];
-
-        await Utils.sleep(2000);
+      if (users.length === 0) {
+        hasMore = false;
+        break;
       }
-    }
 
-    await Product.bulkWrite(bulkOps);
+      offset = users[users.length - 1].created;
+
+      for (const user of users) {
+        const coreInfo = {
+          userId: user._id.toString(),
+          phoneNumber: user.phoneNumber,
+          channel: "flom",
+          created: user.created,
+          isActive: true,
+        };
+
+        if (user.shadow || user.hasLoggedIn == 4) {
+          coreInfo.channel = "shadow";
+        }
+
+        if (user.isDeleted?.value) {
+          coreInfo.isDeleted = true;
+          coreInfo.deleted = user.isDeleted.created;
+          coreInfo.isActive = false;
+          coreInfo.phoneNumber = user.deletedUserInfo.phoneNumber;
+        }
+
+        let uuid = phoneToUuidMap[coreInfo.phoneNumber] || null;
+
+        if (!uuid) {
+          let isUnique = false;
+
+          while (!isUnique) {
+            uuid = crypto.randomUUID().toString();
+            if (!uuids.includes(uuid)) {
+              isUnique = true;
+            }
+          }
+        }
+
+        phoneToUuidMap[coreInfo.phoneNumber] = uuid;
+        uuids.push(uuid);
+        coreInfo.uuid = uuid;
+        ops.push({ insertOne: { document: coreInfo } });
+      }
+
+      await CoreIdentity.bulkWrite(ops);
+      logger.info(
+        `Processed ${users.length} users, last created processed: ${new Date(
+          offset,
+        ).toISOString()}`,
+      );
+
+      if (hasMore) await Utils.sleep(2000);
+    }
 
     Base.successResponse(response, Const.responsecodeSucceed, {});
   } catch (error) {
     Base.newErrorResponse({
       response,
-      message: "FixController - product-slugs",
-      error,
-    });
-  }
-});
-
-router.get("/user-slugs", async (request, response) => {
-  try {
-    if (request.headers["secret-token"] !== Config.secretToken) {
-      return Base.successResponse(response, Const.responsecodeSucceed, {
-        message: "Invalid secret token",
-      });
-    }
-
-    const products = await Product.find({}, { ownerId: 1 }).lean();
-    const ownerIds = [...new Set(products.map((p) => p.ownerId.toString()))];
-    const owners = await User.find(
-      { _id: { $in: ownerIds }, "isDeleted.value": false },
-      { _id: 1, userName: 1 },
-    ).lean();
-
-    const slugs = new Set();
-    let bulkOps = [];
-
-    for (const o of owners) {
-      let slug = Utils.slugify({ text: o.userName, separator: "_" });
-
-      if (!slug || slug.length < 3) {
-        slug = o._id.toString().slice(0, 6);
-      }
-
-      if (slug.length > 16) {
-        slug = slug.slice(0, 16);
-      }
-
-      let exists = true;
-      let finalSlug = slug;
-
-      while (exists) {
-        const existingInSet = slugs.has(finalSlug);
-        if (existingInSet) {
-          finalSlug = `${slug}${Utils.generateRandomNumber(2)}`;
-        } else {
-          exists = false;
-        }
-      }
-
-      console.log("Fixing user slug: ", o._id.toString(), o.userName, finalSlug);
-      slugs.add(finalSlug);
-
-      bulkOps.push({
-        updateOne: {
-          filter: { _id: o._id },
-          update: { $set: { slug: finalSlug } },
-        },
-      });
-
-      if (bulkOps.length >= 1000) {
-        await User.bulkWrite(bulkOps);
-        bulkOps = [];
-
-        await Utils.sleep(2000);
-      }
-    }
-
-    await User.bulkWrite(bulkOps);
-
-    Base.successResponse(response, Const.responsecodeSucceed, {});
-  } catch (error) {
-    Base.newErrorResponse({
-      response,
-      message: "FixController - user-slugs",
+      message: "FixController - core-ids",
       error,
     });
   }

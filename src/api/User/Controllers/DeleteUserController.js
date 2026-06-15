@@ -15,6 +15,7 @@ const {
   Notification,
   Room,
   WhatsAppUserMapping,
+  CoreIdentity,
 } = require("#models");
 
 /**
@@ -92,6 +93,8 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       { receiverPhoneNumber: user.phoneNumber },
       { enabled: true },
     );
+
+    await CoreIdentity.deleteCoreIdentity({ userId });
 
     // remove user from rooms he is in
     const roomPromises = [];

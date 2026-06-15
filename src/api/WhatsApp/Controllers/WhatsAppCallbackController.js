@@ -4,7 +4,7 @@ const router = require("express").Router();
 const Base = require("../../Base");
 const { logger, redis } = require("#infra");
 const { Const, Config } = require("#config");
-const { User, WhatsAppLog } = require("#models");
+const { User, WhatsAppLog, CoreIdentity } = require("#models");
 const helpers = require("../helpers");
 const Logics = require("#logics");
 
@@ -80,47 +80,7 @@ router.post("/", async function (request, response) {
         );
 
         if (msgBody && msgBody.includes("FLOM START")) {
-          const businessUser = await User.findOne({
-            "whatsApp.businessPhoneNumber": from,
-            "whatsApp.businessConnected": true,
-            "isDeleted.value": false,
-          });
-          if (businessUser) {
-            logger.warn(
-              `WhatsAppCallbackController, cb: received FLOM START message from ${from}, but this business phone number is already connected, skipping processing`,
-            );
-            await Logics.sendWhatsAppMessage({
-              to: from,
-              from: Config.whatsAppPhoneNumber,
-              message:
-                "FLOM START message received, but this business phone number is already connected.",
-            });
-            return;
-          }
-
-          const existingUser = await User.findOne({ phoneNumber: from }).lean();
-          if (existingUser) {
-            logger.warn(
-              `WhatsAppCallbackController, cb: received FLOM START message from ${from}, but this business phone number is already associated with an existing user, skipping processing`,
-            );
-            await Logics.sendWhatsAppMessage({
-              to: from,
-              from: Config.whatsAppPhoneNumber,
-              message:
-                "FLOM START message received, but this business phone number is already associated with an existing user.",
-            });
-            return;
-          }
-
-          await User.updateOne(
-            { "whatsApp.businessPhoneNumber": from },
-            { "whatsApp.businessConnected": true },
-          );
-
-          logger.info(
-            `WhatsAppCallbackController, cb: received FLOM START message, marked business phone number ${from} as connected`,
-          );
-
+          await helpers.handleStartMessage({ from });
           return;
         }
 
