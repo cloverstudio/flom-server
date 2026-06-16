@@ -25,11 +25,8 @@ async function handleStartMessage({ from }) {
       return;
     }
 
-    const existingUser = await User.findOne({
-      phoneNumber: from,
-      hasLoggedIn: { $ne: Const.userShadowUser },
-    }).lean();
-    if (existingUser) {
+    const existingUser = await User.findOne({ phoneNumber: from }).lean();
+    if (existingUser && existingUser.hasLoggedIn !== Const.userShadowUser) {
       logger.warn(
         `WhatsAppCallbackController, cb: received FLOM START message from ${from}, but there is a user registered with this business phone number, skipping processing`,
       );
@@ -40,6 +37,13 @@ async function handleStartMessage({ from }) {
           "FLOM START message received, but there is a user registered with this business phone number.",
       });
       return;
+    }
+
+    if (existingUser) {
+      await User.findOneAndUpdate(
+        { phoneNumber: from },
+        { isLoginForbidden: true, aliasForUserId: existingUser._id.toString() },
+      );
     }
 
     const user = await User.findOneAndUpdate(

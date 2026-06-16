@@ -233,6 +233,15 @@ router.post("", async (request, response) => {
 
     let user = await User.findOne({ phoneNumber, "isDeleted.value": false });
 
+    if (user && user.isLoginForbidden) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodePhoneNumberIsBlocked,
+        type: Const.logTypeLogin,
+        message: `CheckNumberDidWWController, ${phoneNumber} banned phone number, shadow user with business number of another user`,
+      });
+    }
+
     let allowed = false;
     if (user?.phoneNumberStatus === Const.phoneNumberValid) {
       allowed = true;
