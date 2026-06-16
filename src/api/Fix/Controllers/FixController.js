@@ -309,6 +309,8 @@ router.get("/core-ids", async (request, response) => {
         }
 
         if (user.isDeleted?.value) {
+          if (!user.deletedUserInfo?.phoneNumber) continue;
+
           coreInfo.isDeleted = true;
           coreInfo.deleted = user.isDeleted.created;
           coreInfo.isActive = false;
