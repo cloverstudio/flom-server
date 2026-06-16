@@ -15,6 +15,8 @@ const {
   Notification,
   Room,
   WhatsAppUserMapping,
+  CoreIdentity,
+  Order,
 } = require("#models");
 
 /**
@@ -66,6 +68,16 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       });
     }
 
+    const orderCheck = await checkUsersOrders(userId);
+
+    if (!orderCheck) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserHasOpenOrders,
+        message: "DeleteUserController, user has open orders",
+      });
+    }
+
     const updateObj = {
       modified: Date.now(),
       isDeleted: {
@@ -92,6 +104,8 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       { receiverPhoneNumber: user.phoneNumber },
       { enabled: true },
     );
+
+    await CoreIdentity.deleteCoreIdentity({ userId });
 
     // remove user from rooms he is in
     const roomPromises = [];
@@ -296,5 +310,40 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     });
   }
 });
+
+async function checkUsersOrders(userId) {
+  try {
+    const openOrders = await Order.find({
+      $or: [
+        {
+          "seller._id": userId,
+          status: {
+            $nin: [
+              Const.orderStatus.SHIPPED,
+              Const.orderStatus.SHIP_BY_EXPIRED,
+              Const.orderStatus.CANCELLATION_REQUESTED,
+              Const.orderStatus.SUPPORT_TICKET_OPENED,
+            ],
+          },
+        },
+        {
+          "buyer._id": userId,
+          status: {
+            $nin: [
+              Const.orderStatus.PAYMENT_PENDING,
+              Const.orderStatus.CANCELLATION_REQUESTED,
+              Const.orderStatus.SUPPORT_TICKET_OPENED,
+            ],
+          },
+        },
+      ],
+    }).lean();
+
+    return openOrders.length === 0;
+  } catch (error) {
+    logger.error(`DeleteUserController, checkUsersOrders, error: ${error}`);
+    return false;
+  }
+}
 
 module.exports = router;

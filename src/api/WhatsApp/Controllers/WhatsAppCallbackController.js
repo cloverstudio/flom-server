@@ -4,8 +4,9 @@ const router = require("express").Router();
 const Base = require("../../Base");
 const { logger, redis } = require("#infra");
 const { Const, Config } = require("#config");
-const { User, WhatsAppLog } = require("#models");
+const { User, WhatsAppLog, CoreIdentity } = require("#models");
 const helpers = require("../helpers");
+const Logics = require("#logics");
 
 router.get("/", async function (request, response) {
   try {
@@ -79,15 +80,7 @@ router.post("/", async function (request, response) {
         );
 
         if (msgBody && msgBody.includes("FLOM START")) {
-          await User.updateOne(
-            { "whatsApp.businessPhoneNumber": from },
-            { "whatsApp.businessConnected": true },
-          );
-
-          logger.info(
-            `WhatsAppCallbackController, cb: received FLOM START message, marked business phone number ${from} as connected`,
-          );
-
+          await helpers.handleStartMessage({ from });
           return;
         }
 

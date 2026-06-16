@@ -4,4 +4,5 @@ module.exports = {
   handleOutgoingMessage: require("./handleOutgoingMessage"),
   sendPendingWhatsAppMessages: require("./sendPendingWhatsAppMessages"),
   getMessageTypeAndAsset: require("./getMessageTypeAndAsset"),
+  handleStartMessage: require("./handleStartMessage"),
 };

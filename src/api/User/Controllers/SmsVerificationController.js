@@ -63,6 +63,20 @@ router.post("/", async (request, response) => {
       });
     }
 
+    const businessUser = await User.findOne({
+      "whatsApp.businessPhoneNumber": phoneNumber,
+      "whatsApp.businessConnected": true,
+      "isDeleted.value": false,
+    });
+    if (businessUser) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodePhoneNumberIsBusinessNumber,
+        type: Const.logTypeLogin,
+        message: `SMSVerificationController, ${phoneNumber} is existing business phone number, cannot register as user`,
+      });
+    }
+
     const temporaryBan = await TemporaryBan.findOne({ phoneNumber }).lean();
     if (
       temporaryBan &&
@@ -206,6 +220,15 @@ router.post("/", async (request, response) => {
     }
 
     const existingUser = await User.findOne({ phoneNumber, "isDeleted.value": false }).lean();
+
+    if (existingUser && existingUser.isLoginForbidden) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodePhoneNumberIsBlocked,
+        type: Const.logTypeLogin,
+        message: `SMSVerificationController, ${phoneNumber} banned phone number, shadow user with business number of another user`,
+      });
+    }
 
     let allowed = false;
     if (existingUser?.phoneNumberStatus === Const.phoneNumberValid) {
