@@ -262,97 +262,88 @@ router.post("/form", async (request, response) => {
 });
 
 router.get("/core-ids", async (request, response) => {
+  Base.successResponse(response, Const.responsecodeSucceed, {});
+
   try {
-    let hasMore = true;
-    const limit = 1000;
     let offset = 0;
     const uuids = [];
     const phoneToUuidMap = {};
 
-    while (hasMore) {
-      const ops = [];
+    const users = await User.find(
+      { created: { $gt: offset } },
+      {
+        _id: 1,
+        phoneNumber: 1,
+        created: 1,
+        isDeleted: 1,
+        hasLoggedIn: 1,
+        shadow: 1,
+        deletedUserInfo: 1,
+      },
+    )
+      .sort({ created: 1 })
+      .lean();
 
-      const users = await User.find(
-        { created: { $gt: offset } },
-        {
-          _id: 1,
-          phoneNumber: 1,
-          created: 1,
-          isDeleted: 1,
-          hasLoggedIn: 1,
-          shadow: 1,
-          deletedUserInfo: 1,
-        },
-      )
-        .sort({ created: 1 })
-        .limit(limit)
-        .lean();
+    let ops = [];
 
-      if (users.length === 0) {
-        hasMore = false;
-        break;
+    for (let i = 0; i < users.length; i++) {
+      const user = users[i];
+
+      const coreInfo = {
+        userId: user._id.toString(),
+        phoneNumber: user.phoneNumber,
+        channel: "flom",
+        created: user.created,
+        isActive: true,
+      };
+
+      if (user.shadow || user.hasLoggedIn == 4) {
+        coreInfo.channel = "shadow";
       }
 
-      offset = users[users.length - 1].created;
+      if (user.isDeleted?.value) {
+        if (!user.deletedUserInfo?.phoneNumber) continue;
 
-      for (const user of users) {
-        const coreInfo = {
-          userId: user._id.toString(),
-          phoneNumber: user.phoneNumber,
-          channel: "flom",
-          created: user.created,
-          isActive: true,
-        };
+        coreInfo.isDeleted = true;
+        coreInfo.deleted = user.isDeleted.created;
+        coreInfo.isActive = false;
+        coreInfo.phoneNumber = user.deletedUserInfo.phoneNumber;
+      }
 
-        if (user.shadow || user.hasLoggedIn == 4) {
-          coreInfo.channel = "shadow";
-        }
+      let uuid = phoneToUuidMap[coreInfo.phoneNumber] || null;
 
-        if (user.isDeleted?.value) {
-          if (!user.deletedUserInfo?.phoneNumber) continue;
+      if (!uuid) {
+        let isUnique = false;
 
-          coreInfo.isDeleted = true;
-          coreInfo.deleted = user.isDeleted.created;
-          coreInfo.isActive = false;
-          coreInfo.phoneNumber = user.deletedUserInfo.phoneNumber;
-        }
-
-        let uuid = phoneToUuidMap[coreInfo.phoneNumber] || null;
-
-        if (!uuid) {
-          let isUnique = false;
-
-          while (!isUnique) {
-            uuid = crypto.randomUUID().toString();
-            if (!uuids.includes(uuid)) {
-              isUnique = true;
-            }
+        while (!isUnique) {
+          uuid = crypto.randomUUID().toString();
+          if (!uuids.includes(uuid)) {
+            isUnique = true;
           }
         }
-
-        phoneToUuidMap[coreInfo.phoneNumber] = uuid;
-        uuids.push(uuid);
-        coreInfo.uuid = uuid;
-        ops.push({ insertOne: { document: coreInfo } });
       }
 
-      await CoreIdentity.bulkWrite(ops);
-      logger.info(
-        `Processed ${users.length} users, last created processed: ${new Date(
-          offset,
-        ).toISOString()}`,
-      );
+      phoneToUuidMap[coreInfo.phoneNumber] = uuid;
+      uuids.push(uuid);
+      coreInfo.uuid = uuid;
+      ops.push({ insertOne: { document: coreInfo } });
 
-      if (hasMore) await Utils.sleep(2000);
+      if (ops.length >= 1000 || i === users.length - 1) {
+        await CoreIdentity.bulkWrite(ops);
+
+        logger.info(
+          `Processed ${ops.length} users, last created processed: ${new Date(
+            user.created,
+          ).toISOString()}`,
+        );
+
+        ops = [];
+      }
     }
 
     Base.successResponse(response, Const.responsecodeSucceed, {});
   } catch (error) {
-    Base.newErrorResponse({
-      response,
-      message: "FixController - core-ids",
-      error,
-    });
+    logger.error("Error in /core-ids route:", error);
   }
 });
 
