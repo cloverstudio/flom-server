@@ -446,7 +446,8 @@
   "443956": "Broj telefona je već registriran kao poslovni broj korisnika.",
   "443957": "Poslovni broj je već korisnikov broj telefona",
   "443958": "Poslovni broj je već registriran kao poslovni broj",
-  "443959": "Ovaj korisnik već ima povezani poslovni broj",
+  "443959": "Korisnik već ima povezani poslovni broj",
+  "443960": "Korisnik ima otvorene narudžbe i ne može biti izbrisan.",
 
   "444000": "Vaša zemlja je privremeno zabranjena.",
   "444001": "Vaša verzija aplikacije je previše stara, molim vas ažurirajte.",
