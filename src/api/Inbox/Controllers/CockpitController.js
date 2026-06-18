@@ -19,13 +19,17 @@ const { User, Order, ConversionRate, History } = require("#models");
  *
  * @apiSuccessExample {json} Success Response
  * {
- *   "showCockpit": true,
- *   "pending": {
- *     "value": 100.00,
- *     "currency": "USD"
- *   },
- *   "send": 0,
- *   "reply": 3
+ *     "code": 1,
+ *     "time": 1781780938007,
+ *     "data": {
+ *         "showCockpit": true,
+ *         "pending": {
+ *             "value": 0,
+ *             "currency": "NGN"
+ *         },
+ *         "send": 0,
+ *         "reply": 1
+ *     }
  * }
  *
  * @apiSuccessExample {json} Error Response
