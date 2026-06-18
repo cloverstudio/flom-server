@@ -80,7 +80,7 @@ router.patch(
         {
           $set: {
             status: Const.orderStatus.CLOSED_BY_SUPPORT,
-            supportReason: reason,
+            closeOrCancelReason: reason,
             modified: Date.now(),
           },
           $push: {
