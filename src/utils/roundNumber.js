@@ -1,4 +1,4 @@
-function roundNumber(number, numberOfDigits, direction = "round") {
+function roundNumber(number, numberOfDigits = 2, direction = "round") {
   const roundFunction =
     direction === "up" ? Math.ceil : direction === "down" ? Math.floor : Math.round;
 

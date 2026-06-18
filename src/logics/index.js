@@ -47,4 +47,5 @@ module.exports = Object.freeze({
   getCustomerActivationData: require("./getCustomerActivationData"),
   getGPTAssistantResponse: require("./getGPTAssistantResponse"),
   sendFlomPush: require("./sendFlomPush"),
+  convertCurrency: require("./convertCurrency"),
 });

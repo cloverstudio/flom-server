@@ -1,8 +1,11 @@
+const { logger } = require("#infra");
 const { Const, countries } = require("#config");
 
 function getCurrencyFromCountryCode({ countryCode, rates }) {
   if (!countryCode) {
-    throw new Error(Const.responsecodeUserNoCountryCode);
+    // throw new Error(Const.responsecodeUserNoCountryCode);
+    logger.error("getCurrencyFromCountryCode, countryCode is missing");
+    return null;
   }
 
   let country = countries[countryCode];
@@ -16,7 +19,10 @@ function getCurrencyFromCountryCode({ countryCode, rates }) {
       return currencies[i].toUpperCase();
     }
   }
-  throw new Error(Const.responsecodeNoCurrencyFound);
+
+  //throw new Error(Const.responsecodeNoCurrencyFound);
+  logger.error(`getCurrencyFromCountryCode, no currency found for countryCode: ${countryCode}`);
+  return null;
 }
 
 module.exports = getCurrencyFromCountryCode;
