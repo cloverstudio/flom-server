@@ -2,9 +2,11 @@
 
 const router = require("express").Router();
 const Base = require("../../Base");
-const { Const } = require("#config");
+const { logger } = require("#infra");
+const { Const, Config } = require("#config");
 const { Order } = require("#models");
 const { auth } = require("#middleware");
+const Utils = require("#utils");
 
 /**
  * @api {patch} /api/v2/orders/:orderId/cancel  Cancel order flom_v1
@@ -80,7 +82,7 @@ router.patch(
         {
           $set: {
             status: Const.orderStatus.CANCELED,
-            supportReason: reason,
+            closeOrCancelReason: reason,
             modified: Date.now(),
           },
           $push: {
@@ -94,6 +96,20 @@ router.patch(
         },
         { new: true, lean: true },
       );
+
+      try {
+        await Utils.sendRequest({
+          method: "GET",
+          url:
+            Config.paymentServiceBaseUrl + "/api/v2/payment/refund/order/" + order._id.toString(),
+          headers: { "secret-token": Config.secretToken },
+        });
+      } catch (error) {
+        logger.error(
+          `CancelOrderController, Error refunding transfer for canceled order ${order._id.toString()}:`,
+          error,
+        );
+      }
 
       const responseData = { order: updatedOrder };
       Base.successResponse(response, Const.responsecodeSucceed, responseData);

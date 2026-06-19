@@ -453,6 +453,7 @@ router.post("/", async (request, response) => {
           $set: {
             modified: Date.now(),
             supportTicketId: ticket._id.toString(),
+            ticketCreator: userId,
             status:
               type === "order_cancellation_request"
                 ? Const.orderStatus.CANCELLATION_REQUESTED
