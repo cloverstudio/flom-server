@@ -95,11 +95,15 @@ async function handlePayment({ auction, isFromAccept = false }) {
       price: originalPrice,
       shipping: {
         origin:
-          receiver.shippingAddresses.find((address) => address.isDefault) ||
-          receiver.shippingAddresses[0],
+          !receiver.shippingAddresses || receiver.shippingAddresses.length === 0
+            ? null
+            : receiver.shippingAddresses.find((address) => address.isDefault) ||
+              receiver.shippingAddresses[0],
         destination:
-          sender.shippingAddresses.find((address) => address.isDefault) ||
-          sender.shippingAddresses[0],
+          !sender.shippingAddresses || sender.shippingAddresses.length === 0
+            ? null
+            : sender.shippingAddresses.find((address) => address.isDefault) ||
+              sender.shippingAddresses[0],
       },
       events: [],
     });
