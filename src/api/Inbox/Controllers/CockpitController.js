@@ -52,16 +52,17 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       Const.orderStatus.DELIVERED,
     ];
 
-    const sellerOrders = await Order.find({
-      "seller._id": userId,
-      status: { $nin: inactiveOrderStates },
-    }).lean();
+    const sellerOrders = await Order.find(
+      {
+        "seller._id": userId,
+        status: { $nin: inactiveOrderStates },
+      },
+      { _id: 1, status: 1, price: 1, buyer: 1 },
+    ).lean();
 
     if (!sellerOrders || sellerOrders.length === 0) {
       return Base.successResponse(response, Const.responsecodeSucceed, { showCockpit: false });
     }
-
-    console.log("sellerOrders", sellerOrders);
 
     const responseData = { showCockpit: true };
 
@@ -104,11 +105,14 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     responseData.send = paymentCompletedOrders.length;
 
     const uniqueBuyerIds = Array.from(new Set(sellerOrders.map((order) => order.buyer._id)));
-    const historiesToReply = await History.find({
-      userId,
-      chatId: { $in: uniqueBuyerIds },
-      "lastUpdateUser._id": { $ne: user._id },
-    });
+    const historiesToReply = await History.find(
+      {
+        userId,
+        chatId: { $in: uniqueBuyerIds },
+        "lastUpdateUser._id": { $ne: user._id },
+      },
+      { _id: 1 },
+    ).lean();
 
     responseData.reply = historiesToReply.length;
 
