@@ -139,26 +139,15 @@ async function getInbox({ user, type }) {
   switch (type) {
     case "waiting":
       query.status = {
-        $in: [
-          Const.orderStatus.PAYMENT_PENDING,
-          Const.orderStatus.PAYMENT_FAILED,
-          Const.orderStatus.SHIPPED,
-          Const.orderStatus.CANCELLATION_REQUESTED,
-          Const.orderStatus.SUPPORT_TICKET_OPENED,
-        ],
+        $in: [Const.orderStatus.PAYMENT_PENDING, Const.orderStatus.PAYMENT_FAILED],
       };
       break;
     case "follow_up":
-      query.status = { $in: [Const.orderStatus.PAYMENT_COMPLETED] };
+      query.status = { $in: [Const.orderStatus.PAYMENT_COMPLETED, Const.orderStatus.SHIPPED] };
       break;
     case "paid":
       query.status = {
-        $in: [
-          Const.orderStatus.PAYMENT_COMPLETED,
-          Const.orderStatus.SHIPPED,
-          Const.orderStatus.CANCELLATION_REQUESTED,
-          Const.orderStatus.SUPPORT_TICKET_OPENED,
-        ],
+        $in: [Const.orderStatus.PAYMENT_COMPLETED, Const.orderStatus.SHIPPED],
       };
       break;
   }
