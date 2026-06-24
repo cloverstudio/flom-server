@@ -2,7 +2,7 @@ const { Config } = require("#config");
 const { User } = require("#models");
 
 const { OpenAI } = require("openai");
-const openai = new OpenAI({ apiKey: Config.chatGPTApiKey });
+const openai = new OpenAI({ baseURL: "https://api.deepseek.com", apiKey: Config.chatGPTApiKey });
 
 async function getGPTAssistantResponse(assistantId, userId, messageText) {
   const user = await User.findOne({ _id: userId }).lean();
