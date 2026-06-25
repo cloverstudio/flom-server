@@ -71,8 +71,8 @@ async function callChatGPTApi(textMessage, senderPhoneNumber, receiverPhoneNumbe
     messages,
     max_tokens: Const.FatAiMaxTokens,
     temperature: 0.7,
-    thinking: { type: "enabled" },
-    reasoning_effort: "high",
+    thinking: { type: "disabled" },
+    // reasoning_effort: "high",
   });
   return {
     tokenUsage: completion.usage.completion_tokens,
