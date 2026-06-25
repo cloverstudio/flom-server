@@ -20,7 +20,7 @@ module.exports = function (socketApi, socket) {
 
   socket.on("sendMessage", async (param, callback) => {
     try {
-      console.log("sendMessage param:" + JSON.stringify(param));
+      logger.debug("sendMessage param:" + JSON.stringify(param));
 
       if (!param.roomID || param.roomID.includes("null")) {
         console.error("roomID error - " + Const.resCodeSocketSendMessageNoRoomID);
