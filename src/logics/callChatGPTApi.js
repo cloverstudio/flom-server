@@ -2,7 +2,7 @@ const { Config, Const } = require("#config");
 const { FlomMessage } = require("#models");
 
 const { OpenAI } = require("openai");
-const openai = new OpenAI({ apiKey: Config.chatGPTApiKey });
+const openai = new OpenAI({ baseURL: "https://api.deepseek.com", apiKey: Config.chatGPTApiKey });
 const { encode } = require("gpt-3-encoder");
 
 async function callChatGPTApi(textMessage, senderPhoneNumber, receiverPhoneNumber, isFatAi) {
@@ -67,10 +67,12 @@ async function callChatGPTApi(textMessage, senderPhoneNumber, receiverPhoneNumbe
   }
 
   const completion = await openai.chat.completions.create({
-    model: "gpt-4o",
+    model: "deepseek-v4-pro",
     messages,
     max_tokens: Const.FatAiMaxTokens,
     temperature: 0.7,
+    thinking: { type: "enabled" },
+    reasoning_effort: "high",
   });
   return {
     tokenUsage: completion.usage.completion_tokens,
