@@ -58,14 +58,19 @@ async function runWebSearch(query) {
       body: JSON.stringify({
         api_key: Config.tavilyApiKey,
         query,
-        max_results: 3,
+        max_results: 5,
+        search_depth: "advanced",
         include_answer: true,
       }),
     });
+
     if (!res.ok) return `Search failed: ${res.status}`;
     const data = await res.json();
-    const hits = (data.results || []).map((r) => `- ${r.title}: ${r.content}`).join("\n");
-    return [data.answer, hits].filter(Boolean).join("\n");
+
+    // const hits = (data.results || []).map((r) => `- ${r.title}: ${r.content}`).join("\n");
+    // return [data.answer, hits].filter(Boolean).join("\n");
+
+    return data.answer || "No answer found.";
   } catch (error) {
     console.error("Error in runWebSearch:", error);
     return "Search failed due to an internal error.";
@@ -196,7 +201,7 @@ async function callChatGPTApi(textMessage, senderPhoneNumber, receiverPhoneNumbe
       }
 
       const rawContent = msg.content || "";
-      const cleanContent = rawContent.replace(/<DSML[\s\S]*?<\/DSMLtool_calls>/g, "").trim();
+      const cleanContent = rawContent.replace(/<｜｜DSML｜｜[\s\S]*/u, "").trim();
 
       console.log("DeepSeek API raw message:", rawContent);
       console.log("DeepSeek API final message:", cleanContent);
