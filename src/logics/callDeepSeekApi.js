@@ -2,109 +2,39 @@ const { Config, Const } = require("#config");
 const { FlomMessage } = require("#models");
 const { encode } = require("gpt-3-encoder");
 
-const DEEPSEEK_URL = "https://api.deepseek.com/chat/completions";
+const DEEPSEEK_ENDPOINT = "https://api.deepseek.com/anthropic/v1/messages";
 const DEEPSEEK_MODEL = "deepseek-v4-flash";
-
 const d = new Date();
 const TODAY = d.toISOString().slice(0, 10);
 const YEAR = d.getFullYear();
 
-const SEARCH_TOOLS = [
-  {
-    type: "function",
-    function: {
-      name: "web_search",
-      description:
-        "Search the web for current information. Use for anything recent or time-sensitive.",
-      parameters: {
-        type: "object",
-        properties: {
-          query: { type: "string", description: "The search query" },
-        },
-        required: ["query"],
-      },
-    },
-  },
-];
+const WEB_SEARCH_TOOL = {
+  type: "web_search_20250305",
+  name: "web_search",
+  max_uses: 3,
+};
 
 const SEARCH_REGEX =
-  /\b(latest|current|today|tonight|yesterday|this week|this month|this year|last \d+|last week|last month|last year|right now|at the moment|as of|up to date|recent|recently|real.?time|breaking|just (announced|released|happened)|exchange rate|stock price|crypto|bitcoin|ethereum|weather|forecast|match score|sports result|league standings|who is|who are|who was|who won|who lost|who leads|who owns|who runs|when did|when is|when was|when will|what is the (current|latest|new|recent)|what happened|what's (new|happening|going on)|is .{1,30} still (open|alive|available|active|running|working)|does .{1,30} still (exist|work|operate)|has .{1,30} (changed|updated|released)|new (version|update|release)|just (out|dropped|launched)|election result|war update|merger|acquired|acquisition|arrested|died|passed away)\b/i;
+  /\b(latest|current|today|tonight|yesterday|last \d+|last few|last several|last week|last month|last year|this week|this month|this year|right now|at the moment|as of|up to date|recent|recently|real.?time|breaking|just (announced|released|happened)|exchange rate|stock price|crypto|bitcoin|ethereum|weather|forecast|match score|sports result|league standings|who is|who are|who was|who won|who lost|who leads|who owns|who runs|when did|when is|when was|when will|what is the (current|latest|new|recent)|what happened|what's (new|happening|going on)|is .{1,30} still (open|alive|available|active|running|working)|does .{1,30} still (exist|work|operate)|has .{1,30} (changed|updated|released)|new (version|update|release)|just (out|dropped|launched)|election result|war update|merger|acquired|acquisition|arrested|died|passed away)\b/i;
 
-function yearNeedsSearch(text) {
+function needsSearch(text) {
   try {
-    const years = text.match(/\b(2\d{3})\b/g);
-
-    if (!years) return false;
-
-    return years.some((y) => {
-      const n = parseInt(y);
-      return n > 2023 && n <= YEAR + 1;
-    });
-  } catch (e) {
-    console.error("Error in yearNeedsSearch:", e);
+    if (SEARCH_REGEX.test(text)) return true;
+    const yearMatch = text.match(/\b(2\d{3})\b/g);
+    if (yearMatch) {
+      return yearMatch.some((y) => {
+        const n = parseInt(y);
+        return n > 2023 && n <= YEAR + 4;
+      });
+    }
+    return false;
+  } catch (error) {
+    console.error("Error in needsSearch:", error);
     return false;
   }
 }
 
-function needsSearch(text) {
-  return SEARCH_REGEX.test(text) || yearNeedsSearch(text);
-}
-
-async function runWebSearch(query) {
-  try {
-    const res = await fetch("https://api.tavily.com/search", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        api_key: Config.tavilyApiKey,
-        query,
-        max_results: 5,
-        search_depth: "advanced",
-        include_answer: true,
-      }),
-    });
-
-    if (!res.ok) return `Search failed: ${res.status}`;
-    const data = await res.json();
-
-    // const hits = (data.results || []).map((r) => `- ${r.title}: ${r.content}`).join("\n");
-    // return [data.answer, hits].filter(Boolean).join("\n");
-
-    console.log("Web search answer:", data.answer);
-    return data.answer || "No answer found.";
-  } catch (error) {
-    console.error("Error in runWebSearch:", error);
-    return "Search failed due to an internal error.";
-  }
-}
-
-async function callDeepSeek(messages, useSearch) {
-  try {
-    const body = {
-      model: DEEPSEEK_MODEL,
-      messages,
-      max_tokens: Const.FatAiMaxTokens,
-    };
-    if (useSearch) body.tools = SEARCH_TOOLS;
-
-    const res = await fetch(DEEPSEEK_URL, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        authorization: `Bearer ${Config.chatGPTApiKey}`,
-      },
-      body: JSON.stringify(body),
-    });
-
-    if (!res.ok) throw new Error(`DeepSeek API ${res.status}: ${await res.text()}`);
-    return res.json();
-  } catch (error) {
-    console.error("Error in callDeepSeek:", error);
-    throw new Error("DeepSeek API call failed due to an internal error.");
-  }
-}
-
-async function callChatGPTApi(textMessage, senderPhoneNumber, receiverPhoneNumber, isFatAi) {
+async function callDeepSeekApi(textMessage, senderPhoneNumber, receiverPhoneNumber, isFatAi) {
   try {
     let systemMessage = "";
     if (isFatAi) {
@@ -114,36 +44,38 @@ async function callChatGPTApi(textMessage, senderPhoneNumber, receiverPhoneNumbe
     }
 
     systemMessage +=
-      `\n\nToday's date is ${TODAY}.` +
-      "You have a web_search function. You must NOT answer from memory for anything " +
-      "involving recent events, current prices, software versions, or anything described " +
-      "as 'latest' or 'current'. For those, call web_search and base your answer only on " +
-      "the results. For settled facts or the current date, answer directly.";
+      `\n\nToday's date is ${TODAY}. You have a web_search tool. Your training knowledge has a cutoff date, so you ` +
+      "must NOT answer from memory for anything involving recent events, current prices, " +
+      "software versions, scores, or anything described as 'latest' or 'current'. For those, " +
+      "search first and base your answer only on the results. " +
+      "Search ONCE per topic then answer immediately using what you found. " +
+      "If results are incomplete, answer with what you have and say so — " +
+      "never invent or estimate scores, prices, or factual data not present in search results. " +
+      "Do not mention a knowledge cutoff — search instead.";
 
     console.log("Calling DeepSeek API");
-
-    let messages = [{ role: "system", content: systemMessage }];
-    let lastAssistantMessage = "";
+    let messages = [],
+      contextNeedsSearch = false;
 
     if (isFatAi) {
-      let oldMessages = await FlomMessage.find({
+      var oldMessages = await FlomMessage.find({
         $or: [
           { receiverPhoneNumber: receiverPhoneNumber, senderPhoneNumber: senderPhoneNumber },
           { receiverPhoneNumber: senderPhoneNumber, senderPhoneNumber: receiverPhoneNumber },
         ],
       })
         .sort({ created: -1 })
-        .limit(20)
+        .limit(10)
         .lean();
 
       oldMessages = oldMessages.reverse();
 
-      let oldMessagesString = "";
+      var oldMessagesString = "";
       oldMessages.forEach(function (oldMess) {
         oldMessagesString += oldMess.message + " ";
       });
 
-      let encoded = encode(oldMessagesString);
+      var encoded = encode(oldMessagesString);
       while (encoded.length >= 1000) {
         oldMessages = oldMessages.slice(1);
         oldMessagesString = "";
@@ -153,81 +85,80 @@ async function callChatGPTApi(textMessage, senderPhoneNumber, receiverPhoneNumbe
         encoded = encode(oldMessagesString);
       }
 
-      const oldMessagesTransformed = oldMessages.map((message) => {
+      var oldMessagesTransformed = oldMessages.map((message) => {
         if (message.receiverPhoneNumber === "+2340000000000") {
           return { role: "user", content: message.message };
         } else {
           return { role: "assistant", content: message.message };
         }
       });
-      // Also check last assistant message topic if available
-      lastAssistantMessage =
+
+      // Also check last assistant message for search context (e.g. follow-up questions)
+      const lastAssistantMessage =
         oldMessagesTransformed.filter((m) => m.role === "assistant").slice(-1)[0]?.content || "";
 
-      messages = [...messages, ...oldMessagesTransformed];
+      messages = [...oldMessagesTransformed, { role: "user", content: textMessage }];
+
+      // Use search if current message OR recent context is time-sensitive
+      contextNeedsSearch = needsSearch(textMessage) || needsSearch(lastAssistantMessage);
+    } else {
+      messages = [{ role: "user", content: textMessage }];
+      contextNeedsSearch = needsSearch(textMessage);
     }
 
-    messages.push({ role: "user", content: textMessage });
+    console.log("Web search:", contextNeedsSearch);
 
-    const useSearch = needsSearch(textMessage) || needsSearch(lastAssistantMessage);
-    console.log(`Web search: ${useSearch}`);
+    const body = {
+      model: DEEPSEEK_MODEL,
+      max_tokens: Const.FatAiMaxTokens,
+      system: systemMessage,
+      messages,
+      ...(contextNeedsSearch && { tools: [WEB_SEARCH_TOOL] }),
+    };
 
-    // Tool loop — max 3 search turns
-    for (let turn = 0; turn < 3; turn++) {
-      const data = await callDeepSeek(messages, useSearch);
+    const res = await fetch(DEEPSEEK_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": Config.chatGPTApiKey,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify(body),
+    });
 
-      console.log("DeepSeek API response:", data);
+    if (!res.ok) {
+      throw new Error(`DeepSeek API ${res.status}: ${await res.text()}`);
+    }
 
-      const msg = data.choices[0].message;
+    const data = await res.json();
+    console.log("DeepSeek API usage:", data.usage);
 
-      console.log("DeepSeek API usage:", data.usage);
+    // Extract text blocks and strip any leaked DSML tool call syntax
+    const rawText = data.content
+      .filter((b) => b.type === "text")
+      .map((b) => b.text)
+      .join(" ");
 
-      if (msg.tool_calls && msg.tool_calls.length) {
-        // Push full message object to preserve reasoning_content for DeepSeek
-        messages.push(msg);
+    const message = rawText.replace(/<｜｜DSML｜｜[\s\S]*/u, "").trim();
 
-        for (const tc of msg.tool_calls) {
-          let query = null;
-          try {
-            query = JSON.parse(tc.function.arguments).query;
-          } catch {
-            // malformed JSON from model
-          }
-          console.log(`Searching: ${query}`);
-          const result = query ? await runWebSearch(query) : "No valid query provided.";
-          messages.push({
-            role: "tool",
-            tool_call_id: tc.id,
-            content: result,
-          });
-        }
-        continue;
-      }
-
-      const rawContent = msg.content || "";
-      const cleanContent = rawContent.replace(/<｜｜DSML｜｜[\s\S]*/u, "").trim();
-
-      console.log("DeepSeek API raw message:", rawContent);
-      console.log("DeepSeek API final message:", cleanContent);
-
+    if (!message) {
       return {
-        tokenUsage: data.usage?.completion_tokens ?? 0,
-        message: cleanContent,
+        tokenUsage: data.usage?.output_tokens ?? 0,
+        message: "I wasn't able to find that information. Please try asking again.",
       };
     }
 
     return {
-      tokenUsage: 0,
-      message: "Sorry, I was unable to complete that request. Please try again.",
+      tokenUsage: data.usage?.output_tokens ?? 0,
+      message,
     };
   } catch (error) {
-    console.error("Error in callChatGPTApi:", error);
+    console.error("Error calling DeepSeek API:", error);
     return {
       tokenUsage: 0,
-      message:
-        "Sorry, I was unable to complete that request due to an internal error. Please try again.",
+      message: "There was an error processing your request. Please try again later.",
     };
   }
 }
 
-module.exports = callChatGPTApi;
+module.exports = callDeepSeekApi;
