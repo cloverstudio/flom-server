@@ -198,6 +198,9 @@ async function callChatGPTApi(textMessage, senderPhoneNumber, receiverPhoneNumbe
       const rawContent = msg.content || "";
       const cleanContent = rawContent.replace(/<DSML[\s\S]*?<\/DSMLtool_calls>/g, "").trim();
 
+      console.log("DeepSeek API raw message:", rawContent);
+      console.log("DeepSeek API final message:", cleanContent);
+
       return {
         tokenUsage: data.usage?.completion_tokens ?? 0,
         message: cleanContent,
