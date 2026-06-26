@@ -70,6 +70,7 @@ async function runWebSearch(query) {
     // const hits = (data.results || []).map((r) => `- ${r.title}: ${r.content}`).join("\n");
     // return [data.answer, hits].filter(Boolean).join("\n");
 
+    console.log("Web search answer:", data.answer);
     return data.answer || "No answer found.";
   } catch (error) {
     console.error("Error in runWebSearch:", error);
@@ -174,6 +175,9 @@ async function callChatGPTApi(textMessage, senderPhoneNumber, receiverPhoneNumbe
     // Tool loop — max 3 search turns
     for (let turn = 0; turn < 3; turn++) {
       const data = await callDeepSeek(messages, useSearch);
+
+      console.log("DeepSeek API response:", data);
+
       const msg = data.choices[0].message;
 
       console.log("DeepSeek API usage:", data.usage);
