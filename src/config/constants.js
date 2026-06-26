@@ -441,14 +441,14 @@ How can we help? If you need assistance with an issue, transaction or just need 
 
 Flom Team`;
 
-Constants.FatAiMaxTokens = 200;
+Constants.FatAiMaxTokens = 512;
 Constants.FatAiObjectId =
   Config.environment !== "production" ? "641c307c218754fb21129b95" : "641c307c218754fb21129b95";
-Constants.FatAiContinueMessage = "Want me to continue? Say yes or 𰈦";
+Constants.FatAiContinueMessage = "Want me to continue? Say yes or 👍.";
 Constants.FatAiBlockedCountryMessage =
   "Sorry! I cannot respond due to country restrictions for you. Contact Flom team if you think this should change.";
 
-Constants.thumbUpFatAiContinueResponse = "𰈦";
+Constants.thumbUpFatAiContinueResponse = "👍";
 Constants.FatAiSystemMessage = "You are FatAi, an AI assistant.";
 
 Constants.FlomTeamPhoneNumber =

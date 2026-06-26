@@ -7,7 +7,8 @@ const socketApi = require("../sockets/socket-api");
 const notifyNewMessage = require("./notifyNewMessage");
 const updateHistory = require("./updateHistory");
 const permissionLogic = require("./permissionLogic");
-const callChatGPTApi = require("./callChatGPTApi");
+// const callChatGPTApi = require("./callChatGPTApi");
+const callChatGPTApi = require("./callDeepSeekApi");
 const getGPTAssistantResponse = require("./getGPTAssistantResponse");
 const sendWhatsAppMessages = require("./sendWhatsAppMessages");
 

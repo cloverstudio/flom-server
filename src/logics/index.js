@@ -41,7 +41,8 @@ module.exports = Object.freeze({
 
   countryFromBinNumber: require("./countryFromBinNumber"),
   getCountryFromIpAddress: require("./getCountryFromIpAddress"),
-  callChatGPTApi: require("./callChatGPTApi"),
+  // callChatGPTApi: require("./callChatGPTApi"),
+  callChatGPTApi: require("./callDeepSeekApi"),
   checkIfCarrierIsAllowed: require("./checkIfCarrierIsAllowed"),
   getCarrier: require("./getCarrier"),
   getCustomerActivationData: require("./getCustomerActivationData"),
