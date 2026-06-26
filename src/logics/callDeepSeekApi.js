@@ -28,7 +28,7 @@ const SEARCH_TOOLS = [
 ];
 
 const SEARCH_REGEX =
-  /\b(latest|current|today|tonight|yesterday|this week|this month|this year|last week|last month|last year|right now|at the moment|as of|up to date|recent|recently|real.?time|breaking|just (announced|released|happened)|exchange rate|stock price|crypto|bitcoin|ethereum|weather|forecast|match score|sports result|league standings|who is|who are|who was|who won|who lost|who leads|who owns|who runs|when did|when is|when was|when will|what is the (current|latest|new|recent)|what happened|what's (new|happening|going on)|is .{1,30} still (open|alive|available|active|running|working)|does .{1,30} still (exist|work|operate)|has .{1,30} (changed|updated|released)|new (version|update|release)|just (out|dropped|launched)|election result|war update|merger|acquired|acquisition|arrested|died|passed away)\b/i;
+  /\b(latest|current|today|tonight|yesterday|this week|this month|this year|last \d+|last week|last month|last year|right now|at the moment|as of|up to date|recent|recently|real.?time|breaking|just (announced|released|happened)|exchange rate|stock price|crypto|bitcoin|ethereum|weather|forecast|match score|sports result|league standings|who is|who are|who was|who won|who lost|who leads|who owns|who runs|when did|when is|when was|when will|what is the (current|latest|new|recent)|what happened|what's (new|happening|going on)|is .{1,30} still (open|alive|available|active|running|working)|does .{1,30} still (exist|work|operate)|has .{1,30} (changed|updated|released)|new (version|update|release)|just (out|dropped|launched)|election result|war update|merger|acquired|acquisition|arrested|died|passed away)\b/i;
 
 function yearNeedsSearch(text) {
   try {
@@ -117,9 +117,10 @@ async function callChatGPTApi(textMessage, senderPhoneNumber, receiverPhoneNumbe
     console.log("Calling DeepSeek API");
 
     let messages = [{ role: "system", content: systemMessage }];
+    let lastAssistantMessage = "";
 
     if (isFatAi) {
-      var oldMessages = await FlomMessage.find({
+      let oldMessages = await FlomMessage.find({
         $or: [
           { receiverPhoneNumber: receiverPhoneNumber, senderPhoneNumber: senderPhoneNumber },
           { receiverPhoneNumber: senderPhoneNumber, senderPhoneNumber: receiverPhoneNumber },
@@ -131,12 +132,12 @@ async function callChatGPTApi(textMessage, senderPhoneNumber, receiverPhoneNumbe
 
       oldMessages = oldMessages.reverse();
 
-      var oldMessagesString = "";
+      let oldMessagesString = "";
       oldMessages.forEach(function (oldMess) {
         oldMessagesString += oldMess.message + " ";
       });
 
-      var encoded = encode(oldMessagesString);
+      let encoded = encode(oldMessagesString);
       while (encoded.length >= 1000) {
         oldMessages = oldMessages.slice(1);
         oldMessagesString = "";
@@ -146,20 +147,23 @@ async function callChatGPTApi(textMessage, senderPhoneNumber, receiverPhoneNumbe
         encoded = encode(oldMessagesString);
       }
 
-      var oldMessagesTransformed = oldMessages.map((message) => {
+      const oldMessagesTransformed = oldMessages.map((message) => {
         if (message.receiverPhoneNumber === "+2340000000000") {
           return { role: "user", content: message.message };
         } else {
           return { role: "assistant", content: message.message };
         }
       });
+      // Also check last assistant message topic if available
+      lastAssistantMessage =
+        oldMessagesTransformed.filter((m) => m.role === "assistant").slice(-1)[0]?.content || "";
 
       messages = [...messages, ...oldMessagesTransformed];
     }
 
     messages.push({ role: "user", content: textMessage });
 
-    const useSearch = needsSearch(textMessage);
+    const useSearch = needsSearch(textMessage) || needsSearch(lastAssistantMessage);
     console.log(`Web search: ${useSearch}`);
 
     // Tool loop — max 3 search turns
@@ -191,9 +195,12 @@ async function callChatGPTApi(textMessage, senderPhoneNumber, receiverPhoneNumbe
         continue;
       }
 
+      const rawContent = msg.content || "";
+      const cleanContent = rawContent.replace(/<DSML[\s\S]*?<\/DSMLtool_calls>/g, "").trim();
+
       return {
         tokenUsage: data.usage?.completion_tokens ?? 0,
-        message: msg.content,
+        message: cleanContent,
       };
     }
 
