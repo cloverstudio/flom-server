@@ -80,6 +80,7 @@ async function callDeepSeekApi(textMessage, senderPhoneNumber, receiverPhoneNumb
   };
 
   const shouldSearch = await needsWebSearch(textMessage);
+  console.log("needsWebSearch result:", shouldSearch);
   if (!shouldSearch) delete body.tools; // let the model decide to search if it wants to
 
   const res = await fetch(DEEPSEEK_ENDPOINT, {
