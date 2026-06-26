@@ -8,7 +8,7 @@ const DEEPSEEK_MODEL = "deepseek-v4-flash"; // most capable; swap to deepseek-v4
 const WEB_SEARCH_TOOL = {
   type: "web_search_20250305",
   name: "web_search",
-  max_uses: 5,
+  max_uses: 1,
 };
 
 async function callDeepSeekApi(textMessage, senderPhoneNumber, receiverPhoneNumber, isFatAi) {
@@ -38,7 +38,7 @@ async function callDeepSeekApi(textMessage, senderPhoneNumber, receiverPhoneNumb
       ],
     })
       .sort({ created: -1 })
-      .limit(20)
+      .limit(10)
       .lean();
 
     oldMessages = oldMessages.reverse();
@@ -79,6 +79,9 @@ async function callDeepSeekApi(textMessage, senderPhoneNumber, receiverPhoneNumb
     tools: [WEB_SEARCH_TOOL],
   };
 
+  const shouldSearch = await needsWebSearch(textMessage);
+  if (!shouldSearch) delete body.tools; // let the model decide to search if it wants to
+
   const res = await fetch(DEEPSEEK_ENDPOINT, {
     method: "POST",
     headers: {
@@ -104,10 +107,43 @@ async function callDeepSeekApi(textMessage, senderPhoneNumber, receiverPhoneNumb
   // completion_tokens sits under usage.output_tokens in the Anthropic-format response
   const tokenUsage = data.usage?.output_tokens ?? 0;
 
+  console.log("DeepSeek API usage:", data.usage);
+
   return {
     tokenUsage,
     message: responseText,
   };
+}
+
+async function needsWebSearch(textMessage) {
+  try {
+    const res = await fetch("https://api.deepseek.com/anthropic/v1/messages", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": Config.chatGPTApiKey,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: "deepseek-v4-flash",
+        max_tokens: 10,
+        system:
+          "You decide if a question requires a web search for current, real-time, or recent information to answer accurately. Reply with only 'yes' or 'no'.",
+        messages: [{ role: "user", content: textMessage }],
+      }),
+    });
+
+    if (!res.ok) return false; // fail open: skip search if preflight errors
+    const data = await res.json();
+    const answer = data.content
+      .find((b) => b.type === "text")
+      ?.text?.trim()
+      .toLowerCase();
+    return answer === "yes";
+  } catch (error) {
+    console.error("needsWebSearch, Error checking if web search is needed:", error);
+    return false; // fail open: skip search if preflight errors
+  }
 }
 
 module.exports = callDeepSeekApi;
