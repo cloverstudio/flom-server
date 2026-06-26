@@ -79,8 +79,8 @@ async function callDeepSeekApi(textMessage, senderPhoneNumber, receiverPhoneNumb
     tools: [WEB_SEARCH_TOOL],
   };
 
-  const shouldSearch = await needsWebSearch(textMessage);
-  console.log("needsWebSearch result:", shouldSearch);
+  const shouldSearch = await needsSearch(textMessage);
+  console.log("needsSearch result:", shouldSearch);
   if (!shouldSearch) delete body.tools; // let the model decide to search if it wants to
 
   const res = await fetch(DEEPSEEK_ENDPOINT, {
@@ -116,50 +116,27 @@ async function callDeepSeekApi(textMessage, senderPhoneNumber, receiverPhoneNumb
   };
 }
 
-async function needsWebSearch(textMessage) {
+const SEARCH_REGEX =
+  /\b(latest|current|today|tonight|yesterday|this week|this month|this year|right now|at the moment|as of|up to date|recent|recently|now|live|real.?time|breaking|just (announced|released|happened)|price|cost|how much|rate|exchange rate|stock|market|crypto|bitcoin|ethereum|weather|forecast|score|result|standings|who is|who are|who was|who won|who lost|who leads|who owns|who runs|when did|when is|when was|when will|what is the (current|latest|new|recent)|what happened|what's (new|happening|going on)|where is|is .{1,30} still|does .{1,30} still|has .{1,30} (changed|updated|released)|new (version|update|release|model|law|policy|rule)|announcement|launched|just (out|dropped|launched)|election|war|conflict|crisis|deal|merger|acquired|acquisition|arrested|died|death|passed away|202[4-9]|20[3-9]\d|209\d)\b/i;
+
+const YEAR_RANGE_REGEX = /\b(20[3-9]\d|209\d|20[2-9][4-9]|2[1-9]\d{2})\b/;
+
+function needsSearch(text) {
   try {
-    const res = await fetch("https://api.deepseek.com/anthropic/v1/messages", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-api-key": Config.chatGPTApiKey,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "deepseek-v4-flash",
-        max_tokens: 10,
-        system: `You are a classifier. A question needs web search if it asks about:
-- current prices, rates, or market data
-- recent news, events, or announcements  
-- today's weather, scores, or results
-- sports scores post your cutoff date (September 2023)
-- the latest version, update, or release of something
-- who currently holds a position or role
-- anything that changes day to day
+    if (SEARCH_REGEX.test(text)) return true;
 
-Reply with only 'yes' or 'no'. When in doubt, reply 'yes'.
+    const yearMatch = text.match(/\b(2\d{3})\b/g);
+    if (yearMatch) {
+      return yearMatch.some((y) => {
+        const n = parseInt(y);
+        return n > 2023 && n < 2100;
+      });
+    }
 
-Examples:
-"what is bitcoin price" -> yes
-"who is the current US president" -> yes
-"latest iphone model" -> yes
-"what is 2+2" -> no
-"how does photosynthesis work" -> no
-"tell me a joke" -> no`,
-        messages: [{ role: "user", content: textMessage }],
-      }),
-    });
-
-    if (!res.ok) return false; // fail open: skip search if preflight errors
-    const data = await res.json();
-    const answer = data.content
-      .find((b) => b.type === "text")
-      ?.text?.trim()
-      .toLowerCase();
-    return answer === "yes";
+    return false;
   } catch (error) {
-    console.error("needsWebSearch, Error checking if web search is needed:", error);
-    return false; // fail open: skip search if preflight errors
+    console.error("Error in needsSearch:", error);
+    return false;
   }
 }
 
