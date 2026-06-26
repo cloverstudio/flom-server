@@ -79,8 +79,8 @@ async function callDeepSeekApi(textMessage, senderPhoneNumber, receiverPhoneNumb
     tools: [WEB_SEARCH_TOOL],
   };
 
-  const shouldSearch = await needsWebSearch(textMessage);
-  console.log("needsWebSearch result:", shouldSearch);
+  const shouldSearch = await needsSearch(textMessage);
+  console.log("needsSearch result:", shouldSearch);
   if (!shouldSearch) delete body.tools; // let the model decide to search if it wants to
 
   const res = await fetch(DEEPSEEK_ENDPOINT, {
@@ -116,34 +116,27 @@ async function callDeepSeekApi(textMessage, senderPhoneNumber, receiverPhoneNumb
   };
 }
 
-async function needsWebSearch(textMessage) {
-  try {
-    const res = await fetch("https://api.deepseek.com/anthropic/v1/messages", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-api-key": Config.chatGPTApiKey,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "deepseek-v4-flash",
-        max_tokens: 10,
-        system:
-          "You decide if a question requires a web search for current, real-time, or recent information to answer accurately. Reply with only 'yes' or 'no'.",
-        messages: [{ role: "user", content: textMessage }],
-      }),
-    });
+const SEARCH_REGEX =
+  /\b(latest|current|today|tonight|yesterday|this week|this month|this year|right now|at the moment|as of|up to date|recent|recently|now|live|real.?time|breaking|just (announced|released|happened)|price|cost|how much|rate|exchange rate|stock|market|crypto|bitcoin|ethereum|weather|forecast|score|result|standings|who is|who are|who was|who won|who lost|who leads|who owns|who runs|when did|when is|when was|when will|what is the (current|latest|new|recent)|what happened|what's (new|happening|going on)|where is|is .{1,30} still|does .{1,30} still|has .{1,30} (changed|updated|released)|new (version|update|release|model|law|policy|rule)|announcement|launched|just (out|dropped|launched)|election|war|conflict|crisis|deal|merger|acquired|acquisition|arrested|died|death|passed away|202[4-9]|20[3-9]\d|209\d)\b/i;
 
-    if (!res.ok) return false; // fail open: skip search if preflight errors
-    const data = await res.json();
-    const answer = data.content
-      .find((b) => b.type === "text")
-      ?.text?.trim()
-      .toLowerCase();
-    return answer === "yes";
+const YEAR_RANGE_REGEX = /\b(20[3-9]\d|209\d|20[2-9][4-9]|2[1-9]\d{2})\b/;
+
+function needsSearch(text) {
+  try {
+    if (SEARCH_REGEX.test(text)) return true;
+
+    const yearMatch = text.match(/\b(2\d{3})\b/g);
+    if (yearMatch) {
+      return yearMatch.some((y) => {
+        const n = parseInt(y);
+        return n > 2023 && n < 2100;
+      });
+    }
+
+    return false;
   } catch (error) {
-    console.error("needsWebSearch, Error checking if web search is needed:", error);
-    return false; // fail open: skip search if preflight errors
+    console.error("Error in needsSearch:", error);
+    return false;
   }
 }
 
