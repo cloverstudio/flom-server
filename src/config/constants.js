@@ -441,7 +441,7 @@ How can we help? If you need assistance with an issue, transaction or just need 
 
 Flom Team`;
 
-Constants.FatAiMaxTokens = 200;
+Constants.FatAiMaxTokens = 300;
 Constants.FatAiObjectId =
   Config.environment !== "production" ? "641c307c218754fb21129b95" : "641c307c218754fb21129b95";
 Constants.FatAiContinueMessage = "Want me to continue? Say yes or 𰈦";
