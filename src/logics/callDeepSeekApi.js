@@ -128,8 +128,24 @@ async function needsWebSearch(textMessage) {
       body: JSON.stringify({
         model: "deepseek-v4-flash",
         max_tokens: 10,
-        system:
-          "You decide if a question requires a web search for current, real-time, or recent information to answer accurately. Reply with only 'yes' or 'no'.",
+        system: `You are a classifier. A question needs web search if it asks about:
+- current prices, rates, or market data
+- recent news, events, or announcements  
+- today's weather, scores, or results
+- sports scores post your cutoff date (September 2023)
+- the latest version, update, or release of something
+- who currently holds a position or role
+- anything that changes day to day
+
+Reply with only 'yes' or 'no'. When in doubt, reply 'yes'.
+
+Examples:
+"what is bitcoin price" -> yes
+"who is the current US president" -> yes
+"latest iphone model" -> yes
+"what is 2+2" -> no
+"how does photosynthesis work" -> no
+"tell me a joke" -> no`,
         messages: [{ role: "user", content: textMessage }],
       }),
     });
