@@ -179,7 +179,7 @@ async function getInbox({ user, type }) {
 
   const otherUsers = await User.find(
     { _id: { $in: uniqueBuyerIds } },
-    { _id: 1, userName: 1, created: 1, phoneNumber: 1, avatar: 1 },
+    { _id: 1, userName: 1, created: 1, phoneNumber: 1, avatar: 1, bankAccounts: 1 },
   ).lean();
   const otherUsersMap = {};
   otherUsers.forEach((otherUser) => {
