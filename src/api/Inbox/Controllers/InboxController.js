@@ -82,7 +82,14 @@ const { User, Order, ConversionRate, History } = require("#models");
  *                 "lastUpdateUnreadCount": 1776860195362,
  *                 "updatedAt": "2026-04-22T12:16:35.362Z",
  *                 "channel": "internal",
- *                 "orderStatus": "shipped"
+ *                 "orderStatus": "shipped",
+ *                 "user": {
+ *                   "_id": "63dccc42bcc5921af87df5ce",
+ *                   "userName": "Major_Kira_Nerys",
+ *                   "created": 1675414594155,
+ *                   "phoneNumber": "+2347087677188",
+ *                   "avatar": {}
+ *                 }
  *             }
  *         ]
  *     }
@@ -169,8 +176,22 @@ async function getInbox({ user, type }) {
   const histories = await History.find({ userId, chatId: { $in: uniqueBuyerIds }, chatType: 1 })
     .sort({ lastUpdate: -1 })
     .lean();
+
+  const otherUsers = await User.find(
+    { _id: { $in: uniqueBuyerIds } },
+    { _id: 1, userName: 1, created: 1, phoneNumber: 1, avatar: 1 },
+  ).lean();
+  const otherUsersMap = {};
+  otherUsers.forEach((otherUser) => {
+    otherUsersMap[otherUser._id.toString()] = otherUser;
+  });
+
   histories.forEach((history) => {
     history.orderStatus = orderStatusToBuyerIdMap[history.chatId] || null;
+    history.user = otherUsersMap[history.chatId] || null;
+    if (history.user) {
+      history.user._id = history.user._id.toString();
+    }
   });
 
   return { histories };
