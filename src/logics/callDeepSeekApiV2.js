@@ -76,6 +76,7 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
 
     //push new question
     messages.push({ role: "user", content: textMessage });
+    messagesBase.push({ role: "user", content: textMessage });
   } else {
     messages = [
       { role: "system", content: systemMessage },
@@ -97,6 +98,8 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
 
   console.log("Initial DeepSeek API response:", message);
 
+  delete message.reasoning_content; // Remove reasoning content to reduce token usage
+
   if (message.tool_calls) {
     for (const toolCall of message.tool_calls) {
       if (toolCall.function.name === "web_search") {
@@ -106,10 +109,11 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
         console.log("Web search result:", result);
 
         // Append the tool call and its result to the conversation
+        messagesBase.push(message);
         messagesBase.push({
-          role: message.role,
-          content: message.content,
-          tool_calls: message.tool_calls,
+          role: "tool",
+          tool_call_id: toolCall.id,
+          content: result,
         });
 
         messagesBase.push({
