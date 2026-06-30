@@ -119,7 +119,10 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
         messagesBase.push({
           role: "system",
           content:
-            "You have no tools available. Answer the user's question directly using only the search results already provided above. Do not attempt to call any function or tool.",
+            "You have no tools available. " +
+            "Answer the user's question directly using only the search results already provided above. " +
+            "Do not attempt to call any function or tool. " +
+            "Do not use markdown formatting. No tables, no ** bold **, no * italics *. Plain text only.",
         });
       }
     }
