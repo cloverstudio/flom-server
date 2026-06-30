@@ -422,5 +422,6 @@ Config.locationIqKey = process.env.LOCATION_IQ_APIKEY;
 Config.storageUrl = process.env.STORAGE_URL;
 
 Config.tavilyApiKey = process.env.TAVILY_API_KEY;
+Config.webSearchUrl = process.env.WEB_SEARCH_URL;
 
 module.exports = Object.freeze(Config);

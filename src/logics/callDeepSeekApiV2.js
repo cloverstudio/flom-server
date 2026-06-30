@@ -1,0 +1,207 @@
+const { Config, Const, countries } = require("#config");
+const { FlomMessage, User } = require("#models");
+
+const { OpenAI } = require("openai");
+const openai = new OpenAI({ baseURL: "https://api.deepseek.com", apiKey: Config.chatGPTApiKey });
+const { encode } = require("gpt-3-encoder");
+
+const DEEPSEEK_MODEL = "deepseek-v4-flash";
+const d = new Date();
+const TODAY = d.toISOString().slice(0, 10);
+const YEAR = d.getFullYear();
+
+const tools = [
+  {
+    type: "function",
+    function: {
+      name: "web_search",
+      description:
+        "Search the web for current information, news, or facts not in your training data.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: {
+            type: "string",
+            description: "The search query",
+          },
+        },
+        required: ["query"],
+      },
+    },
+  },
+];
+
+async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNumber, isFatAi) {
+  let systemMessage = "";
+  if (isFatAi) {
+    systemMessage = Const.FatAiSystemMessage;
+  } else {
+    systemMessage = Const.FlomTeamSystemMessage;
+  }
+
+  systemMessage +=
+    `\n\nToday's date is ${TODAY}. You have a web_search tool. Your training knowledge has a cutoff date, so you ` +
+    "must NOT answer from memory for anything involving recent events, current prices, " +
+    "software versions, scores, or anything described as 'latest' or 'current'. For those, " +
+    "search first and base your answer only on the results. " +
+    "Search ONCE per topic then answer immediately using what you found. " +
+    "If results are incomplete, answer with what you have and say so — " +
+    "never invent or estimate scores, prices, or factual data not present in search results. " +
+    "Do not mention a knowledge cutoff — search instead.";
+
+  console.log("Calling DeepSeek API");
+  let messages = [];
+
+  const senderUser = await User.findOne(
+    { phoneNumber: senderPhoneNumber },
+    { countryCode: 1 },
+  ).lean();
+
+  let language = "en";
+  if (senderUser && senderUser.countryCode) {
+    const country = countries[senderUser.countryCode];
+    if (country && country.languages && country.languages.length > 0) {
+      language = country.languages[0];
+    }
+  }
+
+  if (isFatAi) {
+    //fetch old messages before openai call
+    const oldMessages = await getOldMessages({ senderPhoneNumber, receiverPhoneNumber });
+
+    messages = [{ role: "system", content: systemMessage }, ...oldMessages];
+
+    //push new question
+    messages.push({ role: "user", content: textMessage });
+  } else {
+    messages = [
+      { role: "system", content: systemMessage },
+      { role: "user", content: textMessage },
+    ];
+  }
+
+  const completion = await openai.chat.completions.create({
+    model: DEEPSEEK_MODEL,
+    messages,
+    max_tokens: Const.FatAiMaxTokens,
+    temperature: 0.5,
+    tools: tools,
+    tool_choice: "auto",
+  });
+
+  const message = completion.choices[0].message;
+  const tokenUsage = completion.usage.completion_tokens;
+
+  if (message.tool_calls) {
+    for (const toolCall of message.tool_calls) {
+      if (toolCall.function.name === "web_search") {
+        const args = JSON.parse(toolCall.function.arguments);
+        const result = await webSearch(args.query, language);
+
+        // Append the tool call and its result to the conversation
+        messages.push(message);
+        messages.push({
+          role: "tool",
+          tool_call_id: toolCall.id,
+          content: result,
+        });
+      }
+    }
+
+    // Send the conversation back to the model with the tool result included
+    const followUp = await openai.chat.completions.create({
+      model: DEEPSEEK_MODEL,
+      messages: messages,
+      max_tokens: Const.FatAiMaxTokens,
+      temperature: 0.5,
+    });
+
+    const followUpMessage = followUp.choices[0].message;
+    const followUpTokenUsage = followUp.usage.completion_tokens;
+
+    // followUp.choices[0].message.content is your final answer
+    return {
+      tokenUsage: tokenUsage + followUpTokenUsage,
+      message: followUpMessage.content,
+    };
+  }
+}
+
+async function getOldMessages({ senderPhoneNumber, receiverPhoneNumber }) {
+  try {
+    let oldMessages = await FlomMessage.find({
+      $or: [
+        { receiverPhoneNumber: receiverPhoneNumber, senderPhoneNumber: senderPhoneNumber },
+        { receiverPhoneNumber: senderPhoneNumber, senderPhoneNumber: receiverPhoneNumber },
+      ],
+    })
+      .sort({ created: -1 })
+      .limit(10)
+      .lean();
+
+    oldMessages = oldMessages.reverse();
+
+    let oldMessagesString = "";
+
+    oldMessages.forEach(function (oldMess) {
+      oldMessagesString += oldMess.message + " ";
+    });
+
+    let encoded = encode(oldMessagesString);
+    while (encoded.length >= 1000) {
+      oldMessages = oldMessages.slice(1);
+      oldMessagesString = "";
+      oldMessages.forEach(function (oldMess) {
+        oldMessagesString += oldMess.message + " ";
+      });
+      encoded = encode(oldMessagesString);
+    }
+
+    let oldMessagesTransformed = oldMessages.map((message) => {
+      if (message.receiverPhoneNumber === "+2340000000000") {
+        return { role: "user", content: message.message };
+      } else {
+        return { role: "assistant", content: message.message };
+      }
+    });
+
+    return oldMessagesTransformed;
+  } catch (error) {
+    console.error("callDeepSeekApiV2, error fetching old messages:", error);
+    return [];
+  }
+}
+
+async function webSearch(query, language = "en") {
+  try {
+    const url = `${Config.webSearchUrl}/search?q=${encodeURIComponent(
+      query,
+    )}&format=json&language=${language}`;
+    const response = await fetch(url, { signal: AbortSignal.timeout(8000) });
+
+    if (!response.ok) {
+      throw new Error(`SearXNG returned ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    // Trim it down to what's useful for the LLM, raw SearXNG output is verbose
+    const results = data.results.slice(0, 5).map((r) => ({
+      title: r.title,
+      url: r.url,
+      snippet: r.content,
+    }));
+
+    if (language !== "en" && results.length < 2) {
+      // If not enough results, try again in English
+      return await webSearch(query, "en");
+    }
+
+    return JSON.stringify({ query, results });
+  } catch (error) {
+    console.error("Error during web search:", error);
+    return JSON.stringify({ query, results: [] });
+  }
+}
+
+module.exports = callDeepSeekApiV2;
