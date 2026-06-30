@@ -199,11 +199,9 @@ async function getOldMessages({ senderPhoneNumber, receiverPhoneNumber }) {
   }
 }
 
-async function webSearch(query, language = "en") {
+async function webSearch(query) {
   try {
-    const url = `${Config.webSearchUrl}/search?q=${encodeURIComponent(
-      query,
-    )}&format=json&language=${language}`;
+    const url = `${Config.webSearchUrl}/search?q=${encodeURIComponent(query)}&format=json`;
     const response = await fetch(url, { signal: AbortSignal.timeout(8000) });
 
     if (!response.ok) {
@@ -218,11 +216,6 @@ async function webSearch(query, language = "en") {
       url: r.url,
       content: r.content,
     }));
-
-    if (language !== "en" && results.length < 2) {
-      // If not enough results, try again in English
-      return await webSearch(query, "en");
-    }
 
     return JSON.stringify({ query, results });
   } catch (error) {
