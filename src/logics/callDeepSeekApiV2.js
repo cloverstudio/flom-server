@@ -47,7 +47,8 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
     "Search ONCE per topic then answer immediately using what you found. " +
     "If results are incomplete, answer with what you have and say so — " +
     "never invent or estimate scores, prices, or factual data not present in search results. " +
-    "Do not mention a knowledge cutoff — search instead.";
+    "Do not mention a knowledge cutoff — search instead." +
+    "Do not use markdown formatting. No tables, no ** bold **, no * italics *. Plain text only.";
 
   console.log("Calling DeepSeek API");
   let messages = [];
