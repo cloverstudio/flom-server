@@ -93,11 +93,15 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
   const message = completion.choices[0].message;
   const tokenUsage = completion.usage.completion_tokens;
 
+  console.log("Initial DeepSeek API response:", message);
+
   if (message.tool_calls) {
     for (const toolCall of message.tool_calls) {
       if (toolCall.function.name === "web_search") {
         const args = JSON.parse(toolCall.function.arguments);
+        console.log("Performing web search with query:", args.query);
         const result = await webSearch(args.query, language);
+        console.log("Web search result:", result);
 
         // Append the tool call and its result to the conversation
         messages.push(message);
@@ -119,6 +123,8 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
 
     const followUpMessage = followUp.choices[0].message;
     const followUpTokenUsage = followUp.usage.completion_tokens;
+
+    console.log("Followup DeepSeek API response:", followUpMessage);
 
     // followUp.choices[0].message.content is your final answer
     return {
