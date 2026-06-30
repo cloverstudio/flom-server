@@ -44,7 +44,7 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
     "must NOT answer from memory for anything involving recent events, current prices, " +
     "software versions, scores, or anything described as 'latest' or 'current'. For those, " +
     "search first and base your answer only on the results. " +
-    "If a message starts with SEARCH_DISABLED, do not perform a web search - it means one has already been done. " +
+    "Search ONCE per topic then answer immediately using what you found. " +
     "If results are incomplete, answer with what you have and say so — " +
     "never invent or estimate scores, prices, or factual data not present in search results. " +
     "Do not mention a knowledge cutoff — search instead." +
@@ -105,11 +105,9 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
         const result = await webSearch(args.query, language);
         console.log("Web search result:", result);
 
-        message.content = "SEARCH_DISABLED " + message.content;
-
         // Append the tool call and its result to the conversation
-        messages.unshift(message);
-        messages.unshift({
+        messages.push(message);
+        messages.push({
           role: "tool",
           tool_call_id: toolCall.id,
           content: result,
@@ -130,7 +128,11 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
 
     console.log("Followup DeepSeek API response:", followUpMessage);
 
-    // followUp.choices[0].message.content is your final answer
+    if (followUpMessage.content.includes("｜DSML｜")) {
+      followUpMessage.content =
+        "Sorry, I was not able to find that information. Please try asking again. Perhaps try rephrasing your question or providing more context.";
+    }
+
     return {
       tokenUsage: tokenUsage + followUpTokenUsage,
       message: followUpMessage.content,
