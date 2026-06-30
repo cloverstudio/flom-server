@@ -51,7 +51,8 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
     "Do not use markdown formatting. No tables, no ** bold **, no * italics *. Plain text only.";
 
   console.log("Calling DeepSeek API");
-  let messages = [];
+  let messagesBase = [],
+    messages = [];
 
   const senderUser = await User.findOne(
     { phoneNumber: senderPhoneNumber },
@@ -69,6 +70,7 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
   if (isFatAi) {
     //fetch old messages before openai call
     const oldMessages = await getOldMessages({ senderPhoneNumber, receiverPhoneNumber });
+    messagesBase = oldMessages;
 
     messages = [{ role: "system", content: systemMessage }, ...oldMessages];
 
@@ -95,8 +97,6 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
 
   console.log("Initial DeepSeek API response:", message);
 
-  delete message.reasoning_content; // Remove reasoning content to avoid unnecessary data
-
   if (message.tool_calls) {
     for (const toolCall of message.tool_calls) {
       if (toolCall.function.name === "web_search") {
@@ -106,11 +106,16 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
         console.log("Web search result:", result);
 
         // Append the tool call and its result to the conversation
-        messages.push(message);
-        messages.push({
-          role: "tool",
-          tool_call_id: toolCall.id,
-          content: result,
+        messagesBase.push({
+          role: message.role,
+          content: message.content,
+          tool_calls: message.tool_calls,
+        });
+
+        messagesBase.push({
+          role: "system",
+          content:
+            "You have no tools available. Answer the user's question directly using only the search results already provided above. Do not attempt to call any function or tool.",
         });
       }
     }
@@ -118,7 +123,7 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
     // Send the conversation back to the model with the tool result included
     const followUp = await openai.chat.completions.create({
       model: DEEPSEEK_MODEL,
-      messages: messages,
+      messages: messagesBase,
       max_tokens: Const.FatAiMaxTokens,
       temperature: 0.3,
     });
