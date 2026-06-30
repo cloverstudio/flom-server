@@ -44,7 +44,7 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
     "must NOT answer from memory for anything involving recent events, current prices, " +
     "software versions, scores, or anything described as 'latest' or 'current'. For those, " +
     "search first and base your answer only on the results. " +
-    "Search ONCE per topic then answer immediately using what you found. " +
+    "If a message starts with SEARCH_DISABLED, do not perform a web search - it means one has already been done. " +
     "If results are incomplete, answer with what you have and say so — " +
     "never invent or estimate scores, prices, or factual data not present in search results. " +
     "Do not mention a knowledge cutoff — search instead." +
@@ -85,7 +85,7 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
     model: DEEPSEEK_MODEL,
     messages,
     max_tokens: Const.FatAiMaxTokens,
-    temperature: 0.5,
+    temperature: 0.3,
     tools: tools,
     tool_choice: "auto",
   });
@@ -95,6 +95,8 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
 
   console.log("Initial DeepSeek API response:", message);
 
+  delete message.reasoning_content; // Remove reasoning content to avoid unnecessary data
+
   if (message.tool_calls) {
     for (const toolCall of message.tool_calls) {
       if (toolCall.function.name === "web_search") {
@@ -103,9 +105,11 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
         const result = await webSearch(args.query, language);
         console.log("Web search result:", result);
 
+        message.content = "SEARCH_DISABLED " + message.content;
+
         // Append the tool call and its result to the conversation
-        messages.push(message);
-        messages.push({
+        messages.unshift(message);
+        messages.unshift({
           role: "tool",
           tool_call_id: toolCall.id,
           content: result,
@@ -118,7 +122,7 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
       model: DEEPSEEK_MODEL,
       messages: messages,
       max_tokens: Const.FatAiMaxTokens,
-      temperature: 0.5,
+      temperature: 0.3,
     });
 
     const followUpMessage = followUp.choices[0].message;
@@ -193,7 +197,7 @@ async function webSearch(query, language = "en") {
     const data = await response.json();
 
     // Trim it down to what's useful for the LLM, raw SearXNG output is verbose
-    const results = data.results.slice(0, 5).map((r) => ({
+    const results = data.results.slice(0, 10).map((r) => ({
       title: r.title,
       url: r.url,
       snippet: r.content,
