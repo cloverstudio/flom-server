@@ -54,6 +54,7 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
   let messagesBase = [],
     messages = [];
 
+  /*
   const senderUser = await User.findOne(
     { phoneNumber: senderPhoneNumber },
     { countryCode: 1 },
@@ -66,6 +67,7 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
       language = country.languages[0];
     }
   }
+    */
 
   if (isFatAi) {
     //fetch old messages before openai call
@@ -105,7 +107,7 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
       if (toolCall.function.name === "web_search") {
         const args = JSON.parse(toolCall.function.arguments);
         console.log("Performing web search with query:", args.query);
-        const result = await webSearch(args.query, language);
+        const result = await webSearch(args.query);
         console.log("Web search result:", result);
 
         // Append the tool call and its result to the conversation
@@ -211,10 +213,10 @@ async function webSearch(query, language = "en") {
     const data = await response.json();
 
     // Trim it down to what's useful for the LLM, raw SearXNG output is verbose
-    const results = data.results.slice(0, 10).map((r) => ({
+    const results = data.results.slice(0, 30).map((r) => ({
       title: r.title,
       url: r.url,
-      snippet: r.content,
+      content: r.content,
     }));
 
     if (language !== "en" && results.length < 2) {
