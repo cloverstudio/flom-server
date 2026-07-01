@@ -22,7 +22,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     await History.updateMany(
       { userId: request.user._id.toString(), chatId: { $in: chatIds } },
-      { $set: { isDeleted: Date.now() } },
+      { $set: { isDeleted: true } },
       { multi: true },
     );
 

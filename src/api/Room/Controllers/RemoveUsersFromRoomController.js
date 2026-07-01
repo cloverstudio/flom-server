@@ -120,7 +120,10 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       socketApi.leaveFrom(user._id.toString(), Const.chatTypeRoom, roomId);
       socketApi.emitToUser(user._id.toString(), "delete_room", { conversation: updatedRoom });
 
-      await History.deleteMany({ chatId: roomId, userId: user._id.toString() });
+      await History.updateMany(
+        { chatId: roomId, userId: user._id.toString() },
+        { $set: { isDeleted: true } },
+      );
     }
 
     return Base.successResponse(response, Const.responsecodeSucceed, { room: updatedRoom });

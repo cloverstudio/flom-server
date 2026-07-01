@@ -295,7 +295,10 @@ router.patch("/:tribeId", auth({ allowUser: true }), async (request, response) =
           for (const memberId of acceptedUserIdsToRemove) {
             socketApi.leaveFrom(memberId, Const.chatTypeTribeGroupChat, roomId);
 
-            await History.deleteOne({ chatId: roomId, userId: memberId });
+            await History.findOneAndUpdate(
+              { chatId: roomId, userId: memberId },
+              { $set: { isDeleted: true } },
+            );
 
             socketApi.emitToUser(memberId, "delete_room", {
               conversation: room.toObject(),

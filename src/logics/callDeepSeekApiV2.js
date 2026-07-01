@@ -6,9 +6,6 @@ const openai = new OpenAI({ baseURL: "https://api.deepseek.com", apiKey: Config.
 const { encode } = require("gpt-3-encoder");
 
 const DEEPSEEK_MODEL = "deepseek-v4-flash";
-const d = new Date();
-const TODAY = d.toISOString().slice(0, 10);
-const YEAR = d.getFullYear();
 
 const tools = [
   {
@@ -40,7 +37,12 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
   }
 
   systemMessage +=
-    `\n\nToday's date is ${TODAY}. You have a web_search tool. Your training knowledge has a cutoff date, so you ` +
+    `\n\nToday's date is ${new Date()
+      .toISOString()
+      .slice(
+        0,
+        10,
+      )}. You have a web_search tool. Your training knowledge has a cutoff date, so you ` +
     "must NOT answer from memory for anything involving recent events, current prices, " +
     "software versions, scores, or anything described as 'latest' or 'current'. For those, " +
     "search first and base your answer only on the results. " +

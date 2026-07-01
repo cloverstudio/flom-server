@@ -88,7 +88,10 @@ router.patch("/:tribeId/leave", auth({ allowUser: true }), async (request, respo
 
       socketApi.leaveFrom(requestUserId, Const.chatTypeTribeGroupChat, tribe.roomId);
 
-      await History.deleteOne({ chatId: tribe.roomId, userId: requestUserId });
+      await History.findOneAndUpdate(
+        { chatId: tribe.roomId, userId: requestUserId },
+        { $set: { isDeleted: true } },
+      );
 
       socketApi.emitToUser(requestUserId, "delete_room", {
         conversation: room.toObject(),
