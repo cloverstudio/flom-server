@@ -14,6 +14,7 @@ const schema = new mongoose.Schema(
     lastUpdateUnreadCount: { type: Number, sparse: true },
     lastUpdateUser: {},
     lastMessage: {},
+    isDeleted: { type: Boolean, default: false },
     unreadCount: Number,
     keyword: String,
     pinned: Boolean,

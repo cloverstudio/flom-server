@@ -55,7 +55,10 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         }
       });
     } else {
-      await History.deleteMany({ chatId: room._id.toString(), userId: loginUserId });
+      await History.updateMany(
+        { chatId: room._id.toString(), userId: loginUserId },
+        { $set: { isDeleted: true } },
+      );
       await Favorite.deleteMany({
         roomId: Const.chatTypeRoom + "-" + room._id.toString(),
         userId: loginUserId,

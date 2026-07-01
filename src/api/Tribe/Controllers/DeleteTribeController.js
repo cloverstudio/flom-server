@@ -88,7 +88,10 @@ const deleteTribeGroupChat = async ({ roomId, userIds }) => {
     { $set: { ownerRemoved: true, users: [], modified: Date.now() } },
     { new: true },
   );
-  await History.deleteMany({ chatId: roomId, userId: { $in: userIds } });
+  await History.updateMany(
+    { chatId: roomId, userId: { $in: userIds } },
+    { $set: { isDeleted: true } },
+  );
 
   await Favorite.deleteMany({
     roomId: Const.chatTypeTribeGroupChat + "-" + roomId,
