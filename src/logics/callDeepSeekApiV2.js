@@ -223,7 +223,7 @@ async function webSearch(query) {
     const data = await response.json();
 
     // Trim it down to what's useful for the LLM, raw SearXNG output is verbose
-    const results = data.results.slice(0, 12).map((r) => ({
+    const results = data.results.slice(0, 20).map((r) => ({
       title: r.title,
       url: r.url,
       content: r.content,
