@@ -137,6 +137,7 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
       messages: messagesBase,
       max_completion_tokens: Const.FatAiMaxTokens,
       temperature: 0.3,
+      tool_choice: "none", // Disable tool calls for the follow-up
     });
 
     const followUpMessage = followUp.choices[0].message;
