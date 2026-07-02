@@ -102,7 +102,6 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
     temperature: 0.3,
     tools: tools,
     tool_choice: "required",
-    thinking: { type: "disabled" },
   });
 
   const message = completion.choices[0].message;
@@ -110,7 +109,7 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
 
   console.log("Initial DeepSeek API response:", message);
 
-  delete message.reasoning_content; // Remove reasoning content to reduce token usage
+  // delete message.reasoning_content;
 
   if (message.tool_calls) {
     for (const toolCall of message.tool_calls) {
