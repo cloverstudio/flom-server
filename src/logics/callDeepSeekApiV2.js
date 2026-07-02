@@ -101,7 +101,7 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
     max_completion_tokens: Const.FatAiMaxTokens,
     temperature: 0.3,
     tools: tools,
-    tool_choice: "auto",
+    tool_choice: "required",
     thinking: { type: "disabled" },
   });
 
