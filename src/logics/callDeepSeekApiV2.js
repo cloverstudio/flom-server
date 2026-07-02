@@ -102,6 +102,7 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
     temperature: 0.3,
     tools: tools,
     tool_choice: "auto",
+    thinking: { type: "disabled" },
   });
 
   const message = completion.choices[0].message;
@@ -171,7 +172,7 @@ async function getOldMessages({ senderPhoneNumber, receiverPhoneNumber }) {
       ],
     })
       .sort({ created: -1 })
-      .limit(20)
+      .limit(10)
       .lean();
 
     oldMessages = oldMessages.reverse();
@@ -219,7 +220,7 @@ async function webSearch(query) {
     const data = await response.json();
 
     // Trim it down to what's useful for the LLM, raw SearXNG output is verbose
-    const results = data.results.slice(0, 30).map((r) => ({
+    const results = data.results.slice(0, 12).map((r) => ({
       title: r.title,
       url: r.url,
       content: r.content,
