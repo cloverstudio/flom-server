@@ -101,7 +101,7 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
     max_completion_tokens: Const.FatAiMaxTokens,
     temperature: 0.3,
     tools: tools,
-    tool_choice: "required",
+    tool_choice: { type: "function", function: { name: "web_search" } },
   });
 
   const message = completion.choices[0].message;
