@@ -29,14 +29,18 @@ const tools = [
 ];
 
 async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNumber, isFatAi) {
-  let systemMessage = "";
+  let systemMessage1 = "",
+    systemMessage2 = "";
+
   if (isFatAi) {
-    systemMessage = Const.FatAiSystemMessage;
+    systemMessage1 = Const.FatAiSystemMessage;
+    systemMessage2 = Const.FatAiSystemMessage;
   } else {
-    systemMessage = Const.FlomTeamSystemMessage;
+    systemMessage1 = Const.FlomTeamSystemMessage;
+    systemMessage2 = Const.FlomTeamSystemMessage;
   }
 
-  systemMessage +=
+  systemMessage1 +=
     `\n\nToday's date is ${new Date()
       .toISOString()
       .slice(
@@ -51,6 +55,8 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
     "never invent or estimate scores, prices, or factual data not present in search results. " +
     "Do not mention a knowledge cutoff — search instead." +
     "Do not use markdown formatting. No tables, no ** bold **, no * italics *. Plain text only.";
+
+  systemMessage2 += `You are receiving messages of a user chatting with yourself, the chatbot, and the results of a previous web search. Use these inputs to answer the user's question. You have no tools or search available, do not attempt to use any. Do not respond with DSML tool calls, or any DSML formatting. In your reply, do not use markdown formatting. No tables, no ** bold **, no * italics *. Plain text only. If you cannot find the answer, say so. Do not make up an answer.`;
 
   console.log("Calling DeepSeek API");
   let messagesBase = [],
@@ -76,22 +82,23 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
     const oldMessages = await getOldMessages({ senderPhoneNumber, receiverPhoneNumber });
     messagesBase = oldMessages;
 
-    messages = [{ role: "system", content: systemMessage }, ...oldMessages];
+    messages = [{ role: "system", content: systemMessage1 }, ...oldMessages];
 
     //push new question
     messages.push({ role: "user", content: textMessage });
     messagesBase.push({ role: "user", content: textMessage });
   } else {
     messages = [
-      { role: "system", content: systemMessage },
+      { role: "system", content: systemMessage1 },
       { role: "user", content: textMessage },
     ];
+    messagesBase.push({ role: "user", content: textMessage });
   }
 
   const completion = await openai.chat.completions.create({
     model: DEEPSEEK_MODEL,
     messages,
-    max_tokens: Const.FatAiMaxTokens,
+    max_completion_tokens: Const.FatAiMaxTokens,
     temperature: 0.3,
     tools: tools,
     tool_choice: "auto",
@@ -120,14 +127,7 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
           content: result,
         });
 
-        messagesBase.push({
-          role: "system",
-          content:
-            "You have no tools available. " +
-            "Answer the user's question directly using only the search results already provided above. " +
-            "Do not attempt to call any function or tool. " +
-            "Do not use markdown formatting. No tables, no ** bold **, no * italics *. Plain text only.",
-        });
+        messagesBase.unshift({ role: "system", content: systemMessage2 });
       }
     }
 
@@ -135,7 +135,7 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
     const followUp = await openai.chat.completions.create({
       model: DEEPSEEK_MODEL,
       messages: messagesBase,
-      max_tokens: Const.FatAiMaxTokens,
+      max_completion_tokens: Const.FatAiMaxTokens,
       temperature: 0.3,
     });
 
@@ -159,13 +159,13 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
 async function getOldMessages({ senderPhoneNumber, receiverPhoneNumber }) {
   try {
     let oldMessages = await FlomMessage.find({
+      created: { $gt: Date.now() - 24 * 60 * 60 * 1000 }, // last day
       $or: [
         { receiverPhoneNumber: receiverPhoneNumber, senderPhoneNumber: senderPhoneNumber },
         { receiverPhoneNumber: senderPhoneNumber, senderPhoneNumber: receiverPhoneNumber },
       ],
     })
       .sort({ created: -1 })
-      .limit(10)
       .lean();
 
     oldMessages = oldMessages.reverse();
