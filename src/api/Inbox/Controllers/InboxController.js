@@ -2,11 +2,12 @@
 
 const router = require("express").Router();
 const Base = require("../../Base");
+const { logger } = require("#infra");
 const { Const, countries } = require("#config");
 const Utils = require("#utils");
 const Logics = require("#logics");
 const { auth } = require("#middleware");
-const { User, Order, ConversionRate, History } = require("#models");
+const { User, Order, ConversionRate, History, Room, FlomMessage } = require("#models");
 
 /**
  * @api {get} /api/v2/inbox Get users inbox flom_v1
@@ -17,84 +18,114 @@ const { User, Order, ConversionRate, History } = require("#models");
  *
  * @apiHeader {String} access-token Users unique access-token.
  *
- * @apiParam (Query string) {String}  type  Type of inbox to return: "waiting", "follow_up", "paid"
+ * @apiParam (Query string) {String} type   Type of inbox to return: "waiting", "follow_up", "paid", "all"
  *
  * @apiSuccessExample {json} Success Response
  * {
  *     "code": 1,
- *     "time": 1781859350805,
+ *     "time": 1782980250262,
  *     "data": {
  *         "histories": [
  *             {
- *                 "_id": "63ea1ba1eceafa20d4cf59c5",
- *                 "userId": "63dceca0c30542684f1b7b68",
- *                 "chatId": "63dccc42bcc5921af87df5ce",
+ *                 "_id": "6435096b56fb1a5be749509f",
+ *                 "userId": "63e3771e2a439852f927d4a0",
+ *                 "chatId": "63dceca0c30542684f1b7b68",
  *                 "chatType": 1,
- *                 "lastUpdate": 1776846399853,
+ *                 "lastUpdate": 1782909779810,
  *                 "lastUpdateUser": {
- *                     "_id": "63dccc42bcc5921af87df5ce",
+ *                     "_id": "63dceca0c30542684f1b7b68",
  *                     "bankAccounts": [
  *                         {
- *                             "name": "Global",
- *                             "accountNumber": "1234567890",
- *                             "code": "011",
- *                             "merchantCode": "16766337",
+ *                             "name": "SampleAcc",
+ *                             "accountNumber": "1503567574679",
+ *                             "code": "",
+ *                             "merchantCode": "40200168",
  *                             "selected": true,
- *                             "lightningUserName": "16766337",
- *                             "lightningAddress": "16766337@v2.flom.dev",
- *                             "lightningUrlEncoded": "LNURL1DP68GURN8GHJ7A3J9ENXCMMD9EJX2A309EMK2MRV944KUMMHDCHKCMN4WFK8QTE3XCMNVD3NXVMSFNA96T"
+ *                             "lightningUserName": "40200168",
+ *                             "lightningAddress": "40200168@flom.dev",
+ *                             "lightningUrlEncoded": "LNURL1DP68GURN8GHJ7ENVDAKJUER9WCHJUAM9D3KZ66MWDAMKUTMVDE6HYMRS9U6RQV3SXQCNVWQV2YVW6"
  *                         }
  *                     ],
- *                     "name": "Major_Kira_Nerys",
+ *                     "name": "mer19abc",
  *                     "organizationId": "5caf3119ec0abb18999bd753",
- *                     "created": 1675414594155,
- *                     "phoneNumber": "+2347087677188",
+ *                     "created": 1675422880810,
+ *                     "phoneNumber": "+2348020000019",
+ *                     "description": "kgkvkvkvlbjvjvkvkvjvjv kvkvkvkv ist eine von den meisten anderen",
  *                     "avatar": {
  *                         "picture": {
- *                             "originalName": "imageA_1675429443.jpg",
- *                             "size": 311015,
+ *                             "originalName": "thumb_n38hIbTQpmLT_1724400654916.jpg",
+ *                             "size": 43868,
  *                             "mimeType": "image/png",
- *                             "nameOnServer": "J86zLA5X85M2BKzuKyEUKeNnSm1SaO7H"
+ *                             "nameOnServer": "eN3zSN1c5jjhdFnkVVY98KbDV2ZjGvO9"
  *                         },
  *                         "thumbnail": {
- *                             "originalName": "imageA_1675429443.jpg",
- *                             "size": 100000,
+ *                             "originalName": "thumb_n38hIbTQpmLT_1724400654916.jpg",
+ *                             "size": 55598,
  *                             "mimeType": "image/png",
- *                             "nameOnServer": "72QsCaJDcsJgXfEv8Svpe7g43cl1AMAP"
+ *                             "nameOnServer": "SofEJ4ki2ilzECEYnD2QjI0fV6GZMtu1"
  *                         }
  *                     },
- *                     "description": "Plan 9 from Outer Space is a 1959 American science fiction film."
+ *                     "whatsApp": {
+ *                         "reference": "DBuUjflIKP"
+ *                     },
+ *                     "slug": "mer19abc"
  *                 },
  *                 "lastMessage": {
- *                     "messageId": "69e8863f110f06c56efbdf22",
- *                     "message": "Hdjdd",
- *                     "created": 1776846399708,
+ *                     "messageId": "6a450b536cf5e63f09c5dcd8",
+ *                     "message": " Ovkg",
+ *                     "created": 1782909779692,
  *                     "type": 1,
  *                     "sentTo": [
- *                         "63dceca0c30542684f1b7b68"
+ *                         "63e3771e2a439852f927d4a0"
  *                     ],
- *                     "seen": true
+ *                     "delivered": true
  *                 },
- *                 "keyword": "Major_Kira_Nerys, Hdjdd",
- *                 "unreadCount": 0,
- *                 "firstMessageUserId": "63dccc42bcc5921af87df5ce",
+ *                 "keyword": "mer19abc,  Ovkg",
+ *                 "unreadCount": 1,
+ *                 "firstMessageUserId": "63e3771e2a439852f927d4a0",
  *                 "__v": 0,
- *                 "lastUpdateUnreadCount": 1776860195362,
- *                 "updatedAt": "2026-04-22T12:16:35.362Z",
+ *                 "lastUpdateUnreadCount": 1782909676190,
  *                 "channel": "internal",
- *                 "orderStatus": "shipped",
+ *                 "updatedAt": "2026-07-01T12:42:59.990Z",
+ *                 "orderStatus": "expired",
  *                 "orderPrice": {
- *                     "value": 100,
- *                     "valueInSats": 10000000,
- *                     "currency": "USD",
- *                     "countryCode": "US"
+ *                     "countryCode": "NG",
+ *                     "currency": "NGN",
+ *                     "value": 1010
  *                 },
  *                 "user": {
- *                   "_id": "63dccc42bcc5921af87df5ce",
- *                   "userName": "Major_Kira_Nerys",
- *                   "created": 1675414594155,
- *                   "phoneNumber": "+2347087677188",
- *                   "avatar": {}
+ *                     "_id": "63dceca0c30542684f1b7b68",
+ *                     "bankAccounts": [
+ *                         {
+ *                             "name": "SampleAcc",
+ *                             "accountNumber": "1503567574679",
+ *                             "code": "",
+ *                             "merchantCode": "40200168",
+ *                             "selected": true,
+ *                             "lightningUserName": "40200168",
+ *                             "lightningAddress": "40200168@flom.dev",
+ *                             "lightningUrlEncoded": "LNURL1DP68GURN8GHJ7ENVDAKJUER9WCHJUAM9D3KZ66MWDAMKUTMVDE6HYMRS9U6RQV3SXQCNVWQV2YVW6"
+ *                         }
+ *                     ],
+ *                     "created": 1675422880810,
+ *                     "phoneNumber": "+2348020000019",
+ *                     "userName": "mer19abc",
+ *                     "avatar": {
+ *                         "picture": {
+ *                             "originalName": "thumb_n38hIbTQpmLT_1724400654916.jpg",
+ *                             "size": 43868,
+ *                             "mimeType": "image/png",
+ *                             "nameOnServer": "eN3zSN1c5jjhdFnkVVY98KbDV2ZjGvO9"
+ *                         },
+ *                         "thumbnail": {
+ *                             "originalName": "thumb_n38hIbTQpmLT_1724400654916.jpg",
+ *                             "size": 55598,
+ *                             "mimeType": "image/png",
+ *                             "nameOnServer": "SofEJ4ki2ilzECEYnD2QjI0fV6GZMtu1"
+ *                         }
+ *                     },
+ *                     "onlineStatus": null,
+ *                     "lastSeen": 1782936199640
  *                 }
  *             }
  *         ]
@@ -140,68 +171,93 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
   }
 });
 
-async function getInbox({ user, type }) {
-  const userId = user._id.toString();
+async function getInbox({ user, type, page, size }) {
+  try {
+    const userId = user._id.toString();
 
-  if (!type || !["waiting", "follow_up", "paid"].includes(type)) {
-    return { errCode: Const.responsecodeInvalidTypeParameter, errMsg: "invalid type: " + type };
-  }
-
-  const query = { "seller._id": userId };
-
-  switch (type) {
-    case "waiting":
-      query.status = {
-        $in: [Const.orderStatus.PAYMENT_PENDING, Const.orderStatus.PAYMENT_FAILED],
-      };
-      break;
-    case "follow_up":
-      query.status = { $in: [Const.orderStatus.PAYMENT_COMPLETED, Const.orderStatus.SHIPPED] };
-      break;
-    case "paid":
-      query.status = {
-        $in: [Const.orderStatus.PAYMENT_COMPLETED, Const.orderStatus.SHIPPED],
-      };
-      break;
-  }
-
-  const orders = await Order.find(query).sort({ createdAt: -1 }).lean();
-
-  const existingBuyerIds = [];
-  const orderToBuyerIdMap = {};
-  const mostRecentOrdersForUniqueBuyers = orders.filter((order) => {
-    const shouldInclude = !existingBuyerIds.includes(order.buyer._id);
-    if (shouldInclude) {
-      existingBuyerIds.push(order.buyer._id);
-      orderToBuyerIdMap[order.buyer._id] = order;
+    if (!type || !["waiting", "follow_up", "paid", "all"].includes(type)) {
+      return { errCode: Const.responsecodeInvalidTypeParameter, errMsg: "invalid type: " + type };
     }
-    return shouldInclude;
-  });
 
-  const uniqueBuyerIds = Array.from(new Set(existingBuyerIds));
-  const histories = await History.find({ userId, chatId: { $in: uniqueBuyerIds }, chatType: 1 })
-    .sort({ lastUpdate: -1 })
-    .lean();
+    const query = { "seller._id": userId };
 
-  const otherUsers = await User.find(
-    { _id: { $in: uniqueBuyerIds } },
-    { _id: 1, userName: 1, created: 1, phoneNumber: 1, avatar: 1, bankAccounts: 1 },
-  ).lean();
-  const otherUsersMap = {};
-  otherUsers.forEach((otherUser) => {
-    otherUsersMap[otherUser._id.toString()] = otherUser;
-  });
-
-  histories.forEach((history) => {
-    history.orderStatus = orderToBuyerIdMap[history.chatId]?.status || null;
-    history.orderPrice = orderToBuyerIdMap[history.chatId]?.price || null;
-    history.user = otherUsersMap[history.chatId] || null;
-    if (history.user) {
-      history.user._id = history.user._id.toString();
+    switch (type) {
+      case "waiting":
+        query.status = {
+          $in: [Const.orderStatus.PAYMENT_PENDING, Const.orderStatus.PAYMENT_FAILED],
+        };
+        break;
+      case "follow_up":
+        query.status = { $in: [Const.orderStatus.PAYMENT_COMPLETED, Const.orderStatus.SHIPPED] };
+        break;
+      case "paid":
+        query.status = {
+          $in: [Const.orderStatus.PAYMENT_COMPLETED, Const.orderStatus.SHIPPED],
+        };
+        break;
+      case "all":
+        query.status = {
+          $nin: [
+            Const.orderStatus.DELIVERED,
+            Const.orderStatus.CLOSED_BY_SUPPORT,
+            Const.orderStatus.CANCELED,
+          ],
+        };
+        break;
     }
-  });
 
-  return { histories };
+    const orders = await Order.find(query).sort({ createdAt: -1 }).lean();
+
+    const existingBuyerIds = [];
+    const orderToBuyerIdMap = {};
+    const mostRecentOrdersForUniqueBuyers = orders.filter((order) => {
+      const shouldInclude = !existingBuyerIds.includes(order.buyer._id);
+      if (shouldInclude) {
+        existingBuyerIds.push(order.buyer._id);
+        orderToBuyerIdMap[order.buyer._id] = order;
+      }
+      return shouldInclude;
+    });
+
+    const uniqueBuyerIds = Array.from(new Set(existingBuyerIds));
+    const histories = await History.find({ userId, chatId: { $in: uniqueBuyerIds }, chatType: 1 })
+      .sort({ lastUpdate: -1 })
+      .lean();
+
+    const otherUsers = await User.find(
+      { _id: { $in: uniqueBuyerIds } },
+      { _id: 1, userName: 1, created: 1, phoneNumber: 1, avatar: 1, bankAccounts: 1 },
+    ).lean();
+    const otherUsersMap = {};
+    otherUsers.forEach((otherUser) => {
+      otherUsersMap[otherUser._id.toString()] = otherUser;
+    });
+
+    const onlineStatuses = await Logics.getUsersOnlineStatus(uniqueBuyerIds);
+
+    histories.forEach((history) => {
+      history.orderStatus = orderToBuyerIdMap[history.chatId]?.status || null;
+      history.orderPrice = orderToBuyerIdMap[history.chatId]?.price || null;
+      history.user = otherUsersMap[history.chatId] || null;
+      if (history.user) {
+        history.user._id = history.user._id.toString();
+
+        const onlineStatusObj = onlineStatuses.find((status) => status.userId === history.chatId);
+        if (onlineStatusObj) {
+          history.user.onlineStatus = onlineStatusObj.onlineStatus;
+          history.user.lastSeen = onlineStatusObj.lastSeen || null;
+        } else {
+          history.user.onlineStatus = null;
+          history.user.lastSeen = null;
+        }
+      }
+    });
+
+    return { histories };
+  } catch (error) {
+    logger.error("InboxController, getInbox", error);
+    return { histories: [] };
+  }
 }
 
 module.exports = router;
