@@ -102,7 +102,6 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
     temperature: 0.3,
     tools: tools,
     tool_choice: "auto",
-    thinking: { type: "disabled" },
   });
 
   const message = completion.choices[0].message;
@@ -153,6 +152,11 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
     return {
       tokenUsage: tokenUsage + followUpTokenUsage,
       message: followUpMessage.content,
+    };
+  } else {
+    return {
+      tokenUsage: tokenUsage,
+      message: message.content,
     };
   }
 }
