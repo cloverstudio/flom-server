@@ -112,6 +112,9 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
   // delete message.reasoning_content;
 
   if (message.tool_calls) {
+    messagesBase.unshift({ role: "system", content: systemMessage2 });
+    messagesBase.push(message);
+
     for (const toolCall of message.tool_calls) {
       if (toolCall.function.name === "web_search") {
         const args = JSON.parse(toolCall.function.arguments);
@@ -120,17 +123,11 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
         console.log("Web search result:", result);
 
         // Append the tool call and its result to the conversation
-        messagesBase.push(message);
+
         messagesBase.push({
           role: "tool",
           tool_call_id: toolCall.id,
           content: result,
-        });
-
-        messagesBase.unshift({ role: "system", content: systemMessage2 });
-
-        messagesBase.forEach((msg) => {
-          if (msg.role === "system" && msg.content) console.log(msg.content);
         });
       }
     }
