@@ -102,6 +102,7 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
     temperature: 0.3,
     tools: tools,
     tool_choice: "auto",
+    thinking: { type: "disabled" },
   });
 
   const message = completion.choices[0].message;
@@ -159,13 +160,13 @@ async function callDeepSeekApiV2(textMessage, senderPhoneNumber, receiverPhoneNu
 async function getOldMessages({ senderPhoneNumber, receiverPhoneNumber }) {
   try {
     let oldMessages = await FlomMessage.find({
-      created: { $gt: Date.now() - 24 * 60 * 60 * 1000 }, // last day
       $or: [
         { receiverPhoneNumber: receiverPhoneNumber, senderPhoneNumber: senderPhoneNumber },
         { receiverPhoneNumber: senderPhoneNumber, senderPhoneNumber: receiverPhoneNumber },
       ],
     })
       .sort({ created: -1 })
+      .limit(20)
       .lean();
 
     oldMessages = oldMessages.reverse();
