@@ -6,7 +6,7 @@ const { logger } = require("#infra");
 const { Const, Config, countries } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
-const { MerchantApplication, User, Bank, Notification } = require("#models");
+const { MerchantApplication, User, Bank, Notification, Business } = require("#models");
 const { sendBonus } = require("#logics");
 const sharp = require("sharp");
 const fsp = require("fs/promises");
@@ -1021,6 +1021,14 @@ router.patch(
         merchantApplication: merchantApplicationObj,
       });
 
+      if (
+        merchantApplicationObj.approvalStatus ===
+          Const.merchantApplicationStatusApprovedWithoutPayout ||
+        merchantApplicationObj.approvalStatus === Const.merchantApplicationStatusApprovedWithPayout
+      ) {
+        await handleBusiness({ owner: user, merchantApplication: merchantApplicationObj });
+      }
+
       if (Config.environment !== "production") return;
 
       // sending bonus payout to NG merchant
@@ -1136,6 +1144,50 @@ async function sendNotifications({
   await User.updateOne({ _id: userId }, { $inc: { "notifications.unreadCount": 1 } });
 
   return;
+}
+
+async function handleBusiness({ owner, merchantApplication }) {
+  try {
+    let status = "";
+
+    if (
+      merchantApplication.approvalStatus === Const.merchantApplicationStatusApprovedWithoutPayout
+    ) {
+      status = "active_payout_disabled";
+    } else if (
+      merchantApplication.approvalStatus === Const.merchantApplicationStatusApprovedWithPayout
+    ) {
+      status = "active_payout_enabled";
+    }
+
+    if (!status) {
+      logger.error("MerchantApplicationController - handleBusiness, invalid status");
+      return;
+    }
+
+    let businesses = await Business.find({ "owner._id": owner._id.toString() }).lean();
+    if (businesses.length === 0) {
+      await Business.create({
+        owner: { _id: owner._id.toString(), phoneNumber: owner.phoneNumber },
+        name: `${owner.userName}'s business`,
+        status,
+        taxId: merchantApplication.taxId,
+        idPhotos: merchantApplication.idPhotos,
+        address: owner.address,
+      });
+    } else {
+      await Business.updateMany(
+        { "owner._id": owner._id.toString() },
+        { status, taxId: merchantApplication.taxId, idPhotos: merchantApplication.idPhotos },
+        { new: true, lean: true },
+      );
+    }
+
+    return;
+  } catch (error) {
+    logger.error("MerchantApplicationController - handleBusiness", error);
+    return;
+  }
 }
 
 module.exports = router;

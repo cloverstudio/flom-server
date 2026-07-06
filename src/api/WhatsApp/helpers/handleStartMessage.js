@@ -2,7 +2,7 @@
 
 const { logger } = require("#infra");
 const { Const, Config } = require("#config");
-const { User, CoreIdentity } = require("#models");
+const { User, CoreIdentity, Business } = require("#models");
 const Logics = require("#logics");
 
 async function handleStartMessage({ from }) {
@@ -39,17 +39,42 @@ async function handleStartMessage({ from }) {
       return;
     }
 
-    if (existingUser) {
-      await User.findOneAndUpdate(
-        { phoneNumber: from },
-        { isLoginForbidden: true, aliasForUserId: existingUser._id.toString() },
-      );
-    }
-
     const user = await User.findOneAndUpdate(
       { "whatsApp.businessPhoneNumber": from },
       { "whatsApp.businessConnected": true },
       { new: true, lean: true },
+    );
+
+    if (existingUser) {
+      const now = Date.now();
+
+      await User.findByIdAndUpdate(existingUser._id, {
+        isLoginForbidden: true,
+        aliasForUserId: user._id.toString(),
+        forbiddenUserInfo: {
+          forbiddenAt: now,
+          phoneNumber: existingUser.phoneNumber,
+          userName: existingUser.userName,
+          name: existingUser.name,
+          bankAccounts: existingUser.bankAccounts || [],
+        },
+        phoneNumber: `Forbidden-${existingUser.phoneNumber}-${now}`,
+        userName: `Forbidden-${existingUser.userName}-${now}`,
+        name: `Forbidden-${existingUser.name || "Unknown"}-${now}`,
+        bankAccounts: [],
+      });
+    }
+
+    await Business.findOneAndUpdate(
+      { "owner._id": user._id.toString() },
+      {
+        $set: {
+          "owner.phoneNumber": user.phoneNumber,
+          whatsAppPhoneNumber: from,
+          whatsAppConnected: true,
+        },
+      },
+      { upsert: true, new: true },
     );
 
     await CoreIdentity.createCoreIdentity({

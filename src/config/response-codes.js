@@ -831,6 +831,15 @@ ResponseCodes.responsecodeBusinessNumberAlreadyConnected = 443959;
 
 ResponseCodes.responsecodeUserHasOpenOrders = 443960;
 
+ResponseCodes.responsecodeInvalidBusinessId = 443970;
+ResponseCodes.responsecodeBusinessNotFound = 443971;
+ResponseCodes.responsecodeInvalidBusinessName = 443972;
+ResponseCodes.responsecodeInvalidBusinessDescription = 443973;
+ResponseCodes.responsecodeInvalidBusinessPhoneNumber = 443974;
+ResponseCodes.responsecodeInvalidBusinessWhatsAppPhoneNumber = 443975;
+ResponseCodes.responsecodeInvalidBusinessWorkingHours = 443976;
+ResponseCodes.responsecodeInvalidBusinessScheduleException = 443977;
+
 ResponseCodes.responsecodeCountryTemporarilyBanned = 444000;
 ResponseCodes.responsecodeAppVersionTooOld = 444001;
 

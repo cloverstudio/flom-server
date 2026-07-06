@@ -200,6 +200,7 @@ const schema = new mongoose.Schema(
     reservations: [{ auctionId: String, quantity: Number }],
     slug: String,
     oldSlugs: [String],
+    businessId: String,
   },
   { timestamps: true },
 );

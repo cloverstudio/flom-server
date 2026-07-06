@@ -6,7 +6,7 @@ const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
 const { auth, autoApproveProduct } = require("#middleware");
-const { Category, Product, User, ApiAccessLog, ConversionRate } = require("#models");
+const { Category, Product, User, ApiAccessLog, ConversionRate, Business } = require("#models");
 const { handleTags } = require("#logics");
 const { recombee } = require("#services");
 const mediaHandler = require("#media");
@@ -481,6 +481,12 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
     if (vehicleYear) product.vehicleYear = vehicleYear;
     if (year) product.year = year;
     if (appropriateForKids) product.appropriateForKids = appropriateForKids;
+    if (product.ownerId) {
+      const business = await Business.findOne({ "owner._id": product.ownerId.toString() }).lean();
+      if (business) {
+        product.businessId = business._id.toString();
+      }
+    }
 
     const tagsInput = fields.tags;
     if (tagsInput !== undefined) {

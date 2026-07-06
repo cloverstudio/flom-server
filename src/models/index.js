@@ -14,6 +14,7 @@ module.exports = Object.freeze({
   BlockedNumber: require("./BlockedNumber"),
   BlockedThirdPartyProduct: require("./BlockedThirdPartyProduct"),
   Brand: require("./Brand"),
+  Business: require("./Business"),
 
   CallLog: require("./CallLog"),
   Category: require("./Category"),
