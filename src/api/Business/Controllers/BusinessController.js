@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { Const } = require("#config");
 const { auth } = require("#middleware");
 const Utils = require("#utils");
-const { Category, Business } = require("#models");
+const { Category, Business, User } = require("#models");
 
 /**
  * @api {get} /api/v2/businesses/:businessId  Get business flom_v1
@@ -542,6 +542,8 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       owner: { _id: user._id.toString(), phoneNumber: user.phoneNumber },
       ...info,
     });
+
+    await User.updateOne({ _id: user._id.toString() }, { hasBusiness: true });
 
     Base.successResponse(response, Const.responsecodeSucceed, { business: business.toObject() });
   } catch (error) {

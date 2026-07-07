@@ -108,10 +108,6 @@ router.get("/", async function (request, response) {
         });
       }
 
-      await User.findByIdAndUpdate(user._id, {
-        "whatsApp.businessPhoneNumber": businessPhoneNumber,
-      });
-
       let business = await Business.findOne({ "owner._id": user._id.toString() }).lean();
       if (!business) {
         await Business.create({
@@ -126,6 +122,11 @@ router.get("/", async function (request, response) {
           { whatsAppPhoneNumber: businessPhoneNumber },
         );
       }
+
+      await User.findByIdAndUpdate(user._id, {
+        "whatsApp.businessPhoneNumber": businessPhoneNumber,
+        hasBusiness: true,
+      });
     }
 
     return Base.successResponse(response, Const.responsecodeSucceed, {

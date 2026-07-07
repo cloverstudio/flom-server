@@ -41,7 +41,7 @@ async function handleStartMessage({ from }) {
 
     const user = await User.findOneAndUpdate(
       { "whatsApp.businessPhoneNumber": from },
-      { "whatsApp.businessConnected": true },
+      { "whatsApp.businessConnected": true, hasBusiness: true },
       { new: true, lean: true },
     );
 

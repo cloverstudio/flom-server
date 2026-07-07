@@ -289,6 +289,7 @@ const schema = new mongoose.Schema(
       name: String,
       bankAccounts: [],
     },
+    hasBusiness: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

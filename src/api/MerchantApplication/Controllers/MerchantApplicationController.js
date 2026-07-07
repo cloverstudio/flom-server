@@ -1183,6 +1183,8 @@ async function handleBusiness({ owner, merchantApplication }) {
       );
     }
 
+    await User.updateOne({ _id: owner._id.toString() }, { hasBusiness: true });
+
     return;
   } catch (error) {
     logger.error("MerchantApplicationController - handleBusiness", error);
