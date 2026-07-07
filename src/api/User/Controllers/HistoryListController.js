@@ -445,8 +445,8 @@ async function getList(lastUpdate, page, request, searchObj = null) {
     res = await History.find({
       chatType: { $ne: Const.chatTypeBroadcastAdmin },
       userId: user._id.toString(),
-      ownerRemoved: null,
-      $expr: { $gt: ["$lastUpdate", "$isDeleted"] },
+      ownerRemoved: { $ne: true },
+      isDeleted: { $ne: true },
       $or: [{ lastUpdate: { $gt: lastUpdate } }, { lastUpdateUnreadCount: { $gt: lastUpdate } }],
     })
       .sort({ lastUpdate: "desc" })
@@ -454,9 +454,9 @@ async function getList(lastUpdate, page, request, searchObj = null) {
   } else {
     let queryObj = {
       chatType: { $ne: Const.chatTypeBroadcastAdmin },
-      ownerRemoved: null,
+      ownerRemoved: { $ne: true },
       userId: user._id.toString(),
-      $expr: { $gt: ["$lastUpdate", "$isDeleted"] },
+      isDeleted: { $ne: true },
     };
 
     if (keyword) {
