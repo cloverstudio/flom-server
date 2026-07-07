@@ -9,6 +9,7 @@ const schema = new mongoose.Schema(
   {
     name: String,
     description: String,
+    category: { _id: String, name: String },
     avatar: {},
     status: { type: String, default: "created" }, // created, active_payout_disabled, active_payout_enabled, disabled
     oldStatus: String,

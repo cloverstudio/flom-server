@@ -115,6 +115,7 @@ router.get("/", async function (request, response) {
           name: `${user.userName}'s business`,
           address: user.address,
           whatsAppPhoneNumber: businessPhoneNumber,
+          category: user.businessCategory || null,
         });
       } else {
         await Business.findOneAndUpdate(

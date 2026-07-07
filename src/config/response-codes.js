@@ -246,6 +246,7 @@ ResponseCodes.responsecodeOperaionIdIsRequired = 400650;
 ResponseCodes.responsecodeResultIsRequired = 400660;
 ResponseCodes.responsecodeFailedTransaction = 400670;
 ResponseCodes.responsecodeCategoryNotFound = 400680;
+ResponseCodes.responsecodeInvalidCategoryId = 400681;
 ResponseCodes.responsecodeNoTransactions = 400690;
 ResponseCodes.responsecode9MobileReject = 400700;
 ResponseCodes.responsecodeNoReceiver = 400701;

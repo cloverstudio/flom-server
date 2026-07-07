@@ -1174,6 +1174,7 @@ async function handleBusiness({ owner, merchantApplication }) {
         taxId: merchantApplication.taxId,
         idPhotos: merchantApplication.idPhotos,
         address: owner.address,
+        category: owner.businessCategory || null,
       });
     } else {
       await Business.updateMany(

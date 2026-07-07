@@ -247,6 +247,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
  * @apiParam {String}     name                    Business name
  * @apiParam {String}     description             Business description
  * @apiParam {String}     phoneNumber             Business phone number
+ * @apiParam {String}     [categoryId]            Business category ID (default: user's business category from profile)
  * @apiParam {String}     [whatsAppPhoneNumber]   Business WhatsApp phone number
  * @apiParam {String}     [scheduleDescription]   Business schedule description
  * @apiParam {Object[]}   [workingHours]          Business working hours, one entry per day of the week
@@ -373,6 +374,8 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
  * @apiError (Errors) 443975 Invalid business WhatsApp phone number
  * @apiError (Errors) 443976 Invalid business schedule
  * @apiError (Errors) 443977 Invalid business schedule exception
+ * @apiError (Errors) 400680 Category not found
+ * @apiError (Errors) 400681 Invalid category ID
  * @apiError (Errors) 4000007 Token not valid
  */
 
@@ -388,6 +391,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       scheduleDescription,
       exceptions,
       address,
+      categoryId,
     } = request.body;
 
     const info = { schedule: { weekly: {} } };
@@ -538,6 +542,27 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       info.address = user.address || {};
     }
 
+    if (categoryId) {
+      if (!Utils.isValidObjectId(categoryId)) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeInvalidCategoryId,
+          message: "BusinessController, create business - invalid categoryId",
+        });
+      }
+      const category = await Category.findById(categoryId).lean();
+      if (!category) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeCategoryNotFound,
+          message: "BusinessController, create business - category not found",
+        });
+      }
+      info.category = { _id: category._id.toString(), name: category.name };
+    } else {
+      info.category = user.businessCategory || null;
+    }
+
     const business = await Business.create({
       owner: { _id: user._id.toString(), phoneNumber: user.phoneNumber },
       ...info,
@@ -568,6 +593,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
  * @apiParam {String}     [name]                  Business name
  * @apiParam {String}     [description]           Business description
  * @apiParam {String}     [phoneNumber]           Business phone number
+ * @apiParam {String}     [categoryId]            Business category ID
  * @apiParam {String}     [whatsAppPhoneNumber]   Business WhatsApp phone number
  * @apiParam {Boolean}    [disableBusiness]       Whether to disable the business (only owner can disable)
  * @apiParam {Boolean}    [enableBusiness]        Whether to enable the business (only owner can enable) - previous business status is reinstated
@@ -701,6 +727,8 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
  * @apiError (Errors) 443975 Invalid business WhatsApp phone number
  * @apiError (Errors) 443976 Invalid business schedule
  * @apiError (Errors) 443977 Invalid business schedule exception
+ * @apiError (Errors) 400680 Category not found
+ * @apiError (Errors) 400681 Invalid category ID
  * @apiError (Errors) 4000007 Token not valid
  */
 
@@ -719,6 +747,7 @@ router.patch("/:businessId", auth({ allowUser: true }), async function (request,
       address,
       disableBusiness,
       enableBusiness,
+      categoryId,
     } = request.body;
 
     if (!businessId || !Utils.isValidObjectId(businessId)) {
@@ -913,6 +942,25 @@ router.patch("/:businessId", auth({ allowUser: true }), async function (request,
 
     if (address && typeof address === "object") {
       updateObj.address = address;
+    }
+
+    if (categoryId) {
+      if (!Utils.isValidObjectId(categoryId)) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeInvalidCategoryId,
+          message: "BusinessController, update business - invalid categoryId",
+        });
+      }
+      const category = await Category.findById(categoryId).lean();
+      if (!category) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeCategoryNotFound,
+          message: "BusinessController, update business - category not found",
+        });
+      }
+      updateObj.category = { _id: category._id.toString(), name: category.name };
     }
 
     const updatedBusiness = await Business.findByIdAndUpdate(businessId, updateObj, {
