@@ -18,7 +18,19 @@ const schema = new mongoose.Schema(
       phoneNumber: { type: String, index: true },
     },
     address: {},
-    assistants: [{ _id: String, phoneNumber: String, role: String, status: String }], // role - helper (chat, job status, evidence no money), manager (+ prices, refunds, profile edits) | status - invited, active, disabled
+    assistants: [
+      {
+        _id: String,
+        phoneNumber: String,
+        role: String, // role - helper (chat, job status, evidence no money), manager (+ prices, refunds, profile edits) | status - invited, active, disabled
+        status: String, // pending, accepted, rejected, revoked, expired
+        invitedById: String,
+        invitedAt: Number,
+        expiresAt: Number,
+        respondedAt: Number,
+        revokedAt: Number,
+      },
+    ],
     phoneNumber: { type: String, index: true },
     whatsAppPhoneNumber: String,
     whatsAppConnected: { type: Boolean, default: false },
