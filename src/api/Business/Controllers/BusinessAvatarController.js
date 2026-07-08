@@ -132,6 +132,9 @@ router.post("/:businessId/avatar", auth({ allowUser: true }), async function (re
       height: thumbnailDimensions.height,
     };
 
+    await fs.copyFile(filePath, Config.uploadPath + "/" + formatted.nameOnServer);
+    await fs.unlink(filePath);
+
     await Business.findByIdAndUpdate(businessId, { avatar: formatted });
 
     if (oldAvatar) {
