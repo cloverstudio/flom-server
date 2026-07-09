@@ -464,6 +464,7 @@
   "443976": "Invalid business schedule.",
   "443977": "Invalid business schedule exception.",
   "400681": "Category not found.",
+  "443978": "User is already an assistant or invited.",
 
   "444000": "Your country has been temporarily banned.",
   "444001": "Your app version is too old, please update.",

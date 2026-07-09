@@ -91,8 +91,9 @@ const Logics = require("#logics");
  *
  * @apiError (Errors) 443970 Invalid business id
  * @apiError (Errors) 443971 Business not found
- * @apiError (Errors) 443391 File not found
- * @apiError (Errors) 443392 File type not supported
+ * @apiError (Errors) 443040 User not found
+ * @apiError (Errors) 443215 Invalid role
+ * @apiError (Errors) 443978 User is already an assistant or invited
  * @apiError (Errors) 4000007 Token invalid
  */
 
@@ -132,17 +133,20 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     if (!["helper", "manager"].includes(role)) {
       return Base.newErrorResponse({
         response,
-        code: Const.responsecodeInvalidRole,
+        code: Const.responsecodeWrongRole,
         message: "AssistantInviteController, invalid role",
       });
     }
 
-    const existingAssistant = business.assistants?.find((assistant) => assistant._id === targetId);
+    const existingAssistant = business.assistants?.find(
+      (assistant) =>
+        assistant._id === targetId && ["pending", "accepted"].includes(assistant.status),
+    );
 
-    if (existingAssistant && ["pending", "accepted"].includes(existingAssistant.status)) {
+    if (existingAssistant) {
       return Base.newErrorResponse({
         response,
-        code: Const.responsecodeUserAlreadyAssistant,
+        code: Const.responsecodeUserIsAlreadyAssistantOrInvited,
         message: "AssistantInviteController, target user is already an assistant or invited",
       });
     }
@@ -265,8 +269,9 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
  *
  * @apiError (Errors) 443970 Invalid business id
  * @apiError (Errors) 443971 Business not found
- * @apiError (Errors) 443391 File not found
- * @apiError (Errors) 443392 File type not supported
+ * @apiError (Errors) 443232 Invalid action
+ * @apiError (Errors) 443040 User not found
+ * @apiError (Errors) 443215 Invalid role
  * @apiError (Errors) 4000007 Token invalid
  */
 
@@ -347,7 +352,7 @@ router.patch("/", auth({ allowUser: true }), async function (request, response) 
     if (action === "change_role" && !["helper", "manager"].includes(newRole)) {
       return Base.newErrorResponse({
         response,
-        code: Const.responsecodeInvalidRole,
+        code: Const.responsecodeWrongRole,
         message: "AssistantInviteController, invalid new role",
       });
     }

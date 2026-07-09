@@ -840,6 +840,7 @@ ResponseCodes.responsecodeInvalidBusinessPhoneNumber = 443974;
 ResponseCodes.responsecodeInvalidBusinessWhatsAppPhoneNumber = 443975;
 ResponseCodes.responsecodeInvalidBusinessWorkingHours = 443976;
 ResponseCodes.responsecodeInvalidBusinessScheduleException = 443977;
+ResponseCodes.responsecodeUserIsAlreadyAssistantOrInvited = 443978;
 
 ResponseCodes.responsecodeCountryTemporarilyBanned = 444000;
 ResponseCodes.responsecodeAppVersionTooOld = 444001;
