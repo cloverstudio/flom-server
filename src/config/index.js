@@ -3,6 +3,7 @@ const Constants = require("./constants");
 const countries = require("./countries");
 const countries2to3 = require("./countries2to3");
 const ResponseCodes = require("./response-codes");
+const businessTags = require("./business-tags");
 
 module.exports = {
   Config,
@@ -12,4 +13,5 @@ module.exports = {
   }),
   countries,
   countries2to3,
+  businessTags,
 };

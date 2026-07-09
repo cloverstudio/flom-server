@@ -465,6 +465,8 @@
   "443977": "Invalid business schedule exception.",
   "400681": "Category not found.",
   "443978": "User is already an assistant or invited.",
+  "443979": "Invalid business market.",
+  "443980": "One of the business tags is invalid.",
 
   "444000": "Your country has been temporarily banned.",
   "444001": "Your app version is too old, please update.",

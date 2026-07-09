@@ -841,6 +841,8 @@ ResponseCodes.responsecodeInvalidBusinessWhatsAppPhoneNumber = 443975;
 ResponseCodes.responsecodeInvalidBusinessWorkingHours = 443976;
 ResponseCodes.responsecodeInvalidBusinessScheduleException = 443977;
 ResponseCodes.responsecodeUserIsAlreadyAssistantOrInvited = 443978;
+ResponseCodes.responsecodeInvalidBusinessMarket = 443979;
+ResponseCodes.responsecodeInvalidBusinessTag = 443980;
 
 ResponseCodes.responsecodeCountryTemporarilyBanned = 444000;
 ResponseCodes.responsecodeAppVersionTooOld = 444001;

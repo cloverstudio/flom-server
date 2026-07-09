@@ -2,7 +2,7 @@
 
 const router = require("express").Router();
 const Base = require("../../Base");
-const { Const } = require("#config");
+const { Const, businessTags, countries } = require("#config");
 const { auth } = require("#middleware");
 const Utils = require("#utils");
 const { Category, Business, User } = require("#models");
@@ -42,6 +42,15 @@ const { Category, Business, User } = require("#models");
  *             "phoneNumber": "+385958710207",
  *             "whatsAppConnected": false,
  *             "verificationStatus": "unverified",
+ *             "market": "NG",
+ *             "tagIds": ["tag1", "tag2", "tag3"],
+ *             "tags": [
+ *                {
+ *                  "id": "tag1",
+ *                  "display": { "en-NG": "Makeup & Beauty" },
+ *                  "enabledInMarket": true
+ *                }
+ *             ],
  *             "schedule": {
  *                 "weekly": {
  *                     "0": {
@@ -171,6 +180,15 @@ router.get("/:businessId", auth({ allowUser: true }), async function (request, r
  *                 "phoneNumber": "+385958710207",
  *                 "whatsAppConnected": false,
  *                 "verificationStatus": "unverified",
+ *                 "market": "NG",
+ *                 "tagIds": ["tag1", "tag2", "tag3"],
+ *                 "tags": [
+ *                    {
+ *                      "id": "tag1",
+ *                      "display": { "en-NG": "Makeup & Beauty" },
+ *                      "enabledInMarket": true
+ *                    }
+ *                 ],
  *                 "schedule": {
  *                     "weekly": {
  *                         "0": {
@@ -247,12 +265,13 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
  * @apiParam {String}     name                    Business name
  * @apiParam {String}     description             Business description
  * @apiParam {String}     phoneNumber             Business phone number
- * @apiParam {String}     [categoryId]            Business category ID (default: user's business category from profile)
  * @apiParam {String}     [whatsAppPhoneNumber]   Business WhatsApp phone number
  * @apiParam {String}     [scheduleDescription]   Business schedule description
  * @apiParam {Object[]}   [workingHours]          Business working hours, one entry per day of the week
  * @apiParam {Object[]}   [exceptions]            Business schedule exceptions (holidays, special hours, etc.)
  * @apiParam {Object}     [address]               Business address (defaults to user's address)
+ * @apiParam {String}     [market]                Business market (country code - HR, NG, US) - defaults to owner's country code
+ * @apiParam {String[]}   [tagIds]                Tag ids for the business (array of tag IDs)
  *
  * @apiParamExample {json} Request-Example:
  *     {
@@ -261,6 +280,8 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
  *       "phoneNumber": "+385911234567",
  *       "whatsAppPhoneNumber": "+385911234567",
  *       "scheduleDescription": "Open every day except holidays",
+ *       "market": "NG",
+ *       "tagIds": ["tag1", "tag2", "tag3"],
  *       "workingHours": [
  *         {
  *           "day": 1,  // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
@@ -326,6 +347,15 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
  *             "phoneNumber": "+385958710207",
  *             "whatsAppConnected": false,
  *             "verificationStatus": "unverified",
+ *             "market": "NG",
+ *             "tagIds": ["tag1", "tag2", "tag3"],
+ *             "tags": [
+ *                {
+ *                  "id": "tag1",
+ *                  "display": { "en-NG": "Makeup & Beauty" },
+ *                  "enabledInMarket": true
+ *                }
+ *             ],
  *             "schedule": {
  *                 "weekly": {
  *                     "0": {
@@ -374,6 +404,8 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
  * @apiError (Errors) 443975 Invalid business WhatsApp phone number
  * @apiError (Errors) 443976 Invalid business schedule
  * @apiError (Errors) 443977 Invalid business schedule exception
+ * @apiError (Errors) 443979 Invalid business market
+ * @apiError (Errors) 443980 Invalid business tag
  * @apiError (Errors) 400680 Category not found
  * @apiError (Errors) 400681 Invalid category ID
  * @apiError (Errors) 4000007 Token not valid
@@ -391,7 +423,8 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       scheduleDescription,
       exceptions,
       address,
-      categoryId,
+      market,
+      tagIds = [],
     } = request.body;
 
     const info = { schedule: { weekly: {} } };
@@ -542,25 +575,54 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       info.address = user.address || {};
     }
 
-    if (categoryId) {
-      if (!Utils.isValidObjectId(categoryId)) {
+    if (market) {
+      if (!countries[market]) {
         return Base.newErrorResponse({
           response,
-          code: Const.responsecodeInvalidCategoryId,
-          message: "BusinessController, create business - invalid categoryId",
+          code: Const.responsecodeInvalidBusinessMarket,
+          message: "BusinessController, create business - invalid market",
         });
       }
-      const category = await Category.findById(categoryId).lean();
-      if (!category) {
-        return Base.newErrorResponse({
-          response,
-          code: Const.responsecodeCategoryNotFound,
-          message: "BusinessController, create business - category not found",
-        });
-      }
-      info.category = { _id: category._id.toString(), name: category.name };
+
+      info.market = market;
     } else {
-      info.category = user.businessCategory || null;
+      info.market = user.countryCode;
+    }
+
+    if (tagIds && !Array.isArray(tagIds)) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeInvalidBusinessTag,
+        message: "BusinessController, create business - tagIds must be an array",
+      });
+    }
+
+    if (tagIds.length > 0) {
+      const tagMap = {};
+
+      businessTags.forEach((t) => {
+        tagMap[t.id] = t;
+      });
+
+      tagIds.forEach((t) => {
+        if (!tagMap[t]) {
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeInvalidBusinessTag,
+            message: "BusinessController, create business - invalid tag ID",
+          });
+        }
+
+        if (tagMap[t].regulated) {
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeInvalidBusinessTag,
+            message: "BusinessController, create business - regulated tag ID not allowed",
+          });
+        }
+      });
+
+      info.tagIds = tagIds;
     }
 
     const business = await Business.create({
@@ -593,7 +655,6 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
  * @apiParam {String}     [name]                  Business name
  * @apiParam {String}     [description]           Business description
  * @apiParam {String}     [phoneNumber]           Business phone number
- * @apiParam {String}     [categoryId]            Business category ID
  * @apiParam {String}     [whatsAppPhoneNumber]   Business WhatsApp phone number
  * @apiParam {Boolean}    [disableBusiness]       Whether to disable the business (only owner can disable)
  * @apiParam {Boolean}    [enableBusiness]        Whether to enable the business (only owner can enable) - previous business status is reinstated
@@ -601,6 +662,8 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
  * @apiParam {Object[]}   [workingHours]          Business schedule array - send only the days that are updated, the rest will remain the same
  * @apiParam {Object[]}   [exceptions]            Business schedule exceptions array - send all exceptions, the old ones will be replaced with the new ones
  * @apiParam {Object}     [address]               Business address (default is user's address)
+ * @apiParam {String}     [market]                Business market (country code - HR, NG, US) - defaults to owner's country code
+ * @apiParam {String[]}   [tagIds]                Tag ids for the business (array of tag IDs) (send full array of tagIds, the old ones will be replaced with the new ones)
  *
  * @apiParamExample {json} Request-Example:
  *     {
@@ -611,6 +674,8 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
  *       "scheduleDescription": "Open every day except holidays",
  *       "disableBusiness": false,
  *       "enableBusiness": true,
+ *       "market": "NG",
+ *       "tagIds": ["tag1", "tag2", "tag3"],
  *       "workingHours": [
  *         {
  *           "day": 1,  // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
@@ -676,6 +741,15 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
  *             "phoneNumber": "+385958710207",
  *             "whatsAppConnected": false,
  *             "verificationStatus": "unverified",
+ *             "market": "NG",
+ *             "tagIds": ["tag1", "tag2", "tag3"],
+ *             "tags": [
+ *                {
+ *                  "id": "tag1",
+ *                  "display": { "en-NG": "Makeup & Beauty" },
+ *                  "enabledInMarket": true
+ *                }
+ *             ],
  *             "schedule": {
  *                 "weekly": {
  *                     "0": {
@@ -727,6 +801,8 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
  * @apiError (Errors) 443975 Invalid business WhatsApp phone number
  * @apiError (Errors) 443976 Invalid business schedule
  * @apiError (Errors) 443977 Invalid business schedule exception
+ * @apiError (Errors) 443979 Invalid business market
+ * @apiError (Errors) 443980 Invalid business tag
  * @apiError (Errors) 400680 Category not found
  * @apiError (Errors) 400681 Invalid category ID
  * @apiError (Errors) 4000007 Token not valid
@@ -747,7 +823,8 @@ router.patch("/:businessId", auth({ allowUser: true }), async function (request,
       address,
       disableBusiness,
       enableBusiness,
-      categoryId,
+      market,
+      tagIds = [],
     } = request.body;
 
     if (!businessId || !Utils.isValidObjectId(businessId)) {
@@ -944,23 +1021,52 @@ router.patch("/:businessId", auth({ allowUser: true }), async function (request,
       updateObj.address = address;
     }
 
-    if (categoryId) {
-      if (!Utils.isValidObjectId(categoryId)) {
+    if (market) {
+      if (!countries[market]) {
         return Base.newErrorResponse({
           response,
-          code: Const.responsecodeInvalidCategoryId,
-          message: "BusinessController, update business - invalid categoryId",
+          code: Const.responsecodeInvalidBusinessMarket,
+          message: "BusinessController, update business - invalid market",
         });
       }
-      const category = await Category.findById(categoryId).lean();
-      if (!category) {
-        return Base.newErrorResponse({
-          response,
-          code: Const.responsecodeCategoryNotFound,
-          message: "BusinessController, update business - category not found",
-        });
-      }
-      updateObj.category = { _id: category._id.toString(), name: category.name };
+
+      updateObj.market = market;
+    }
+
+    if (tagIds && !Array.isArray(tagIds)) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeInvalidBusinessTag,
+        message: "BusinessController, update business - tagIds must be an array",
+      });
+    }
+
+    if (tagIds.length > 0) {
+      const tagMap = {};
+
+      businessTags.forEach((t) => {
+        tagMap[t.id] = t;
+      });
+
+      tagIds.forEach((t) => {
+        if (!tagMap[t]) {
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeInvalidBusinessTag,
+            message: "BusinessController, update business - invalid tag ID",
+          });
+        }
+
+        if (tagMap[t].regulated) {
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeInvalidBusinessTag,
+            message: "BusinessController, update business - regulated tag ID not allowed",
+          });
+        }
+      });
+
+      updateObj["tagIds"] = tagIds;
     }
 
     const updatedBusiness = await Business.findByIdAndUpdate(businessId, updateObj, {
