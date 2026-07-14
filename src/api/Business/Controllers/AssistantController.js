@@ -5,14 +5,7 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const { auth } = require("#middleware");
-const {
-  Business,
-  BusinessMember,
-  User,
-  Notification,
-  Terminal,
-  TerminalOperatorReference,
-} = require("#models");
+const { Business, BusinessMember, User, Notification } = require("#models");
 const Utils = require("#utils");
 const Logics = require("#logics");
 

@@ -96,24 +96,23 @@ const {
  *                    "created": 1783345533103,
  *                    "createdAt": "2026-07-06T13:45:33.118Z",
  *                    "updatedAt": "2026-07-06T13:45:33.118Z",
- *                    "__v": 0
+ *                    "terminals": [
+ *                      {
+ *                         "_id": "6a4bb17dab58c78c74906cd6",
+ *                         "businessId": "6a4bb17dab58c78c74906cd6",
+ *                         "outletId": "6a4bb17dab58c78c74906cd6",
+ *                         "chainId": "6a4bb17dab58c78c74906cd6",
+ *                         "subChainId": "6a4bb17dab58c78c74906cd6",
+ *                         "paymentAddress": "1234567890",
+ *                         "isMainTerminal": false,
+ *                         "isActive": false,
+ *                         "created": 1783345533103,
+ *                         "createdAt": "2026-07-06T13:45:33.118Z",
+ *                         "updatedAt": "2026-07-06T13:45:33.118Z",
+ *                         "__v": 0
+ *                      }
+ *                    ],
  *                }
- *             ],
- *             "terminals": [
- *               {
- *                  "_id": "6a4bb17dab58c78c74906cd6",
- *                  "businessId": "6a4bb17dab58c78c74906cd6",
- *                  "outletId": "6a4bb17dab58c78c74906cd6",
- *                  "chainId": "6a4bb17dab58c78c74906cd6",
- *                  "subChainId": "6a4bb17dab58c78c74906cd6",
- *                  "paymentAddress": "1234567890",
- *                  "isMainTerminal": false,
- *                  "isActive": false,
- *                  "created": 1783345533103,
- *                  "createdAt": "2026-07-06T13:45:33.118Z",
- *                  "updatedAt": "2026-07-06T13:45:33.118Z",
- *                  "__v": 0
- *               }
  *             ],
  *             "members": [
  *               {
@@ -181,7 +180,17 @@ router.get("/:businessId", auth({ allowUser: true }), async function (request, r
       business.outlets = outlets;
 
       const terminals = await Terminal.find({ businessId }).lean();
-      business.terminals = terminals;
+      const terminalsByOutlet = terminals.reduce((acc, terminal) => {
+        if (!acc[terminal.outletId]) {
+          acc[terminal.outletId] = [];
+        }
+        acc[terminal.outletId].push(terminal);
+        return acc;
+      }, {});
+
+      business.outlets.forEach((outlet) => {
+        outlet.terminals = terminalsByOutlet[outlet._id.toString()] || [];
+      });
     }
 
     const allowed2 = await Logics.checkBusinessPermissions({

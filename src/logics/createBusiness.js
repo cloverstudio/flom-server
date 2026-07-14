@@ -83,7 +83,7 @@ async function createBusiness({ owner, info }) {
       paymentAddress,
     });
     terminal = await terminal.toObject();
-    businessObj.terminals = [terminal];
+    businessObj.outlets[0].terminals = [terminal];
 
     await TerminalOperatorReference.create({
       businessId: business._id.toString(),
