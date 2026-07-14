@@ -5,14 +5,24 @@ const Base = require("../../Base");
 const { Const, businessTags, countries } = require("#config");
 const { auth } = require("#middleware");
 const Utils = require("#utils");
-const { Category, Business, User } = require("#models");
+const Logics = require("#logics");
+const {
+  Category,
+  Business,
+  BusinessMember,
+  User,
+  Chain,
+  SubChain,
+  Outlet,
+  Terminal,
+} = require("#models");
 
 /**
  * @api {get} /api/v2/businesses/:businessId  Get business flom_v1
  * @apiVersion 2.0.34
  * @apiName Get business
  * @apiGroup WebAPI Business
- * @apiDescription Get business by ID. Only owner or assistants can access the business details.
+ * @apiDescription Get business by Id.
  *
  * @apiHeader {String} access-token Users unique access-token.
  *
@@ -30,17 +40,6 @@ const { Category, Business, User } = require("#models");
  *                 "_id": "641d9c333478cf0d6a500547",
  *                 "phoneNumber": "+385958710207"
  *             },
- *             "address": {
- *                 "country": "Croatia",
- *                 "countryCode": "HR",
- *                 "city": "Split",
- *                 "road": "Jobova",
- *                 "houseNumber": "14",
- *                 "postCode": "21000",
- *                 "displayName": "14, Jobova, Poljud, Split, Split-Dalmatia County, 21000, Croatia"
- *             },
- *             "phoneNumber": "+385958710207",
- *             "whatsAppConnected": false,
  *             "verificationStatus": "unverified",
  *             "market": "NG",
  *             "tagIds": ["tag1", "tag2", "tag3"],
@@ -51,37 +50,88 @@ const { Category, Business, User } = require("#models");
  *                  "enabledInMarket": true
  *                }
  *             ],
- *             "schedule": {
- *                 "weekly": {
- *                     "0": {
- *                         "periods": []
- *                     },
- *                     "1": {
- *                         "periods": []
- *                     },
- *                     "2": {
- *                         "periods": []
- *                     },
- *                     "3": {
- *                         "periods": []
- *                     },
- *                     "4": {
- *                         "periods": []
- *                     },
- *                     "5": {
- *                         "periods": []
- *                     },
- *                     "6": {
- *                         "periods": []
- *                     }
- *                 },
- *                 "exceptions": []
- *             },
- *             "assistants": [],
  *             "created": 1783345533103,
  *             "createdAt": "2026-07-06T13:45:33.118Z",
  *             "updatedAt": "2026-07-06T13:45:33.118Z",
- *             "__v": 0
+ *             "outlets": [ {
+ *                    "_id": "6a4bb17dab58c78c74906cd6",
+ *                    "businessId": "6a4bb17dab58c78c74906cd6",
+ *                    "chainId": "6a4bb17dab58c78c74906cd6",
+ *                    "subChainId": "6a4bb17dab58c78c74906cd6",
+ *                    "name": "Petrov outlet",
+ *                    "address": {
+ *                        "country": "Croatia",
+ *                        "countryCode": "HR",
+ *                        "city": "Split",
+ *                        "road": "Jobova",
+ *                        "houseNumber": "14",
+ *                        "postCode": "21000",
+ *                        "displayName": "14, Jobova, Poljud, Split, Split-Dalmatia County, 21000, Croatia"
+ *                    },
+ *                    "schedule": {
+ *                        "description": "Open every day except holidays",
+ *                        "weekly": {
+ *                            "0": {
+ *                                "enabled": false,
+ *                                "periods": [ { "start": 540, "end": 660 } ]
+ *                            },
+ *                        },
+ *                        "exceptions": [
+ *                           {
+ *                             "date": "2026-12-25",
+ *                             "enabled": false,
+ *                             "periods": [],
+ *                             "description": "Christmas Day"
+ *                           },
+ *                           {
+ *                             "date": "2026-08-15",
+ *                             "enabled": true,
+ *                             "periods": [
+ *                               { "start": 540, "end": 660 }
+ *                             ],
+ *                             "description": "Assumption of Mary"
+ *                           }
+ *                       ]
+ *                    },
+ *                    "created": 1783345533103,
+ *                    "createdAt": "2026-07-06T13:45:33.118Z",
+ *                    "updatedAt": "2026-07-06T13:45:33.118Z",
+ *                    "__v": 0
+ *                }
+ *             ],
+ *             "terminals": [
+ *               {
+ *                  "_id": "6a4bb17dab58c78c74906cd6",
+ *                  "businessId": "6a4bb17dab58c78c74906cd6",
+ *                  "outletId": "6a4bb17dab58c78c74906cd6",
+ *                  "chainId": "6a4bb17dab58c78c74906cd6",
+ *                  "subChainId": "6a4bb17dab58c78c74906cd6",
+ *                  "paymentAddress": "1234567890",
+ *                  "isMainTerminal": false,
+ *                  "isActive": false,
+ *                  "created": 1783345533103,
+ *                  "createdAt": "2026-07-06T13:45:33.118Z",
+ *                  "updatedAt": "2026-07-06T13:45:33.118Z",
+ *                  "__v": 0
+ *               }
+ *             ],
+ *             "members": [
+ *               {
+ *                  "_id": "641d9c333478cf0d6a500547",
+ *                  "businessId": "6a4bb17dab58c78c74906cd6",
+ *                  "userId": "641d9c333478cf0d6a500547",
+ *                  "role": "owner", // owner, manager, helper
+ *                  "status": "pending",
+ *                  "invitedById": "641d9c333478cf0d6a500547",
+ *                  "invitedAt": 1783345533103,
+ *                  "expiresAt": 1783940333103,
+ *                  "respondedAt": 1783345533103,
+ *                  "revokedAt": 1783345533103,
+ *                  "created": 1783345533103,
+ *                  "createdAt": "2026-07-06T13:45:33.118Z",
+ *                  "updatedAt": "2026-07-06T13:45:33.118Z",
+ *               }
+ *             ],
  *         }
  *     }
  * }
@@ -94,7 +144,6 @@ const { Category, Business, User } = require("#models");
  *
  * @apiError (Errors) 443970 Invalid business id
  * @apiError (Errors) 443971 Business not found
- * @apiError (Errors) 443858 User is not owner or active assistant of the business
  * @apiError (Errors) 4000007 Token not valid
  */
 
@@ -121,16 +170,29 @@ router.get("/:businessId", auth({ allowUser: true }), async function (request, r
       });
     }
 
-    if (
-      business.owner._id !== user._id.toString() &&
-      business.assistants.find((a) => a._id === user._id.toString())?.status !== "active"
-    ) {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeUserNotAllowed,
-        message:
-          "BusinessController, get business - user is not owner or active assistant of the business",
-      });
+    const allowed = await Logics.checkBusinessPermissions({
+      userId: user._id.toString(),
+      business,
+      action: "business:view",
+    });
+
+    if (allowed) {
+      const outlets = await Outlet.find({ businessId }).lean();
+      business.outlets = outlets;
+
+      const terminals = await Terminal.find({ businessId }).lean();
+      business.terminals = terminals;
+    }
+
+    const allowed2 = await Logics.checkBusinessPermissions({
+      userId: user._id.toString(),
+      business,
+      action: "members:view",
+    });
+
+    if (allowed2) {
+      const businessMembers = await BusinessMember.find({ businessId }).lean();
+      business.members = businessMembers;
     }
 
     Base.successResponse(response, Const.responsecodeSucceed, { business });
@@ -168,17 +230,6 @@ router.get("/:businessId", auth({ allowUser: true }), async function (request, r
  *                     "_id": "641d9c333478cf0d6a500547",
  *                     "phoneNumber": "+385958710207"
  *                 },
- *                 "address": {
- *                     "country": "Croatia",
- *                     "countryCode": "HR",
- *                     "city": "Split",
- *                     "road": "Jobova",
- *                     "houseNumber": "14",
- *                     "postCode": "21000",
- *                     "displayName": "14, Jobova, Poljud, Split, Split-Dalmatia County, 21000, Croatia"
- *                 },
- *                 "phoneNumber": "+385958710207",
- *                 "whatsAppConnected": false,
  *                 "verificationStatus": "unverified",
  *                 "market": "NG",
  *                 "tagIds": ["tag1", "tag2", "tag3"],
@@ -189,33 +240,6 @@ router.get("/:businessId", auth({ allowUser: true }), async function (request, r
  *                      "enabledInMarket": true
  *                    }
  *                 ],
- *                 "schedule": {
- *                     "weekly": {
- *                         "0": {
- *                             "periods": []
- *                         },
- *                         "1": {
- *                             "periods": []
- *                         },
- *                         "2": {
- *                             "periods": []
- *                         },
- *                         "3": {
- *                             "periods": []
- *                         },
- *                         "4": {
- *                             "periods": []
- *                         },
- *                         "5": {
- *                             "periods": []
- *                         },
- *                         "6": {
- *                             "periods": []
- *                         }
- *                     },
- *                     "exceptions": []
- *                 },
- *                 "assistants": [],
  *                 "created": 1783345533103,
  *                 "createdAt": "2026-07-06T13:45:33.118Z",
  *                 "updatedAt": "2026-07-06T13:45:33.118Z",
@@ -238,8 +262,13 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
   try {
     const { user } = request;
 
+    const members = await BusinessMember.find({
+      userId: user._id.toString(),
+      status: { $in: ["accepted", "pending"] },
+    }).lean();
+
     const businesses = await Business.find({
-      $or: [{ "owner._id": user._id.toString() }, { "assistants._id": user._id.toString() }],
+      _id: { $in: members.map((m) => m.businessId) },
     }).lean();
 
     Base.successResponse(response, Const.responsecodeSucceed, { businesses });
@@ -264,70 +293,16 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
  *
  * @apiParam {String}     name                    Business name
  * @apiParam {String}     description             Business description
- * @apiParam {String}     phoneNumber             Business phone number
- * @apiParam {String}     [whatsAppPhoneNumber]   Business WhatsApp phone number
- * @apiParam {String}     [scheduleDescription]   Business schedule description
- * @apiParam {Object[]}   [workingHours]          Business working hours, one entry per day of the week
- * @apiParam {Object[]}   [exceptions]            Business schedule exceptions (holidays, special hours, etc.)
- * @apiParam {Object}     [address]               Business address (defaults to user's address)
  * @apiParam {String}     [market]                Business market (country code - HR, NG, US) - defaults to owner's country code
  * @apiParam {String[]}   [tagIds]                Tag ids for the business (array of tag IDs)
- *
- * @apiParamExample {json} Request-Example:
- *     {
- *       "name": "Sunny Side Bakery",
- *       "description": "Fresh bread and pastries daily",
- *       "phoneNumber": "+385911234567",
- *       "whatsAppPhoneNumber": "+385911234567",
- *       "scheduleDescription": "Open every day except holidays",
- *       "market": "NG",
- *       "tagIds": ["tag1", "tag2", "tag3"],
- *       "workingHours": [
- *         {
- *           "day": 1,  // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
- *           "enabled": true,
- *           "periods": [
- *             { "start": 480, "end": 720 },   // periods are in minutes from midnight (e.g., 480 = 8:00 AM, 1200 = 8:00 PM)
- *             { "start": 780, "end": 1020 }
- *           ]
- *         },
- *         {
- *           "day": 0,
- *           "enabled": false,
- *           "periods": []
- *         }
- *       ],
- *       "exceptions": [
- *         {
- *           "date": "2026-12-25",
- *           "enabled": false,
- *           "periods": []
- *         },
- *         {
- *           "date": "2026-08-15",
- *           "enabled": true,
- *           "periods": [
- *             { "start": 540, "end": 660 }
- *           ]
- *         }
- *       ],
- *       "address": {
- *         "country": "Croatia",
- *         "countryCode": "HR",
- *         "city": "Karlovac",
- *         "road": "Trg bana Jelačića",
- *         "houseNumber": "3",
- *         "state": "Karlovačka županija",
- *         "postCode": "47000"
- *       }
- *     }
  *
  * @apiSuccessExample Success Response
  * {
  *     "code": 1,
- *     "time": 1783345533159,
+ *     "time": 1783345670376,
  *     "data": {
  *         "business": {
+ *             "_id": "6a4bb17dab58c78c74906cd6",
  *             "name": "Petrov biznis",
  *             "description": "mjesto za mene",
  *             "status": "created",
@@ -335,17 +310,6 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
  *                 "_id": "641d9c333478cf0d6a500547",
  *                 "phoneNumber": "+385958710207"
  *             },
- *             "address": {
- *                 "country": "Croatia",
- *                 "countryCode": "HR",
- *                 "city": "Split",
- *                 "road": "Jobova",
- *                 "houseNumber": "14",
- *                 "postCode": "21000",
- *                 "displayName": "14, Jobova, Poljud, Split, Split-Dalmatia County, 21000, Croatia"
- *             },
- *             "phoneNumber": "+385958710207",
- *             "whatsAppConnected": false,
  *             "verificationStatus": "unverified",
  *             "market": "NG",
  *             "tagIds": ["tag1", "tag2", "tag3"],
@@ -356,38 +320,88 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
  *                  "enabledInMarket": true
  *                }
  *             ],
- *             "schedule": {
- *                 "weekly": {
- *                     "0": {
- *                         "periods": []
- *                     },
- *                     "1": {
- *                         "periods": []
- *                     },
- *                     "2": {
- *                         "periods": []
- *                     },
- *                     "3": {
- *                         "periods": []
- *                     },
- *                     "4": {
- *                         "periods": []
- *                     },
- *                     "5": {
- *                         "periods": []
- *                     },
- *                     "6": {
- *                         "periods": []
- *                     }
- *                 },
- *                 "exceptions": []
- *             },
- *             "_id": "6a4bb17dab58c78c74906cd6",
- *             "assistants": [],
  *             "created": 1783345533103,
  *             "createdAt": "2026-07-06T13:45:33.118Z",
  *             "updatedAt": "2026-07-06T13:45:33.118Z",
- *             "__v": 0
+ *             "outlets": [ {
+ *                    "_id": "6a4bb17dab58c78c74906cd6",
+ *                    "businessId": "6a4bb17dab58c78c74906cd6",
+ *                    "chainId": "6a4bb17dab58c78c74906cd6",
+ *                    "subChainId": "6a4bb17dab58c78c74906cd6",
+ *                    "name": "Petrov outlet",
+ *                    "address": {
+ *                        "country": "Croatia",
+ *                        "countryCode": "HR",
+ *                        "city": "Split",
+ *                        "road": "Jobova",
+ *                        "houseNumber": "14",
+ *                        "postCode": "21000",
+ *                        "displayName": "14, Jobova, Poljud, Split, Split-Dalmatia County, 21000, Croatia"
+ *                    },
+ *                    "schedule": {
+ *                        "description": "Open every day except holidays",
+ *                        "weekly": {
+ *                            "0": {
+ *                                "enabled": false,
+ *                                "periods": [ { "start": 540, "end": 660 } ]
+ *                            },
+ *                        },
+ *                        "exceptions": [
+ *                           {
+ *                             "date": "2026-12-25",
+ *                             "enabled": false,
+ *                             "periods": [],
+ *                             "description": "Christmas Day"
+ *                           },
+ *                           {
+ *                             "date": "2026-08-15",
+ *                             "enabled": true,
+ *                             "periods": [
+ *                               { "start": 540, "end": 660 }
+ *                             ],
+ *                             "description": "Assumption of Mary"
+ *                           }
+ *                       ]
+ *                    },
+ *                    "created": 1783345533103,
+ *                    "createdAt": "2026-07-06T13:45:33.118Z",
+ *                    "updatedAt": "2026-07-06T13:45:33.118Z",
+ *                    "__v": 0
+ *                }
+ *             ],
+ *             "terminals": [
+ *               {
+ *                  "_id": "6a4bb17dab58c78c74906cd6",
+ *                  "businessId": "6a4bb17dab58c78c74906cd6",
+ *                  "outletId": "6a4bb17dab58c78c74906cd6",
+ *                  "chainId": "6a4bb17dab58c78c74906cd6",
+ *                  "subChainId": "6a4bb17dab58c78c74906cd6",
+ *                  "paymentAddress": "1234567890",
+ *                  "isMainTerminal": false,
+ *                  "isActive": false,
+ *                  "created": 1783345533103,
+ *                  "createdAt": "2026-07-06T13:45:33.118Z",
+ *                  "updatedAt": "2026-07-06T13:45:33.118Z",
+ *                  "__v": 0
+ *               }
+ *             ],
+ *             "members": [
+ *               {
+ *                  "_id": "641d9c333478cf0d6a500547",
+ *                  "businessId": "6a4bb17dab58c78c74906cd6",
+ *                  "userId": "641d9c333478cf0d6a500547",
+ *                  "role": "owner", // owner, manager, helper
+ *                  "status": "pending",
+ *                  "invitedById": "641d9c333478cf0d6a500547",
+ *                  "invitedAt": 1783345533103,
+ *                  "expiresAt": 1783940333103,
+ *                  "respondedAt": 1783345533103,
+ *                  "revokedAt": 1783345533103,
+ *                  "created": 1783345533103,
+ *                  "createdAt": "2026-07-06T13:45:33.118Z",
+ *                  "updatedAt": "2026-07-06T13:45:33.118Z",
+ *               }
+ *             ],
  *         }
  *     }
  * }
@@ -398,41 +412,24 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
  *   "time": 1590000125608
  * }
  *
- * @apiError (Errors) 443972 Invalid business name
- * @apiError (Errors) 443973 Invalid business description
- * @apiError (Errors) 443974 Invalid business phone number
- * @apiError (Errors) 443975 Invalid business WhatsApp phone number
- * @apiError (Errors) 443976 Invalid business schedule
- * @apiError (Errors) 443977 Invalid business schedule exception
+ * @apiError (Errors) 443856 Invalid business name
+ * @apiError (Errors) 443972 Invalid business description
  * @apiError (Errors) 443979 Invalid business market
  * @apiError (Errors) 443980 Invalid business tag
- * @apiError (Errors) 400680 Category not found
- * @apiError (Errors) 400681 Invalid category ID
  * @apiError (Errors) 4000007 Token not valid
  */
 
 router.post("/", auth({ allowUser: true }), async function (request, response) {
   try {
     const { user } = request;
-    const {
-      name,
-      description,
-      phoneNumber,
-      whatsAppPhoneNumber,
-      workingHours,
-      scheduleDescription,
-      exceptions,
-      address,
-      market,
-      tagIds = [],
-    } = request.body;
+    const { name, description, market, tagIds = [] } = request.body;
 
-    const info = { schedule: { weekly: {} } };
+    const info = {};
 
     if (!name || typeof name !== "string" || name.length < 3 || name.length > 100) {
       return Base.newErrorResponse({
         response,
-        code: Const.responsecodeInvalidBusinessName,
+        code: Const.responsecodeInvalidName,
         message: "BusinessController, create business - invalid name",
       });
     }
@@ -446,140 +443,17 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     ) {
       return Base.newErrorResponse({
         response,
-        code: Const.responsecodeInvalidBusinessDescription,
+        code: Const.responsecodeInvalidDescription,
         message: "BusinessController, create business - invalid description",
       });
     }
     info.description = description;
 
-    if (
-      !phoneNumber ||
-      typeof phoneNumber !== "string" ||
-      phoneNumber.length < 3 ||
-      phoneNumber.length > 20
-    ) {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeInvalidBusinessPhoneNumber,
-        message: "BusinessController, create business - invalid phone number",
-      });
-    }
-    info.phoneNumber = phoneNumber;
-
-    if (whatsAppPhoneNumber) {
-      if (
-        typeof whatsAppPhoneNumber !== "string" ||
-        whatsAppPhoneNumber.length < 3 ||
-        whatsAppPhoneNumber.length > 20
-      ) {
-        return Base.newErrorResponse({
-          response,
-          code: Const.responsecodeInvalidBusinessWhatsAppPhoneNumber,
-          message: "BusinessController, create business - invalid WhatsApp phone number",
-        });
-      }
-      info.whatsAppPhoneNumber = whatsAppPhoneNumber;
-    }
-
-    if (workingHours) {
-      if (!Array.isArray(workingHours)) {
-        return Base.newErrorResponse({
-          response,
-          code: Const.responsecodeInvalidBusinessWorkingHours,
-          message: "BusinessController, create business - workingHours must be an array",
-        });
-      }
-
-      for (const item of workingHours) {
-        const day = item.day;
-        if (typeof day !== "number" || day < 0 || day > 6) {
-          return Base.newErrorResponse({
-            response,
-            code: Const.responsecodeInvalidBusinessWorkingHours,
-            message: "BusinessController, create business - invalid workingHours day",
-          });
-        }
-
-        const periods = item.periods;
-        if (periods && !Array.isArray(periods)) {
-          return Base.newErrorResponse({
-            response,
-            code: Const.responsecodeInvalidBusinessWorkingHours,
-            message: "BusinessController, create business - invalid workingHours periods",
-          });
-        }
-
-        const enabled = item.enabled;
-        if (typeof enabled !== "boolean") {
-          return Base.newErrorResponse({
-            response,
-            code: Const.responsecodeInvalidBusinessWorkingHours,
-            message: "BusinessController, create business - invalid workingHours enabled",
-          });
-        }
-
-        if (!info.schedule.weekly) {
-          info.schedule.weekly = {};
-        }
-        info.schedule.weekly[day] = { enabled, periods };
-      }
-    }
-
-    if (scheduleDescription && typeof scheduleDescription === "string") {
-      info.schedule.description = scheduleDescription;
-    }
-
-    if (exceptions) {
-      if (!Array.isArray(exceptions)) {
-        return Base.newErrorResponse({
-          response,
-          code: Const.responsecodeInvalidBusinessScheduleException,
-          message: "BusinessController, create business - exceptions must be an array",
-        });
-      }
-
-      for (const exception of exceptions) {
-        if (
-          !exception.date ||
-          typeof exception.date !== "string" ||
-          !/^\d{4}-\d{2}-\d{2}$/.test(exception.date)
-        ) {
-          return Base.newErrorResponse({
-            response,
-            code: Const.responsecodeInvalidBusinessScheduleException,
-            message: "BusinessController, create business - invalid schedule exception date",
-          });
-        }
-        if (typeof exception.enabled !== "boolean") {
-          return Base.newErrorResponse({
-            response,
-            code: Const.responsecodeInvalidBusinessScheduleException,
-            message: "BusinessController, create business - invalid schedule exception enabled",
-          });
-        }
-        if (exception.periods && !Array.isArray(exception.periods)) {
-          return Base.newErrorResponse({
-            response,
-            code: Const.responsecodeInvalidBusinessScheduleException,
-            message: "BusinessController, create business - invalid schedule exception periods",
-          });
-        }
-      }
-
-      info.schedule.exceptions = exceptions;
-    }
-
-    if (address && typeof address === "object") {
-      info.address = address;
-    } else {
-      info.address = user.address || {};
-    }
-
     if (market) {
       if (!countries[market]) {
         return Base.newErrorResponse({
           response,
-          code: Const.responsecodeInvalidBusinessMarket,
+          code: Const.responsecodeInvalidMarket,
           message: "BusinessController, create business - invalid market",
         });
       }
@@ -592,7 +466,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     if (tagIds && !Array.isArray(tagIds)) {
       return Base.newErrorResponse({
         response,
-        code: Const.responsecodeInvalidBusinessTag,
+        code: Const.responsecodeInvalidTag,
         message: "BusinessController, create business - tagIds must be an array",
       });
     }
@@ -608,7 +482,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         if (!tagMap[t]) {
           return Base.newErrorResponse({
             response,
-            code: Const.responsecodeInvalidBusinessTag,
+            code: Const.responsecodeInvalidTag,
             message: "BusinessController, create business - invalid tag ID",
           });
         }
@@ -616,7 +490,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         if (tagMap[t].regulated) {
           return Base.newErrorResponse({
             response,
-            code: Const.responsecodeInvalidBusinessTag,
+            code: Const.responsecodeInvalidTag,
             message: "BusinessController, create business - regulated tag ID not allowed",
           });
         }
@@ -625,14 +499,9 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       info.tagIds = tagIds;
     }
 
-    const business = await Business.create({
-      owner: { _id: user._id.toString(), phoneNumber: user.phoneNumber },
-      ...info,
-    });
+    const business = await Logics.createBusiness({ owner: user, info });
 
-    await User.updateOne({ _id: user._id.toString() }, { hasBusiness: true });
-
-    Base.successResponse(response, Const.responsecodeSucceed, { business: business.toObject() });
+    Base.successResponse(response, Const.responsecodeSucceed, { business });
   } catch (error) {
     return Base.newErrorResponse({
       response,
@@ -654,74 +523,17 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
  *
  * @apiParam {String}     [name]                  Business name
  * @apiParam {String}     [description]           Business description
- * @apiParam {String}     [phoneNumber]           Business phone number
- * @apiParam {String}     [whatsAppPhoneNumber]   Business WhatsApp phone number
  * @apiParam {Boolean}    [disableBusiness]       Whether to disable the business (only owner can disable)
  * @apiParam {Boolean}    [enableBusiness]        Whether to enable the business (only owner can enable) - previous business status is reinstated
- * @apiParam {String}     [scheduleDescription]   Business schedule description
- * @apiParam {Object[]}   [workingHours]          Business schedule array - send only the days that are updated, the rest will remain the same
- * @apiParam {Object[]}   [exceptions]            Business schedule exceptions array - send all exceptions, the old ones will be replaced with the new ones
- * @apiParam {Object}     [address]               Business address (default is user's address)
  * @apiParam {String}     [market]                Business market (country code - HR, NG, US) - defaults to owner's country code
  * @apiParam {String[]}   [tagIds]                Tag ids for the business (array of tag IDs) (send full array of tagIds, the old ones will be replaced with the new ones)
- *
- * @apiParamExample {json} Request-Example:
- *     {
- *       "name": "Sunny Side Bakery",
- *       "description": "Fresh bread and pastries daily",
- *       "phoneNumber": "+385911234567",
- *       "whatsAppPhoneNumber": "+385911234567",
- *       "scheduleDescription": "Open every day except holidays",
- *       "disableBusiness": false,
- *       "enableBusiness": true,
- *       "market": "NG",
- *       "tagIds": ["tag1", "tag2", "tag3"],
- *       "workingHours": [
- *         {
- *           "day": 1,  // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
- *           "enabled": true,
- *           "periods": [
- *             { "start": 480, "end": 720 },   // periods are in minutes from midnight (e.g., 480 = 8:00 AM, 1200 = 8:00 PM)
- *             { "start": 780, "end": 1020 }
- *           ]
- *         },
- *         {
- *           "day": 0,
- *           "enabled": false,
- *           "periods": []
- *         }
- *       ],
- *       "exceptions": [
- *         {
- *           "date": "2026-12-25",
- *           "enabled": false,
- *           "periods": []
- *         },
- *         {
- *           "date": "2026-08-15",
- *           "enabled": true,
- *           "periods": [
- *             { "start": 540, "end": 660 }
- *           ]
- *         }
- *       ],
- *       "address": {
- *         "country": "Croatia",
- *         "countryCode": "HR",
- *         "city": "Karlovac",
- *         "road": "Trg bana Jelačića",
- *         "houseNumber": "3",
- *         "state": "Karlovačka županija",
- *         "postCode": "47000"
- *       }
- *     }
  *
  * @apiSuccessExample Success Response
  * {
  *     "code": 1,
  *     "time": 1783345533159,
  *     "data": {
- *         "updatedBusiness": {
+ *         "business": {
  *             "name": "Petrov biznis",
  *             "description": "mjesto za mene",
  *             "status": "created",
@@ -729,17 +541,6 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
  *                 "_id": "641d9c333478cf0d6a500547",
  *                 "phoneNumber": "+385958710207"
  *             },
- *             "address": {
- *                 "country": "Croatia",
- *                 "countryCode": "HR",
- *                 "city": "Split",
- *                 "road": "Jobova",
- *                 "houseNumber": "14",
- *                 "postCode": "21000",
- *                 "displayName": "14, Jobova, Poljud, Split, Split-Dalmatia County, 21000, Croatia"
- *             },
- *             "phoneNumber": "+385958710207",
- *             "whatsAppConnected": false,
  *             "verificationStatus": "unverified",
  *             "market": "NG",
  *             "tagIds": ["tag1", "tag2", "tag3"],
@@ -750,34 +551,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
  *                  "enabledInMarket": true
  *                }
  *             ],
- *             "schedule": {
- *                 "weekly": {
- *                     "0": {
- *                         "periods": []
- *                     },
- *                     "1": {
- *                         "periods": []
- *                     },
- *                     "2": {
- *                         "periods": []
- *                     },
- *                     "3": {
- *                         "periods": []
- *                     },
- *                     "4": {
- *                         "periods": []
- *                     },
- *                     "5": {
- *                         "periods": []
- *                     },
- *                     "6": {
- *                         "periods": []
- *                     }
- *                 },
- *                 "exceptions": []
- *             },
  *             "_id": "6a4bb17dab58c78c74906cd6",
- *             "assistants": [],
  *             "created": 1783345533103,
  *             "createdAt": "2026-07-06T13:45:33.118Z",
  *             "updatedAt": "2026-07-06T13:45:33.118Z",
@@ -795,16 +569,10 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
  * @apiError (Errors) 443970 Invalid business id
  * @apiError (Errors) 443971 Business not found
  * @apiError (Errors) 443858 User is not allowed to complete the action
- * @apiError (Errors) 443972 Invalid business name
- * @apiError (Errors) 443973 Invalid business description
- * @apiError (Errors) 443974 Invalid business phone number
- * @apiError (Errors) 443975 Invalid business WhatsApp phone number
- * @apiError (Errors) 443976 Invalid business schedule
- * @apiError (Errors) 443977 Invalid business schedule exception
+ * @apiError (Errors) 443856 Invalid business name
+ * @apiError (Errors) 443972 Invalid business description
  * @apiError (Errors) 443979 Invalid business market
  * @apiError (Errors) 443980 Invalid business tag
- * @apiError (Errors) 400680 Category not found
- * @apiError (Errors) 400681 Invalid category ID
  * @apiError (Errors) 4000007 Token not valid
  */
 
@@ -815,12 +583,6 @@ router.patch("/:businessId", auth({ allowUser: true }), async function (request,
     const {
       name,
       description,
-      phoneNumber,
-      whatsAppPhoneNumber,
-      workingHours,
-      scheduleDescription,
-      exceptions,
-      address,
       disableBusiness,
       enableBusiness,
       market,
@@ -845,15 +607,18 @@ router.patch("/:businessId", auth({ allowUser: true }), async function (request,
       });
     }
 
-    if (
-      business.owner._id !== user._id.toString() &&
-      business.assistants.find((a) => a._id === user._id.toString())?.status !== "active"
-    ) {
+    const allowed = await Logics.checkBusinessPermissions({
+      userId: user._id.toString(),
+      business,
+      action: "business:profile",
+    });
+
+    if (!allowed) {
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message:
-          "BusinessController, update business - user is not owner or active assistant of the business",
+          "BusinessController, update business - user is not allowed to update the business profile",
       });
     }
 
@@ -886,7 +651,7 @@ router.patch("/:businessId", auth({ allowUser: true }), async function (request,
       if (typeof name !== "string" || name.length < 3 || name.length > 100) {
         return Base.newErrorResponse({
           response,
-          code: Const.responsecodeInvalidBusinessName,
+          code: Const.responsecodeInvalidName,
           message: "BusinessController, update business - invalid name",
         });
       }
@@ -897,135 +662,18 @@ router.patch("/:businessId", auth({ allowUser: true }), async function (request,
       if (typeof description !== "string" || description.length < 3 || description.length > 1000) {
         return Base.newErrorResponse({
           response,
-          code: Const.responsecodeInvalidBusinessDescription,
+          code: Const.responsecodeInvalidDescription,
           message: "BusinessController, update business - invalid description",
         });
       }
       updateObj.description = description;
     }
 
-    if (phoneNumber) {
-      if (typeof phoneNumber !== "string" || phoneNumber.length < 3 || phoneNumber.length > 20) {
-        return Base.newErrorResponse({
-          response,
-          code: Const.responsecodeInvalidBusinessPhoneNumber,
-          message: "BusinessController, update business - invalid phone number",
-        });
-      }
-      updateObj.phoneNumber = phoneNumber;
-    }
-
-    if (whatsAppPhoneNumber) {
-      if (
-        typeof whatsAppPhoneNumber !== "string" ||
-        whatsAppPhoneNumber.length < 3 ||
-        whatsAppPhoneNumber.length > 20
-      ) {
-        return Base.newErrorResponse({
-          response,
-          code: Const.responsecodeInvalidBusinessWhatsAppPhoneNumber,
-          message: "BusinessController, update business - invalid WhatsApp phone number",
-        });
-      }
-      updateObj.whatsAppPhoneNumber = whatsAppPhoneNumber;
-    }
-
-    if (workingHours) {
-      if (!Array.isArray(workingHours)) {
-        return Base.newErrorResponse({
-          response,
-          code: Const.responsecodeInvalidBusinessWorkingHours,
-          message: "BusinessController, update business - workingHours must be an array",
-        });
-      }
-
-      const weeklySchedule = business.schedule?.weekly || {};
-      for (const item of workingHours) {
-        const day = item.day;
-        if (typeof day !== "number" || day < 0 || day > 6) {
-          return Base.newErrorResponse({
-            response,
-            code: Const.responsecodeInvalidBusinessWorkingHours,
-            message: "BusinessController, update business - invalid workingHours day",
-          });
-        }
-
-        const periods = item.periods;
-        if (periods && !Array.isArray(periods)) {
-          return Base.newErrorResponse({
-            response,
-            code: Const.responsecodeInvalidBusinessWorkingHours,
-            message: "BusinessController, update business - invalid workingHours periods",
-          });
-        }
-
-        const enabled = item.enabled;
-        if (typeof enabled !== "boolean") {
-          return Base.newErrorResponse({
-            response,
-            code: Const.responsecodeInvalidBusinessWorkingHours,
-            message: "BusinessController, update business - invalid workingHours enabled",
-          });
-        }
-
-        weeklySchedule[day] = { enabled, periods };
-      }
-      updateObj["schedule.weekly"] = weeklySchedule;
-    }
-
-    if (scheduleDescription && typeof scheduleDescription === "string") {
-      updateObj["schedule.description"] = scheduleDescription;
-    }
-
-    if (exceptions) {
-      if (!Array.isArray(exceptions)) {
-        return Base.newErrorResponse({
-          response,
-          code: Const.responsecodeInvalidBusinessScheduleException,
-          message: "BusinessController, update business - exceptions must be an array",
-        });
-      }
-
-      for (const exception of exceptions) {
-        if (
-          !exception.date ||
-          typeof exception.date !== "string" ||
-          !/^\d{4}-\d{2}-\d{2}$/.test(exception.date)
-        ) {
-          return Base.newErrorResponse({
-            response,
-            code: Const.responsecodeInvalidBusinessScheduleException,
-            message: "BusinessController, update business - invalid schedule exception date",
-          });
-        }
-        if (typeof exception.enabled !== "boolean") {
-          return Base.newErrorResponse({
-            response,
-            code: Const.responsecodeInvalidBusinessScheduleException,
-            message: "BusinessController, update business - invalid schedule exception enabled",
-          });
-        }
-        if (exception.periods && !Array.isArray(exception.periods)) {
-          return Base.newErrorResponse({
-            response,
-            code: Const.responsecodeInvalidBusinessScheduleException,
-            message: "BusinessController, update business - invalid schedule exception periods",
-          });
-        }
-      }
-
-      updateObj["schedule.exceptions"] = exceptions;
-    }
-
-    if (address && typeof address === "object") {
-      updateObj.address = address;
-    }
-
     if (market) {
       if (!countries[market]) {
         return Base.newErrorResponse({
           response,
-          code: Const.responsecodeInvalidBusinessMarket,
+          code: Const.responsecodeInvalidMarket,
           message: "BusinessController, update business - invalid market",
         });
       }
@@ -1036,7 +684,7 @@ router.patch("/:businessId", auth({ allowUser: true }), async function (request,
     if (tagIds && !Array.isArray(tagIds)) {
       return Base.newErrorResponse({
         response,
-        code: Const.responsecodeInvalidBusinessTag,
+        code: Const.responsecodeInvalidTag,
         message: "BusinessController, update business - tagIds must be an array",
       });
     }
@@ -1052,7 +700,7 @@ router.patch("/:businessId", auth({ allowUser: true }), async function (request,
         if (!tagMap[t]) {
           return Base.newErrorResponse({
             response,
-            code: Const.responsecodeInvalidBusinessTag,
+            code: Const.responsecodeInvalidTag,
             message: "BusinessController, update business - invalid tag ID",
           });
         }
@@ -1060,7 +708,7 @@ router.patch("/:businessId", auth({ allowUser: true }), async function (request,
         if (tagMap[t].regulated) {
           return Base.newErrorResponse({
             response,
-            code: Const.responsecodeInvalidBusinessTag,
+            code: Const.responsecodeInvalidTag,
             message: "BusinessController, update business - regulated tag ID not allowed",
           });
         }

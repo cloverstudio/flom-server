@@ -38,7 +38,7 @@ const router = require("express").Router();
 const Base = require("../../Base");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { User, Business } = require("#models");
+const { User } = require("#models");
 
 router.get("/", async function (request, response) {
   try {
@@ -108,25 +108,8 @@ router.get("/", async function (request, response) {
         });
       }
 
-      let business = await Business.findOne({ "owner._id": user._id.toString() }).lean();
-      if (!business) {
-        await Business.create({
-          owner: { _id: user._id.toString(), phoneNumber: user.phoneNumber },
-          name: `${user.userName}'s business`,
-          address: user.address,
-          whatsAppPhoneNumber: businessPhoneNumber,
-          category: user.businessCategory || null,
-        });
-      } else {
-        await Business.findOneAndUpdate(
-          { "owner._id": user._id.toString() },
-          { whatsAppPhoneNumber: businessPhoneNumber },
-        );
-      }
-
       await User.findByIdAndUpdate(user._id, {
         "whatsApp.businessPhoneNumber": businessPhoneNumber,
-        hasBusiness: true,
       });
     }
 

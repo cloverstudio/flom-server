@@ -1165,26 +1165,7 @@ async function handleBusiness({ owner, merchantApplication }) {
       return;
     }
 
-    let businesses = await Business.find({ "owner._id": owner._id.toString() }).lean();
-    if (businesses.length === 0) {
-      await Business.create({
-        owner: { _id: owner._id.toString(), phoneNumber: owner.phoneNumber },
-        name: `${owner.userName}'s business`,
-        status,
-        taxId: merchantApplication.taxId,
-        idPhotos: merchantApplication.idPhotos,
-        address: owner.address,
-        category: owner.businessCategory || null,
-      });
-    } else {
-      await Business.updateMany(
-        { "owner._id": owner._id.toString() },
-        { status, taxId: merchantApplication.taxId, idPhotos: merchantApplication.idPhotos },
-        { new: true, lean: true },
-      );
-    }
-
-    await User.updateOne({ _id: owner._id.toString() }, { hasBusiness: true });
+    await Business.updateMany({ "owner._id": owner._id.toString() }, { status });
 
     return;
   } catch (error) {

@@ -2,7 +2,7 @@
 
 const { logger } = require("#infra");
 const { Const, Config } = require("#config");
-const { User, CoreIdentity, Business } = require("#models");
+const { User, CoreIdentity } = require("#models");
 const Logics = require("#logics");
 
 async function handleStartMessage({ from }) {
@@ -41,7 +41,7 @@ async function handleStartMessage({ from }) {
 
     const user = await User.findOneAndUpdate(
       { "whatsApp.businessPhoneNumber": from },
-      { "whatsApp.businessConnected": true, hasBusiness: true },
+      { "whatsApp.businessConnected": true },
       { new: true, lean: true },
     );
 
@@ -64,18 +64,6 @@ async function handleStartMessage({ from }) {
         bankAccounts: [],
       });
     }
-
-    await Business.findOneAndUpdate(
-      { "owner._id": user._id.toString() },
-      {
-        $set: {
-          "owner.phoneNumber": user.phoneNumber,
-          whatsAppPhoneNumber: from,
-          whatsAppConnected: true,
-        },
-      },
-      { upsert: true, new: true },
-    );
 
     await CoreIdentity.createCoreIdentity({
       phoneNumber: from,
