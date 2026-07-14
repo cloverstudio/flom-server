@@ -39,6 +39,15 @@ async function createBusiness({ owner, info }) {
       status: "accepted",
     });
     businessMember = await businessMember.toObject();
+
+    const user = await User.findById(
+      owner._id.toString(),
+      { _id: 1, name: 1, userName: 1, phoneNumber: 1, avatar: 1, created: 1 },
+      { lean: true },
+    );
+
+    businessMember.user = user;
+
     businessObj.members = [businessMember];
 
     let location = null;

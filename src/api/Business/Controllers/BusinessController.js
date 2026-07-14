@@ -129,6 +129,14 @@ const {
  *                  "created": 1783345533103,
  *                  "createdAt": "2026-07-06T13:45:33.118Z",
  *                  "updatedAt": "2026-07-06T13:45:33.118Z",
+ *                  "user": {
+ *                      "_id": "641d9c333478cf0d6a500547",
+ *                      "name": "John Doe",
+ *                      "userName": "johndoe",
+ *                      "phoneNumber": "+385958710207",
+ *                      "avatar": {},
+ *                      "created": 1783345533103
+ *                  }
  *               }
  *             ],
  *         }
@@ -201,6 +209,23 @@ router.get("/:businessId", auth({ allowUser: true }), async function (request, r
 
     if (allowed2) {
       const businessMembers = await BusinessMember.find({ businessId }).lean();
+
+      const userIds = businessMembers.map((member) => member.userId);
+      const users = await User.find(
+        { _id: { $in: userIds } },
+        { _id: 1, name: 1, userName: 1, phoneNumber: 1, avatar: 1, created: 1 },
+        { lean: true },
+      );
+
+      const usersMap = {};
+      users.forEach((user) => {
+        usersMap[user._id.toString()] = user;
+      });
+
+      businessMembers.forEach((member) => {
+        member.user = usersMap[member.userId.toString()] || null;
+      });
+
       business.members = businessMembers;
     }
 
@@ -409,6 +434,14 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
  *                  "created": 1783345533103,
  *                  "createdAt": "2026-07-06T13:45:33.118Z",
  *                  "updatedAt": "2026-07-06T13:45:33.118Z",
+ *                  "user": {
+ *                      "_id": "641d9c333478cf0d6a500547",
+ *                      "name": "John Doe",
+ *                      "userName": "johndoe",
+ *                      "phoneNumber": "+385958710207",
+ *                      "avatar": {},
+ *                      "created": 1783345533103
+ *                  }
  *               }
  *             ],
  *         }
