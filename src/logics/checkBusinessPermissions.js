@@ -123,6 +123,8 @@ async function checkBusinessPermissions({
       return false;
     }
 
+    businessId = business._id.toString();
+
     const businessMember = await BusinessMember.findOne({
       businessId,
       userId,
