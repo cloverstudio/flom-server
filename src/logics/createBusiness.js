@@ -106,12 +106,17 @@ async function createTerminalPaymentAddress(owner) {
     throw new Error(`Country not found for code: ${owner.countryCode}`);
   }
 
-  let paymentAddress = owner.phoneNumber;
-  paymentAddress = paymentAddress.replace("+" + country.phone, "");
-  if (paymentAddress.startsWith("0")) {
-    paymentAddress = paymentAddress.slice(1);
+  let paymentAddress = owner.whatsApp?.businessPhoneNumber;
+
+  if (paymentAddress) {
+    paymentAddress = paymentAddress.replace("+" + country.phone, "");
+    if (paymentAddress.startsWith("0")) {
+      paymentAddress = paymentAddress.slice(1);
+    }
+    paymentAddress = paymentAddress.slice(0, 10);
+  } else {
+    paymentAddress = Utils.generateRandomNumber(10);
   }
-  paymentAddress = paymentAddress.slice(0, 10);
 
   let addressExists = false;
 
