@@ -89,7 +89,8 @@ router.get("/groups", auth({ allowUser: true }), async function (request, respon
  *                 "slug": "vulcanizing-tyres",
  *                 "group": "Auto",
  *                 "display": {
- *                     "en-NG": "Tyres & Vulcanizing"
+ *                     "en-NG": "Tyres & Vulcanizing",
+ *                     "default": "Tyres & Vulcanizing"
  *                 },
  *                 "synonyms": [
  *                     "vulcanizer",
@@ -106,7 +107,8 @@ router.get("/groups", auth({ allowUser: true }), async function (request, respon
  *                 "slug": "transport-rides",
  *                 "group": "Auto",
  *                 "display": {
- *                     "en-NG": "Transport & Rides"
+ *                     "en-NG": "Transport & Rides",
+ *                     "default": "Transport & Rides"
  *                 },
  *                 "synonyms": [
  *                     "okada",
@@ -126,7 +128,8 @@ router.get("/groups", auth({ allowUser: true }), async function (request, respon
  *                 "slug": "delivery",
  *                 "group": "Auto",
  *                 "display": {
- *                     "en-NG": "Delivery & Dispatch"
+ *                     "en-NG": "Delivery & Dispatch",
+ *                     "default": "Delivery & Dispatch"
  *                 },
  *                 "synonyms": [
  *                     "dispatch rider",

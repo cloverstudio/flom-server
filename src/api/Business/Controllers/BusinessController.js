@@ -46,7 +46,7 @@ const {
  *             "tags": [
  *                {
  *                  "id": "tag1",
- *                  "display": { "en-NG": "Makeup & Beauty" },
+ *                  "display": { "en-NG": "Makeup & Beauty", "default": "Makeup & Beauty" },
  *                  "enabledInMarket": true
  *                }
  *             ],
@@ -350,7 +350,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
  *             "tags": [
  *                {
  *                  "id": "tag1",
- *                  "display": { "en-NG": "Makeup & Beauty" },
+ *                  "display": { "en-NG": "Makeup & Beauty", "default": "Makeup & Beauty" },
  *                  "enabledInMarket": true
  *                }
  *             ],
@@ -589,7 +589,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
  *             "tags": [
  *                {
  *                  "id": "tag1",
- *                  "display": { "en-NG": "Makeup & Beauty" },
+ *                  "display": { "en-NG": "Makeup & Beauty", "default": "Makeup & Beauty" },
  *                  "enabledInMarket": true
  *                }
  *             ],
