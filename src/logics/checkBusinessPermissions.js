@@ -11,6 +11,8 @@ const actions = [
   "orders:mark_fulfilled",
   "schedules:view",
   "bookings:view",
+  "services:add",
+  "services:delete",
   "prices:edit",
   "stock:edit",
   "schedules:edit",
@@ -36,6 +38,8 @@ const PERMISSIONS = {
     "orders:mark_fulfilled",
     "schedules:view",
     "bookings:view",
+    "services:add",
+    "services:delete",
     "prices:edit",
     "stock:edit",
     "schedules:edit",
@@ -105,7 +109,7 @@ async function checkBusinessPermissions({
       }
     }
 
-    const business = await getBusinessById(businessId);
+    business = !business ? await getBusinessById(businessId) : business;
 
     if (!business) {
       logger.error(
@@ -162,7 +166,12 @@ async function getBusinessById(businessId) {
     }
 
     if (businessCache.has(businessId)) {
-      return businessCache.get(businessId);
+      const b = businessCache.get(businessId);
+      if (!b.expiresAt || b.expiresAt < Date.now()) {
+        businessCache.delete(businessId);
+      } else {
+        return b;
+      }
     }
 
     const business = await Business.findById(businessId).lean();
@@ -172,9 +181,7 @@ async function getBusinessById(businessId) {
       return null;
     }
 
-    if (businessCache.size > 1000) {
-      businessCache.clear();
-    }
+    business.expiresAt = Date.now() + 5 * 60 * 1000; // Cache for 5 minutes
 
     businessCache.set(businessId, business);
 
@@ -197,7 +204,12 @@ async function getBusinessMember({ userId, businessId }) {
     let cacheKey = `${userId}:${businessId}`;
 
     if (memberCache.has(cacheKey)) {
-      return memberCache.get(cacheKey);
+      const m = memberCache.get(cacheKey);
+      if (!m.expiresAt || m.expiresAt < Date.now()) {
+        memberCache.delete(cacheKey);
+      } else {
+        return m;
+      }
     }
 
     const businessMember = await BusinessMember.findOne({
@@ -216,9 +228,7 @@ async function getBusinessMember({ userId, businessId }) {
       return null;
     }
 
-    if (memberCache.size > 1000) {
-      memberCache.clear();
-    }
+    businessMember.expiresAt = Date.now() + 5 * 60 * 1000; // Cache for 5 minutes
 
     memberCache.set(cacheKey, businessMember);
 
@@ -228,5 +238,20 @@ async function getBusinessMember({ userId, businessId }) {
     return null;
   }
 }
+
+setInterval(() => {
+  const now = Date.now();
+
+  for (const [key, value] of businessCache.entries()) {
+    if (!value.expiresAt || value.expiresAt < now) {
+      businessCache.delete(key);
+    }
+  }
+  for (const [key, value] of memberCache.entries()) {
+    if (!value.expiresAt || value.expiresAt < now) {
+      memberCache.delete(key);
+    }
+  }
+}, 60 * 60 * 1000); // Clean up every 60 minutes
 
 module.exports = checkBusinessPermissions;

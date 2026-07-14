@@ -566,6 +566,7 @@ Constants.productTypeVideoStory = 2;
 Constants.productTypePodcast = 3;
 Constants.productTypeTextStory = 4;
 Constants.productTypeProduct = 5;
+Constants.productTypeService = 6;
 
 Constants.productVisibilityPublic = "public";
 Constants.productVisibilityTribes = "tribes";

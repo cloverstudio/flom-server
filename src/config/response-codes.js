@@ -850,6 +850,9 @@ ResponseCodes.responsecodeTerminalNotFound = 443984;
 ResponseCodes.responsecodeTerminalAlreadyInUse = 443985;
 ResponseCodes.responsecodeTerminalNotInUse = 443986;
 ResponseCodes.responsecodeUserNotActiveOnTerminal = 443987;
+ResponseCodes.responsecodeInvalidServiceId = 443988;
+ResponseCodes.responsecodeServiceNotFound = 443989;
+ResponseCodes.responsecodeInvalidCurrency = 443990;
 
 ResponseCodes.responsecodeCountryTemporarilyBanned = 444000;
 ResponseCodes.responsecodeAppVersionTooOld = 444001;

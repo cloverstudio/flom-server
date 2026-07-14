@@ -474,6 +474,9 @@
   "443985": "Terminal is already in use.",
   "443986": "Terminal is not in use.",
   "443987": "User is not active on the terminal.",
+  "443988": "Service not found.",
+  "443989": "Service not found.",
+  "443990": "Invalid currency.",
 
   "444000": "Your country has been temporarily banned.",
   "444001": "Your app version is too old, please update.",
