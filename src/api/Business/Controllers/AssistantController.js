@@ -93,6 +93,14 @@ router.post("/actions", auth({ allowUser: true }), async function (request, resp
       });
     }
 
+    if (["change_role", "invite"].includes(action) && !["helper", "manager"].includes(role)) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeWrongRole,
+        message: "AssistantController, invalid role",
+      });
+    }
+
     if (["invite", "revoke", "change_role"].includes(action)) {
       const allowed = await Logics.checkBusinessPermissions({
         userId: user._id.toString(),
@@ -141,14 +149,6 @@ router.post("/actions", auth({ allowUser: true }), async function (request, resp
           message: "AssistantController, invalid action, no invited assistant found for the user",
         });
       }
-    }
-
-    if (action === "change_role" && !["helper", "manager"].includes(role)) {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeWrongRole,
-        message: "AssistantController, invalid new role",
-      });
     }
 
     let assistant = null;
