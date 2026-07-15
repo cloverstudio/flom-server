@@ -61,7 +61,7 @@ const Logics = require("#logics");
  * @apiError (Errors) 4000007 Token invalid
  */
 
-router.post("/actions", auth({ allowUser: true }), async function (request, response) {
+router.post("/assistants/actions", auth({ allowUser: true }), async function (request, response) {
   try {
     const { user } = request;
     const { businessId, action, role } = request.body;
@@ -237,6 +237,160 @@ router.post("/actions", auth({ allowUser: true }), async function (request, resp
     });
   }
 });
+
+/**
+ * @api {get} /api/v2/businesses/:businessId/assistants/me  Get own assistant invite info flom_v1
+ * @apiVersion 2.0.34
+ * @apiName  Get own assistant invite info
+ * @apiGroup WebAPI Business
+ * @apiDescription  API which is called to get user's own assistant invite info for the specified business.
+ *
+ * @apiHeader {String} access-token Users unique access token.
+ *
+ * @apiSuccessExample Success Response
+ * {
+ *     "code": 1,
+ *     "time": 1784139825061,
+ *     "data": {
+ *         "role": "helper",
+ *         "business": {
+ *             "_id": "6a561fa0fd66633a96932d37",
+ *             "chainId": "6a561fa0fd66633a96932d33",
+ *             "subChainId": "6a561fa0fd66633a96932d35",
+ *             "name": "Ivooooo",
+ *             "description": "Sliakcaca",
+ *             "status": "created",
+ *             "verificationStatus": "unverified",
+ *             "owner": {
+ *                 "_id": "63e10fd117885e15aa47be24",
+ *                 "phoneNumber": "+2348020000018"
+ *             },
+ *             "market": "NG",
+ *             "tagIds": [],
+ *             "created": 1784029088238,
+ *             "lastActive": 1784029088238,
+ *             "createdAt": "2026-07-14T11:38:08.238Z",
+ *             "updatedAt": "2026-07-14T11:38:08.605Z",
+ *             "__v": 0,
+ *             "avatar": {
+ *                 "nameOnServer": "eLSGiEjAvZFgJajFRsyvkCWXPpwFTrEO.JPG",
+ *                 "mimeType": "image/jpeg",
+ *                 "originalName": "IMG_NkiqP7Tl1784029087142.JPG",
+ *                 "size": 457434,
+ *                 "width": 1080,
+ *                 "height": 1080,
+ *                 "thumbnail": {
+ *                     "nameOnServer": "eLSGiEjAvZFgJajFRsyvkCWXPpwFTrEO_thumb.JPG",
+ *                     "mimeType": "image/jpeg",
+ *                     "size": null,
+ *                     "width": 300,
+ *                     "height": 300
+ *                 }
+ *             }
+ *         },
+ *         "invitedBy": {
+ *             "_id": "63e10fd117885e15aa47be24",
+ *             "name": "met18",
+ *             "created": 1675694033760,
+ *             "phoneNumber": "+2348020000018",
+ *             "userName": "met18",
+ *             "avatar": {
+ *                 "picture": {
+ *                     "originalName": "thumb_d8COo7TH0Rsu_1724139206285.jpg",
+ *                     "size": 108952,
+ *                     "mimeType": "image/png",
+ *                     "nameOnServer": "fJMk4huz89i2lqyghZIlOW6UYdzdb2Mk"
+ *                 },
+ *                 "thumbnail": {
+ *                     "originalName": "thumb_d8COo7TH0Rsu_1724139206285.jpg",
+ *                     "size": 86399,
+ *                     "mimeType": "image/png",
+ *                     "nameOnServer": "kUC8FvC6dz3tALwPpCSY5xuFET5y9H4o"
+ *                 }
+ *             }
+ *         }
+ *     }
+ * }
+ *
+ * @apiSuccessExample {json} Error Response
+ * {
+ *   "code": ErrorCode,
+ *   "time": 1590000125608
+ *  }
+ *
+ * @apiError (Errors) 443970 Invalid business id
+ * @apiError (Errors) 443971 Business not found
+ * @apiError (Errors) 443991 Invite not found
+ * @apiError (Errors) 4000007 Token invalid
+ */
+
+router.get(
+  "/:businessId/assistants/me",
+  auth({ allowUser: true }),
+  async function (request, response) {
+    try {
+      const { user } = request;
+      const { businessId } = request.params;
+
+      if (!businessId || !Utils.isValidObjectId(businessId)) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeInvalidBusinessId,
+          message: "AssistantController, invalid businessId",
+        });
+      }
+
+      const business = await Business.findById(businessId).lean();
+
+      if (!business) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeBusinessNotFound,
+          message: "AssistantController, business not found",
+        });
+      }
+
+      const memberArray = await BusinessMember.find({
+        businessId,
+        userId: user._id.toString(),
+        status: "pending",
+      })
+        .sort({ created: -1 })
+        .lean();
+      const member = memberArray[0];
+
+      if (!member) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeInviteNotFound,
+          message: "AssistantController, invite not found for the user in the business",
+        });
+      }
+
+      const invitedBy = await User.findById(member.invitedById, {
+        _id: 1,
+        name: 1,
+        userName: 1,
+        phoneNumber: 1,
+        created: 1,
+        avatar: 1,
+      }).lean();
+
+      return Base.successResponse(response, Const.responsecodeSucceed, {
+        role: member.role,
+        business,
+        invitedBy,
+      });
+    } catch (error) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.httpCodeServerError,
+        message: "AssistantController, update assistant",
+        error,
+      });
+    }
+  },
+);
 
 async function sendNotifications({ sender, receiver, business, action = "invite" }) {
   try {

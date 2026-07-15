@@ -854,6 +854,8 @@ ResponseCodes.responsecodeInvalidServiceId = 443988;
 ResponseCodes.responsecodeServiceNotFound = 443989;
 ResponseCodes.responsecodeInvalidCurrency = 443990;
 
+ResponseCodes.responsecodeInviteNotFound = 443991;
+
 ResponseCodes.responsecodeCountryTemporarilyBanned = 444000;
 ResponseCodes.responsecodeAppVersionTooOld = 444001;
 
