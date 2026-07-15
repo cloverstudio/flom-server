@@ -300,12 +300,14 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
 
     const members = await BusinessMember.find({
       userId: user._id.toString(),
-      status: { $in: ["accepted", "pending"] },
+      status: { $in: ["accepted"] },
     }).lean();
 
     const businesses = await Business.find({
       _id: { $in: members.map((m) => m.businessId) },
-    }).lean();
+    })
+      .sort({ lastActive: -1 })
+      .lean();
 
     Base.successResponse(response, Const.responsecodeSucceed, { businesses });
   } catch (error) {
