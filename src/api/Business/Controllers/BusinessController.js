@@ -18,6 +18,85 @@ const {
 } = require("#models");
 
 /**
+ * @api {get} /api/v2/businesses/me  Get users own businesses flom_v1
+ * @apiVersion 2.0.34
+ * @apiName Get users own businesses
+ * @apiGroup WebAPI Business
+ * @apiDescription Get users own businesses. Returns all businesses where the user is the owner or an assistant.
+ *
+ * @apiHeader {String} access-token Users unique access-token.
+ *
+ * @apiSuccessExample Success Response
+ * {
+ *     "code": 1,
+ *     "time": 1783345724687,
+ *     "data": {
+ *         "businesses": [
+ *             {
+ *                 "_id": "6a4bb17dab58c78c74906cd6",
+ *                 "name": "Petrov biznis",
+ *                 "description": "mjesto za mene",
+ *                 "status": "created",
+ *                 "owner": {
+ *                     "_id": "641d9c333478cf0d6a500547",
+ *                     "phoneNumber": "+385958710207"
+ *                 },
+ *                 "verificationStatus": "unverified",
+ *                 "market": "NG",
+ *                 "tagIds": ["tag1", "tag2", "tag3"],
+ *                 "tags": [
+ *                    {
+ *                      "id": "tag1",
+ *                      "display": { "en-NG": "Makeup & Beauty" },
+ *                      "enabledInMarket": true
+ *                    }
+ *                 ],
+ *                 "created": 1783345533103,
+ *                 "lastActive": 1783345533103,
+ *                 "createdAt": "2026-07-06T13:45:33.118Z",
+ *                 "updatedAt": "2026-07-06T13:45:33.118Z",
+ *                 "__v": 0
+ *             }
+ *         ]
+ *     }
+ * }
+ *
+ * @apiSuccessExample {json} Error Response
+ * {
+ *   "code": ErrorCode,
+ *   "time": 1590000125608
+ *  }
+ *
+ * @apiError (Errors) 4000007 Token not valid
+ */
+
+router.get("/me", auth({ allowUser: true }), async function (request, response) {
+  try {
+    const { user } = request;
+
+    const members = await BusinessMember.find({
+      userId: user._id.toString(),
+      status: { $in: ["accepted"] },
+    }).lean();
+
+    const businesses = await Business.find({
+      _id: { $in: members.map((m) => m.businessId) },
+    })
+      .sort({ lastActive: -1 })
+      .lean();
+
+    Base.successResponse(response, Const.responsecodeSucceed, { businesses });
+  } catch (error) {
+    return Base.newErrorResponse({
+      response,
+      code: Const.httpCodeServerError,
+      message: "BusinessController, list businesses",
+      error,
+    });
+  }
+});
+
+/**
  * @api {get} /api/v2/businesses/:businessId  Get business flom_v1
  * @apiVersion 2.0.34
  * @apiName Get business
@@ -236,85 +315,6 @@ router.get("/:businessId", auth({ allowUser: true }), async function (request, r
       response,
       code: Const.httpCodeServerError,
       message: "BusinessController, get business",
-      error,
-    });
-  }
-});
-
-/**
- * @api {get} /api/v2/businesses  Get businesses flom_v1
- * @apiVersion 2.0.34
- * @apiName Get businesses
- * @apiGroup WebAPI Business
- * @apiDescription List Businesses. Returns all businesses where the user is the owner or an assistant.
- *
- * @apiHeader {String} access-token Users unique access-token.
- *
- * @apiSuccessExample Success Response
- * {
- *     "code": 1,
- *     "time": 1783345724687,
- *     "data": {
- *         "businesses": [
- *             {
- *                 "_id": "6a4bb17dab58c78c74906cd6",
- *                 "name": "Petrov biznis",
- *                 "description": "mjesto za mene",
- *                 "status": "created",
- *                 "owner": {
- *                     "_id": "641d9c333478cf0d6a500547",
- *                     "phoneNumber": "+385958710207"
- *                 },
- *                 "verificationStatus": "unverified",
- *                 "market": "NG",
- *                 "tagIds": ["tag1", "tag2", "tag3"],
- *                 "tags": [
- *                    {
- *                      "id": "tag1",
- *                      "display": { "en-NG": "Makeup & Beauty" },
- *                      "enabledInMarket": true
- *                    }
- *                 ],
- *                 "created": 1783345533103,
- *                 "lastActive": 1783345533103,
- *                 "createdAt": "2026-07-06T13:45:33.118Z",
- *                 "updatedAt": "2026-07-06T13:45:33.118Z",
- *                 "__v": 0
- *             }
- *         ]
- *     }
- * }
- *
- * @apiSuccessExample {json} Error Response
- * {
- *   "code": ErrorCode,
- *   "time": 1590000125608
- *  }
- *
- * @apiError (Errors) 4000007 Token not valid
- */
-
-router.get("/", auth({ allowUser: true }), async function (request, response) {
-  try {
-    const { user } = request;
-
-    const members = await BusinessMember.find({
-      userId: user._id.toString(),
-      status: { $in: ["accepted"] },
-    }).lean();
-
-    const businesses = await Business.find({
-      _id: { $in: members.map((m) => m.businessId) },
-    })
-      .sort({ lastActive: -1 })
-      .lean();
-
-    Base.successResponse(response, Const.responsecodeSucceed, { businesses });
-  } catch (error) {
-    return Base.newErrorResponse({
-      response,
-      code: Const.httpCodeServerError,
-      message: "BusinessController, list businesses",
       error,
     });
   }
