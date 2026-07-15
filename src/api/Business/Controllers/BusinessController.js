@@ -51,6 +51,7 @@ const {
  *                }
  *             ],
  *             "created": 1783345533103,
+ *             "lastActive": 1783345533103,
  *             "createdAt": "2026-07-06T13:45:33.118Z",
  *             "updatedAt": "2026-07-06T13:45:33.118Z",
  *             "outlets": [ {
@@ -275,6 +276,7 @@ router.get("/:businessId", auth({ allowUser: true }), async function (request, r
  *                    }
  *                 ],
  *                 "created": 1783345533103,
+ *                 "lastActive": 1783345533103,
  *                 "createdAt": "2026-07-06T13:45:33.118Z",
  *                 "updatedAt": "2026-07-06T13:45:33.118Z",
  *                 "__v": 0
@@ -355,6 +357,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
  *                }
  *             ],
  *             "created": 1783345533103,
+ *             "lastActive": 1783345533103,
  *             "createdAt": "2026-07-06T13:45:33.118Z",
  *             "updatedAt": "2026-07-06T13:45:33.118Z",
  *             "outlets": [ {
@@ -595,6 +598,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
  *             ],
  *             "_id": "6a4bb17dab58c78c74906cd6",
  *             "created": 1783345533103,
+ *             "lastActive": 1783345533103,
  *             "createdAt": "2026-07-06T13:45:33.118Z",
  *             "updatedAt": "2026-07-06T13:45:33.118Z",
  *             "__v": 0
