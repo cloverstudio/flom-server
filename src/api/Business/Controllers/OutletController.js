@@ -471,6 +471,8 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       ...info,
     });
 
+    await Business.findByIdAndUpdate(business._id.toString(), { lastActive: Date.now() });
+
     Base.successResponse(response, Const.responsecodeSucceed, { outlet: outlet.toObject() });
   } catch (error) {
     return Base.newErrorResponse({
@@ -784,6 +786,8 @@ router.patch("/:outletId", auth({ allowUser: true }), async function (request, r
       new: true,
       lean: true,
     });
+
+    await Business.findByIdAndUpdate(outlet.businessId, { lastActive: Date.now() });
 
     Base.successResponse(response, Const.responsecodeSucceed, { outlet: updatedOutlet });
   } catch (error) {

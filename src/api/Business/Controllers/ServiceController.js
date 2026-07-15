@@ -394,6 +394,8 @@ router.post("/services", auth({ allowUser: true }), async function (request, res
 
     const service = await Product.create(info);
 
+    await Business.findByIdAndUpdate(businessId, { lastActive: Date.now() });
+
     Base.successResponse(response, Const.responsecodeSucceed, { service: service.toObject() });
   } catch (error) {
     return Base.newErrorResponse({
@@ -585,6 +587,8 @@ router.patch("/services/:serviceId", auth({ allowUser: true }), async function (
       new: true,
       lean: true,
     });
+
+    await Business.findByIdAndUpdate(service.businessId, { lastActive: Date.now() });
 
     Base.successResponse(response, Const.responsecodeSucceed, { service: updatedService });
   } catch (error) {

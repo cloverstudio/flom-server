@@ -135,7 +135,7 @@ router.post("/:businessId/avatar", auth({ allowUser: true }), async function (re
     await fs.copyFile(filePath, Config.uploadPath + "/" + formatted.nameOnServer);
     await fs.unlink(filePath);
 
-    await Business.findByIdAndUpdate(businessId, { avatar: formatted });
+    await Business.findByIdAndUpdate(businessId, { avatar: formatted, lastActive: Date.now() });
 
     if (oldAvatar) {
       try {

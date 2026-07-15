@@ -664,7 +664,7 @@ router.patch("/:businessId", auth({ allowUser: true }), async function (request,
       });
     }
 
-    const updateObj = {};
+    const updateObj = { lastActive: Date.now() };
 
     if (disableBusiness && disableBusiness === true) {
       if (business.owner._id !== user._id.toString()) {

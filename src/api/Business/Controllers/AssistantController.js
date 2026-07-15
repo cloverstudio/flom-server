@@ -201,6 +201,10 @@ router.post("/actions", auth({ allowUser: true }), async function (request, resp
       );
     }
 
+    if (action === "accept") {
+      await Business.findByIdAndUpdate(businessId, { lastActive: Date.now() });
+    }
+
     Base.successResponse(response, Const.responsecodeSucceed, { assistant });
 
     if (action === "revoke" || action === "change_role" || action === "invite") {
