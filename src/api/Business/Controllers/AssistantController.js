@@ -215,6 +215,7 @@ router.post("/assistants/actions", auth({ allowUser: true }), async function (re
         receiver: targetUser,
         business,
         action,
+        role,
       });
     } else if (action === "accept" || action === "reject") {
       const owner = await User.findById(business.owner._id).lean();
@@ -392,7 +393,7 @@ router.get(
   },
 );
 
-async function sendNotifications({ sender, receiver, business, action = "invite" }) {
+async function sendNotifications({ sender, receiver, business, action = "invite", role = null }) {
   try {
     let title, text, notificationType, pushType, messageType;
 
@@ -471,7 +472,20 @@ async function sendNotifications({ sender, receiver, business, action = "invite"
         message: "",
         created: Date.now(),
         attributes: {
-          businessId: business._id.toString(),
+          business: {
+            _id: business._id.toString(),
+            name: business.name,
+            description: business.description,
+            avatar: business.avatar,
+          },
+          role,
+          invitedBy: {
+            _id: sender._id.toString(),
+            name: sender.name,
+            userName: sender.userName,
+            phoneNumber: sender.phoneNumber,
+            created: sender.created,
+          },
         },
       };
 
