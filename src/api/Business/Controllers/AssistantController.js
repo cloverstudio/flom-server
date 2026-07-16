@@ -113,7 +113,7 @@ router.post("/assistants/actions", auth({ allowUser: true }), async function (re
     }
 
     if (action === "remove") {
-      await BusinessMember.deleteOne({ businessId, userId: targetId });
+      await BusinessMember.updateOne({ businessId, userId: targetId }, { status: "removed" });
     } else if (action === "deactivate") {
       await BusinessMember.updateOne({ businessId, userId: targetId }, { status: "inactive" });
     } else if (action === "activate") {

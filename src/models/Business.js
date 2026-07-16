@@ -13,7 +13,6 @@ const schema = new mongoose.Schema(
     name: String,
     description: String,
     avatar: {},
-    status: { type: String, default: "paused" }, // active, paused
     payoutStatus: { type: String, default: "disabled" }, // disabled, enabled
     idStatus: { type: String, default: "unverified" }, // unverified, pending, verified, rejected, expired
     idRejectionReason: String,

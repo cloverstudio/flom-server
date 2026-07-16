@@ -36,12 +36,12 @@ const {
  *                 "_id": "6a4bb17dab58c78c74906cd6",
  *                 "name": "Petrov biznis",
  *                 "description": "mjesto za mene",
- *                 "status": "created",
+ *                 "payoutStatus": "disabled",
+ *                 "idStatus": "unverified",
  *                 "owner": {
  *                     "_id": "641d9c333478cf0d6a500547",
  *                     "phoneNumber": "+385958710207"
  *                 },
- *                 "verificationStatus": "unverified",
  *                 "market": "NG",
  *                 "tagIds": ["tag1", "tag2", "tag3"],
  *                 "tags": [
@@ -114,12 +114,12 @@ router.get("/me", auth({ allowUser: true }), async function (request, response) 
  *             "_id": "6a4bb17dab58c78c74906cd6",
  *             "name": "Petrov biznis",
  *             "description": "mjesto za mene",
- *             "status": "created",
+ *             "payoutStatus": "disabled",
+ *             "idStatus": "unverified",
  *             "owner": {
  *                 "_id": "641d9c333478cf0d6a500547",
  *                 "phoneNumber": "+385958710207"
  *             },
- *             "verificationStatus": "unverified",
  *             "market": "NG",
  *             "tagIds": ["tag1", "tag2", "tag3"],
  *             "tags": [
@@ -202,13 +202,7 @@ router.get("/me", auth({ allowUser: true }), async function (request, response) 
  *                  "role": "owner", // owner, manager, helper
  *                  "status": "pending",
  *                  "invitedById": "641d9c333478cf0d6a500547",
- *                  "invitedAt": 1783345533103,
- *                  "expiresAt": 1783940333103,
- *                  "respondedAt": 1783345533103,
- *                  "revokedAt": 1783345533103,
  *                  "created": 1783345533103,
- *                  "createdAt": "2026-07-06T13:45:33.118Z",
- *                  "updatedAt": "2026-07-06T13:45:33.118Z",
  *                  "user": {
  *                      "_id": "641d9c333478cf0d6a500547",
  *                      "name": "John Doe",
@@ -343,12 +337,12 @@ router.get("/:businessId", auth({ allowUser: true }), async function (request, r
  *             "_id": "6a4bb17dab58c78c74906cd6",
  *             "name": "Petrov biznis",
  *             "description": "mjesto za mene",
- *             "status": "created",
+ *             "payoutStatus": "disabled",
+ *             "idStatus": "unverified",
  *             "owner": {
  *                 "_id": "641d9c333478cf0d6a500547",
  *                 "phoneNumber": "+385958710207"
  *             },
- *             "verificationStatus": "unverified",
  *             "market": "NG",
  *             "tagIds": ["tag1", "tag2", "tag3"],
  *             "tags": [
@@ -432,13 +426,7 @@ router.get("/:businessId", auth({ allowUser: true }), async function (request, r
  *                  "role": "owner", // owner, manager, helper
  *                  "status": "pending",
  *                  "invitedById": "641d9c333478cf0d6a500547",
- *                  "invitedAt": 1783345533103,
- *                  "expiresAt": 1783940333103,
- *                  "respondedAt": 1783345533103,
- *                  "revokedAt": 1783345533103,
  *                  "created": 1783345533103,
- *                  "createdAt": "2026-07-06T13:45:33.118Z",
- *                  "updatedAt": "2026-07-06T13:45:33.118Z",
  *                  "user": {
  *                      "_id": "641d9c333478cf0d6a500547",
  *                      "name": "John Doe",
@@ -581,12 +569,12 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
  *         "business": {
  *             "name": "Petrov biznis",
  *             "description": "mjesto za mene",
- *             "status": "created",
+ *             "payoutStatus": "disabled",
+ *             "idStatus": "unverified",
  *             "owner": {
  *                 "_id": "641d9c333478cf0d6a500547",
  *                 "phoneNumber": "+385958710207"
  *             },
- *             "verificationStatus": "unverified",
  *             "market": "NG",
  *             "tagIds": ["tag1", "tag2", "tag3"],
  *             "tags": [

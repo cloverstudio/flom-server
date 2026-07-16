@@ -85,12 +85,32 @@ router.get("/:inviteId/accept", auth({ allowUser: true }), async function (reque
       });
     }
 
+    const member = await BusinessMember.findOne({ businessId: invite.businessId, userId }).lean();
+
+    if (!member) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserNotAllowed,
+        message:
+          "BusinessInviteController, accept invite - user is not a member of the business, cannot accept invite",
+      });
+    }
+
+    if (member.status !== "invited") {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserNotAllowed,
+        message:
+          "BusinessInviteController, accept invite - user is not in invited status, cannot accept invite",
+      });
+    }
+
     await BusinessInvite.findByIdAndUpdate(inviteId, {
       status: "accepted",
       respondedAt: Date.now(),
     });
 
-    await BusinessMember.findOneAndUpdate({ inviteId }, { status: "active" });
+    await BusinessMember.findByIdAndUpdate(member._id, { status: "active" });
 
     Base.successResponse(response, Const.responsecodeSucceed, {});
 
@@ -180,12 +200,32 @@ router.get("/:inviteId/reject", auth({ allowUser: true }), async function (reque
       });
     }
 
+    const member = await BusinessMember.findOne({ businessId: invite.businessId, userId }).lean();
+
+    if (!member) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserNotAllowed,
+        message:
+          "BusinessInviteController, reject invite - user is not a member of the business, cannot reject invite",
+      });
+    }
+
+    if (member.status !== "invited") {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserNotAllowed,
+        message:
+          "BusinessInviteController, reject invite - user is not in invited status, cannot reject invite",
+      });
+    }
+
     await BusinessInvite.findByIdAndUpdate(inviteId, {
       status: "rejected",
       respondedAt: Date.now(),
     });
 
-    await BusinessMember.findOneAndDelete({ inviteId });
+    await BusinessMember.findByIdAndDelete(member._id);
 
     Base.successResponse(response, Const.responsecodeSucceed, {});
 
@@ -261,7 +301,7 @@ router.get("/:inviteId/revoke", auth({ allowUser: true }), async function (reque
     const allowed = await Logics.checkBusinessPermissions({
       userId: user._id.toString(),
       businessId: invite.businessId,
-      action: "members:invite_" + invite.role,
+      action: "members:revoke_" + invite.role,
     });
 
     if (!allowed) {
@@ -281,9 +321,32 @@ router.get("/:inviteId/revoke", auth({ allowUser: true }), async function (reque
       });
     }
 
+    const member = await BusinessMember.findOne({
+      businessId: invite.businessId,
+      userId: invite.userId,
+    }).lean();
+
+    if (!member) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserNotAllowed,
+        message:
+          "BusinessInviteController, revoke invite - invited user is not a member of the business, cannot revoke invite",
+      });
+    }
+
+    if (member.status !== "invited") {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserNotAllowed,
+        message:
+          "BusinessInviteController, revoke invite - invited user is not in invited status, cannot revoke invite",
+      });
+    }
+
     await BusinessInvite.findByIdAndUpdate(inviteId, { status: "revoked", revokedAt: Date.now() });
 
-    await BusinessMember.findOneAndDelete({ inviteId });
+    await BusinessMember.findByIdAndDelete(member._id);
 
     Base.successResponse(response, Const.responsecodeSucceed, {});
 
@@ -326,7 +389,6 @@ router.get("/:inviteId/revoke", auth({ allowUser: true }), async function (reque
  *             "subChainId": "6a561fa0fd66633a96932d35",
  *             "name": "Ivooooo",
  *             "description": "Sliakcaca",
- *             "status": "active",
  *             "payoutStatus": "disabled",
  *             "idStatus": "unverified",
  *             "owner": {
@@ -598,7 +660,6 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
       userId: targetId,
       role,
       status: "invited",
-      inviteId: invite._id.toString(),
     });
 
     Base.successResponse(response, Const.responsecodeSucceed, { invite: invite.toObject() });

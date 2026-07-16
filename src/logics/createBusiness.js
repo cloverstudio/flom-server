@@ -10,6 +10,8 @@ const {
   Terminal,
   TerminalOperatorReference,
   User,
+  IdApplication,
+  MerchantApplication,
 } = require("#models");
 
 async function createBusiness({ owner, info }) {
@@ -23,8 +25,12 @@ async function createBusiness({ owner, info }) {
     info.chainId = chain._id.toString();
     info.subChainId = subChain._id.toString();
 
+    const { payoutStatus, idStatus } = await getBusinessStatuses({ owner });
+
     const business = await Business.create({
       owner: { _id: owner._id.toString(), phoneNumber: owner.phoneNumber },
+      ...(payoutStatus && { payoutStatus }),
+      ...(idStatus && { idStatus }),
       ...info,
     });
 
@@ -140,6 +146,73 @@ async function createTerminalPaymentAddress(owner) {
   } while (addressExists);
 
   return paymentAddress;
+}
+
+async function getBusinessStatuses({ owner }) {
+  const mArr = await MerchantApplication.find({ userId: owner._id.toString() })
+    .sort({ created: -1 })
+    .limit(1)
+    .lean();
+  const iArr = await IdApplication.find({ userId: owner._id.toString() })
+    .sort({ created: -1 })
+    .limit(1)
+    .lean();
+  const m = mArr[0];
+  const i = iArr[0];
+
+  let payoutStatus = null;
+  let idStatus = null;
+  let idRejectionReason = null;
+
+  if (i) {
+    switch (i.approvalStatus) {
+      case Const.idApplicationStatusPending:
+        idStatus = "pending";
+        break;
+      case Const.idApplicationStatusRejected:
+        idStatus = "rejected";
+        idRejectionReason = i.approvalComment;
+        break;
+      case Const.idApplicationStatusApproved:
+        idStatus = "verified";
+        break;
+    }
+  }
+  if (m) {
+    switch (m.approvalStatus) {
+      case Const.merchantApplicationStatusPending:
+        payoutStatus = "disabled";
+        idStatus = "pending";
+        break;
+      case Const.merchantApplicationStatusRejected:
+        payoutStatus = "disabled";
+        idStatus = "rejected";
+        idRejectionReason = m.approvalComment;
+        break;
+      case Const.merchantApplicationStatusApprovedWithoutPayout:
+        payoutStatus = "disabled";
+        idStatus = "verified";
+        break;
+      case Const.merchantApplicationStatusPendingPaypalSent:
+        payoutStatus = "disabled";
+        idStatus = "pending";
+        break;
+      case Const.merchantApplicationStatusPendingPaypalReceived:
+        payoutStatus = "disabled";
+        idStatus = "pending";
+        break;
+      case Const.merchantApplicationStatusApprovedWithPayout:
+        payoutStatus = "enabled";
+        idStatus = "verified";
+        break;
+      case Const.merchantApplicationStatusPendingPaypalEmailAdded:
+        payoutStatus = "disabled";
+        idStatus = "pending";
+        break;
+    }
+  }
+
+  return { payoutStatus, idStatus, idRejectionReason };
 }
 
 module.exports = createBusiness;
