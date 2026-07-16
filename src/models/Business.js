@@ -13,9 +13,10 @@ const schema = new mongoose.Schema(
     name: String,
     description: String,
     avatar: {},
-    status: { type: String, default: "created" }, // created, active_payout_disabled, active_payout_enabled, disabled
-    verificationStatus: { type: String, default: "unverified" }, // unverified | pending | verified | rejected | expired
-    oldStatus: String,
+    status: { type: String, default: "paused" }, // active, paused
+    payoutStatus: { type: String, default: "disabled" }, // disabled, enabled
+    idStatus: { type: String, default: "unverified" }, // unverified, pending, verified, rejected, expired
+    idRejectionReason: String,
     owner: {
       _id: { type: String, index: true },
       phoneNumber: { type: String, index: true },

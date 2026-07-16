@@ -6,7 +6,7 @@ const { Const, businessTags, countries } = require("#config");
 const { auth } = require("#middleware");
 const Utils = require("#utils");
 const Logics = require("#logics");
-const { Business, User, Outlet, Terminal, TerminalOperatorReference } = require("#models");
+const { User, Outlet, Terminal, TerminalOperatorReference } = require("#models");
 
 /**
  * @api {post} /api/v2/businesses/terminals/signin  Sign in owner or assistant into a terminal flom_v1

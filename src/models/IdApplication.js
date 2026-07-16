@@ -9,18 +9,18 @@ const { Const } = require("#config");
 const schema = new mongoose.Schema(
   {
     userId: String,
-    countryCode: String,
-    country: String,
     userName: String,
     phoneNumber: String,
+    countryCode: String,
+    country: String,
     firstName: String,
     lastName: String,
+    dateOfBirth: Number,
     idPhotos: [],
     approvalStatus: { type: Number, default: Const.idApplicationStatusPending },
     approvalComment: String,
     created: { type: Number, default: Date.now },
     modified: { type: Number, default: Date.now },
-    dateOfBirth: Number,
   },
   { timestamps: true },
 );

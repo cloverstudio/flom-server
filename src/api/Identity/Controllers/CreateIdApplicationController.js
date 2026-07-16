@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { Const, countries } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
-const { IdApplication, User } = require("#models");
+const { IdApplication, User, Business } = require("#models");
 const { handleImageFile } = require("../helpers");
 
 /**
@@ -200,6 +200,8 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     );
     const idApplicationObj = idApplication.toObject();
     delete idApplicationObj.__v;
+
+    await Business.updateMany({ "owner._id": user._id.toString() }, { idStatus: "pending" });
 
     const responseData = { idApplication: idApplicationObj };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);

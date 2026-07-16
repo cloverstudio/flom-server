@@ -570,8 +570,6 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
  *
  * @apiParam {String}     [name]                  Business name
  * @apiParam {String}     [description]           Business description
- * @apiParam {Boolean}    [disableBusiness]       Whether to disable the business (only owner can disable)
- * @apiParam {Boolean}    [enableBusiness]        Whether to enable the business (only owner can enable) - previous business status is reinstated
  * @apiParam {String}     [market]                Business market (country code - HR, NG, US) - defaults to owner's country code
  * @apiParam {String[]}   [tagIds]                Tag ids for the business (array of tag IDs) (send full array of tagIds, the old ones will be replaced with the new ones)
  *
@@ -628,14 +626,7 @@ router.patch("/:businessId", auth({ allowUser: true }), async function (request,
   try {
     const { user } = request;
     const { businessId } = request.params;
-    const {
-      name,
-      description,
-      disableBusiness,
-      enableBusiness,
-      market,
-      tagIds = [],
-    } = request.body;
+    const { name, description, market, tagIds = [] } = request.body;
 
     if (!businessId || !Utils.isValidObjectId(businessId)) {
       return Base.newErrorResponse({
@@ -671,29 +662,6 @@ router.patch("/:businessId", auth({ allowUser: true }), async function (request,
     }
 
     const updateObj = { lastActive: Date.now() };
-
-    if (disableBusiness && disableBusiness === true) {
-      if (business.owner._id !== user._id.toString()) {
-        return Base.newErrorResponse({
-          response,
-          code: Const.responsecodeUserNotAllowed,
-          message: "BusinessController, update business - only owner can disable the business",
-        });
-      }
-      updateObj.status = "disabled";
-      updateObj.oldStatus = business.status || "created";
-    }
-
-    if (enableBusiness && enableBusiness === true) {
-      if (business.owner._id !== user._id.toString()) {
-        return Base.newErrorResponse({
-          response,
-          code: Const.responsecodeUserNotAllowed,
-          message: "BusinessController, update business - only owner can enable the business",
-        });
-      }
-      updateObj.status = business.oldStatus || "created";
-    }
 
     if (name) {
       if (typeof name !== "string" || name.length < 3 || name.length > 100) {

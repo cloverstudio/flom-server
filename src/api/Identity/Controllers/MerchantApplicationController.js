@@ -324,6 +324,8 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const merchantApplicationObj = merchantApplication.toObject();
     delete merchantApplicationObj.__v;
 
+    await Business.updateMany({ "owner._id": user._id.toString() }, { idStatus: "pending" });
+
     Base.successResponse(response, Const.responsecodeSucceed, {
       merchantApplication: merchantApplicationObj,
     });
@@ -1021,13 +1023,7 @@ router.patch(
         merchantApplication: merchantApplicationObj,
       });
 
-      if (
-        merchantApplicationObj.approvalStatus ===
-          Const.merchantApplicationStatusApprovedWithoutPayout ||
-        merchantApplicationObj.approvalStatus === Const.merchantApplicationStatusApprovedWithPayout
-      ) {
-        await handleBusiness({ owner: user, merchantApplication: merchantApplicationObj });
-      }
+      await handleBusiness({ owner: user, merchantApplication: merchantApplicationObj });
 
       if (Config.environment !== "production") return;
 
@@ -1148,24 +1144,50 @@ async function sendNotifications({
 
 async function handleBusiness({ owner, merchantApplication }) {
   try {
-    let status = "";
+    let payoutStatus = null,
+      idStatus = null,
+      idRejectionReason = null;
 
-    if (
-      merchantApplication.approvalStatus === Const.merchantApplicationStatusApprovedWithoutPayout
-    ) {
-      status = "active_payout_disabled";
-    } else if (
-      merchantApplication.approvalStatus === Const.merchantApplicationStatusApprovedWithPayout
-    ) {
-      status = "active_payout_enabled";
+    switch (merchantApplication.approvalStatus) {
+      case Const.merchantApplicationStatusPending:
+        payoutStatus = "disabled";
+        idStatus = "pending";
+        break;
+      case Const.merchantApplicationStatusRejected:
+        payoutStatus = "disabled";
+        idStatus = "rejected";
+        idRejectionReason = merchantApplication.approvalComment;
+        break;
+      case Const.merchantApplicationStatusApprovedWithoutPayout:
+        payoutStatus = "disabled";
+        idStatus = "approved";
+        break;
+      case Const.merchantApplicationStatusPendingPaypalSent:
+        payoutStatus = "disabled";
+        idStatus = "pending";
+        break;
+      case Const.merchantApplicationStatusPendingPaypalReceived:
+        payoutStatus = "disabled";
+        idStatus = "pending";
+        break;
+      case Const.merchantApplicationStatusApprovedWithPayout:
+        payoutStatus = "enabled";
+        idStatus = "approved";
+        break;
+      case Const.merchantApplicationStatusPendingPaypalEmailAdded:
+        payoutStatus = "disabled";
+        idStatus = "pending";
+        break;
     }
 
-    if (!status) {
-      logger.error("MerchantApplicationController - handleBusiness, invalid status");
-      return;
-    }
-
-    await Business.updateMany({ "owner._id": owner._id.toString() }, { status });
+    await Business.updateMany(
+      { "owner._id": owner._id.toString() },
+      {
+        ...(payoutStatus && { payoutStatus }),
+        ...(idStatus && { idStatus }),
+        ...(idRejectionReason && { idRejectionReason }),
+      },
+    );
 
     return;
   } catch (error) {

@@ -32,6 +32,7 @@ const schema = new mongoose.Schema(
     approvalStatus: { type: Number, default: Const.merchantApplicationStatusPending },
     approvalComment: String,
     created: { type: Number, default: Date.now },
+    modified: { type: Number, default: Date.now },
   },
   { timestamps: true },
 );
