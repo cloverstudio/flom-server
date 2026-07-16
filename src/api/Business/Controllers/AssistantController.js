@@ -217,6 +217,7 @@ router.post("/assistants/actions", auth({ allowUser: true }), async function (re
         action,
         role,
         status: newStatus,
+        inviteId: assistant._id.toString(),
       });
     } else if (action === "accept" || action === "reject") {
       const receiver = await User.findById(assistant.invitedById).lean();
@@ -227,6 +228,7 @@ router.post("/assistants/actions", auth({ allowUser: true }), async function (re
         business,
         action,
         status: newStatus,
+        inviteId: assistant._id.toString(),
       });
     }
 
@@ -402,6 +404,7 @@ async function sendNotifications({
   action = "invite",
   role = null,
   status = null,
+  inviteId = null,
 }) {
   try {
     let title, text, notificationType, pushType, messageType;
@@ -483,6 +486,7 @@ async function sendNotifications({
         attributes: {
           role,
           status: "pending",
+          inviteId,
           business: {
             _id: business._id.toString(),
             name: business.name,
@@ -503,18 +507,9 @@ async function sendNotifications({
     }
 
     if (status) {
-      let roomId = "";
-
-      if (sender.created < receiver.created) {
-        roomId = `1-${sender._id.toString()}-${receiver?._id.toString()}`;
-      } else {
-        roomId = `1-${receiver?._id.toString()}-${sender._id.toString()}`;
-      }
-
-      await FlomMessage.findOneAndUpdate(
+      await FlomMessage.updateMany(
         {
-          roomID: roomId,
-          "attributes.business._id": business._id.toString(),
+          "attributes.inviteId": inviteId,
           type: Const.messageTypeBusinessAssistantInvite,
         },
         { "attributes.status": status },
