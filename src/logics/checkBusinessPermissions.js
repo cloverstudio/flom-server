@@ -82,6 +82,7 @@ const PERMISSIONS = {
     "orders:mark_fulfilled",
     "schedules:view",
     "bookings:view",
+    "members:view",
   ],
 };
 
