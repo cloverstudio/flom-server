@@ -855,6 +855,7 @@ ResponseCodes.responsecodeServiceNotFound = 443989;
 ResponseCodes.responsecodeInvalidCurrency = 443990;
 
 ResponseCodes.responsecodeInviteNotFound = 443991;
+ResponseCodes.responsecodeInviteExpired = 443992;
 
 ResponseCodes.responsecodeCountryTemporarilyBanned = 444000;
 ResponseCodes.responsecodeAppVersionTooOld = 444001;

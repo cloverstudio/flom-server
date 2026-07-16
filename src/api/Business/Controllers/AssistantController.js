@@ -258,6 +258,7 @@ router.post("/assistants/actions", auth({ allowUser: true }), async function (re
  *     "time": 1784139825061,
  *     "data": {
  *         "role": "helper",
+ *         "status": "pending",
  *         "business": {
  *             "_id": "6a561fa0fd66633a96932d37",
  *             "chainId": "6a561fa0fd66633a96932d33",
@@ -355,11 +356,7 @@ router.get(
         });
       }
 
-      const memberArray = await BusinessMember.find({
-        businessId,
-        userId: user._id.toString(),
-        status: "pending",
-      })
+      const memberArray = await BusinessMember.find({ businessId, userId: user._id.toString() })
         .sort({ created: -1 })
         .lean();
       const member = memberArray[0];
@@ -369,6 +366,14 @@ router.get(
           response,
           code: Const.responsecodeInviteNotFound,
           message: "AssistantController, invite not found for the user in the business",
+        });
+      }
+
+      if (member.expiresAt < Date.now()) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeInviteExpired,
+          message: "AssistantController, invite has expired for the user in the business",
         });
       }
 
@@ -383,6 +388,7 @@ router.get(
 
       return Base.successResponse(response, Const.responsecodeSucceed, {
         role: member.role,
+        status: member.status,
         business,
         invitedBy,
       });
