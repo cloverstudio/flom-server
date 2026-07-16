@@ -472,13 +472,14 @@ async function sendNotifications({ sender, receiver, business, action = "invite"
         message: "",
         created: Date.now(),
         attributes: {
+          role,
+          status: "pending",
           business: {
             _id: business._id.toString(),
             name: business.name,
             description: business.description,
             avatar: business.avatar,
           },
-          role,
           invitedBy: {
             _id: sender._id.toString(),
             name: sender.name,
