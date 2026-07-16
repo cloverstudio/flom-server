@@ -1160,7 +1160,7 @@ async function handleBusiness({ owner, merchantApplication }) {
         break;
       case Const.merchantApplicationStatusApprovedWithoutPayout:
         payoutStatus = "disabled";
-        idStatus = "approved";
+        idStatus = "verified";
         break;
       case Const.merchantApplicationStatusPendingPaypalSent:
         payoutStatus = "disabled";
@@ -1172,7 +1172,7 @@ async function handleBusiness({ owner, merchantApplication }) {
         break;
       case Const.merchantApplicationStatusApprovedWithPayout:
         payoutStatus = "enabled";
-        idStatus = "approved";
+        idStatus = "verified";
         break;
       case Const.merchantApplicationStatusPendingPaypalEmailAdded:
         payoutStatus = "disabled";

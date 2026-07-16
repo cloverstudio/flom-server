@@ -176,7 +176,7 @@ async function handleBusiness({ owner, idApplication }) {
         idRejectionReason = idApplication.approvalComment;
         break;
       case Const.idApplicationStatusApproved:
-        idStatus = "approved";
+        idStatus = "verified";
         break;
     }
 
