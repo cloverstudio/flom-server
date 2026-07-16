@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const { auth } = require("#middleware");
-const { Business, BusinessMember, User, Notification } = require("#models");
+const { Business, BusinessMember, User, Notification, FlomMessage } = require("#models");
 const Utils = require("#utils");
 const Logics = require("#logics");
 
@@ -152,6 +152,7 @@ router.post("/assistants/actions", auth({ allowUser: true }), async function (re
     }
 
     let assistant = null;
+    let newStatus = null;
 
     if (action === "invite") {
       const newAssistant = await BusinessMember.create({
@@ -168,7 +169,6 @@ router.post("/assistants/actions", auth({ allowUser: true }), async function (re
     } else {
       const updateObject = {};
       const currentStatus = { status: "pending" };
-      let newStatus = "";
 
       if (action === "accept") {
         newStatus = "accepted";
@@ -216,15 +216,17 @@ router.post("/assistants/actions", auth({ allowUser: true }), async function (re
         business,
         action,
         role,
+        status: newStatus,
       });
     } else if (action === "accept" || action === "reject") {
-      const owner = await User.findById(business.owner._id).lean();
+      const receiver = await User.findById(assistant.invitedById).lean();
 
       sendNotifications({
         sender: user,
-        receiver: owner,
+        receiver,
         business,
         action,
+        status: newStatus,
       });
     }
 
@@ -393,7 +395,14 @@ router.get(
   },
 );
 
-async function sendNotifications({ sender, receiver, business, action = "invite", role = null }) {
+async function sendNotifications({
+  sender,
+  receiver,
+  business,
+  action = "invite",
+  role = null,
+  status = null,
+}) {
   try {
     let title, text, notificationType, pushType, messageType;
 
@@ -491,6 +500,25 @@ async function sendNotifications({ sender, receiver, business, action = "invite"
       };
 
       await Logics.sendMessage(params);
+    }
+
+    if (status) {
+      let roomId = "";
+
+      if (sender.created < receiver.created) {
+        roomId = `1-${sender._id.toString()}-${receiver?._id.toString()}`;
+      } else {
+        roomId = `1-${receiver?._id.toString()}-${sender._id.toString()}`;
+      }
+
+      await FlomMessage.findOneAndUpdate(
+        {
+          roomID: roomId,
+          "attributes.business._id": business._id.toString(),
+          type: Const.messageTypeBusinessAssistantInvite,
+        },
+        { "attributes.status": status },
+      );
     }
   } catch (error) {
     logger.error(
