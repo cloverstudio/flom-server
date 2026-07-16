@@ -721,20 +721,20 @@ async function sendNotifications({
       case "revoke":
         title = "Business assistant invite revoked";
         text = `${sender.userName} has revoked your invitation to be an assistant for the business ${business.name}.`;
-        notificationType = Const.notificationTypeBusiness;
-        pushType = Const.pushTypeBusiness;
+        notificationType = Const.notificationTypeBusinessAssistantInvite;
+        pushType = Const.pushTypeBusinessAssistantInvite;
         break;
       case "accept":
         title = "Business assistant invite accepted";
         text = `${sender.userName} has accepted your invitation to be an assistant for the business ${business.name}.`;
-        notificationType = Const.notificationTypeBusiness;
-        pushType = Const.pushTypeBusiness;
+        notificationType = Const.notificationTypeBusinessAssistantInvite;
+        pushType = Const.pushTypeBusinessAssistantInvite;
         break;
       case "reject":
         title = "Business assistant invite rejected";
         text = `${sender.userName} has rejected your invitation to be an assistant for the business ${business.name}.`;
-        notificationType = Const.notificationTypeBusiness;
-        pushType = Const.pushTypeBusiness;
+        notificationType = Const.notificationTypeBusinessAssistantInvite;
+        pushType = Const.pushTypeBusinessAssistantInvite;
         break;
       default:
         logger.error(`BusinessInviteController sendNotifications, invalid action: ${action}`);
