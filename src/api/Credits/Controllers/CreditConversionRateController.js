@@ -336,7 +336,7 @@ router.delete(
         });
       }
 
-      const deletedCreditConversionRate = await CreditConversionRate.findOneAndRemove({
+      const deletedCreditConversionRate = await CreditConversionRate.findOneAndDelete({
         countryCode,
       });
 

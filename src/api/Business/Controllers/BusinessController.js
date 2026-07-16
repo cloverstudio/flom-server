@@ -76,7 +76,7 @@ router.get("/me", auth({ allowUser: true }), async function (request, response) 
 
     const members = await BusinessMember.find({
       userId: user._id.toString(),
-      status: { $in: ["accepted"] },
+      status: { $in: ["active"] },
     }).lean();
 
     const businesses = await Business.find({

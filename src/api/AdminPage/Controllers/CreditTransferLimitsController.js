@@ -399,7 +399,7 @@ router.delete(
         });
       }
 
-      const deletedCreditTransferLimit = await CreditTransferLimit.findOneAndRemove({
+      const deletedCreditTransferLimit = await CreditTransferLimit.findOneAndDelete({
         countryCode,
       });
 

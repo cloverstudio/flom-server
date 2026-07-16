@@ -478,7 +478,9 @@
   "443989": "Service not found.",
   "443990": "Invalid currency.",
   "443991": "Invite not found.",
-  "443992": "Invite expired.",
+  "443992": "Invite not found.",
+  "443993": "Invite expired.",
+  "443994": "Invite already exists.",
 
   "444000": "Your country has been temporarily banned.",
   "444001": "Your app version is too old, please update.",

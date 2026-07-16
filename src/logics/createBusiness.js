@@ -36,7 +36,7 @@ async function createBusiness({ owner, info }) {
       businessId: business._id.toString(),
       userId: owner._id.toString(),
       role: "owner",
-      status: "accepted",
+      status: "active",
     });
     businessMember = await businessMember.toObject();
 

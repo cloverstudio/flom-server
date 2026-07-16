@@ -324,7 +324,7 @@ router.delete(
         });
       }
 
-      const deletedSprayValue = await SprayValue.findOneAndRemove({ countryCode });
+      const deletedSprayValue = await SprayValue.findOneAndDelete({ countryCode });
 
       PaymentLog.create({
         type: 4,

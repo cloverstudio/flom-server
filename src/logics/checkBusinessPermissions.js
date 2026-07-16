@@ -51,7 +51,6 @@ const PERMISSIONS = {
     "members:revoke_helper",
     "members:revoke_manager",
     "members:view",
-    "members:change_role",
     "business:balance",
     "business:payout",
     "business:profile",
@@ -138,6 +137,18 @@ async function checkBusinessPermissions({
       return false;
     }
 
+    if (businessMember.status !== "active") {
+      logger.error(
+        "checkBusinessPermissions error: business member status is not active, userId: " +
+          userId +
+          ", businessId: " +
+          businessId +
+          ", status: " +
+          businessMember.status,
+      );
+      return false;
+    }
+
     const role = businessMember.role;
 
     if (!PERMISSIONS[role]) {
@@ -216,7 +227,7 @@ async function getBusinessMember({ userId, businessId }) {
     const businessMember = await BusinessMember.findOne({
       businessId,
       userId,
-      status: "accepted",
+      status: "active",
     }).lean();
 
     if (!businessMember) {

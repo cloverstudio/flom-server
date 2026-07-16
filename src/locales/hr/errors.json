@@ -471,7 +471,9 @@
   "443989": "Usluga nije pronađena.",
   "443990": "Neispravna valuta.",
   "443991": "Pozivnica nije pronađena.",
-  "443992": "Pozivnica je istekla.",
+  "443992": "Pozivnica nije pronađena.",
+  "443993": "Pozivnica je istekla.",
+  "443994": "Pozivnica već postoji.",
 
   "444000": "Vaša zemlja je privremeno zabranjena.",
   "444001": "Vaša verzija aplikacije je previše stara, molim vas ažurirajte.",

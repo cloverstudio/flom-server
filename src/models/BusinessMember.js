@@ -10,12 +10,8 @@ const schema = new mongoose.Schema(
     businessId: String,
     userId: String,
     role: String, // role - owner, helper, manager
-    status: String, // pending, accepted, rejected, revoked, invitation_expired
-    invitedById: String,
-    invitedAt: Number,
-    expiresAt: Number,
-    respondedAt: Number,
-    revokedAt: Number,
+    status: String, // invited, active, inactive
+    inviteId: String,
     created: { type: Number, default: Date.now, index: true },
   },
   { timestamps: true },

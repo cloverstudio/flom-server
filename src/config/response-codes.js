@@ -854,8 +854,10 @@ ResponseCodes.responsecodeInvalidServiceId = 443988;
 ResponseCodes.responsecodeServiceNotFound = 443989;
 ResponseCodes.responsecodeInvalidCurrency = 443990;
 
-ResponseCodes.responsecodeInviteNotFound = 443991;
-ResponseCodes.responsecodeInviteExpired = 443992;
+ResponseCodes.responsecodeInvalidInviteId = 443991;
+ResponseCodes.responsecodeInviteNotFound = 443992;
+ResponseCodes.responsecodeInviteExpired = 443993;
+ResponseCodes.responsecodeInviteAlreadyExists = 443994;
 
 ResponseCodes.responsecodeCountryTemporarilyBanned = 444000;
 ResponseCodes.responsecodeAppVersionTooOld = 444001;
