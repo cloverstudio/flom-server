@@ -290,6 +290,7 @@ const schema = new mongoose.Schema(
       bankAccounts: [],
     },
     hasBusiness: { type: Boolean, default: false },
+    notificationListLastViewedAt: { type: Number, default: Date.now },
   },
   { timestamps: true },
 );
