@@ -105,10 +105,11 @@ router.get("/:inviteId/accept", auth({ allowUser: true }), async function (reque
       });
     }
 
-    await BusinessInvite.findByIdAndUpdate(inviteId, {
-      status: "accepted",
-      respondedAt: Date.now(),
-    });
+    const updatedInvite = await BusinessInvite.findByIdAndUpdate(
+      inviteId,
+      { status: "accepted", respondedAt: Date.now() },
+      { new: true },
+    );
 
     await BusinessMember.findByIdAndUpdate(member._id, { status: "active" });
 
@@ -119,7 +120,7 @@ router.get("/:inviteId/accept", auth({ allowUser: true }), async function (reque
       receiverId: invite.invitedById,
       businessId: invite.businessId,
       action: "accept",
-      invite,
+      invite: updatedInvite,
     });
   } catch (error) {
     return Base.newErrorResponse({
@@ -220,10 +221,11 @@ router.get("/:inviteId/reject", auth({ allowUser: true }), async function (reque
       });
     }
 
-    await BusinessInvite.findByIdAndUpdate(inviteId, {
-      status: "rejected",
-      respondedAt: Date.now(),
-    });
+    const updatedInvite = await BusinessInvite.findByIdAndUpdate(
+      inviteId,
+      { status: "rejected", respondedAt: Date.now() },
+      { new: true },
+    );
 
     await BusinessMember.findByIdAndDelete(member._id);
 
@@ -234,7 +236,7 @@ router.get("/:inviteId/reject", auth({ allowUser: true }), async function (reque
       receiverId: invite.invitedById,
       businessId: invite.businessId,
       action: "reject",
-      invite,
+      invite: updatedInvite,
     });
   } catch (error) {
     return Base.newErrorResponse({
@@ -341,7 +343,11 @@ router.get("/:inviteId/revoke", auth({ allowUser: true }), async function (reque
       });
     }
 
-    await BusinessInvite.findByIdAndUpdate(inviteId, { status: "revoked", revokedAt: Date.now() });
+    const updatedInvite = await BusinessInvite.findByIdAndUpdate(
+      inviteId,
+      { status: "revoked", revokedAt: Date.now() },
+      { new: true },
+    );
 
     await BusinessMember.findByIdAndDelete(member._id);
 
@@ -352,7 +358,7 @@ router.get("/:inviteId/revoke", auth({ allowUser: true }), async function (reque
       receiverId: invite.userId,
       businessId: invite.businessId,
       action: "revoke",
-      invite,
+      invite: updatedInvite,
     });
   } catch (error) {
     return Base.newErrorResponse({
