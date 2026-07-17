@@ -37,6 +37,7 @@ const {
  *                 "_id": "6a4bb17dab58c78c74906cd6",
  *                 "name": "Petrov biznis",
  *                 "description": "mjesto za mene",
+ *                 "status": "created",
  *                 "payoutStatus": "disabled",
  *                 "idStatus": "unverified",
  *                 "owner": {
@@ -115,6 +116,7 @@ router.get("/me", auth({ allowUser: true }), async function (request, response) 
  *             "_id": "6a4bb17dab58c78c74906cd6",
  *             "name": "Petrov biznis",
  *             "description": "mjesto za mene",
+ *             "status": "created",
  *             "payoutStatus": "disabled",
  *             "idStatus": "unverified",
  *             "owner": {
@@ -360,6 +362,7 @@ router.get("/:businessId", auth({ allowUser: true }), async function (request, r
  *             "_id": "6a4bb17dab58c78c74906cd6",
  *             "name": "Petrov biznis",
  *             "description": "mjesto za mene",
+ *             "status": "created",
  *             "payoutStatus": "disabled",
  *             "idStatus": "unverified",
  *             "owner": {
@@ -592,6 +595,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
  *         "business": {
  *             "name": "Petrov biznis",
  *             "description": "mjesto za mene",
+ *             "status": "created",
  *             "payoutStatus": "disabled",
  *             "idStatus": "unverified",
  *             "owner": {

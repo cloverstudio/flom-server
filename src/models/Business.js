@@ -2,6 +2,11 @@ const { db } = require("#infra");
 const { businessTags } = require("#config");
 const mongoose = require("mongoose");
 
+const tagMap = {};
+businessTags.forEach((tag) => {
+  tagMap[tag.id] = tag;
+});
+
 /**
  * @type {mongoose.SchemaDefinitionProperty}
  */
@@ -28,48 +33,45 @@ const schema = new mongoose.Schema(
   { timestamps: true },
 );
 
-// All query methods that return docs
-schema.post(/^find/, function (docs, next) {
-  runTransform(docs);
-  next();
-});
-
-// Document save (covers .save() and .create())
-schema.post("save", function (doc, next) {
-  runTransform(doc);
-  next();
-});
-
-// insertMany (bulk document creation)
-schema.post("insertMany", function (docs, next) {
+schema.post(/.+/, function (docs, next) {
   runTransform(docs);
   next();
 });
 
 function runTransform(docOrDocs) {
-  const docs = Array.isArray(docOrDocs) ? docOrDocs : [docOrDocs];
+  if (docOrDocs) {
+    const docs = Array.isArray(docOrDocs) ? docOrDocs : [docOrDocs];
 
-  const tagMap = {};
-  businessTags.forEach((tag) => {
-    tagMap[tag.id] = tag;
-  });
+    docs.forEach((doc) => {
+      if (doc.tagIds && Array.isArray(doc.tagIds) && doc.tagIds.length > 0) {
+        doc.tags = doc.tagIds.map((t) => {
+          const tagData = tagMap[t];
 
-  docs.forEach((doc) => {
-    if (doc.tagIds && Array.isArray(doc.tagIds) && doc.tagIds.length > 0) {
-      doc.tags = doc.tagIds.map((t) => {
-        const tagData = tagMap[t];
+          return {
+            id: t,
+            display: tagData ? tagData.display : null,
+            enabledInMarket:
+              !tagData || !tagData.markets || !Array.isArray(tagData.markets)
+                ? false
+                : tagData.markets.includes(doc.market),
+          };
+        });
+      }
 
-        return {
-          id: t,
-          display: tagData ? tagData.display : null,
-          enabledInMarket:
-            !tagData.markets || !Array.isArray(tagData.markets)
-              ? false
-              : tagData.markets.includes(doc.market),
-        };
-      });
-    }
-  });
+      if (doc.payoutStatus && doc.idStatus) {
+        const ps = doc.payoutStatus.toLowerCase();
+        const is = doc.idStatus.toLowerCase();
+
+        if (ps === "enabled" && is === "verified") {
+          doc.status = "active_payout_enabled";
+        } else if (ps === "disabled" && (is === "pending" || is === "verified")) {
+          doc.status = "active_payout_disabled";
+        } else {
+          doc.status = "created";
+        }
+      }
+    });
+  }
 }
 
 module.exports = db.db1.model("Business", schema, "businesses");

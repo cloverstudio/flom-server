@@ -392,6 +392,7 @@ router.get("/:inviteId/revoke", auth({ allowUser: true }), async function (reque
  *             "subChainId": "6a561fa0fd66633a96932d35",
  *             "name": "Ivooooo",
  *             "description": "Sliakcaca",
+ *             "status": "created",
  *             "payoutStatus": "disabled",
  *             "idStatus": "unverified",
  *             "owner": {
