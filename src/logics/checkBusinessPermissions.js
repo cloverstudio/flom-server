@@ -27,6 +27,7 @@ const actions = [
   "business:balance",
   "business:payout",
   "business:profile",
+  "outlet:hours",
 ];
 
 const PERMISSIONS = {
@@ -54,6 +55,7 @@ const PERMISSIONS = {
     "business:balance",
     "business:payout",
     "business:profile",
+    "outlet:hours",
   ],
   manager: [
     "business:view",
@@ -72,6 +74,7 @@ const PERMISSIONS = {
     "members:view",
     "members:invite_helper",
     "members:revoke_helper",
+    "outlet:hours",
   ],
   helper: [
     "business:view",

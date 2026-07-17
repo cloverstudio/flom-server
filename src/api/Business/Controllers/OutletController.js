@@ -640,18 +640,32 @@ router.patch("/:outletId", auth({ allowUser: true }), async function (request, r
       });
     }
 
-    const allowed = await Logics.checkBusinessPermissions({
+    const allowedProfile = await Logics.checkBusinessPermissions({
       userId: user._id.toString(),
       outletId,
       action: "business:profile",
     });
 
-    if (!allowed) {
+    if (!allowedProfile && (name || address || latitude || longitude)) {
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message:
           "OutletController, update outlet - user is not allowed to update the outlet profile",
+      });
+    }
+
+    const allowedHours = await Logics.checkBusinessPermissions({
+      userId: user._id.toString(),
+      outletId,
+      action: "outlet:hours",
+    });
+
+    if (!allowedHours && (workingHours || scheduleDescription || exceptions)) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserNotAllowed,
+        message: "OutletController, update outlet - user is not allowed to update the outlet hours",
       });
     }
 
