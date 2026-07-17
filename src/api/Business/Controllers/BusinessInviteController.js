@@ -710,6 +710,7 @@ async function sendNotifications({
     }
 
     let title, text, notificationType, pushType, messageType;
+    const stubObj = {};
 
     switch (action) {
       case "send_invite":
@@ -718,24 +719,28 @@ async function sendNotifications({
         notificationType = Const.notificationTypeBusinessAssistantInvite;
         pushType = Const.pushTypeBusinessAssistantInvite;
         messageType = Const.messageTypeBusinessAssistantInvite;
+        stubObj.inviteId = invite._id.toString();
         break;
       case "revoke":
         title = "Business assistant invite revoked";
         text = `${sender.userName} has revoked your invitation to be an assistant for the business ${business.name}.`;
-        notificationType = Const.notificationTypeBusinessAssistantInvite;
-        pushType = Const.pushTypeBusinessAssistantInvite;
+        notificationType = Const.notificationTypeBusiness;
+        pushType = Const.pushTypeBusiness;
+        stubObj.businessId = business._id.toString();
         break;
       case "accept":
         title = "Business assistant invite accepted";
         text = `${sender.userName} has accepted your invitation to be an assistant for the business ${business.name}.`;
-        notificationType = Const.notificationTypeBusinessAssistantInvite;
-        pushType = Const.pushTypeBusinessAssistantInvite;
+        notificationType = Const.notificationTypeBusiness;
+        pushType = Const.pushTypeBusiness;
+        stubObj.businessId = business._id.toString();
         break;
       case "reject":
         title = "Business assistant invite rejected";
         text = `${sender.userName} has rejected your invitation to be an assistant for the business ${business.name}.`;
-        notificationType = Const.notificationTypeBusinessAssistantInvite;
-        pushType = Const.pushTypeBusinessAssistantInvite;
+        notificationType = Const.notificationTypeBusiness;
+        pushType = Const.pushTypeBusiness;
+        stubObj.businessId = business._id.toString();
         break;
       default:
         logger.error(`BusinessInviteController sendNotifications, invalid action: ${action}`);
@@ -747,21 +752,23 @@ async function sendNotifications({
       text,
       receiverIds: [receiver._id.toString()],
       senderId: sender._id.toString(),
-      referenceId: invite._id.toString(),
+      referenceId: action === "send_invite" ? invite._id.toString() : business._id.toString(),
       notificationType,
       created: Date.now(),
     });
 
-    await Logics.sendFlomPush({
-      newUser: sender,
-      receiverUser: receiver,
-      message: text,
-      messageiOs: text,
-      pushType,
-      isMuted: false,
-      attributes: { inviteId: invite._id.toString() },
-      title,
-    });
+    if (action !== "send_invite") {
+      await Logics.sendFlomPush({
+        newUser: sender,
+        receiverUser: receiver,
+        message: text,
+        messageiOs: text,
+        pushType,
+        isMuted: false,
+        attributes: { ...stubObj },
+        title,
+      });
+    }
 
     if (action === "send_invite") {
       let roomId = "";
