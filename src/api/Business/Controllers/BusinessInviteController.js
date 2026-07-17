@@ -475,12 +475,9 @@ router.get("/:inviteId", auth({ allowUser: true }), async function (request, res
       });
     }
 
-    const members = await BusinessMember.find({ inviteId }).lean();
+    const members = await BusinessMember.find({ businessId: invite.businessId }).lean();
 
-    if (
-      userId !== invite.invitedById &&
-      !members.find((m) => m.userId === userId && m.status === "invited")
-    ) {
+    if (!members.find((m) => m.userId === userId && ["invited", "active"].includes(m.status))) {
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
