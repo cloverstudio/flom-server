@@ -10,6 +10,7 @@ const {
   Category,
   Business,
   BusinessMember,
+  BusinessInvite,
   User,
   Chain,
   SubChain,
@@ -199,9 +200,9 @@ router.get("/me", auth({ allowUser: true }), async function (request, response) 
  *                  "_id": "641d9c333478cf0d6a500547",
  *                  "businessId": "6a4bb17dab58c78c74906cd6",
  *                  "userId": "641d9c333478cf0d6a500547",
- *                  "role": "owner", // owner, manager, helper
- *                  "status": "pending",
- *                  "invitedById": "641d9c333478cf0d6a500547",
+ *                  "inviteId": "641d9c333478cf0d6a500547",
+ *                  "role": "manager", // owner, manager, helper
+ *                  "status": "invited", // invited, active, inactive, removed
  *                  "created": 1783345533103,
  *                  "user": {
  *                      "_id": "641d9c333478cf0d6a500547",
@@ -209,6 +210,19 @@ router.get("/me", auth({ allowUser: true }), async function (request, response) 
  *                      "userName": "johndoe",
  *                      "phoneNumber": "+385958710207",
  *                      "avatar": {},
+ *                      "created": 1783345533103
+ *                  },
+ *                  "invite": {
+ *                      "_id": "641d9c333478cf0d6a500547",
+ *                      "businessId": "6a4bb17dab58c78c74906cd6",
+ *                      "userId": "641d9c333478cf0d6a500547",
+ *                      "role": "manager", // role - helper, manager
+ *                      "status": "pending", // pending, accepted, rejected, revoked, expired
+ *                      "invitedById": "641d9c333478cf0d6a500547",
+ *                      "invitedAt": 1783345533103,
+ *                      "expiresAt": 1783345533103,
+ *                      "respondedAt": 1783345533103,
+ *                      "revokedAt": 1783345533103,
  *                      "created": 1783345533103
  *                  }
  *               }
@@ -290,14 +304,21 @@ router.get("/:businessId", auth({ allowUser: true }), async function (request, r
         { _id: 1, name: 1, userName: 1, phoneNumber: 1, avatar: 1, created: 1 },
         { lean: true },
       );
-
       const usersMap = {};
       users.forEach((user) => {
         usersMap[user._id.toString()] = user;
       });
 
+      const inviteIds = businessMembers.map((member) => member.inviteId);
+      const invites = await BusinessInvite.find({ _id: { $in: inviteIds } }).lean();
+      const invitesMap = {};
+      invites.forEach((invite) => {
+        invitesMap[invite._id.toString()] = invite;
+      });
+
       businessMembers.forEach((member) => {
         member.user = usersMap[member.userId.toString()] || null;
+        member.invite = invitesMap[member.inviteId.toString()] || null;
       });
 
       business.members = businessMembers;

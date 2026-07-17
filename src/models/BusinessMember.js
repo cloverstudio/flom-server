@@ -11,6 +11,7 @@ const schema = new mongoose.Schema(
     userId: String,
     role: String, // role - owner, helper, manager
     status: String, // invited, active, inactive, removed
+    inviteId: String,
     created: { type: Number, default: Date.now, index: true },
   },
   { timestamps: true },

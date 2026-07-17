@@ -85,7 +85,7 @@ router.get("/:inviteId/accept", auth({ allowUser: true }), async function (reque
       });
     }
 
-    const member = await BusinessMember.findOne({ businessId: invite.businessId, userId }).lean();
+    const member = await BusinessMember.findOne({ inviteId }).lean();
 
     if (!member) {
       return Base.newErrorResponse({
@@ -200,7 +200,7 @@ router.get("/:inviteId/reject", auth({ allowUser: true }), async function (reque
       });
     }
 
-    const member = await BusinessMember.findOne({ businessId: invite.businessId, userId }).lean();
+    const member = await BusinessMember.findOne({ inviteId }).lean();
 
     if (!member) {
       return Base.newErrorResponse({
@@ -321,10 +321,7 @@ router.get("/:inviteId/revoke", auth({ allowUser: true }), async function (reque
       });
     }
 
-    const member = await BusinessMember.findOne({
-      businessId: invite.businessId,
-      userId: invite.userId,
-    }).lean();
+    const member = await BusinessMember.findOne({ inviteId }).lean();
 
     if (!member) {
       return Base.newErrorResponse({
@@ -478,7 +475,7 @@ router.get("/:inviteId", auth({ allowUser: true }), async function (request, res
       });
     }
 
-    const members = await BusinessMember.find({ businessId: invite.businessId }).lean();
+    const members = await BusinessMember.find({ inviteId }).lean();
 
     if (
       userId !== invite.invitedById &&
@@ -620,14 +617,14 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
     const existingInvite = await BusinessInvite.findOne({
       businessId,
       userId: targetId,
-      status: { $in: ["pending", "accepted"] },
+      status: { $in: ["pending"] },
     }).lean();
 
     if (existingInvite) {
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeInviteAlreadyExists,
-        message: "BusinessInviteController, send invite, pending or accepted invite already exists",
+        message: "BusinessInviteController, send invite, pending invite already exists",
       });
     }
 
@@ -660,6 +657,7 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
       userId: targetId,
       role,
       status: "invited",
+      inviteId: invite._id.toString(),
     });
 
     Base.successResponse(response, Const.responsecodeSucceed, { invite: invite.toObject() });
