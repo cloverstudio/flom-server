@@ -9,5 +9,6 @@ module.exports = {
     schedule.scheduleJob("1 3 * * *", jobs.syncRecombee);
     schedule.scheduleJob("1 1 * * 0", jobs.viewsCleanup);
     schedule.scheduleJob("1 4 * * *", jobs.updateWhatsAppPrices);
+    schedule.scheduleJob("10 */2 * * *", jobs.expireBusinessInvites);
   },
 };
