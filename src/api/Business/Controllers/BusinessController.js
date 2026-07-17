@@ -318,7 +318,9 @@ router.get("/:businessId", auth({ allowUser: true }), async function (request, r
 
       businessMembers.forEach((member) => {
         member.user = usersMap[member.userId.toString()] || null;
-        member.invite = invitesMap[member.inviteId.toString()] || null;
+        if (member.role !== "owner" && member.inviteId) {
+          member.invite = invitesMap[member.inviteId.toString()] || null;
+        }
       });
 
       business.members = businessMembers;
