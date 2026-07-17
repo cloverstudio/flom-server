@@ -479,7 +479,7 @@ router.get("/:inviteId", auth({ allowUser: true }), async function (request, res
 
     if (
       userId !== invite.invitedById &&
-      !members.find((m) => m.userId === userId && m.status === "active")
+      !members.find((m) => m.userId === userId && m.status === "invited")
     ) {
       return Base.newErrorResponse({
         response,
