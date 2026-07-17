@@ -85,7 +85,7 @@ async function set(key = null, value = null, expirationInSeconds = null) {
     if (!expirationInSeconds) {
       await client.set(key, value);
     } else {
-      await client.set(key, value, "EX", expirationInSeconds);
+      await client.set(key, value, { EX: expirationInSeconds });
     }
   } catch (error) {
     logger.error("Redis SET", error);
