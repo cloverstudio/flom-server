@@ -31,7 +31,7 @@ router.get("/", async function (request, response) {
   try {
     const IP = request.headers["x-forwarded-for"] || request.connection.remoteAddress;
     const uuid = request.headers["UUID"] || request.headers["uuid"];
-    const timeout = request.query.timeout ? +request.query.timeout * 1000 : null;
+    const timeout = request.query.timeout ? +request.query.timeout : 180;
     const otherDevice = request.query.otherDevice ? +request.query.otherDevice : null;
     const deviceType = request.headers["device-type"];
 
@@ -55,7 +55,7 @@ router.get("/", async function (request, response) {
         otherDevice,
         deviceType,
       },
-      120,
+      180,
     );
 
     Base.successResponse(response, Const.responsecodeSucceed, { code });
