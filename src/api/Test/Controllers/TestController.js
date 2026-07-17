@@ -8,16 +8,18 @@ const Utils = require("#utils");
 const Logics = require("#logics");
 const { Test, Product } = require("#models");
 
-router.get("/statics", async (request, response) => {
+router.get("/", async (request, response) => {
   try {
     if (Config.environment === "production") {
       throw new Error("Not allowed in production");
     }
 
-    const p = await Product.findOne().lean();
-    const isForSale = Product.isProductForSale(p);
+    const a = request.get("abc-def");
+    console.log("abc-def", a);
+    const b = request.get("Ghi-Jkl");
+    console.log("Ghi-Jkl", b);
 
-    Base.successResponse(response, Const.responsecodeSucceed, { isForSale });
+    Base.successResponse(response, Const.responsecodeSucceed, {});
   } catch (error) {
     Base.newErrorResponse({
       response,
