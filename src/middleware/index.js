@@ -3,4 +3,5 @@ module.exports = {
   logApiAccess: require("./log-api-access"),
   autoApproveProduct: require("./auto-approve-product"),
   parseForm: require("./parse-form"),
+  idempotency: require("./idempotency"),
 };

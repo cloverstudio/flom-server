@@ -51,6 +51,7 @@ module.exports = Object.freeze({
   History: require("./History"),
 
   IdApplication: require("./IdApplication"),
+  IdempotencyRecord: require("./IdempotencyRecord"),
   InviteMessage: require("./InviteMessage"),
   IpAddress: require("./IPAddress"),
 

@@ -867,5 +867,8 @@ ResponseCodes.responsecodeAppVersionTooOld = 444001;
 // ResponseCodes.responsecodeNoAccessToken = 443897;
 
 ResponseCodes.responsecodeUnauthorized = 5000001;
+ResponseCodes.responsecodeIdempotencyKeyRequired = 5000002;
+ResponseCodes.responsecodeIdempotencyKeyMismatch = 5000003;
+ResponseCodes.responsecodeOriginalRequestStillProcessing = 5000004;
 
 module.exports = Object.freeze(ResponseCodes);

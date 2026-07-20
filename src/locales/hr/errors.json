@@ -737,12 +737,16 @@
   "443480_duplicated_check_with_backend": "Plemeno je puno",
   "443481": "Samo vlasnik može obrisati pleme",
   "443482": "Član na kojeg se pozivnica odnosi nije pronađen",
-  "5000001": "Neovlašteno",
   "443505": "Ova kreditna kartica se koristi za ponavljajuće plaćanje članarine",
   "443123": "Plaćanje nije dozvoljeno",
   "443480": "Plaćanje nije dozvoljeno",
   "443061": "Zemlja kreditne kartice nije podržana",
   "430000": "Broj telefona rezerviran više od jednom",
   "430001": "Broj telefona odredišta ne postoji ili nije rezerviran",
-  "430002": "Nema unosa iz povratnog poziva"
+  "430002": "Nema unosa iz povratnog poziva",
+
+  "5000001": "Neovlašteni pristup",
+  "5000002": "Zahtjev nije uspio",
+  "5000003": "Neusklađeni zahtjev",
+  "5000004": "Izvorni zahtjev se još obrađuje"
 }

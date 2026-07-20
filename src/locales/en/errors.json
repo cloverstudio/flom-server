@@ -748,12 +748,16 @@
   "443480_duplicated_check_with_backend": "Tribe full",
   "443481": "Only owner can delete tribe",
   "443482": "Invitation member not found",
-  "5000001": "Unauthorized",
   "443505": "This credit card is used for Membership recurring payment",
   "443123": "Payment not allowed",
   "443480": "Payment not allowed",
   "443061": "Credit card country is not supported",
   "430000": "Phone number reserved more that once",
   "430001": "Destination phone number does not exists or is not reserved",
-  "430002": "No entry from callback"
+  "430002": "No entry from callback",
+
+  "5000001": "Unauthorized",
+  "5000002": "Request failed",
+  "5000003": "Mismatched request",
+  "5000004": "Original request is still being processed"
 }
