@@ -12,9 +12,11 @@ const {
   User,
   Notification,
   FlomMessage,
+  BannedNumber,
 } = require("#models");
 const Utils = require("#utils");
 const Logics = require("#logics");
+const luxon = require("luxon");
 
 /**
  * @api {get} /api/v2/businesses/invites/:inviteId/accept  Accept business invite flom_v1
@@ -528,9 +530,12 @@ router.get("/:inviteId", auth({ allowUser: true }), async function (request, res
  *
  * @apiHeader {String} access-token Users unique access token.
  *
- * @apiParam (Request body) {String} businessId  ID of the business
- * @apiParam (Request body) {String} userId      ID of the user to be invited
- * @apiParam (Request body) {String} role        Role of the user to be invited ("helper" or "manager")
+ * @apiParam (Request body) {String} businessId   ID of the business
+ * @apiParam (Request body) {String} phoneNumber  Phone number of the user to be invited (formatted, with +country code)
+ * @apiParam (Request body) {String} firstName    First name of the user to be invited
+ * @apiParam (Request body) {String} [lastName]   Last name of the user to be invited
+ * @apiParam (Request body) {String} [userId]     ID of the user to be invited (legacy)
+ * @apiParam (Request body) {String} role         Role of the user to be invited ("helper" or "manager")
  *
  * @apiSuccessExample Success Response
  * {
@@ -541,6 +546,9 @@ router.get("/:inviteId", auth({ allowUser: true }), async function (request, res
  *         "_id": "6a561fa0fd66633a96932d37",
  *         "businessId": "6a561fa0fd66633a96932d33",
  *         "userId": "6a561fa0fd66633a96932d35",
+ *         "phoneNumber": "+2348020000018",
+ *         "firstName": "John",
+ *         "lastName": "Doe",
  *         "role": "helper",
  *         "status": "pending", // pending, accepted, rejected, revoked, expired
  *         "invitedById": "6a561fa0fd66633a96932d36",
@@ -557,6 +565,11 @@ router.get("/:inviteId", auth({ allowUser: true }), async function (request, res
  *   "time": 1590000125608
  *  }
  *
+ * @apiError (Errors) 443107 Invalid phone number
+ * @apiError (Errors) 401061 Blocked phone number
+ * @apiError (Errors) 443956 Phone number is an existing business number
+ * @apiError (Errors) 443995 Invalid first name
+ * @apiError (Errors) 443996 Invalid last name
  * @apiError (Errors) 443970 Invalid business id
  * @apiError (Errors) 443971 Business not found
  * @apiError (Errors) 443040 User not found
@@ -570,13 +583,83 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
   try {
     const { user } = request;
     const userId = user._id.toString();
-    const { businessId, userId: targetId, role } = request.body;
+    const {
+      businessId,
+      userId: targetId,
+      role,
+      phoneNumber: rawPhoneNumber,
+      firstName,
+      lastName,
+    } = request.body;
 
     if (!["helper", "manager"].includes(role)) {
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeWrongRole,
         message: "BusinessInviteController, send invite, invalid role",
+      });
+    }
+
+    if (!rawPhoneNumber) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeInvalidPhoneNumber,
+        message: "BusinessInviteController, send invite, invalid phone number",
+      });
+    }
+
+    const phoneNumber = Utils.formatPhoneNumber({ phoneNumber: rawPhoneNumber.trim() });
+
+    if (!phoneNumber || Const.flomAgentPhoneNumbers.includes(phoneNumber)) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeInvalidPhoneNumber,
+        type: Const.logTypeLogin,
+        message: `BusinessInviteController, send invite, ${rawPhoneNumber} invalid phone number`,
+      });
+    }
+
+    const bannedNumber = await BannedNumber.findOne({ phoneNumber }).lean();
+    if (bannedNumber) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodePhoneNumberIsBlocked,
+        type: Const.logTypeLogin,
+        message: `BusinessInviteController, send invite, ${phoneNumber} banned phone number`,
+      });
+    }
+
+    const businessUser = await User.findOne({
+      "whatsApp.businessPhoneNumber": phoneNumber,
+      "whatsApp.businessConnected": true,
+      "isDeleted.value": false,
+    });
+    if (businessUser) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodePhoneNumberIsBusinessNumber,
+        type: Const.logTypeLogin,
+        message: `BusinessInviteController, send invite, ${phoneNumber} is existing business phone number, cannot register as user`,
+      });
+    }
+
+    if (phoneNumber.startsWith("+234803200") || phoneNumber.startsWith("+234810000")) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodePhoneNumberIsBlocked,
+        type: Const.logTypeLogin,
+        message: `BusinessInviteController, send invite, phonenumber ${phoneNumber} is blocked (MTN)`,
+      });
+    }
+
+    const existingUser = await User.findOne({ phoneNumber, "isDeleted.value": false }).lean();
+
+    if (existingUser && existingUser.isLoginForbidden) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodePhoneNumberIsBlocked,
+        type: Const.logTypeLogin,
+        message: `BusinessInviteController, send invite, ${phoneNumber} banned phone number, shadow user with business number of another user`,
       });
     }
 
@@ -598,17 +681,45 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
       });
     }
 
-    const target = await User.findById(targetId).lean();
-
-    if (!target) {
+    if (!firstName || typeof firstName !== "string" || firstName.trim().length < 1) {
       return Base.newErrorResponse({
         response,
-        code: Const.responsecodeUserNotFound,
-        message: "BusinessInviteController, send invite, target user not found",
+        code: Const.responsecodeInvalidFirstName,
+        message: "BusinessInviteController, send invite, invalid firstName",
       });
     }
 
-    const existingMember = await BusinessMember.findOne({ businessId, userId: targetId }).lean();
+    if (lastName && (typeof lastName !== "string" || lastName.trim().length < 1)) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeInvalidLastName,
+        message: "BusinessInviteController, send invite, invalid lastName",
+      });
+    }
+
+    let target;
+
+    if (targetId) {
+      target = await User.findById(targetId).lean();
+    } else {
+      target = await User.findOne({ phoneNumber, "isDeleted.value": false }).lean();
+    }
+
+    if (!target) {
+      target = await Logics.createNewUser({
+        phoneNumber,
+        isAppUser: false,
+        shadow: true,
+        hasLoggedIn: Const.userShadowUser,
+        phoneNumberStatus: Const.phoneNumberUntested,
+        channel: "business_invite",
+      });
+    }
+
+    const existingMember = await BusinessMember.findOne({
+      businessId,
+      userId: target._id.toString(),
+    }).lean();
 
     if (existingMember) {
       return Base.newErrorResponse({
@@ -620,7 +731,7 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
 
     const existingInvite = await BusinessInvite.findOne({
       businessId,
-      userId: targetId,
+      userId: target._id.toString(),
       status: { $in: ["pending"] },
     }).lean();
 
@@ -646,19 +757,25 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
       });
     }
 
+    const base = luxon.DateTime.now();
+    const exp = base.plus({ days: 7 }).endOf("day").toUTC().toMillis();
+
     const invite = await BusinessInvite.create({
       businessId,
-      userId: targetId,
+      userId: target._id.toString(),
+      phoneNumber,
+      firstName,
+      lastName,
       role,
       status: "pending",
       invitedById: userId,
       invitedAt: Date.now(),
-      expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000, // expires in 7 days
+      expiresAt: exp, // expires in 7 days
     });
 
     await BusinessMember.create({
       businessId,
-      userId: targetId,
+      userId: target._id.toString(),
       role,
       status: "invited",
       inviteId: invite._id.toString(),
@@ -748,7 +865,7 @@ async function sendNotifications({
         return;
     }
 
-    await Notification.create({
+    const n = await Notification.create({
       title,
       text,
       receiverIds: [receiver._id.toString()],
@@ -807,7 +924,22 @@ async function sendNotifications({
         },
       };
 
-      await Logics.sendMessage(params);
+      const msg = await Logics.sendMessage(params);
+
+      const updateObj = {};
+
+      if (msg._id) {
+        updateObj["notifications.inAppMessageId"] = msg._id.toString();
+        updateObj["notifications.inAppMessageSentAt"] = msg.created;
+      }
+      if (n._id) {
+        updateObj["notifications.inAppNotificationId"] = n._id.toString();
+        updateObj["notifications.inAppNotificationSentAt"] = n.created;
+      }
+
+      if (Object.keys(updateObj).length > 0) {
+        await BusinessInvite.findByIdAndUpdate(invite._id.toString(), updateObj);
+      }
     }
 
     if (invite) {

@@ -481,6 +481,8 @@
   "443992": "Invite not found.",
   "443993": "Invite expired.",
   "443994": "Invite already exists.",
+  "443995": "Invalid first name.",
+  "443996": "Invalid last name.",
 
   "444000": "Your country has been temporarily banned.",
   "444001": "Your app version is too old, please update.",

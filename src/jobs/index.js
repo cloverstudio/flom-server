@@ -5,6 +5,7 @@ const viewsCleanup = require("./viewsCleanup");
 const syncRecombee = require("./syncRecombee");
 const updateWhatsAppPrices = require("./updateWhatsAppPrices");
 const expireBusinessInvites = require("./expireBusinessInvites");
+const sendBusinessInviteNotifications = require("./sendBusinessInviteNotifications");
 
 module.exports = {
   // sendTestPush,
@@ -14,4 +15,5 @@ module.exports = {
   syncRecombee,
   updateWhatsAppPrices,
   expireBusinessInvites,
+  sendBusinessInviteNotifications,
 };

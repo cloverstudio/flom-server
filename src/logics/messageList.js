@@ -1,6 +1,6 @@
 const { logger, encryptionManager } = require("#infra");
 const { Const } = require("#config");
-const { FlomMessage, Favorite, UserContact, History } = require("#models");
+const { FlomMessage, Favorite, UserContact, History, BusinessInvite } = require("#models");
 const socketApi = require("../sockets/socket-api");
 
 const populateMessages = require("./populateMessages");
@@ -36,6 +36,7 @@ async function messageList({ userID, roomId, lastMessageId, direction, encrypt }
     messages = messages.filter(
       (msg) => msg.created > (history && history.isDeleted ? history.isDeleted : 0),
     );
+    const messageIds = messages.map((msg) => msg._id.toString());
 
     const messageIdsToNotify = [];
     const messageUpdateOperations = [];
@@ -70,6 +71,14 @@ async function messageList({ userID, roomId, lastMessageId, direction, encrypt }
     }
 
     await FlomMessage.bulkWrite(messageUpdateOperations, { ordered: false });
+    await BusinessInvite.updateMany(
+      {
+        "notifications.seen": false,
+        "notifications.inAppMessageId": { $in: messageIds },
+        userId: userID,
+      },
+      { "notifications.seen": true, "notifications.inAppMessageSeenAt": Date.now() },
+    );
 
     let lastMessage = null;
     messages.forEach((msg) => {
