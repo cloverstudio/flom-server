@@ -71,14 +71,6 @@ async function messageList({ userID, roomId, lastMessageId, direction, encrypt }
     }
 
     await FlomMessage.bulkWrite(messageUpdateOperations, { ordered: false });
-    await BusinessInvite.updateMany(
-      {
-        "notifications.seen": false,
-        "notifications.inAppMessageId": { $in: messageIds },
-        userId: userID,
-      },
-      { "notifications.seen": true, "notifications.inAppMessageSeenAt": Date.now() },
-    );
 
     let lastMessage = null;
     messages.forEach((msg) => {

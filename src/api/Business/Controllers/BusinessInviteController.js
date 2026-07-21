@@ -1085,22 +1085,7 @@ async function sendNotifications({
         },
       };
 
-      const msg = await Logics.sendMessage(params);
-
-      const updateObj = {};
-
-      if (msg._id) {
-        updateObj["notifications.inAppMessageId"] = msg._id.toString();
-        updateObj["notifications.inAppMessageSentAt"] = msg.created;
-      }
-      if (n._id) {
-        updateObj["notifications.inAppNotificationId"] = n._id.toString();
-        updateObj["notifications.inAppNotificationSentAt"] = n.created;
-      }
-
-      if (Object.keys(updateObj).length > 0) {
-        await BusinessInvite.findByIdAndUpdate(invite._id.toString(), updateObj);
-      }
+      await Logics.sendMessage(params);
     }
 
     if (invite) {

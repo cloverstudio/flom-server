@@ -206,16 +206,6 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
         notifications: request.user.notifications,
         notificationListLastViewedAt: Date.now(),
       });
-
-      const notificationIds = notifications.filter((n) => !!n._id).map((n) => n._id.toString());
-      await BusinessInvite.updateMany(
-        {
-          "notifications.seen": false,
-          "notifications.inAppNotificationId": { $in: notificationIds },
-          userId,
-        },
-        { "notifications.seen": true, "notifications.inAppNotificationSeenAt": Date.now() },
-      );
     }
 
     Base.successResponse(response, Const.responsecodeSucceed, {

@@ -38,16 +38,6 @@ module.exports = function (socketApi, socket) {
       if (!param.doNotUpdateSeenBy) {
         const seenByRow = { userId: param.userID, at: Date.now(), version: 2 };
         updateFields.$addToSet.seenBy = seenByRow;
-
-        if (message.attributes?.inviteId) {
-          await BusinessInvite.findOneAndUpdate(
-            { _id: message.attributes.inviteId, userId: param.userID },
-            {
-              "notifications.inAppMessageSeenAt": Date.now(),
-              "notifications.seen": true,
-            },
-          );
-        }
       }
 
       const updatedMessage = await FlomMessage.findByIdAndUpdate(param.messageID, updateFields, {
