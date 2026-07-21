@@ -6,7 +6,7 @@ const { Business, BusinessMember, Outlet, Terminal, User } = require("#models");
 const actions = [
   "business:view",
   "business:chat",
-  "terminals:signin",
+  "terminals:signout",
   "orders:take",
   "orders:mark_fulfilled",
   "schedules:view",
@@ -34,7 +34,7 @@ const PERMISSIONS = {
   owner: [
     "business:view",
     "business:chat",
-    "terminals:signin",
+    "terminals:signout",
     "orders:take",
     "orders:mark_fulfilled",
     "schedules:view",
@@ -60,7 +60,7 @@ const PERMISSIONS = {
   manager: [
     "business:view",
     "business:chat",
-    "terminals:signin",
+    "terminals:signout",
     "orders:take",
     "orders:mark_fulfilled",
     "schedules:view",
@@ -79,7 +79,7 @@ const PERMISSIONS = {
   helper: [
     "business:view",
     "business:chat",
-    "terminals:signin",
+    "terminals:signout",
     "orders:take",
     "orders:mark_fulfilled",
     "schedules:view",

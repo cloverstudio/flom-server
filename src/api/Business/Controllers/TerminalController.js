@@ -76,11 +76,9 @@ router.post("/signin", auth({ allowUser: true }), async function (request, respo
       });
     }
 
-    const allowed = await Logics.checkBusinessPermissions({
-      userId: user._id.toString(),
-      terminalId,
-      action: "terminals:signin",
-    });
+    const members = await BusinessMember.find({ businessId: terminal.businessId }).lean();
+
+    const allowed = members.some((m) => m.userId.toString() === userId && m.status === "active");
 
     if (!allowed) {
       return Base.newErrorResponse({
@@ -145,7 +143,6 @@ router.post("/signin", auth({ allowUser: true }), async function (request, respo
 router.post("/signout", auth({ allowUser: true }), async function (request, response) {
   try {
     const { user } = request;
-    const userId = user._id.toString();
     const { terminalId } = request.body;
 
     if (!terminalId || !Utils.isValidObjectId(terminalId)) {
@@ -166,9 +163,25 @@ router.post("/signout", auth({ allowUser: true }), async function (request, resp
       });
     }
 
+    const member = await BusinessMember.findOne({
+      businessId: terminal.businessId,
+      status: "active",
+      userId: user._id.toString(),
+      role: "owner",
+    }).lean();
+
+    if (member) {
+      await TerminalOperatorReference.updateMany(
+        { terminalId, userId: user._id.toString(), endTimeStamp: { $exists: false } },
+        { $set: { endTimeStamp: Date.now() } },
+      );
+
+      return Base.successResponse(response, Const.responsecodeSucceed, {});
+    }
+
     const refs = await TerminalOperatorReference.find({
       terminalId,
-      userId,
+      userId: user._id.toString(),
       endTimeStamp: { $exists: false },
     })
       .sort({ startTimeStamp: -1 })
@@ -177,7 +190,7 @@ router.post("/signout", auth({ allowUser: true }), async function (request, resp
 
     const ref = refs && refs.length > 0 ? refs[0] : null;
 
-    if (!ref || ref.userId !== userId) {
+    if (!ref || ref.userId !== user._id.toString()) {
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeUserNotActiveOnTerminal,
