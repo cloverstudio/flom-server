@@ -435,4 +435,83 @@ router.get("/:terminalId", auth({ allowUser: true }), async function (request, r
   }
 });
 
+/**
+ * @api {delete} /api/v2/businesses/terminals/:terminalId Delete terminal flom_v1
+ * @apiVersion 2.0.34
+ * @apiName Delete terminal
+ * @apiGroup WebAPI Business
+ * @apiDescription Delete terminal.
+ *
+ * @apiHeader {String} access-token Users unique access-token.
+ *
+ * @apiSuccessExample Success Response
+ * {
+ *     "code": 1,
+ *     "time": 1783345533159,
+ *     "data": {}
+ * }
+ *
+ * @apiSuccessExample {json} Error Response
+ * {
+ *   "code": ErrorCode,
+ *   "time": 1590000125608
+ * }
+ *
+ * @apiError (Errors) 443983 Invalid terminal id
+ * @apiError (Errors) 443984 Terminal not found
+ * @apiError (Errors) 443858 User is not allowed to complete the action
+ * @apiError (Errors) 4000007 Token not valid
+ */
+
+router.delete("/:terminalId", auth({ allowUser: true }), async function (request, response) {
+  try {
+    const { user } = request;
+    const { terminalId } = request.params;
+
+    if (!terminalId || !Utils.isValidObjectId(terminalId)) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeInvalidTerminalId,
+        message: "TerminalController, delete terminal - invalid terminalId",
+      });
+    }
+
+    const terminal = await Terminal.findById(terminalId).lean();
+
+    if (!terminal) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeTerminalNotFound,
+        message: "TerminalController, delete terminal - terminal not found",
+      });
+    }
+
+    const members = await BusinessMember.find({ businessId: terminal.businessId }).lean();
+
+    const allowed = members.some(
+      (m) =>
+        m.userId.toString() === user._id.toString() && m.status === "active" && m.role === "owner",
+    );
+
+    if (!allowed) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserNotAllowed,
+        message: "TerminalController, delete terminal - user is not allowed to delete terminal",
+      });
+    }
+
+    await Terminal.findByIdAndUpdate(terminalId, { $set: { isDeleted: true } });
+
+    Base.successResponse(response, Const.responsecodeSucceed, { terminal });
+  } catch (error) {
+    return Base.newErrorResponse({
+      response,
+      code: Const.httpCodeServerError,
+      message: "TerminalController, delete terminal",
+      error,
+    });
+  }
+});
+
 module.exports = router;
