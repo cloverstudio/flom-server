@@ -228,7 +228,7 @@ router.get("/:inviteId/reject", auth({ allowUser: true }), async function (reque
       { new: true },
     );
 
-    await BusinessMember.findByIdAndDelete(member._id);
+    await BusinessMember.findByIdAndUpdate(member._id, { status: "invite_rejected" });
 
     Base.successResponse(response, Const.responsecodeSucceed, {});
 
@@ -350,7 +350,7 @@ router.get("/:inviteId/revoke", auth({ allowUser: true }), async function (reque
       { new: true },
     );
 
-    await BusinessMember.findByIdAndDelete(member._id);
+    await BusinessMember.findByIdAndUpdate(member._id, { status: "invite_revoked" });
 
     Base.successResponse(response, Const.responsecodeSucceed, {});
 

@@ -13,7 +13,10 @@ async function expireBusinessInvites() {
       { status: "expired" },
     );
 
-    await BusinessMember.deleteMany({ inviteId: { $in: invites.map((invite) => invite._id) } });
+    await BusinessMember.updateMany(
+      { inviteId: { $in: invites.map((invite) => invite._id) } },
+      { status: "invite_expired" },
+    );
   } catch (error) {
     logger.error("expireBusinessInvites", error);
   }

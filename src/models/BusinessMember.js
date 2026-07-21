@@ -13,7 +13,7 @@ const schema = new mongoose.Schema(
     firstName: String,
     lastName: String,
     role: String, // role - owner, helper, manager
-    status: String, // invited, active, inactive, removed
+    status: String, // invited, active, inactive, removed, invite_rejected, invite_revoked, invite_expired
     inviteId: String,
     created: { type: Number, default: Date.now, index: true },
   },
