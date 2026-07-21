@@ -95,6 +95,8 @@ router.post("/signin", auth({ allowUser: true }), async function (request, respo
       startTimeStamp: Date.now(),
     });
 
+    await Terminal.findByIdAndUpdate(terminalId, { $set: { isActive: true } });
+
     return Base.successResponse(response, Const.responsecodeSucceed, {});
   } catch (error) {
     return Base.newErrorResponse({
