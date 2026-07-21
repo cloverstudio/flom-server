@@ -75,8 +75,6 @@ const { Business, User, Outlet, Terminal } = require("#models");
  *                  "chainId": "6a4bb17dab58c78c74906cd6",
  *                  "subChainId": "6a4bb17dab58c78c74906cd6",
  *                  "paymentAddress": "1234567890",
- *                  "isMainTerminal": false,
- *                  "isActive": false,
  *                  "created": 1783345533103,
  *                  "createdAt": "2026-07-06T13:45:33.118Z",
  *                  "updatedAt": "2026-07-06T13:45:33.118Z",

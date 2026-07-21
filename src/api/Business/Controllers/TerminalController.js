@@ -6,7 +6,7 @@ const { Const, businessTags, countries } = require("#config");
 const { auth } = require("#middleware");
 const Utils = require("#utils");
 const Logics = require("#logics");
-const { User, Outlet, Terminal, TerminalOperatorReference } = require("#models");
+const { User, Outlet, Terminal, TerminalOperatorReference, BusinessMember } = require("#models");
 
 /**
  * @api {post} /api/v2/businesses/terminals/signin  Sign in owner or assistant into a terminal flom_v1
@@ -18,7 +18,6 @@ const { User, Outlet, Terminal, TerminalOperatorReference } = require("#models")
  * @apiHeader {String} access-token Users unique access token.
  *
  * @apiParam (Request body) {String} terminalId  ID of the terminal
- * @apiParam (Request body) {String} userId      ID of the user to be signed in
  *
  * @apiSuccessExample Success Response
  * {
@@ -43,7 +42,8 @@ const { User, Outlet, Terminal, TerminalOperatorReference } = require("#models")
 router.post("/signin", auth({ allowUser: true }), async function (request, response) {
   try {
     const { user } = request;
-    const { terminalId, userId } = request.body;
+    const userId = user._id.toString();
+    const { terminalId } = request.body;
 
     if (!terminalId || !Utils.isValidObjectId(terminalId)) {
       return Base.newErrorResponse({
@@ -63,7 +63,12 @@ router.post("/signin", auth({ allowUser: true }), async function (request, respo
       });
     }
 
-    if (terminal.isActive) {
+    const ref = await TerminalOperatorReference.findOne({
+      terminalId,
+      endTimeStamp: { $exists: false },
+    }).lean();
+
+    if (ref) {
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeTerminalAlreadyInUse,
@@ -95,8 +100,6 @@ router.post("/signin", auth({ allowUser: true }), async function (request, respo
       startTimeStamp: Date.now(),
     });
 
-    await Terminal.findByIdAndUpdate(terminalId, { $set: { isActive: true } });
-
     return Base.successResponse(response, Const.responsecodeSucceed, {});
   } catch (error) {
     return Base.newErrorResponse({
@@ -118,7 +121,6 @@ router.post("/signin", auth({ allowUser: true }), async function (request, respo
  * @apiHeader {String} access-token Users unique access token.
  *
  * @apiParam (Request body) {String} terminalId  ID of the terminal
- * @apiParam (Request body) {String} userId      ID of the user to be signed out
  *
  * @apiSuccessExample Success Response
  * {
@@ -143,7 +145,8 @@ router.post("/signin", auth({ allowUser: true }), async function (request, respo
 router.post("/signout", auth({ allowUser: true }), async function (request, response) {
   try {
     const { user } = request;
-    const { terminalId, userId } = request.body;
+    const userId = user._id.toString();
+    const { terminalId } = request.body;
 
     if (!terminalId || !Utils.isValidObjectId(terminalId)) {
       return Base.newErrorResponse({
@@ -163,14 +166,6 @@ router.post("/signout", auth({ allowUser: true }), async function (request, resp
       });
     }
 
-    if (!terminal.isActive) {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeTerminalNotInUse,
-        message: "TerminalController, sign out, terminal is not in use",
-      });
-    }
-
     const refs = await TerminalOperatorReference.find({
       terminalId,
       userId,
@@ -180,7 +175,9 @@ router.post("/signout", auth({ allowUser: true }), async function (request, resp
       .limit(1)
       .lean();
 
-    if (!refs || refs.length === 0) {
+    const ref = refs && refs.length > 0 ? refs[0] : null;
+
+    if (!ref || ref.userId !== userId) {
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeUserNotActiveOnTerminal,
@@ -189,11 +186,9 @@ router.post("/signout", auth({ allowUser: true }), async function (request, resp
       });
     }
 
-    await TerminalOperatorReference.findByIdAndUpdate(refs[0]._id, {
+    await TerminalOperatorReference.findByIdAndUpdate(ref._id, {
       $set: { endTimeStamp: Date.now() },
     });
-
-    await Terminal.findByIdAndUpdate(terminalId, { $set: { isActive: false } });
 
     return Base.successResponse(response, Const.responsecodeSucceed, {});
   } catch (error) {
@@ -229,8 +224,6 @@ router.post("/signout", auth({ allowUser: true }), async function (request, resp
  *             "chainId": "6a4bb17dab58c78c74906cd6",
  *             "subChainId": "6a4bb17dab58c78c74906cd6",
  *             "paymentAddress": "1234567890",
- *             "isMainTerminal": false,
- *             "isActive": false,
  *             "created": 1783345533103,
  *             "createdAt": "2026-07-06T13:45:33.118Z",
  *             "updatedAt": "2026-07-06T13:45:33.118Z",
@@ -315,6 +308,128 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       response,
       code: Const.httpCodeServerError,
       message: "TerminalController, create terminal",
+      error,
+    });
+  }
+});
+
+/**
+ * @api {get} /api/v2/businesses/terminals/:terminalId Get terminal flom_v1
+ * @apiVersion 2.0.34
+ * @apiName Get terminal
+ * @apiGroup WebAPI Business
+ * @apiDescription Get terminal details.
+ *
+ * @apiHeader {String} access-token Users unique access-token.
+ *
+ * @apiSuccessExample Success Response
+ * {
+ *     "code": 1,
+ *     "time": 1783345533159,
+ *     "data": {
+ *         "terminal": {
+ *             "_id": "6a4bb17dab58c78c74906cd6",
+ *             "businessId": "6a4bb17dab58c78c74906cd6",
+ *             "outletId": "6a4bb17dab58c78c74906cd6",
+ *             "chainId": "6a4bb17dab58c78c74906cd6",
+ *             "subChainId": "6a4bb17dab58c78c74906cd6",
+ *             "paymentAddress": "1234567890",
+ *             "created": 1783345533103,
+ *             "operator": {
+ *                 "_id": "641d9c333478cf0d6a500547",
+ *                 "name": "John Doe",
+ *                 "userName": "johndoe",
+ *                 "phoneNumber": "+385958710207",
+ *                 "avatar": {},
+ *                 "created": 1783345533103
+ *             },
+ *         }
+ *     }
+ * }
+ *
+ * @apiSuccessExample {json} Error Response
+ * {
+ *   "code": ErrorCode,
+ *   "time": 1590000125608
+ * }
+ *
+ * @apiError (Errors) 443983 Invalid terminal id
+ * @apiError (Errors) 443984 Terminal not found
+ * @apiError (Errors) 443858 User is not allowed to complete the action
+ * @apiError (Errors) 4000007 Token not valid
+ */
+
+router.get("/:terminalId", auth({ allowUser: true }), async function (request, response) {
+  try {
+    const { user } = request;
+    const { terminalId } = request.params;
+
+    if (!terminalId || !Utils.isValidObjectId(terminalId)) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeInvalidTerminalId,
+        message: "TerminalController, get terminal - invalid terminalId",
+      });
+    }
+
+    const terminal = await Terminal.findById(terminalId).lean();
+
+    if (!terminal) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeTerminalNotFound,
+        message: "TerminalController, get terminal - terminal not found",
+      });
+    }
+
+    const members = await BusinessMember.find({ businessId: terminal.businessId }).lean();
+
+    const allowed = members.some(
+      (m) => m.userId.toString() === user._id.toString() && m.status === "active",
+    );
+
+    if (!allowed) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserNotAllowed,
+        message: "TerminalController, get terminal - user is not allowed to get terminal",
+      });
+    }
+
+    const terminalOperatorReferences = await TerminalOperatorReference.find({
+      terminalId: terminal._id,
+      startTimeStamp: { $exists: true },
+      endTimeStamp: { $exists: false },
+    })
+      .sort({ startTimeStamp: -1 })
+      .lean();
+    const ref =
+      terminalOperatorReferences && terminalOperatorReferences.length > 0
+        ? terminalOperatorReferences[0]
+        : null;
+
+    if (ref) {
+      const operator = await User.findById(ref.userId, {
+        _id: 1,
+        name: 1,
+        userName: 1,
+        phoneNumber: 1,
+        avatar: 1,
+        created: 1,
+      }).lean();
+
+      if (operator) {
+        operator._id = operator._id.toString();
+        terminal.operator = operator;
+      }
+    }
+
+    Base.successResponse(response, Const.responsecodeSucceed, { terminal });
+  } catch (error) {
+    return Base.newErrorResponse({
+      response,
+      code: Const.httpCodeServerError,
+      message: "TerminalController, get terminal",
       error,
     });
   }

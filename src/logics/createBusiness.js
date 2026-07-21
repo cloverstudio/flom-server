@@ -94,7 +94,6 @@ async function createBusiness({ owner, info }) {
       outletId: outlet._id.toString(),
       chainId: chain._id.toString(),
       subChainId: subChain._id.toString(),
-      isMainTerminal: true,
       paymentAddress,
     });
     terminal = await terminal.toObject();
@@ -107,6 +106,7 @@ async function createBusiness({ owner, info }) {
       subChainId: subChain._id.toString(),
       terminalId: terminal._id.toString(),
       userId: owner._id.toString(),
+      startTimeStamp: Date.now(),
     });
 
     return businessObj;

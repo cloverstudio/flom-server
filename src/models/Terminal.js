@@ -12,8 +12,6 @@ const schema = new mongoose.Schema(
     chainId: String,
     subChainId: String,
     paymentAddress: String,
-    isActive: { type: Boolean, default: false },
-    isMainTerminal: { type: Boolean, default: false },
     created: { type: Number, default: Date.now, index: true },
   },
   { timestamps: true },
