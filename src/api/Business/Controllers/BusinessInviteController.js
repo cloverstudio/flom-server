@@ -18,6 +18,154 @@ const Utils = require("#utils");
 const Logics = require("#logics");
 
 /**
+ * @api {get} /api/v2/businesses/invites/token/:token  Get business invite by token flom_v1
+ * @apiVersion 2.0.34
+ * @apiName  Get business invite info
+ * @apiGroup WebAPI Business Invite
+ * @apiDescription  API which is called to get invite info. Can be used by invited user or business owner and helpers.
+ *
+ * @apiHeader {String} access-token Users unique access token.
+ *
+ * @apiSuccessExample Success Response
+ * {
+ *     "code": 1,
+ *     "time": 1784139825061,
+ *     "data": {
+ *         "invite": {
+ *             "_id": "6a561fa0fd66633a96932d37",
+ *             "businessId": "6a561fa0fd66633a96932d33",
+ *             "userId": "6a561fa0fd66633a96932d35",
+ *             "phoneNumber": "+2348020000018",
+ *             "firstName": "John",
+ *             "lastName": "Doe",
+ *             "role": "helper",
+ *             "status": "pending", // pending, accepted, rejected, revoked, expired
+ *             "invitedById": "6a561fa0fd66633a96932d36",
+ *             "invitedAt": 1784029088238,
+ *             "expiresAt": 1784633888238,
+ *             "created": 1784029088238,
+ *             "token": "6a561f"
+ *         },
+ *         "business": {
+ *             "_id": "6a561fa0fd66633a96932d37",
+ *             "chainId": "6a561fa0fd66633a96932d33",
+ *             "subChainId": "6a561fa0fd66633a96932d35",
+ *             "name": "Ivooooo",
+ *             "description": "Sliakcaca",
+ *             "status": "created",
+ *             "payoutStatus": "disabled",
+ *             "idStatus": "unverified",
+ *             "owner": {
+ *                 "_id": "63e10fd117885e15aa47be24",
+ *                 "phoneNumber": "+2348020000018"
+ *             },
+ *             "market": "NG",
+ *             "tagIds": [],
+ *             "created": 1784029088238,
+ *             "lastActive": 1784029088238,
+ *             "createdAt": "2026-07-14T11:38:08.238Z",
+ *             "updatedAt": "2026-07-14T11:38:08.605Z",
+ *             "__v": 0,
+ *             "avatar": {
+ *                 "nameOnServer": "eLSGiEjAvZFgJajFRsyvkCWXPpwFTrEO.JPG",
+ *                 "mimeType": "image/jpeg",
+ *                 "originalName": "IMG_NkiqP7Tl1784029087142.JPG",
+ *                 "size": 457434,
+ *                 "width": 1080,
+ *                 "height": 1080,
+ *                 "thumbnail": {
+ *                     "nameOnServer": "eLSGiEjAvZFgJajFRsyvkCWXPpwFTrEO_thumb.JPG",
+ *                     "mimeType": "image/jpeg",
+ *                     "size": null,
+ *                     "width": 300,
+ *                     "height": 300
+ *                 }
+ *             }
+ *         },
+ *         "invitedBy": {
+ *             "_id": "63e10fd117885e15aa47be24",
+ *             "name": "met18",
+ *             "created": 1675694033760,
+ *             "phoneNumber": "+2348020000018",
+ *             "userName": "met18",
+ *             "avatar": {
+ *                 "picture": {
+ *                     "originalName": "thumb_d8COo7TH0Rsu_1724139206285.jpg",
+ *                     "size": 108952,
+ *                     "mimeType": "image/png",
+ *                     "nameOnServer": "fJMk4huz89i2lqyghZIlOW6UYdzdb2Mk"
+ *                 },
+ *                 "thumbnail": {
+ *                     "originalName": "thumb_d8COo7TH0Rsu_1724139206285.jpg",
+ *                     "size": 86399,
+ *                     "mimeType": "image/png",
+ *                     "nameOnServer": "kUC8FvC6dz3tALwPpCSY5xuFET5y9H4o"
+ *                 }
+ *             }
+ *         }
+ *     }
+ * }
+ *
+ * @apiSuccessExample {json} Error Response
+ * {
+ *   "code": ErrorCode,
+ *   "time": 1590000125608
+ *  }
+ *
+ * @apiError (Errors) 443991 Invalid invite id
+ * @apiError (Errors) 443992 Invite not found
+ * @apiError (Errors) 4000007 Token invalid
+ */
+
+router.get("/token/:token", async function (request, response) {
+  try {
+    const { token } = request.params;
+
+    if (!token) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeInvalidInviteToken,
+        message: "BusinessInviteController, get invite by token, invalid token",
+      });
+    }
+
+    const invite = await BusinessInvite.findOne({ token }).lean();
+
+    if (!invite) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeInviteNotFound,
+        message: "BusinessInviteController, get invite by token, invite not found",
+      });
+    }
+
+    const business = await Business.findById(invite.businessId).lean();
+
+    const invitedBy = await User.findById(invite.invitedById, {
+      _id: 1,
+      name: 1,
+      userName: 1,
+      created: 1,
+      phoneNumber: 1,
+      avatar: 1,
+    }).lean();
+
+    return Base.successResponse(response, Const.responsecodeSucceed, {
+      invite,
+      business,
+      invitedBy,
+    });
+  } catch (error) {
+    return Base.newErrorResponse({
+      response,
+      code: Const.httpCodeServerError,
+      message: "BusinessInviteController, get invite by token",
+      error,
+    });
+  }
+});
+
+/**
  * @api {get} /api/v2/businesses/invites/:inviteId/accept  Accept business invite flom_v1
  * @apiVersion 2.0.34
  * @apiName  Accept business invite
@@ -756,6 +904,19 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
       });
     }
 
+    let token = null,
+      i = 1;
+
+    while (!token) {
+      let length = 5 + Math.floor(i / 10);
+      token = Utils.getRandomString(length, "alpha");
+      let existingToken = await BusinessInvite.findOne({ token }).lean();
+      if (existingToken) {
+        token = null;
+      }
+      i++;
+    }
+
     const invite = await BusinessInvite.create({
       businessId,
       userId: target._id.toString(),
@@ -767,6 +928,7 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
       invitedById: userId,
       invitedAt: Date.now(),
       expiresAt: Date.now() + 1000 * 60 * 60 * 24, // expires in 1 day
+      token,
     });
 
     await BusinessMember.create({

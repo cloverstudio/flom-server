@@ -19,6 +19,7 @@ const schema = new mongoose.Schema(
     expiresAt: Number,
     respondedAt: Number,
     revokedAt: Number,
+    token: String,
     created: { type: Number, default: Date.now, index: true },
     notifications: {
       seen: { type: Boolean, default: false },
