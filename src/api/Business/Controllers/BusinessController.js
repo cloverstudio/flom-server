@@ -16,6 +16,7 @@ const {
   SubChain,
   Outlet,
   Terminal,
+  TerminalOperatorReference,
 } = require("#models");
 
 /**
@@ -187,12 +188,16 @@ router.get("/me", auth({ allowUser: true }), async function (request, response) 
  *                         "chainId": "6a4bb17dab58c78c74906cd6",
  *                         "subChainId": "6a4bb17dab58c78c74906cd6",
  *                         "paymentAddress": "1234567890",
- *                         "isMainTerminal": false,
- *                         "isActive": false,
+ *                         "isActive": true,
  *                         "created": 1783345533103,
- *                         "createdAt": "2026-07-06T13:45:33.118Z",
- *                         "updatedAt": "2026-07-06T13:45:33.118Z",
- *                         "__v": 0
+ *                         "operator": {
+ *                             "_id": "641d9c333478cf0d6a500547",
+ *                             "name": "John Doe",
+ *                             "userName": "johndoe",
+ *                             "phoneNumber": "+385958710207",
+ *                             "avatar": {},
+ *                             "created": 1783345533103
+ *                         },
  *                      }
  *                    ],
  *                }
@@ -278,6 +283,37 @@ router.get("/:businessId", auth({ allowUser: true }), async function (request, r
       business.outlets = outlets;
 
       const terminals = await Terminal.find({ businessId }).lean();
+      const terminalIds = terminals.map((t) => t._id.toString());
+      const terminalOperatorReferences = await TerminalOperatorReference.find({
+        terminalId: { $in: terminalIds },
+        startTimeStamp: { $exists: true },
+        endTimeStamp: { $exists: false },
+      }).lean();
+      const terminalOperatorReferencesMap = {};
+      const terminalUserIds = [];
+      terminalOperatorReferences.forEach((ref) => {
+        terminalOperatorReferencesMap[ref.terminalId.toString()] = ref;
+        terminalUserIds.push(ref.userId);
+      });
+
+      const terminalUsers = await User.find(
+        { _id: { $in: terminalUserIds } },
+        { _id: 1, name: 1, userName: 1, phoneNumber: 1, avatar: 1, created: 1 },
+        { lean: true },
+      );
+      const terminalUsersMap = {};
+      terminalUsers.forEach((user) => {
+        user._id = user._id.toString();
+        terminalUsersMap[user._id.toString()] = user;
+      });
+
+      terminals.forEach((terminal) => {
+        const ref = terminalOperatorReferencesMap[terminal._id.toString()];
+        if (ref) {
+          terminal.operator = terminalUsersMap[ref.userId.toString()] || null;
+        }
+      });
+
       const terminalsByOutlet = terminals.reduce((acc, terminal) => {
         if (!acc[terminal.outletId]) {
           acc[terminal.outletId] = [];
