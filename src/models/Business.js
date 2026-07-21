@@ -35,7 +35,7 @@ const schema = new mongoose.Schema(
 
 schema.post(/.+/, function (docs, next) {
   runTransform(docs);
-  next();
+  if (typeof next === "function") next();
 });
 
 function runTransform(docOrDocs) {
