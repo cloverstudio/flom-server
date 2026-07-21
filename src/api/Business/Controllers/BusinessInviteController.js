@@ -16,7 +16,6 @@ const {
 } = require("#models");
 const Utils = require("#utils");
 const Logics = require("#logics");
-const luxon = require("luxon");
 
 /**
  * @api {get} /api/v2/businesses/invites/:inviteId/accept  Accept business invite flom_v1
@@ -757,9 +756,6 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
       });
     }
 
-    const base = luxon.DateTime.now();
-    const exp = base.plus({ days: 7 }).endOf("day").toUTC().toMillis();
-
     const invite = await BusinessInvite.create({
       businessId,
       userId: target._id.toString(),
@@ -770,7 +766,7 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
       status: "pending",
       invitedById: userId,
       invitedAt: Date.now(),
-      expiresAt: exp, // expires in 7 days
+      expiresAt: Date.now() + 1000 * 60 * 60 * 24, // expires in 1 day
     });
 
     await BusinessMember.create({
@@ -779,6 +775,9 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
       role,
       status: "invited",
       inviteId: invite._id.toString(),
+      phoneNumber,
+      firstName,
+      lastName,
     });
 
     Base.successResponse(response, Const.responsecodeSucceed, { invite: invite.toObject() });

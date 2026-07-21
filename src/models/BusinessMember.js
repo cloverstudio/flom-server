@@ -9,6 +9,9 @@ const schema = new mongoose.Schema(
   {
     businessId: String,
     userId: String,
+    phoneNumber: String,
+    firstName: String,
+    lastName: String,
     role: String, // role - owner, helper, manager
     status: String, // invited, active, inactive, removed
     inviteId: String,

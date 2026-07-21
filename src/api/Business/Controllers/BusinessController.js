@@ -207,6 +207,9 @@ router.get("/me", auth({ allowUser: true }), async function (request, response) 
  *                  "_id": "641d9c333478cf0d6a500547",
  *                  "businessId": "6a4bb17dab58c78c74906cd6",
  *                  "userId": "641d9c333478cf0d6a500547",
+ *                  "firstName": "John",
+ *                  "lastName": "Doe",
+ *                  "phoneNumber": "+385958710207",
  *                  "inviteId": "641d9c333478cf0d6a500547",
  *                  "role": "manager", // owner, manager, helper
  *                  "status": "invited", // invited, active, inactive, removed
