@@ -10,5 +10,6 @@ module.exports = {
     schedule.scheduleJob("1 1 * * 0", jobs.viewsCleanup);
     schedule.scheduleJob("1 4 * * *", jobs.updateWhatsAppPrices);
     schedule.scheduleJob("10 */2 * * *", jobs.expireBusinessInvites);
+    schedule.scheduleJob("35 * * * *", jobs.sendBusinessInviteNotifications);
   },
 };
