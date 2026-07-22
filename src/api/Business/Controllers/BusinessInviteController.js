@@ -85,6 +85,8 @@ const Logics = require("#logics");
  *         "invitedBy": {
  *             "_id": "63e10fd117885e15aa47be24",
  *             "name": "met18",
+ *             "firstName": "met",
+ *             "lastName": "18",
  *             "created": 1675694033760,
  *             "phoneNumber": "+2348020000018",
  *             "userName": "met18",
@@ -145,6 +147,8 @@ router.get("/token/:token", async function (request, response) {
       _id: 1,
       name: 1,
       userName: 1,
+      firstName: 1,
+      lastName: 1,
       created: 1,
       phoneNumber: 1,
       avatar: 1,

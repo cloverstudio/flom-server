@@ -130,7 +130,13 @@ router.patch(
 
       const user = await User.findByIdAndUpdate(
         idApplicationObj.userId,
-        { identityStatus },
+        {
+          identityStatus,
+          ...(approvalStatus === Const.idApplicationStatusApproved && {
+            firstName: idApplicationObj.firstName,
+            lastName: idApplicationObj.lastName,
+          }),
+        },
         { new: true },
       );
 

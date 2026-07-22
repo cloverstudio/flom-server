@@ -979,6 +979,9 @@ router.patch(
           Const.merchantApplicationStatusApprovedWithoutPayout ||
         merchantApplicationObj.approvalStatus === Const.merchantApplicationStatusApprovedWithPayout
       ) {
+        user.firstName = merchantApplicationObj.firstName;
+        user.lastName = merchantApplicationObj.lastName;
+
         const newBankAccount = {
           merchantCode: merchantApplicationObj.merchantCode,
           bankName: merchantApplicationObj.bankName,

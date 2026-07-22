@@ -291,6 +291,8 @@ const schema = new mongoose.Schema(
     },
     hasBusiness: { type: Boolean, default: false },
     notificationListLastViewedAt: { type: Number, default: Date.now },
+    firstName: String,
+    lastName: String,
   },
   { timestamps: true },
 );
