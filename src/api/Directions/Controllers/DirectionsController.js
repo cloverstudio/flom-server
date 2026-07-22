@@ -104,7 +104,7 @@ router.get("/durations", auth({ allowUser: true }), async (request, response) =>
 
       if (err) {
         logger.error("DirectionsController error: " + err);
-        return Base.successResponse(response, Const.responsecodeSucceed, { suggestions: [] });
+        continue;
       }
 
       data = d;
