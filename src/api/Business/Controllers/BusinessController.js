@@ -279,6 +279,32 @@ router.get("/:businessId", auth({ allowUser: true }), async function (request, r
       });
     }
 
+    const businessMembers = await BusinessMember.find({ businessId }).lean();
+
+    const userIds = businessMembers.map((member) => member.userId);
+    const users = await User.find(
+      { _id: { $in: userIds } },
+      {
+        _id: 1,
+        name: 1,
+        userName: 1,
+        phoneNumber: 1,
+        avatar: 1,
+        created: 1,
+        firstName: 1,
+        lastName: 1,
+      },
+      { lean: true },
+    );
+    const usersMap = {};
+    users.forEach((user) => {
+      usersMap[user._id.toString()] = user;
+    });
+
+    businessMembers.forEach((member) => {
+      member.user = usersMap[member.userId.toString()] || null;
+    });
+
     const allowed = await Logics.checkBusinessPermissions({
       userId: user._id.toString(),
       business,
@@ -296,37 +322,30 @@ router.get("/:businessId", auth({ allowUser: true }), async function (request, r
         startTimeStamp: { $exists: true },
         endTimeStamp: { $exists: false },
       }).lean();
-      const terminalOperatorReferencesMap = {};
-      const terminalUserIds = [];
-      terminalOperatorReferences.forEach((ref) => {
-        terminalOperatorReferencesMap[ref.terminalId.toString()] = ref;
-        terminalUserIds.push(ref.userId);
-      });
 
-      const terminalUsers = await User.find(
-        { _id: { $in: terminalUserIds } },
-        {
-          _id: 1,
-          name: 1,
-          userName: 1,
-          phoneNumber: 1,
-          avatar: 1,
-          created: 1,
-          firstName: 1,
-          lastName: 1,
-        },
-        { lean: true },
-      );
-      const terminalUsersMap = {};
-      terminalUsers.forEach((user) => {
-        user._id = user._id.toString();
-        terminalUsersMap[user._id.toString()] = user;
+      const terminalToOperatorMap = {};
+      terminalOperatorReferences.forEach((ref) => {
+        terminalToOperatorMap[ref.terminalId.toString()] = ref.userId;
       });
 
       terminals.forEach((terminal) => {
-        const ref = terminalOperatorReferencesMap[terminal._id.toString()];
-        if (ref) {
-          terminal.operator = terminalUsersMap[ref.userId.toString()] || null;
+        const userId = terminalToOperatorMap[terminal._id.toString()];
+        if (userId) {
+          const member =
+            businessMembers.find((member) => member.userId.toString() === userId) || null;
+
+          if (member) {
+            terminal.operator = {
+              _id: member.userId,
+              name: member.user.name,
+              userName: member.user.userName,
+              firstName: member.firstName || member.user.firstName,
+              lastName: member.lastName || member.user.lastName,
+              phoneNumber: member.user.phoneNumber,
+              avatar: member.user.avatar,
+              created: member.user.created,
+            };
+          }
         }
       });
 
@@ -350,28 +369,6 @@ router.get("/:businessId", auth({ allowUser: true }), async function (request, r
     });
 
     if (allowed2) {
-      const businessMembers = await BusinessMember.find({ businessId }).lean();
-
-      const userIds = businessMembers.map((member) => member.userId);
-      const users = await User.find(
-        { _id: { $in: userIds } },
-        {
-          _id: 1,
-          name: 1,
-          userName: 1,
-          phoneNumber: 1,
-          avatar: 1,
-          created: 1,
-          firstName: 1,
-          lastName: 1,
-        },
-        { lean: true },
-      );
-      const usersMap = {};
-      users.forEach((user) => {
-        usersMap[user._id.toString()] = user;
-      });
-
       const inviteIds = businessMembers.map((member) => member.inviteId);
       const invites = await BusinessInvite.find({ _id: { $in: inviteIds } }).lean();
       const invitesMap = {};
@@ -380,7 +377,6 @@ router.get("/:businessId", auth({ allowUser: true }), async function (request, r
       });
 
       businessMembers.forEach((member) => {
-        member.user = usersMap[member.userId.toString()] || null;
         if (member.role !== "owner" && member.inviteId) {
           member.invite = invitesMap[member.inviteId.toString()] || null;
         }
