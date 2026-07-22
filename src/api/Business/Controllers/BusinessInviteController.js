@@ -870,6 +870,7 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
     const existingMember = await BusinessMember.findOne({
       businessId,
       userId: target._id.toString(),
+      status: { $in: ["active", "invited", "inactive"] },
     }).lean();
 
     if (existingMember) {
@@ -935,16 +936,21 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
       token,
     });
 
-    await BusinessMember.create({
-      businessId,
-      userId: target._id.toString(),
-      role,
-      status: "invited",
-      inviteId: invite._id.toString(),
-      phoneNumber,
-      firstName,
-      lastName,
-    });
+    await BusinessMember.findOneAndUpdate(
+      {
+        businessId,
+        userId: target._id.toString(),
+      },
+      {
+        role,
+        status: "invited",
+        inviteId: invite._id.toString(),
+        phoneNumber,
+        firstName,
+        lastName,
+      },
+      { upsert: true },
+    );
 
     Base.successResponse(response, Const.responsecodeSucceed, { invite: invite.toObject() });
 
