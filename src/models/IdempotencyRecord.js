@@ -15,7 +15,6 @@ const schema = new mongoose.Schema(
     statusCode: Number,
     responseBody: mongoose.Schema.Types.Mixed,
     created: { type: Number, default: Date.now, index: true },
-    expiration: { type: Date, default: Date.now, index: { expires: "48h" } },
   },
   { timestamps: true },
 );

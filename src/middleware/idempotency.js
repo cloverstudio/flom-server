@@ -45,6 +45,10 @@ async function idempotency(req, res, next) {
 
       if (!existing) return next(); // rare TTL-race edge case, just proceed
 
+      if (existing.created < Date.now() - 48 * 60 * 60 * 1000) {
+        return next();
+      }
+
       if (existing.requestHash !== requestHash) {
         return Base.newErrorResponse({
           response: res,
