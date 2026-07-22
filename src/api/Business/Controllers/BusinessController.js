@@ -194,6 +194,8 @@ router.get("/me", auth({ allowUser: true }), async function (request, response) 
  *                             "_id": "641d9c333478cf0d6a500547",
  *                             "name": "John Doe",
  *                             "userName": "johndoe",
+ *                             "firstName": "John",
+ *                             "lastName": "Doe",
  *                             "phoneNumber": "+385958710207",
  *                             "avatar": {},
  *                             "created": 1783345533103
@@ -218,6 +220,8 @@ router.get("/me", auth({ allowUser: true }), async function (request, response) 
  *                      "_id": "641d9c333478cf0d6a500547",
  *                      "name": "John Doe",
  *                      "userName": "johndoe",
+ *                      "firstName": "John",
+ *                      "lastName": "Doe",
  *                      "phoneNumber": "+385958710207",
  *                      "avatar": {},
  *                      "created": 1783345533103
@@ -301,7 +305,16 @@ router.get("/:businessId", auth({ allowUser: true }), async function (request, r
 
       const terminalUsers = await User.find(
         { _id: { $in: terminalUserIds } },
-        { _id: 1, name: 1, userName: 1, phoneNumber: 1, avatar: 1, created: 1 },
+        {
+          _id: 1,
+          name: 1,
+          userName: 1,
+          phoneNumber: 1,
+          avatar: 1,
+          created: 1,
+          firstName: 1,
+          lastName: 1,
+        },
         { lean: true },
       );
       const terminalUsersMap = {};
@@ -342,7 +355,16 @@ router.get("/:businessId", auth({ allowUser: true }), async function (request, r
       const userIds = businessMembers.map((member) => member.userId);
       const users = await User.find(
         { _id: { $in: userIds } },
-        { _id: 1, name: 1, userName: 1, phoneNumber: 1, avatar: 1, created: 1 },
+        {
+          _id: 1,
+          name: 1,
+          userName: 1,
+          phoneNumber: 1,
+          avatar: 1,
+          created: 1,
+          firstName: 1,
+          lastName: 1,
+        },
         { lean: true },
       );
       const usersMap = {};

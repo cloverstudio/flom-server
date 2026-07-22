@@ -352,6 +352,8 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
  *                 "_id": "641d9c333478cf0d6a500547",
  *                 "name": "John Doe",
  *                 "userName": "johndoe",
+ *                 "firstName": "John",
+ *                 "lastName": "Doe",
  *                 "phoneNumber": "+385958710207",
  *                 "avatar": {},
  *                 "created": 1783345533103
@@ -429,6 +431,8 @@ router.get("/:terminalId", auth({ allowUser: true }), async function (request, r
         phoneNumber: 1,
         avatar: 1,
         created: 1,
+        firstName: 1,
+        lastName: 1,
       }).lean();
 
       if (operator) {
