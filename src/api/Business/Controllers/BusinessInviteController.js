@@ -44,7 +44,7 @@ const Logics = require("#logics");
  *             "invitedAt": 1784029088238,
  *             "expiresAt": 1784633888238,
  *             "created": 1784029088238,
- *             "token": "6a561f"
+ *             "shareToken": "6a561f"
  *         },
  *         "business": {
  *             "_id": "6a561fa0fd66633a96932d37",
@@ -131,7 +131,7 @@ router.get("/token/:token", async function (request, response) {
       });
     }
 
-    const invite = await BusinessInvite.findOne({ token }).lean();
+    const invite = await BusinessInvite.findOne({ shareToken: token }).lean();
 
     if (!invite) {
       return Base.newErrorResponse({
@@ -537,8 +537,21 @@ router.get("/:inviteId/revoke", auth({ allowUser: true }), async function (reque
  *     "code": 1,
  *     "time": 1784139825061,
  *     "data": {
- *         "role": "helper",
- *         "status": "pending",
+ *         "invite": {
+ *             "_id": "6a561fa0fd66633a96932d37",
+ *             "businessId": "6a561fa0fd66633a96932d33",
+ *             "userId": "6a561fa0fd66633a96932d35",
+ *             "phoneNumber": "+2348020000018",
+ *             "firstName": "John",
+ *             "lastName": "Doe",
+ *             "role": "helper",
+ *             "status": "pending", // pending, accepted, rejected, revoked, expired
+ *             "invitedById": "6a561fa0fd66633a96932d36",
+ *             "invitedAt": 1784029088238,
+ *             "expiresAt": 1784633888238,
+ *             "created": 1784029088238,
+ *             "shareToken": "6a561f"
+ *         },
  *         "business": {
  *             "_id": "6a561fa0fd66633a96932d37",
  *             "chainId": "6a561fa0fd66633a96932d33",
@@ -578,6 +591,8 @@ router.get("/:inviteId/revoke", auth({ allowUser: true }), async function (reque
  *         "invitedBy": {
  *             "_id": "63e10fd117885e15aa47be24",
  *             "name": "met18",
+ *             "firstName": "met",
+ *             "lastName": "18",
  *             "created": 1675694033760,
  *             "phoneNumber": "+2348020000018",
  *             "userName": "met18",
@@ -651,14 +666,15 @@ router.get("/:inviteId", auth({ allowUser: true }), async function (request, res
       _id: 1,
       name: 1,
       userName: 1,
+      firstName: 1,
+      lastName: 1,
       created: 1,
       phoneNumber: 1,
       avatar: 1,
     }).lean();
 
     return Base.successResponse(response, Const.responsecodeSucceed, {
-      role: invite.role,
-      status: invite.status,
+      invite,
       business,
       invitedBy,
     });
@@ -909,15 +925,15 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
       });
     }
 
-    let token = null,
+    let shareToken = null,
       i = 1;
 
-    while (!token) {
+    while (!shareToken) {
       let length = 5 + Math.floor(i / 10);
-      token = Utils.getRandomString(length, "alpha");
-      let existingToken = await BusinessInvite.findOne({ token }).lean();
+      shareToken = Utils.getRandomString(length, "alpha");
+      let existingToken = await BusinessInvite.findOne({ shareToken }).lean();
       if (existingToken) {
-        token = null;
+        shareToken = null;
       }
       i++;
     }
@@ -933,7 +949,7 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
       invitedById: userId,
       invitedAt: Date.now(),
       expiresAt: Date.now() + 1000 * 60 * 60 * 24, // expires in 1 day
-      token,
+      shareToken,
     });
 
     await BusinessMember.findOneAndUpdate(

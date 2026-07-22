@@ -19,7 +19,7 @@ const schema = new mongoose.Schema(
     expiresAt: Number,
     respondedAt: Number,
     revokedAt: Number,
-    token: String,
+    shareToken: String,
     smsSent: { type: Boolean, default: false },
     created: { type: Number, default: Date.now, index: true },
   },
