@@ -172,7 +172,7 @@ router.post("/signout", auth({ allowUser: true }), async function (request, resp
 
     if (member) {
       await TerminalOperatorReference.updateMany(
-        { terminalId, userId: user._id.toString(), endTimeStamp: { $exists: false } },
+        { terminalId, endTimeStamp: { $exists: false } },
         { $set: { endTimeStamp: Date.now() } },
       );
 
