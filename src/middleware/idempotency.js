@@ -37,11 +37,15 @@ async function idempotency(req, res, next) {
   } catch (err) {
     if (err.code === 11000) {
       // Key already exists — fetch it
-      const existing = await IdempotencyRecord.findOne({
-        //userId: req.user._id.toString(),
-        key,
-        route,
-      });
+      const existing = (
+        await IdempotencyRecord.find({
+          //userId: req.user._id.toString(),
+          key,
+          route,
+        })
+          .sort({ created: -1 })
+          .limit(1)
+      )[0];
 
       if (!existing) return next(); // rare TTL-race edge case, just proceed
 
