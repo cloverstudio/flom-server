@@ -968,6 +968,10 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
       { upsert: true },
     );
 
+    if (!target.firstName || !target.lastName) {
+      await User.findByIdAndUpdate(target._id, { firstName, lastName });
+    }
+
     Base.successResponse(response, Const.responsecodeSucceed, { invite: invite.toObject() });
 
     sendNotifications({
