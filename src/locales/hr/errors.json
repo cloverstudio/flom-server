@@ -479,6 +479,13 @@
 
   "444000": "Vaša zemlja je privremeno zabranjena.",
   "444001": "Vaša verzija aplikacije je previše stara, molim vas ažurirajte.",
+
+  "444002": "Neispravno ime entiteta.",
+  "444003": "Neispravni uvjeti korištenja.",
+  "444004": "Neispravna politika privatnosti.",
+  "444005": "Landing page shell nije pronađen.",
+  "444006": "Landing page shell već postoji.",
+
   "4000006": "Pogrešne korisničke vjerodajnice. Molim pokušajte ponovno kasnije.",
   "4000007": "Neispravan token. Molim pokušajte ponovno kasnije.",
   "4000008": "Pogrešan naziv profila prilikom ažuriranja. Molim pokušajte ponovno kasnije.",

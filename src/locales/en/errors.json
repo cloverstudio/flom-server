@@ -487,6 +487,12 @@
   "444000": "Your country has been temporarily banned.",
   "444001": "Your app version is too old, please update.",
 
+  "444002": "Invalid entity name.",
+  "444003": "Invalid terms of service.",
+  "444004": "Invalid privacy policy.",
+  "444005": "Landing page shell not found.",
+  "444006": "Landing page shell already exists.",
+
   "4000006": "Wrong User Credentials. Please try again later.",
   "4000007": "Invalid Token. Please try again later.",
   "4000008": "Update Profile Invalid Name. Please try again later.",

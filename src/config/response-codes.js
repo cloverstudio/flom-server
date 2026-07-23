@@ -864,6 +864,12 @@ ResponseCodes.responsecodeInvalidLastName = 443996;
 ResponseCodes.responsecodeCountryTemporarilyBanned = 444000;
 ResponseCodes.responsecodeAppVersionTooOld = 444001;
 
+ResponseCodes.responsecodeInvalidEntityName = 444002;
+ResponseCodes.responsecodeInvalidTermsOfService = 444003;
+ResponseCodes.responsecodeInvalidPrivacyPolicy = 444004;
+ResponseCodes.responsecodeLandingPageShellNotFound = 444005;
+ResponseCodes.responsecodeLandingPageShellExists = 444006;
+
 // ResponseCodes.responsecodeNoAccessToken = 443897;
 
 ResponseCodes.responsecodeUnauthorized = 5000001;

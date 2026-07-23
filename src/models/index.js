@@ -55,6 +55,7 @@ module.exports = Object.freeze({
   InviteMessage: require("./InviteMessage"),
   IpAddress: require("./IPAddress"),
 
+  LandingPageShell: require("./LandingPageShell"),
   LiveStream: require("./LiveStream"),
   LoginAttempt: require("./LoginAttempt"),
 
