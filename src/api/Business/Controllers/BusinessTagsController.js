@@ -21,19 +21,21 @@ const fs = require("fs/promises");
  * @apiSuccessExample Success Response
  * {
  *     "code": 1,
- *     "time": 1783593920904,
+ *     "time": 1784799679740,
  *     "data": {
  *         "groups": [
- *             "Beauty",
- *             "Fashion",
- *             "Food",
- *             "Tech",
- *             "Auto",
- *             "Building",
- *             "Services",
- *             "Events",
- *             "Agro",
- *             "Crafts"
+ *             {
+ *                 "groupId": "beauty",
+ *                 "displayName": "Beauty"
+ *             },
+ *             {
+ *                 "groupId": "fashion",
+ *                 "displayName": "Fashion"
+ *             },
+ *             {
+ *                 "groupId": "food",
+ *                 "displayName": "Food"
+ *             }
  *         ]
  *     }
  * }
@@ -47,11 +49,19 @@ const fs = require("fs/promises");
  * @apiError (Errors) 4000007 Token invalid
  */
 
-router.get("/groups", auth({ allowUser: true }), async function (request, response) {
+router.get("/groups", async function (request, response) {
   try {
     const { user } = request;
 
-    const groups = Array.from(new Set(businessTags.map((t) => t.group)));
+    const groups = [],
+      groupIds = [];
+
+    businessTags.forEach((t) => {
+      if (t.group && !groupIds.includes(t.groupId)) {
+        groups.push({ groupId: t.groupId, displayName: t.group });
+        groupIds.push(t.groupId);
+      }
+    });
 
     return Base.successResponse(response, Const.responsecodeSucceed, { groups });
   } catch (error) {
@@ -75,6 +85,7 @@ router.get("/groups", auth({ allowUser: true }), async function (request, respon
  *
  * @apiParam (Query parameter) {String} [market]   Market code to filter tags (country code - HR, NG, US)
  * @apiParam (Query parameter) {String} [group]    Group name to filter tags (case insensitive)
+ * @apiParam (Query parameter) {String} [groupId]  Group ID to filter tags
  * @apiParam (Query parameter) {String} [keyword]  Keyword to search tags (at least 2 characters)
  *
  * @apiSuccessExample Success Response
@@ -87,6 +98,7 @@ router.get("/groups", auth({ allowUser: true }), async function (request, respon
  *                 "id": "tag_vulcanizing_tyres",
  *                 "slug": "vulcanizing-tyres",
  *                 "group": "Auto",
+ *                 "groupId": "auto",
  *                 "display": {
  *                     "en-NG": "Tyres & Vulcanizing",
  *                     "default": "Tyres & Vulcanizing"
@@ -105,6 +117,7 @@ router.get("/groups", auth({ allowUser: true }), async function (request, respon
  *                 "id": "tag_transport_rides",
  *                 "slug": "transport-rides",
  *                 "group": "Auto",
+ *                 "groupId": "auto",
  *                 "display": {
  *                     "en-NG": "Transport & Rides",
  *                     "default": "Transport & Rides"
@@ -126,6 +139,7 @@ router.get("/groups", auth({ allowUser: true }), async function (request, respon
  *                 "id": "tag_delivery",
  *                 "slug": "delivery",
  *                 "group": "Auto",
+ *                 "groupId": "auto",
  *                 "display": {
  *                     "en-NG": "Delivery & Dispatch",
  *                     "default": "Delivery & Dispatch"
@@ -165,7 +179,7 @@ router.get("/groups", auth({ allowUser: true }), async function (request, respon
 router.get("/", auth({ allowUser: true }), async function (request, response) {
   try {
     const { user } = request;
-    let { market = null, group = null, keyword = null } = request.query;
+    let { market = null, group = null, keyword = null, groupId = null } = request.query;
     market = market || user.countryCode;
     keyword = keyword ? keyword.trim() : null;
 
@@ -175,6 +189,10 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       }
 
       if (group && t.group.toLowerCase() !== group.toLowerCase()) {
+        return false;
+      }
+
+      if (groupId && t.groupId !== groupId) {
         return false;
       }
 
