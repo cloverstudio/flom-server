@@ -49,7 +49,7 @@ const fs = require("fs/promises");
  * @apiError (Errors) 4000007 Token invalid
  */
 
-router.get("/groups", async function (request, response) {
+router.get("/groups", auth({ allowUser: true }), async function (request, response) {
   try {
     const { user } = request;
 
