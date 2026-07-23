@@ -440,4 +440,13 @@ module.exports = [
     regulated: null,
     markets: ["NG"],
   },
+  {
+    id: "tag_other",
+    slug: "other",
+    group: "Other",
+    display: { "en-NG": "Other", default: "Other" },
+    synonyms: ["miscellaneous", "various", "other"],
+    regulated: null,
+    markets: ["NG"],
+  },
 ];
