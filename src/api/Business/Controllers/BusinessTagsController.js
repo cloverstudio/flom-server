@@ -184,6 +184,10 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     keyword = keyword ? keyword.trim() : null;
 
     const tags = businessTags.filter((t) => {
+      if (t.regulated) {
+        return false;
+      }
+
       if (market && t.markets && !t.markets.includes(market)) {
         return false;
       }
