@@ -17,6 +17,7 @@ const {
   Outlet,
   Terminal,
   TerminalOperatorReference,
+  Product,
 } = require("#models");
 
 /**
@@ -241,6 +242,53 @@ router.get("/me", auth({ allowUser: true }), async function (request, response) 
  *                  }
  *               }
  *             ],
+ *             "services": [
+ * 				        {
+ *                   "_id": "6a569f265deda20265771cda",
+ *                   "businessId": "6a561fa0fd66633a96932d37",
+ *                   "name": "šišanje",
+ *                   "description": "brbrbrbrrrrr",
+ *                   "originalPrice": {
+ *                       "countryCode": "HR",
+ *                       "currency": "EUR",
+ *                       "value": 100,
+ *                       "minValue": -1,
+ *                       "maxValue": -1,
+ *                       "singleValue": -1,
+ *                       "unlimitedValue": -1,
+ *                       "exclusiveValue": -1
+ *                   },
+ *                   "isDeleted": false,
+ *                   "numberOfReviews": 0,
+ *                   "numberOfViews": 0,
+ *                   "numberOfLikes": 0,
+ *                   "moderation": {
+ *                       "status": 1
+ *                   },
+ *                   "type": 6,
+ *                   "hashtags": [],
+ *                   "appropriateForKids": false,
+ *                   "visibility": "public",
+ *                   "tribeIds": [],
+ *                   "communityIds": [],
+ *                   "featured": {
+ *                       "isFeatured": false,
+ *                       "countryCode": "default",
+ *                       "created": 1784061734995
+ *                   },
+ *                   "allowPublicComments": false,
+ *                   "availableForExpo": false,
+ *                   "usedInExpoCount": 0,
+ *                   "oldSlugs": [],
+ *                   "created": 1784061734995,
+ *                   "modified": 1784061734995,
+ *                   "file": [],
+ *                   "image": [],
+ *                   "audiosForExpo": [],
+ *                   "contentPurchaseHistory": [],
+ *                   "reservations": [],
+ *                }
+ *             ]
  *         }
  *     }
  * }
@@ -278,6 +326,14 @@ router.get("/:businessId", auth({ allowUser: true }), async function (request, r
         message: "BusinessController, get business - business not found",
       });
     }
+
+    const services = await Product.find({
+      businessId,
+      isDeleted: false,
+      type: Const.productTypeService,
+    }).lean();
+
+    business.services = services;
 
     const businessMembers = await BusinessMember.find({ businessId }).lean();
 
