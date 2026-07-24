@@ -236,8 +236,8 @@ router.get("/services/:serviceId", auth({ allowUser: true }), async function (re
  *
  * @apiParam {String}     businessId              Business ID
  * @apiParam {String}     name                    Service name
- * @apiParam {String}     description             Service description
- * @apiParam {Object}     originalPrice           Service original price object (countryCode, currency, value) eg. { "countryCode": "HR", "currency": "EUR", "value": 100 }
+ * @apiParam {String}     [description]           Service description
+ * @apiParam {Object}     [originalPrice]         Service original price object (countryCode, currency, value) eg. { "countryCode": "HR", "currency": "EUR", "value": 100 }
  *
  * @apiSuccessExample Success Response
  * {
@@ -315,7 +315,7 @@ router.get("/services/:serviceId", auth({ allowUser: true }), async function (re
 router.post("/services", auth({ allowUser: true }), async function (request, response) {
   try {
     const { user } = request;
-    const { businessId, name, description, originalPrice: op = {} } = request.body;
+    const { businessId, name, description, originalPrice: op = null } = request.body;
 
     if (!businessId || !Utils.isValidObjectId(businessId)) {
       return Base.newErrorResponse({
@@ -360,37 +360,43 @@ router.post("/services", auth({ allowUser: true }), async function (request, res
     }
     info.name = name;
 
-    if (!description || typeof description !== "string") {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeInvalidDescription,
-        message: "ServiceController, add service - invalid description",
-      });
-    }
-    info.description = description;
+    if (description) {
+      if (typeof description !== "string") {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeInvalidDescription,
+          message: "ServiceController, add service - invalid description",
+        });
+      }
 
-    if (!op.countryCode || !countries[op.countryCode]) {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeInvalidCountryCode,
-        message: "ServiceController, add service - invalid originalPrice countryCode",
-      });
+      info.description = description;
     }
-    if (!op.currency || !countries[op.countryCode].currency.includes(op.currency)) {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeInvalidCurrency,
-        message: "ServiceController, add service - invalid originalPrice currency",
-      });
+
+    if (op) {
+      if (!op.countryCode || !countries[op.countryCode]) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeInvalidCountryCode,
+          message: "ServiceController, add service - invalid originalPrice countryCode",
+        });
+      }
+      if (!op.currency || !countries[op.countryCode].currency.includes(op.currency)) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeInvalidCurrency,
+          message: "ServiceController, add service - invalid originalPrice currency",
+        });
+      }
+      if (!op.value || typeof op.value !== "number" || op.value < 0) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeInvalidValueParameter,
+          message: "ServiceController, add service - invalid originalPrice value",
+        });
+      }
+
+      info.originalPrice = { countryCode: op.countryCode, currency: op.currency, value: op.value };
     }
-    if (!op.value || typeof op.value !== "number" || op.value < 0) {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeInvalidValueParameter,
-        message: "ServiceController, add service - invalid originalPrice value",
-      });
-    }
-    info.originalPrice = { countryCode: op.countryCode, currency: op.currency, value: op.value };
 
     const service = await Product.create(info);
 
@@ -497,7 +503,7 @@ router.patch("/services/:serviceId", auth({ allowUser: true }), async function (
   try {
     const { user } = request;
     const { serviceId } = request.params;
-    const { name, description, originalPrice: op } = request.body;
+    const { name, description, originalPrice: op = null } = request.body;
 
     if (!serviceId || !Utils.isValidObjectId(serviceId)) {
       return Base.newErrorResponse({
