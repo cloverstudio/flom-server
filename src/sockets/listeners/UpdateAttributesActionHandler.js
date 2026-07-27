@@ -69,13 +69,13 @@ module.exports = function (socketApi, socket) {
           const temp = roomId.split("-");
           const receiver1 = temp[1];
           const receiver2 = temp[2];
-          const message = `Offer${stub}for item ${productName}`;
+          const pushMessage = `Offer${stub}for item ${productName}`;
 
           Logics.sendFlomPush({
             senderId: Config.flomSupportAgentId,
             receiverId: receiver1,
-            message,
-            messageiOs: message,
+            message: pushMessage,
+            messageiOs: pushMessage,
             pushType,
             isMuted: false,
             roomId,
@@ -84,8 +84,8 @@ module.exports = function (socketApi, socket) {
           Logics.sendFlomPush({
             senderId: Config.flomSupportAgentId,
             receiverId: receiver2,
-            message,
-            messageiOs: message,
+            message: pushMessage,
+            messageiOs: pushMessage,
             pushType,
             isMuted: false,
             roomId,

@@ -589,7 +589,7 @@ router.delete(
         });
       }
 
-      const deletedFee = await Fee.findOneAndRemove({
+      const deletedFee = await Fee.findOneAndDelete({
         _id: feeId,
       });
 

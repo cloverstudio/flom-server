@@ -1,0 +1,272 @@
+const { logger } = require("#infra");
+const { Config, Const } = require("#config");
+const Utils = require("#utils");
+const { Business, BusinessMember, Outlet, Terminal, User } = require("#models");
+
+const actions = [
+  "business:view",
+  "business:chat",
+  "terminals:signout",
+  "orders:take",
+  "orders:mark_fulfilled",
+  "schedules:view",
+  "bookings:view",
+  "services:add",
+  "services:delete",
+  "prices:edit",
+  "stock:edit",
+  "schedules:edit",
+  "bookings:edit_fees",
+  "bookings:edit",
+  "bookings:resolve_no_show",
+  "members:invite_helper",
+  "members:invite_manager",
+  "members:revoke_helper",
+  "members:revoke_manager",
+  "members:view",
+  "business:balance",
+  "business:payout",
+  "business:profile",
+  "outlet:hours",
+];
+
+const PERMISSIONS = {
+  owner: [
+    "business:view",
+    "business:chat",
+    "terminals:signout",
+    "orders:take",
+    "orders:mark_fulfilled",
+    "schedules:view",
+    "bookings:view",
+    "services:add",
+    "services:delete",
+    "prices:edit",
+    "stock:edit",
+    "schedules:edit",
+    "bookings:edit_fees",
+    "bookings:edit",
+    "bookings:resolve_no_show",
+    "members:invite_helper",
+    "members:invite_manager",
+    "members:revoke_helper",
+    "members:revoke_manager",
+    "members:view",
+    "business:balance",
+    "business:payout",
+    "business:profile",
+    "outlet:hours",
+  ],
+  manager: [
+    "business:view",
+    "business:chat",
+    "terminals:signout",
+    "orders:take",
+    "orders:mark_fulfilled",
+    "schedules:view",
+    "bookings:view",
+    "prices:edit",
+    "stock:edit",
+    "schedules:edit",
+    "bookings:edit_fees",
+    "bookings:edit",
+    "bookings:resolve_no_show",
+    "members:view",
+    "members:invite_helper",
+    "members:revoke_helper",
+    "outlet:hours",
+  ],
+  helper: [
+    "business:view",
+    "business:chat",
+    "terminals:signout",
+    "orders:take",
+    "orders:mark_fulfilled",
+    "schedules:view",
+    "bookings:view",
+    "members:view",
+  ],
+};
+
+async function checkBusinessPermissions({
+  userId,
+  business,
+  businessId,
+  outletId,
+  terminalId,
+  action,
+}) {
+  try {
+    if (!action || !actions.includes(action)) {
+      logger.error("checkBusinessPermissions error: action is required or invalid: " + action);
+      return false;
+    }
+
+    if (!business) {
+      if (outletId) {
+        const outlet = await Outlet.findById(outletId).lean();
+        businessId = outlet ? outlet.businessId : null;
+      } else if (terminalId) {
+        const terminal = await Terminal.findById(terminalId).lean();
+        businessId = terminal ? terminal.businessId : null;
+      }
+    }
+
+    business = !business ? await getBusinessById(businessId) : business;
+
+    if (!business) {
+      logger.error(
+        "checkBusinessPermissions error: business not found: " +
+          businessId +
+          ", outletId: " +
+          outletId +
+          ", terminalId: " +
+          terminalId,
+      );
+      return false;
+    }
+
+    businessId = business._id.toString();
+
+    const businessMember = await getBusinessMember({ userId, businessId });
+
+    if (!businessMember) {
+      logger.error(
+        "checkBusinessPermissions error: business member not found, userId: " +
+          userId +
+          ", businessId: " +
+          businessId,
+      );
+      return false;
+    }
+
+    if (businessMember.status !== "active") {
+      logger.error(
+        "checkBusinessPermissions error: business member status is not active, userId: " +
+          userId +
+          ", businessId: " +
+          businessId +
+          ", status: " +
+          businessMember.status,
+      );
+      return false;
+    }
+
+    const role = businessMember.role;
+
+    if (!PERMISSIONS[role]) {
+      logger.error("checkBusinessPermissions error: role not found in permissions: " + role);
+      return false;
+    }
+
+    if (!PERMISSIONS[role].includes(action)) {
+      logger.error("checkBusinessPermissions error: action not allowed for role");
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    logger.error("checkBusinessPermissions error", error);
+    return false;
+  }
+}
+
+const businessCache = new Map();
+
+async function getBusinessById(businessId) {
+  try {
+    if (!businessId) {
+      logger.error("getBusinessById error: businessId is required");
+      return null;
+    }
+
+    if (businessCache.has(businessId)) {
+      const b = businessCache.get(businessId);
+      if (!b.expiresAt || b.expiresAt < Date.now()) {
+        businessCache.delete(businessId);
+      } else {
+        return b;
+      }
+    }
+
+    const business = await Business.findById(businessId).lean();
+
+    if (!business) {
+      logger.error("getBusinessById error: business not found, businessId: " + businessId);
+      return null;
+    }
+
+    business.expiresAt = Date.now() + 5 * 60 * 1000; // Cache for 5 minutes
+
+    businessCache.set(businessId, business);
+
+    return business;
+  } catch (error) {
+    logger.error("getBusinessById error", error);
+    return null;
+  }
+}
+
+const memberCache = new Map();
+
+async function getBusinessMember({ userId, businessId }) {
+  try {
+    if (!userId || !businessId) {
+      logger.error("getBusinessMember error: userId and businessId are required");
+      return null;
+    }
+
+    let cacheKey = `${userId}:${businessId}`;
+
+    if (memberCache.has(cacheKey)) {
+      const m = memberCache.get(cacheKey);
+      if (!m.expiresAt || m.expiresAt < Date.now()) {
+        memberCache.delete(cacheKey);
+      } else {
+        return m;
+      }
+    }
+
+    const businessMember = await BusinessMember.findOne({
+      businessId,
+      userId,
+      status: "active",
+    }).lean();
+
+    if (!businessMember) {
+      logger.error(
+        "getBusinessMember error: business member not found, userId: " +
+          userId +
+          ", businessId: " +
+          businessId,
+      );
+      return null;
+    }
+
+    businessMember.expiresAt = Date.now() + 5 * 60 * 1000; // Cache for 5 minutes
+
+    memberCache.set(cacheKey, businessMember);
+
+    return businessMember;
+  } catch (error) {
+    logger.error("getBusinessMember error", error);
+    return null;
+  }
+}
+
+setInterval(() => {
+  const now = Date.now();
+
+  for (const [key, value] of businessCache.entries()) {
+    if (!value.expiresAt || value.expiresAt < now) {
+      businessCache.delete(key);
+    }
+  }
+  for (const [key, value] of memberCache.entries()) {
+    if (!value.expiresAt || value.expiresAt < now) {
+      memberCache.delete(key);
+    }
+  }
+}, 60 * 60 * 1000); // Clean up every 60 minutes
+
+module.exports = checkBusinessPermissions;

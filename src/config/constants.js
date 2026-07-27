@@ -136,6 +136,7 @@ Constants.messageTypeNewLiveStream = 16;
 Constants.messageTypeLiveStreamCohostInvitation = 17;
 Constants.messageTypeAuctionOffer = 18;
 Constants.messageTypeWhatsAppFollowup = 22;
+Constants.messageTypeBusinessAssistantInvite = 23;
 
 Constants.pushTypeNewMessage = 1;
 Constants.pushTypeCall = 2;
@@ -166,6 +167,8 @@ Constants.pushTypeMessageReactionSent = 850;
 Constants.pushTypeNewLiveStream = 901;
 Constants.pushTypeLiveStreamCohostInvitation = 902;
 Constants.pushTypeAuctionWin = 910;
+Constants.pushTypeBusiness = 920;
+Constants.pushTypeBusinessAssistantInvite = 921;
 Constants.pushTypeLowGlobalBalance = 100;
 
 Constants.muteActionMute = "mute";
@@ -563,6 +566,7 @@ Constants.productTypeVideoStory = 2;
 Constants.productTypePodcast = 3;
 Constants.productTypeTextStory = 4;
 Constants.productTypeProduct = 5;
+Constants.productTypeService = 6;
 
 Constants.productVisibilityPublic = "public";
 Constants.productVisibilityTribes = "tribes";
@@ -597,8 +601,12 @@ Constants.notificationTypeOverdueShipping = 20;
 Constants.notificationTypeShipByExpired = 21;
 Constants.notificationTypeShippingReminder = 22;
 Constants.notificationTypeLowGlobalBalance = 23;
+Constants.notificationTypeBusiness = 24;
+Constants.notificationTypeBusinessAssistantInvite = 25;
 
-Constants.notificationTypesFromDb = [5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
+Constants.notificationTypesFromDb = [
+  5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+];
 
 Constants.tribeActionUserRemoved = 1;
 Constants.tribeActionUserLeft = 2;
@@ -1374,6 +1382,11 @@ Constants.UsStateCodes = {
   Wyoming: "WY",
 };
 
-Constants.floodDetectionWhiteList = ["+385976431885", "+385958710207", "+19728788506"];
+Constants.floodDetectionWhiteList = [
+  "+385976431885",
+  "+385958710207",
+  "+19728788506",
+  "+385976376676",
+];
 
 module.exports = Object.freeze(Constants);

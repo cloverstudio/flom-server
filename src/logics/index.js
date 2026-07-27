@@ -48,4 +48,7 @@ module.exports = Object.freeze({
   getGPTAssistantResponse: require("./getGPTAssistantResponse"),
   sendFlomPush: require("./sendFlomPush"),
   convertCurrency: require("./convertCurrency"),
+
+  createBusiness: require("./createBusiness"),
+  checkBusinessPermissions: require("./checkBusinessPermissions"),
 });

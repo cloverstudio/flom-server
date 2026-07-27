@@ -14,9 +14,13 @@ module.exports = Object.freeze({
   BlockedNumber: require("./BlockedNumber"),
   BlockedThirdPartyProduct: require("./BlockedThirdPartyProduct"),
   Brand: require("./Brand"),
+  Business: require("./Business"),
+  BusinessInvite: require("./BusinessInvite"),
+  BusinessMember: require("./BusinessMember"),
 
   CallLog: require("./CallLog"),
   Category: require("./Category"),
+  Chain: require("./Chain"),
   Color: require("./Color"),
   Configuration: require("./Configuration"),
   ContactTicket: require("./ContactTicket"),
@@ -47,9 +51,11 @@ module.exports = Object.freeze({
   History: require("./History"),
 
   IdApplication: require("./IdApplication"),
+  IdempotencyRecord: require("./IdempotencyRecord"),
   InviteMessage: require("./InviteMessage"),
   IpAddress: require("./IPAddress"),
 
+  LandingPageShell: require("./LandingPageShell"),
   LiveStream: require("./LiveStream"),
   LoginAttempt: require("./LoginAttempt"),
 
@@ -69,6 +75,7 @@ module.exports = Object.freeze({
   Order: require("./Order"),
   Organization: require("./Organization"),
   OrganizationSettings: require("./OrganizationSettings"),
+  Outlet: require("./Outlet"),
 
   PaymentLog: require("./PaymentLog"),
   PaymentMethod: require("./PaymentMethod"),
@@ -91,12 +98,15 @@ module.exports = Object.freeze({
   SprayValue: require("./SprayValue"),
   Sticker: require("./Sticker"),
   SubCategory: require("./SubCategory"),
+  SubChain: require("./SubChain"),
   SubType: require("./SubType"),
   SupportTicket: require("./SupportTicket"),
 
   FlomTag: require("./FlomTag"),
   TaxRate: require("./TaxRate"),
   TemporaryBan: require("./TemporaryBan"),
+  Terminal: require("./Terminal"),
+  TerminalOperatorReference: require("./TerminalOperatorReference"),
   Test: require("./Test"),
   ThirdPartyProduct: require("./ThirdPartyProduct"),
   Transaction: require("./Transaction"),

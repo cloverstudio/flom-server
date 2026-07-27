@@ -43,5 +43,9 @@ router.use(
   require("./Controllers/UpdateFlomAgentsBalanceController.js"),
 );
 router.use("/admin-page/user", require("./Controllers/UpdateUserDetailsController.js"));
+router.use(
+  "/admin-page/landing-page/shells",
+  require("./Controllers/AdminLandingPageController.js"),
+);
 
 module.exports = router;

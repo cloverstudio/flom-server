@@ -391,7 +391,7 @@ router.delete(
         });
       }
 
-      const deletedPayoutLimit = await PayoutLimit.findOneAndRemove({
+      const deletedPayoutLimit = await PayoutLimit.findOneAndDelete({
         countryCode,
       });
 

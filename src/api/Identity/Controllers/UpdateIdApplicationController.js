@@ -2,10 +2,11 @@
 
 const router = require("express").Router();
 const Base = require("../../Base");
+const { logger } = require("#infra");
 const { Const } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
-const { IdApplication, User } = require("#models");
+const { IdApplication, User, Business } = require("#models");
 const { sendNotifications, sendPushNotifications } = require("../helpers");
 
 /**
@@ -129,7 +130,13 @@ router.patch(
 
       const user = await User.findByIdAndUpdate(
         idApplicationObj.userId,
-        { identityStatus },
+        {
+          identityStatus,
+          ...(approvalStatus === Const.idApplicationStatusApproved && {
+            firstName: idApplicationObj.firstName,
+            lastName: idApplicationObj.lastName,
+          }),
+        },
         { new: true },
       );
 
@@ -149,6 +156,8 @@ router.patch(
 
       const responseData = { idApplication: idApplicationObj };
       Base.successResponse(response, Const.responsecodeSucceed, responseData);
+
+      await handleBusiness({ owner: user, idApplication: idApplicationObj });
     } catch (error) {
       Base.newErrorResponse({
         response,
@@ -158,5 +167,38 @@ router.patch(
     }
   },
 );
+
+async function handleBusiness({ owner, idApplication }) {
+  try {
+    let idStatus = null,
+      idRejectionReason = null;
+
+    switch (idApplication.approvalStatus) {
+      case Const.idApplicationStatusPending:
+        idStatus = "pending";
+        break;
+      case Const.idApplicationStatusRejected:
+        idStatus = "rejected";
+        idRejectionReason = idApplication.approvalComment;
+        break;
+      case Const.idApplicationStatusApproved:
+        idStatus = "verified";
+        break;
+    }
+
+    await Business.updateMany(
+      { "owner._id": owner._id.toString() },
+      {
+        ...(idStatus && { idStatus }),
+        ...(idRejectionReason && { idRejectionReason }),
+      },
+    );
+
+    return;
+  } catch (error) {
+    logger.error("UpdateIdApplicationController - handleBusiness", error);
+    return;
+  }
+}
 
 module.exports = router;

@@ -1,6 +1,6 @@
 const { Const } = require("#config");
 const { logger } = require("#infra");
-const { FlomMessage, User } = require("#models");
+const { FlomMessage, User, BusinessInvite } = require("#models");
 const { updateHistory } = require("#logics");
 
 module.exports = function (socketApi, socket) {

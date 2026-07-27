@@ -6,7 +6,7 @@ const { logger } = require("#infra");
 const { Const, Config, countries } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
-const { MerchantApplication, User, Bank, Notification } = require("#models");
+const { MerchantApplication, User, Bank, Notification, Business } = require("#models");
 const { sendBonus } = require("#logics");
 const sharp = require("sharp");
 const fsp = require("fs/promises");
@@ -323,6 +323,8 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     );
     const merchantApplicationObj = merchantApplication.toObject();
     delete merchantApplicationObj.__v;
+
+    await Business.updateMany({ "owner._id": user._id.toString() }, { idStatus: "pending" });
 
     Base.successResponse(response, Const.responsecodeSucceed, {
       merchantApplication: merchantApplicationObj,
@@ -977,6 +979,9 @@ router.patch(
           Const.merchantApplicationStatusApprovedWithoutPayout ||
         merchantApplicationObj.approvalStatus === Const.merchantApplicationStatusApprovedWithPayout
       ) {
+        user.firstName = merchantApplicationObj.firstName;
+        user.lastName = merchantApplicationObj.lastName;
+
         const newBankAccount = {
           merchantCode: merchantApplicationObj.merchantCode,
           bankName: merchantApplicationObj.bankName,
@@ -1020,6 +1025,8 @@ router.patch(
       Base.successResponse(response, Const.responsecodeSucceed, {
         merchantApplication: merchantApplicationObj,
       });
+
+      await handleBusiness({ owner: user, merchantApplication: merchantApplicationObj });
 
       if (Config.environment !== "production") return;
 
@@ -1136,6 +1143,60 @@ async function sendNotifications({
   await User.updateOne({ _id: userId }, { $inc: { "notifications.unreadCount": 1 } });
 
   return;
+}
+
+async function handleBusiness({ owner, merchantApplication }) {
+  try {
+    let payoutStatus = null,
+      idStatus = null,
+      idRejectionReason = null;
+
+    switch (merchantApplication.approvalStatus) {
+      case Const.merchantApplicationStatusPending:
+        payoutStatus = "disabled";
+        idStatus = "pending";
+        break;
+      case Const.merchantApplicationStatusRejected:
+        payoutStatus = "disabled";
+        idStatus = "rejected";
+        idRejectionReason = merchantApplication.approvalComment;
+        break;
+      case Const.merchantApplicationStatusApprovedWithoutPayout:
+        payoutStatus = "disabled";
+        idStatus = "verified";
+        break;
+      case Const.merchantApplicationStatusPendingPaypalSent:
+        payoutStatus = "disabled";
+        idStatus = "pending";
+        break;
+      case Const.merchantApplicationStatusPendingPaypalReceived:
+        payoutStatus = "disabled";
+        idStatus = "pending";
+        break;
+      case Const.merchantApplicationStatusApprovedWithPayout:
+        payoutStatus = "enabled";
+        idStatus = "verified";
+        break;
+      case Const.merchantApplicationStatusPendingPaypalEmailAdded:
+        payoutStatus = "disabled";
+        idStatus = "pending";
+        break;
+    }
+
+    await Business.updateMany(
+      { "owner._id": owner._id.toString() },
+      {
+        ...(payoutStatus && { payoutStatus }),
+        ...(idStatus && { idStatus }),
+        ...(idRejectionReason && { idRejectionReason }),
+      },
+    );
+
+    return;
+  } catch (error) {
+    logger.error("MerchantApplicationController - handleBusiness", error);
+    return;
+  }
 }
 
 module.exports = router;

@@ -13,6 +13,8 @@ async function sendFlomPush({
   senderId,
   receiverId,
   orderId = null,
+  attributes = null,
+  title = null,
 }) {
   try {
     const pushTokens = [];
@@ -42,6 +44,7 @@ async function sendFlomPush({
         message,
         messageiOs,
         type: 1,
+        ...(title && { title }),
       },
       pushType,
       roomID: !roomId ? "1" : roomId,
@@ -57,6 +60,7 @@ async function sendFlomPush({
       muted: isMuted,
       phoneNumber: newUser.phoneNumber,
       ...(orderId && { orderId }),
+      ...(attributes && { attributes }),
     };
 
     pushTokens.forEach((pushToken) => {

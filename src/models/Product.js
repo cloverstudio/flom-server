@@ -86,15 +86,8 @@ const schema = new mongoose.Schema(
     status: Number, // 1: Enabled, 0: Disabled
     ownerId: String,
     location: {
-      type: {
-        type: String,
-        enum: ["Point"],
-        required: true,
-      },
-      coordinates: {
-        type: [Number],
-        required: true,
-      },
+      type: { type: String, enum: ["Point"] },
+      coordinates: { type: [Number] },
     },
     address: {
       country: String,
@@ -129,7 +122,7 @@ const schema = new mongoose.Schema(
       comment: String,
       timestamp: Number,
     },
-    type: { type: Number }, // 1 - video, 2 - video story, 3 - podcast, 4 - text story, 5 - product
+    type: { type: Number }, // 1 - video, 2 - video story, 3 - podcast, 4 - text story, 5 - product, 6 - service
     tags: String,
     hashtags: [String],
     appropriateForKids: { type: Boolean, default: false },
@@ -200,6 +193,7 @@ const schema = new mongoose.Schema(
     reservations: [{ auctionId: String, quantity: Number }],
     slug: String,
     oldSlugs: [String],
+    businessId: String,
   },
   { timestamps: true },
 );

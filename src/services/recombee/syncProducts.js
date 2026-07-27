@@ -10,7 +10,10 @@ async function syncProducts(timestamp = 0) {
 
     const catObj = await getCategories();
 
-    const products = await Product.find({ modified: { $gt: timestamp } }).lean();
+    const products = await Product.find({
+      type: { $in: Const.productTypes },
+      modified: { $gt: timestamp },
+    }).lean();
 
     let count = 0;
     let requests = [];

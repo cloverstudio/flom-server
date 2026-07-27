@@ -17,6 +17,7 @@ const {
   Transfer,
   GroupTransfer,
   Payout,
+  BusinessInvite,
 } = require("#models");
 const { Localizer } = require("#services");
 
@@ -200,7 +201,11 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
         request.user.notifications.timestamp = notificationsWithUserNames[0].created;
         request.user.notifications.unreadCount = 0;
       }
-      await User.findByIdAndUpdate(userId, { notifications: request.user.notifications });
+
+      await User.findByIdAndUpdate(userId, {
+        notifications: request.user.notifications,
+        notificationListLastViewedAt: Date.now(),
+      });
     }
 
     Base.successResponse(response, Const.responsecodeSucceed, {

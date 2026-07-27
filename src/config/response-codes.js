@@ -246,6 +246,7 @@ ResponseCodes.responsecodeOperaionIdIsRequired = 400650;
 ResponseCodes.responsecodeResultIsRequired = 400660;
 ResponseCodes.responsecodeFailedTransaction = 400670;
 ResponseCodes.responsecodeCategoryNotFound = 400680;
+ResponseCodes.responsecodeInvalidCategoryId = 400681;
 ResponseCodes.responsecodeNoTransactions = 400690;
 ResponseCodes.responsecode9MobileReject = 400700;
 ResponseCodes.responsecodeNoReceiver = 400701;
@@ -831,11 +832,49 @@ ResponseCodes.responsecodeBusinessNumberAlreadyConnected = 443959;
 
 ResponseCodes.responsecodeUserHasOpenOrders = 443960;
 
+ResponseCodes.responsecodeInvalidBusinessId = 443970;
+ResponseCodes.responsecodeBusinessNotFound = 443971;
+ResponseCodes.responsecodeInvalidDescription = 443972;
+ResponseCodes.responsecodeInvalidLocation = 443973;
+ResponseCodes.responsecodeInvalidBusinessPhoneNumber = 443974;
+ResponseCodes.responsecodeInvalidBusinessWhatsAppPhoneNumber = 443975;
+ResponseCodes.responsecodeInvalidOutletWorkingHours = 443976;
+ResponseCodes.responsecodeInvalidOutletScheduleException = 443977;
+ResponseCodes.responsecodeUserIsAlreadyAssistantOrInvited = 443978;
+ResponseCodes.responsecodeInvalidMarket = 443979;
+ResponseCodes.responsecodeInvalidTag = 443980;
+ResponseCodes.responsecodeInvalidOutletId = 443981;
+ResponseCodes.responsecodeOutletNotFound = 443982;
+ResponseCodes.responsecodeInvalidTerminalId = 443983;
+ResponseCodes.responsecodeTerminalNotFound = 443984;
+ResponseCodes.responsecodeTerminalAlreadyInUse = 443985;
+ResponseCodes.responsecodeTerminalNotInUse = 443986;
+ResponseCodes.responsecodeUserNotActiveOnTerminal = 443987;
+ResponseCodes.responsecodeInvalidServiceId = 443988;
+ResponseCodes.responsecodeServiceNotFound = 443989;
+ResponseCodes.responsecodeInvalidCurrency = 443990;
+
+ResponseCodes.responsecodeInvalidInviteId = 443991;
+ResponseCodes.responsecodeInviteNotFound = 443992;
+ResponseCodes.responsecodeInviteExpired = 443993;
+ResponseCodes.responsecodeInviteAlreadyExists = 443994;
+ResponseCodes.responsecodeInvalidFirstName = 443995;
+ResponseCodes.responsecodeInvalidLastName = 443996;
+
 ResponseCodes.responsecodeCountryTemporarilyBanned = 444000;
 ResponseCodes.responsecodeAppVersionTooOld = 444001;
+
+ResponseCodes.responsecodeInvalidEntityName = 444002;
+ResponseCodes.responsecodeInvalidTermsOfService = 444003;
+ResponseCodes.responsecodeInvalidPrivacyPolicy = 444004;
+ResponseCodes.responsecodeLandingPageShellNotFound = 444005;
+ResponseCodes.responsecodeLandingPageShellExists = 444006;
 
 // ResponseCodes.responsecodeNoAccessToken = 443897;
 
 ResponseCodes.responsecodeUnauthorized = 5000001;
+ResponseCodes.responsecodeIdempotencyKeyRequired = 5000002;
+ResponseCodes.responsecodeIdempotencyKeyMismatch = 5000003;
+ResponseCodes.responsecodeOriginalRequestStillProcessing = 5000004;
 
 module.exports = Object.freeze(ResponseCodes);

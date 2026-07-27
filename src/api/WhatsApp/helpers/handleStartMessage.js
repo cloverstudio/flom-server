@@ -39,18 +39,31 @@ async function handleStartMessage({ from }) {
       return;
     }
 
-    if (existingUser) {
-      await User.findOneAndUpdate(
-        { phoneNumber: from },
-        { isLoginForbidden: true, aliasForUserId: existingUser._id.toString() },
-      );
-    }
-
     const user = await User.findOneAndUpdate(
       { "whatsApp.businessPhoneNumber": from },
       { "whatsApp.businessConnected": true },
       { new: true, lean: true },
     );
+
+    if (existingUser) {
+      const now = Date.now();
+
+      await User.findByIdAndUpdate(existingUser._id, {
+        isLoginForbidden: true,
+        aliasForUserId: user._id.toString(),
+        forbiddenUserInfo: {
+          forbiddenAt: now,
+          phoneNumber: existingUser.phoneNumber,
+          userName: existingUser.userName,
+          name: existingUser.name,
+          bankAccounts: existingUser.bankAccounts || [],
+        },
+        phoneNumber: `Forbidden-${existingUser.phoneNumber}-${now}`,
+        userName: `Forbidden-${existingUser.userName}-${now}`,
+        name: `Forbidden-${existingUser.name || "Unknown"}-${now}`,
+        bankAccounts: [],
+      });
+    }
 
     await CoreIdentity.createCoreIdentity({
       phoneNumber: from,

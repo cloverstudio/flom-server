@@ -282,6 +282,17 @@ const schema = new mongoose.Schema(
     oldSlug: String,
     isLoginForbidden: { type: Boolean, default: false }, // in case of shadow user phone number being other user's business number, we will set this to true to prevent shadow user from logging in
     aliasForUserId: { type: String, default: null }, // if this user is a shadow user, this will be set to the userId of the user whose business phone number this shadow user has
+    forbiddenUserInfo: {
+      forbiddenAt: { type: Number, default: 0 },
+      phoneNumber: String,
+      userName: String,
+      name: String,
+      bankAccounts: [],
+    },
+    hasBusiness: { type: Boolean, default: false },
+    notificationListLastViewedAt: { type: Number, default: Date.now },
+    firstName: String,
+    lastName: String,
   },
   { timestamps: true },
 );
