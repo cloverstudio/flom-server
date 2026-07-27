@@ -260,6 +260,10 @@ class ExtendedProduct extends Product {
       return true;
     }
 
+    if (productType === Const.productTypeService) {
+      return true;
+    }
+
     if (
       productType === Const.productTypeProduct &&
       categoryGroups.includes(Const.categoryGroupMerchants)

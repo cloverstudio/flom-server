@@ -21,7 +21,7 @@ const {
 } = require("../helpers");
 
 /**
- * @api {patch} /api/v2/product/edit/new Edit Product v2 flom_v1
+ * @api {patch} /api/v2/product/edit/new Edit product or service v2 flom_v1
  * @apiVersion 2.0.23
  * @apiName Edit Product v2 flom_v1
  * @apiGroup WebAPI
