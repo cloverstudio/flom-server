@@ -1,7 +1,7 @@
 const { logger, encryptionManager } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { User, Room, Group } = require("#models");
+const { User, Room, Group, Business } = require("#models");
 const socketApi = require("../sockets/socket-api");
 
 const sendPush = require("./sendPush");
@@ -26,6 +26,10 @@ async function notifyNewMessage(obj, originalRequestData) {
       result.group = group;
       if (group) result.organizationId = group.organizationId;
       obj.group = group;
+    } else if (chatType == Const.chatTypeBusiness) {
+      const business = await Business.findById(roomIDSplitted[1]).lean();
+      result.business = business;
+      obj.business = business;
     } else if (isRoomOrBroadcast) {
       const room = await Room.findById(roomIDSplitted[1]).lean();
       result.room = room;
@@ -108,6 +112,17 @@ async function notifyNewMessage(obj, originalRequestData) {
 
       // send to user who got message
       socketApi.emitToRoom(toUser, "newmessage", messageCloned);
+    } else if (chatType == Const.chatTypeBusiness) {
+      const roomIdParts = messageCloned.roomID.split("-");
+      const businessRoom = Const.chatTypeBusiness + "-" + roomIdParts[1];
+      const otherUserId = roomIdParts[2];
+
+      const usersWhoMutedRoom = await User.find({ muted: businessRoom }, { token: 0 }).lean();
+
+      messageCloned.business = result.business;
+      messageCloned.mutedUsersGroupRoom = usersWhoMutedRoom.map((user) => user._id.toString());
+
+      socketApi.emitToRoom(businessRoom, "newmessage", messageCloned);
     }
 
     if (chatType == Const.chatTypeBroadcastAdmin) {

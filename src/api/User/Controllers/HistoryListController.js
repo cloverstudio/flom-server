@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { Const } = require("#config");
 const { auth } = require("#middleware");
 const Utils = require("#utils");
-const { Group, User, UserContact, Room, History, FlomMessage } = require("#models");
+const { Group, User, UserContact, Room, History, FlomMessage, Business } = require("#models");
 const { getUsersOnlineStatus, totalUnreadCount } = require("#logics");
 
 /**
@@ -727,6 +727,16 @@ async function getList(lastUpdate, page, request, searchObj = null) {
     users2Map[user._id.toString()] = user;
   });
 
+  const businessIds = res
+    .filter((item) => item.chatType === Const.chatTypeBusiness)
+    .map((item) => item.room.business)
+    .filter((businessId) => Utils.isValidObjectId(businessId));
+  const businesses = await User.find({ _id: { $in: businessIds } }).lean();
+  const businessesMap = {};
+  businesses.forEach((business) => {
+    businessesMap[business._id.toString()] = business;
+  });
+
   res.forEach((item) => {
     if (item.chatType == Const.chatTypeGroup && item.group && Array.isArray(item.group.users)) {
       const userModels = item.group.users
@@ -751,6 +761,10 @@ async function getList(lastUpdate, page, request, searchObj = null) {
 
       // get owner
       item.room.ownerModel = users2Map[item.room.owner];
+    }
+
+    if (item.chatType == Const.chatTypeBusiness) {
+      item.business = businessesMap[item.chatId];
     }
   });
 
@@ -792,6 +806,8 @@ async function getList(lastUpdate, page, request, searchObj = null) {
       } else if (item.chatType === Const.chatTypeBroadcastAdmin) {
         if (item.broadcast.name.toLowerCase().includes(query.toLowerCase()))
           searchResult.push(item);
+      } else if (item.chatType === Const.chatTypeBusiness) {
+        if (item.business.name.toLowerCase().includes(query.toLowerCase())) searchResult.push(item);
       }
     }
 

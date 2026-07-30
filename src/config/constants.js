@@ -66,6 +66,7 @@ Constants.chatTypeGroup = 2;
 Constants.chatTypeRoom = 3;
 Constants.chatTypeTribeGroupChat = 4;
 Constants.chatTypeBroadcastAdmin = 5;
+Constants.chatTypeBusiness = 6;
 
 Constants.maxBatchSizeFindResult = 5000;
 

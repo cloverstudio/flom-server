@@ -1,6 +1,6 @@
 const { logger, redis } = require("#infra");
 const { Const } = require("#config");
-const { Group, Room } = require("#models");
+const { Group, Room, BusinessMember, History } = require("#models");
 const Base = require("./Base");
 
 let timer;
@@ -84,6 +84,29 @@ module.exports = function (socketApi, socket) {
 
         if (!muted.includes(roomId)) {
           socket.join("3-" + roomId);
+        }
+      }
+
+      const businessMembers = await BusinessMember.find({ userId, status: "active" }).lean();
+      for (const businessMember of businessMembers) {
+        const businessId = businessMember.businessId;
+        const roomSnippet = "6-" + businessId;
+
+        if (!muted.includes(roomSnippet)) {
+          socket.join(roomSnippet);
+        }
+      }
+
+      const businessHistories = await History.find({
+        userId,
+        chatType: Const.chatTypeBusiness,
+      }).lean();
+      for (const businessHistory of businessHistories) {
+        const businessId = businessHistory.chatId;
+        const roomSnippet = "6-" + businessId;
+
+        if (!muted.includes(roomSnippet)) {
+          socket.join(roomSnippet);
         }
       }
 
