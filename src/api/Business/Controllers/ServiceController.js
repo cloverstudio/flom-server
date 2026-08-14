@@ -2,7 +2,7 @@
 
 const router = require("express").Router();
 const Base = require("../../Base");
-const { Const, countries } = require("#config");
+const { Const, countries, businessTags } = require("#config");
 const { auth } = require("#middleware");
 const Utils = require("#utils");
 const Logics = require("#logics");
@@ -110,6 +110,110 @@ router.get("/:businessId/services", auth({ allowUser: true }), async function (r
       response,
       code: Const.httpCodeServerError,
       message: "ServiceController, get service",
+      error,
+    });
+  }
+});
+
+/**
+ * @api {get} /api/v2/businesses/services/suggested  Get suggested services flom_v1
+ * @apiVersion 2.0.34
+ * @apiName Get suggested services
+ * @apiGroup WebAPI Business - Service
+ * @apiDescription Get a list of suggested services. Returns empty array if there are no services for a tag.
+ *
+ * @apiHeader {String} access-token Users unique access-token.
+ *
+ * @apiParam (Query string) {String}  tagId    Business tag id for which suggested services should be returned
+ * @apiParam (Query string) {String}  keyword  Keyword to search tags (1 character - finds those starting with the character, 2 or more characters - finds those containing the keyword)
+ *
+ * @apiSuccessExample Success Response
+ * {
+ *     "code": 1,
+ *     "time": 1786672795595,
+ *     "data": {
+ *         "suggestedServices": [
+ *             {
+ *                 "id": "si_leaking_tap_repair",
+ *                 "display": {
+ *                     "en-NG": "Leaking tap repair",
+ *                     "default": "Leaking tap repair"
+ *                 },
+ *                 "markets": [
+ *                     "NG"
+ *                 ]
+ *             },
+ *             {
+ *                 "id": "si_burst_pipe_repair",
+ *                 "display": {
+ *                     "en-NG": "Burst pipe repair",
+ *                     "default": "Burst pipe repair"
+ *                 },
+ *                 "markets": [
+ *                     "NG"
+ *                 ]
+ *             }
+ *         ]
+ *     }
+ * }
+ *
+ * @apiSuccessExample {json} Error Response
+ * {
+ *   "code": ErrorCode,
+ *   "time": 1590000125608
+ * }
+ *
+ * @apiError (Errors) 443980 Invalid tag
+ * @apiError (Errors) 4000007 Token not valid
+ */
+
+router.get("/services/suggested", auth({ allowUser: true }), async function (request, response) {
+  try {
+    const { user } = request;
+    const { tagId, keyword } = request.query;
+
+    if (!tagId) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeInvalidTag,
+        message: "ServiceController, get suggested services - invalid tagId",
+      });
+    }
+
+    const tag = businessTags.find((t) => t.id === tagId);
+
+    if (!tag) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeInvalidTag,
+        message: "ServiceController, get suggested services - tag not found",
+      });
+    }
+
+    if (!tag.suggestedItems || tag.suggestedItems.length === 0) {
+      return Base.successResponse(response, Const.responsecodeSucceed, { suggestedServices: [] });
+    }
+
+    let suggestedServices = tag.suggestedItems;
+
+    if (keyword && keyword.length > 0) {
+      suggestedServices = suggestedServices.filter((s) => {
+        const displayName = s.display["en-NG"] || s.display.default || "";
+
+        if (keyword.length === 1) {
+          return displayName.toLowerCase().startsWith(keyword.toLowerCase());
+        } else {
+          return displayName.toLowerCase().includes(keyword.toLowerCase());
+        }
+      });
+    }
+
+    Base.successResponse(response, Const.responsecodeSucceed, { suggestedServices });
+  } catch (error) {
+    return Base.newErrorResponse({
+      response,
+      code: Const.httpCodeServerError,
+      message: "ServiceController, get suggested services",
       error,
     });
   }

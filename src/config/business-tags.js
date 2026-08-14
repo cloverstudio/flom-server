@@ -8,6 +8,53 @@ module.exports = [
     synonyms: ["barber", "barbing salon", "braids", "weave", "wig", "salon", "hairdresser", "locs"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_knotless_braids",
+        display: { "en-NG": "Knotless braids", default: "Knotless braids" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_cornrows",
+        display: { "en-NG": "Cornrows (didi)", default: "Cornrows (didi)" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_ghana_weaving",
+        display: { "en-NG": "Ghana weaving", default: "Ghana weaving" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_box_braids",
+        display: { "en-NG": "Box braids", default: "Box braids" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_threading",
+        display: { "en-NG": "Threading", default: "Threading" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_faux_locs",
+        display: { "en-NG": "Faux locs", default: "Faux locs" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_passion_twists",
+        display: { "en-NG": "Passion twists", default: "Passion twists" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_wig_installation",
+        display: { "en-NG": "Wig installation", default: "Wig installation" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_beard_trim",
+        display: { "en-NG": "Beard trim", default: "Beard trim" },
+        markets: ["NG"],
+      },
+    ],
   },
   {
     id: "tag_makeup_beauty",
@@ -18,6 +65,31 @@ module.exports = [
     synonyms: ["makeup artist", "MUA", "gele", "lashes", "nails", "nail tech"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_acrylic_nails",
+        display: { "en-NG": "Acrylic nails", default: "Acrylic nails" },
+        markets: ["NG"],
+      },
+      { id: "si_manicure", display: { "en-NG": "Manicure", default: "Manicure" }, markets: ["NG"] },
+      { id: "si_pedicure", display: { "en-NG": "Pedicure", default: "Pedicure" }, markets: ["NG"] },
+      {
+        id: "si_eyelash_extensions",
+        display: { "en-NG": "Eyelash extensions", default: "Eyelash extensions" },
+        markets: ["NG"],
+      },
+      { id: "si_nail_fix", display: { "en-NG": "Nail fix", default: "Nail fix" }, markets: ["NG"] },
+      {
+        id: "si_gele_tying",
+        display: { "en-NG": "Gele tying", default: "Gele tying" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_bridal_makeup",
+        display: { "en-NG": "Bridal makeup", default: "Bridal makeup" },
+        markets: ["NG"],
+      },
+    ],
   },
   {
     id: "tag_skincare_cosmetics",
@@ -38,6 +110,35 @@ module.exports = [
     synonyms: ["tailor", "seamstress", "aso ebi", "fashion designer", "native wear", "agbada"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      { id: "si_agbada", display: { "en-NG": "Agbada", default: "Agbada" }, markets: ["NG"] },
+      { id: "si_kaftan", display: { "en-NG": "Kaftan", default: "Kaftan" }, markets: ["NG"] },
+      {
+        id: "si_ankara_gown",
+        display: { "en-NG": "Ankara gown", default: "Ankara gown" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_aso_ebi_outfit",
+        display: { "en-NG": "Aso-ebi outfit", default: "Aso-ebi outfit" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_mens_suit",
+        display: { "en-NG": "Men's suit", default: "Men's suit" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_alterations_adjustment",
+        display: { "en-NG": "Alterations / adjustment", default: "Alterations / adjustment" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_aso_oke_styling",
+        display: { "en-NG": "Aso-oke styling", default: "Aso-oke styling" },
+        markets: ["NG"],
+      },
+    ],
   },
   {
     id: "tag_fabrics_textiles",
@@ -176,6 +277,59 @@ module.exports = [
     synonyms: ["phone repair", "computer village", "chargers", "screen", "phone engineer"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_screen_replacement",
+        display: { "en-NG": "Screen replacement", default: "Screen replacement" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_battery_replacement",
+        display: { "en-NG": "Battery replacement", default: "Battery replacement" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_charging_port_repair",
+        display: { "en-NG": "Charging port repair", default: "Charging port repair" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_software_flashing",
+        display: { "en-NG": "Software / flashing", default: "Software / flashing" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_phone_unlocking",
+        display: { "en-NG": "Phone unlocking", default: "Phone unlocking" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_screen_protector",
+        display: { "en-NG": "Screen protector", default: "Screen protector" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_phone_case",
+        display: { "en-NG": "Phone case", default: "Phone case" },
+        markets: ["NG"],
+      },
+      { id: "si_charger", display: { "en-NG": "Charger", default: "Charger" }, markets: ["NG"] },
+      {
+        id: "si_earphones",
+        display: { "en-NG": "Earphones", default: "Earphones" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_uk_used_phone",
+        display: { "en-NG": "UK-used phone", default: "UK-used phone" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_swap_trade_in",
+        display: { "en-NG": "Swap / trade-in", default: "Swap / trade-in" },
+        markets: ["NG"],
+      },
+    ],
   },
   {
     id: "tag_electronics_gadgets",
@@ -216,6 +370,33 @@ module.exports = [
     synonyms: ["air conditioner", "fridge", "freezer", "cooling technician"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_ac_installation",
+        display: { "en-NG": "AC installation", default: "AC installation" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_ac_servicing",
+        display: { "en-NG": "AC servicing", default: "AC servicing" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_ac_gas_refill",
+        display: { "en-NG": "AC gas refill", default: "AC gas refill" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_fridge_repair",
+        display: { "en-NG": "Fridge repair", default: "Fridge repair" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_freezer_repair",
+        display: { "en-NG": "Freezer repair", default: "Freezer repair" },
+        markets: ["NG"],
+      },
+    ],
   },
   {
     id: "tag_auto_mechanic",
@@ -226,6 +407,48 @@ module.exports = [
     synonyms: ["mechanic", "rewire", "auto electrician", "car service"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_general_servicing",
+        display: { "en-NG": "General servicing", default: "General servicing" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_oil_change",
+        display: { "en-NG": "Oil change", default: "Oil change" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_brake_pad_replacement",
+        display: { "en-NG": "Brake pad replacement", default: "Brake pad replacement" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_computer_diagnosis_scan",
+        display: { "en-NG": "Computer diagnosis / scan", default: "Computer diagnosis / scan" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_suspension_repair",
+        display: { "en-NG": "Suspension repair", default: "Suspension repair" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_car_ac_repair",
+        display: { "en-NG": "Car AC repair", default: "Car AC repair" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_clutch_repair",
+        display: { "en-NG": "Clutch repair", default: "Clutch repair" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_roadside_callout",
+        display: { "en-NG": "Roadside call-out", default: "Roadside call-out" },
+        markets: ["NG"],
+      },
+    ],
   },
   {
     id: "tag_auto_parts",
@@ -309,6 +532,52 @@ module.exports = [
     synonyms: ["house wiring", "electrical", "light"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_house_wiring",
+        display: { "en-NG": "House wiring", default: "House wiring" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_socket_switch_repair",
+        display: { "en-NG": "Socket & switch repair", default: "Socket & switch repair" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_changeover_switch",
+        display: { "en-NG": "Changeover switch", default: "Changeover switch" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_distribution_board",
+        display: { "en-NG": "Distribution board", default: "Distribution board" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_fault_finding",
+        display: { "en-NG": "Fault finding", default: "Fault finding" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_light_fitting",
+        display: { "en-NG": "Light fitting", default: "Light fitting" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_solar_inverter_installation",
+        display: {
+          "en-NG": "Solar / inverter installation",
+          default: "Solar / inverter installation",
+        },
+        markets: ["NG"],
+      },
+      {
+        id: "si_meter_connection",
+        display: { "en-NG": "Meter connection", default: "Meter connection" },
+        markets: ["NG"],
+      },
+      { id: "si_rewiring", display: { "en-NG": "Rewiring", default: "Rewiring" }, markets: ["NG"] },
+    ],
   },
   {
     id: "tag_plumbing",
@@ -319,6 +588,38 @@ module.exports = [
     synonyms: ["plumber", "pipe", "water system"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_leaking_tap_repair",
+        display: { "en-NG": "Leaking tap repair", default: "Leaking tap repair" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_burst_pipe_repair",
+        display: { "en-NG": "Burst pipe repair", default: "Burst pipe repair" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_blocked_drain",
+        display: { "en-NG": "Blocked drain", default: "Blocked drain" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_toilet_wc_installation",
+        display: { "en-NG": "Toilet / WC installation", default: "Toilet / WC installation" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_sink_installation",
+        display: { "en-NG": "Sink installation", default: "Sink installation" },
+        markets: ["NG"],
+      },
+      {
+        id: "si_emergency_call_out",
+        display: { "en-NG": "Emergency call-out", default: "Emergency call-out" },
+        markets: ["NG"],
+      },
+    ],
   },
   {
     id: "tag_painting_pop",
