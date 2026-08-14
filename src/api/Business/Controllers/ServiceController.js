@@ -124,8 +124,9 @@ router.get("/:businessId/services", auth({ allowUser: true }), async function (r
  *
  * @apiHeader {String} access-token Users unique access-token.
  *
- * @apiParam (Query string) {String}  tagId    Business tag id for which suggested services should be returned
- * @apiParam (Query string) {String}  keyword  Keyword to search tags (1 character - finds those starting with the character, 2 or more characters - finds those containing the keyword)
+ * @apiParam (Query string) {String}  tagId      Business tag id for which suggested services should be returned
+ * @apiParam (Query string) {String}  [market]   Market code to filter suggested services (country code - HR, NG, US)
+ * @apiParam (Query string) {String}  [keyword]  Keyword to search tags (1 character - finds those starting with the character, 2 or more characters - finds those containing the keyword)
  *
  * @apiSuccessExample Success Response
  * {
@@ -163,6 +164,7 @@ router.get("/:businessId/services", auth({ allowUser: true }), async function (r
  *   "time": 1590000125608
  * }
  *
+ * @apiError (Errors) 443979 Tag is not available on the market
  * @apiError (Errors) 443980 Invalid tag
  * @apiError (Errors) 4000007 Token not valid
  */
@@ -170,7 +172,7 @@ router.get("/:businessId/services", auth({ allowUser: true }), async function (r
 router.get("/services/suggested", auth({ allowUser: true }), async function (request, response) {
   try {
     const { user } = request;
-    const { tagId, keyword } = request.query;
+    const { tagId, keyword, market } = request.query;
 
     if (!tagId) {
       return Base.newErrorResponse({
@@ -192,6 +194,14 @@ router.get("/services/suggested", auth({ allowUser: true }), async function (req
 
     if (!tag.suggestedItems || tag.suggestedItems.length === 0) {
       return Base.successResponse(response, Const.responsecodeSucceed, { suggestedServices: [] });
+    }
+
+    if (market && tag.markets && !tag.markets.includes(market)) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeInvalidMarket,
+        message: "ServiceController, get suggested services - tag is not available on the market",
+      });
     }
 
     let suggestedServices = tag.suggestedItems;
