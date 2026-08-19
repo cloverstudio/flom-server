@@ -31,7 +31,6 @@ const {
  *
  * @apiHeader {String} access-token Users unique access-token.
  *
- * @apiParam {String} businessId businessId
  * @apiParam {String} productName productName
  * @apiParam {String} [productCategoryId] productCategoryId (left for backwards compatibility)
  * @apiParam {String} [categoryId] Same as productCategoryId. Ignores productCategoryId if present. Defaults to default category
@@ -81,6 +80,7 @@ const {
  * @apiParam {Number} [engagementBudgetCredits] engagement budget in credits
  * @apiParam {Number} [creditsPerLinkedExpo] number of credits to award for interaction in expo
  * @apiParam {String} [language] language of the product (default is user's device language)
+ * @apiParam {String} businessId businessId
  *
  * @apiSuccessExample {json} Success-Response
  * {

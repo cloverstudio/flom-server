@@ -6,7 +6,7 @@ const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
 const { auth, autoApproveProduct } = require("#middleware");
-const { Category, Product, User, ConversionRate } = require("#models");
+const { Category, Product, User, ConversionRate, Business } = require("#models");
 const { handleTags } = require("#logics");
 const { recombee } = require("#services");
 const mediaHandler = require("#media");
@@ -53,6 +53,7 @@ const {
  * @apiParam {Number} [engagementBudgetCredits] engagement budget in credits
  * @apiParam {Number} [creditsPerLinkedExpo] number of credits to award for interaction in expo
  * @apiParam {String} [language] language of the product (default is user's device language)
+ * @apiParam {String} [businessId] businessId
  *
  * @apiSuccessExample Success-Response:
  *  {
@@ -181,6 +182,9 @@ const {
  * @apiError (Errors) 443487 One or more tribes (from tribeIds) is not found
  * @apiError (Errors) 443914 Can't change file order, files are still in processing
  * @apiError (Errors) 443915 Can't change file order, file processing failed
+ * @apiError (Errors) 443970 Invalid business id
+ * @apiError (Errors) 443971 Business not found
+ * @apiError (Errors) 4000007 Token not valid
  */
 
 router.patch(
@@ -425,12 +429,35 @@ router.patch(
       const showYear = fields.showYear;
       const vehicleYear = fields.vehicleYear;
       const year = fields.year;
+      const businessId = fields.businessId;
 
       let appropriateForKids = fields.appropriateForKids;
 
       const { visibility, tribeIds, communityIds } = fields;
 
       const { tags } = fields;
+
+      if (businessId) {
+        if (!Utils.isValidObjectId(businessId)) {
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeInvalidBusinessId,
+            message: "EditProductControllerV2, invalid businessId",
+          });
+        }
+
+        const business = await Business.findById(businessId).lean();
+
+        if (!business) {
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeBusinessNotFound,
+            message: "EditProductControllerV2, business not found",
+          });
+        }
+
+        product.businessId = businessId;
+      }
 
       let location =
         locationStr == undefined

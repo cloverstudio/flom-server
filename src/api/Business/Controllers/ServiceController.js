@@ -536,6 +536,7 @@ router.post("/services", auth({ allowUser: true }), async function (request, res
  *
  * @apiHeader {String} access-token Users unique access-token.
  *
+ * @apiParam {String}     [businessId]              Business ID
  * @apiParam {String}     [name]                    Service name
  * @apiParam {String}     [description]             Service description
  * @apiParam {Object}     [originalPrice]           Service original price object (countryCode, currency, value) eg. { "countryCode": "HR", "currency": "EUR", "value": 100 }
@@ -605,6 +606,8 @@ router.post("/services", auth({ allowUser: true }), async function (request, res
  * @apiError (Errors) 443988 Invalid service id
  * @apiError (Errors) 443989 Service not found
  * @apiError (Errors) 443858 User is not allowed to complete the action
+ * @apiError (Errors) 443970 Invalid business id
+ * @apiError (Errors) 443971 Business not found
  * @apiError (Errors) 443856 Invalid name
  * @apiError (Errors) 443972 Invalid description
  * @apiError (Errors) 443691 Invalid price country code
@@ -617,7 +620,7 @@ router.patch("/services/:serviceId", auth({ allowUser: true }), async function (
   try {
     const { user } = request;
     const { serviceId } = request.params;
-    const { name, description, originalPrice: op = null } = request.body;
+    const { name, description, originalPrice: op = null, businessId } = request.body;
 
     if (!serviceId || !Utils.isValidObjectId(serviceId)) {
       return Base.newErrorResponse({
@@ -652,6 +655,28 @@ router.patch("/services/:serviceId", auth({ allowUser: true }), async function (
     }
 
     const info = {};
+
+    if (businessId) {
+      if (!Utils.isValidObjectId(businessId)) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeInvalidBusinessId,
+          message: "ServiceController, update service - invalid businessId",
+        });
+      }
+
+      const business = await Business.findById(businessId).lean();
+
+      if (!business) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeBusinessNotFound,
+          message: "ServiceController, update service - business not found",
+        });
+      }
+
+      info.businessId = businessId;
+    }
 
     if (name) {
       if (typeof name !== "string" || name.length < 3 || name.length > 100) {
