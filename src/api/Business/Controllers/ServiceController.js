@@ -350,6 +350,7 @@ router.get("/services/:serviceId", auth({ allowUser: true }), async function (re
  *
  * @apiParam {String}     businessId              Business ID
  * @apiParam {String}     name                    Service name
+ * @apiParam {String}     place                   Place of work (seller, customer, both)
  * @apiParam {String}     [description]           Service description
  * @apiParam {Object}     [originalPrice]         Service original price object (countryCode, currency, value) eg. { "countryCode": "HR", "currency": "EUR", "value": 100 }
  *
@@ -402,6 +403,7 @@ router.get("/services/:serviceId", auth({ allowUser: true }), async function (re
  *             "audiosForExpo": [],
  *             "contentPurchaseHistory": [],
  *             "reservations": [],
+ *             "place": "seller",
  *             "createdAt": "2026-07-14T20:42:14.997Z",
  *             "updatedAt": "2026-07-14T20:42:14.997Z",
  *             "__v": 0
@@ -423,13 +425,14 @@ router.get("/services/:serviceId", auth({ allowUser: true }), async function (re
  * @apiError (Errors) 443691 Invalid price country code
  * @apiError (Errors) 443990 Invalid currency
  * @apiError (Errors) 443741 Invalid price value
+ * @apiError (Errors) 444007 Invalid place
  * @apiError (Errors) 4000007 Token not valid
  */
 
 router.post("/services", auth({ allowUser: true }), async function (request, response) {
   try {
     const { user } = request;
-    const { businessId, name, description, originalPrice: op = null } = request.body;
+    const { businessId, name, description, originalPrice: op = null, place } = request.body;
 
     if (!businessId || !Utils.isValidObjectId(businessId)) {
       return Base.newErrorResponse({
@@ -463,7 +466,11 @@ router.post("/services", auth({ allowUser: true }), async function (request, res
       });
     }
 
-    const info = { type: Const.productTypeService, businessId: business._id.toString() };
+    const info = {
+      type: Const.productTypeService,
+      businessId: business._id.toString(),
+      itemCount: 1,
+    };
 
     if (!name || typeof name !== "string" || name.length < 3 || name.length > 100) {
       return Base.newErrorResponse({
@@ -485,6 +492,15 @@ router.post("/services", auth({ allowUser: true }), async function (request, res
 
       info.description = description;
     }
+
+    if (!place || !["seller", "customer", "both"].includes(place)) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeInvalidPlace,
+        message: "ServiceController, add service - invalid place",
+      });
+    }
+    info.place = place;
 
     if (op) {
       if (!op.countryCode || !countries[op.countryCode]) {
@@ -539,6 +555,7 @@ router.post("/services", auth({ allowUser: true }), async function (request, res
  * @apiParam {String}     [businessId]              Business ID
  * @apiParam {String}     [name]                    Service name
  * @apiParam {String}     [description]             Service description
+ * @apiParam {String}     [place]                   Place of work (seller, customer, both)
  * @apiParam {Object}     [originalPrice]           Service original price object (countryCode, currency, value) eg. { "countryCode": "HR", "currency": "EUR", "value": 100 }
  *
  * @apiSuccessExample Success Response
@@ -590,6 +607,7 @@ router.post("/services", auth({ allowUser: true }), async function (request, res
  *             "audiosForExpo": [],
  *             "contentPurchaseHistory": [],
  *             "reservations": [],
+ *             "place": "seller",
  *             "createdAt": "2026-07-14T20:42:14.997Z",
  *             "updatedAt": "2026-07-14T20:42:14.997Z",
  *             "__v": 0
@@ -613,6 +631,7 @@ router.post("/services", auth({ allowUser: true }), async function (request, res
  * @apiError (Errors) 443691 Invalid price country code
  * @apiError (Errors) 443990 Invalid currency
  * @apiError (Errors) 443741 Invalid price value
+ * @apiError (Errors) 444007 Invalid place
  * @apiError (Errors) 4000007 Token not valid
  */
 
@@ -620,7 +639,7 @@ router.patch("/services/:serviceId", auth({ allowUser: true }), async function (
   try {
     const { user } = request;
     const { serviceId } = request.params;
-    const { name, description, originalPrice: op = null, businessId } = request.body;
+    const { name, description, originalPrice: op = null, businessId, place } = request.body;
 
     if (!serviceId || !Utils.isValidObjectId(serviceId)) {
       return Base.newErrorResponse({
@@ -700,6 +719,18 @@ router.patch("/services/:serviceId", auth({ allowUser: true }), async function (
       }
 
       info.description = description;
+    }
+
+    if (place) {
+      if (!["seller", "customer", "both"].includes(place)) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeInvalidPlace,
+          message: "ServiceController, update service - invalid place",
+        });
+      }
+
+      info.place = place;
     }
 
     if (op) {

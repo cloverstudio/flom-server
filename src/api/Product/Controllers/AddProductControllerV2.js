@@ -81,6 +81,7 @@ const {
  * @apiParam {Number} [creditsPerLinkedExpo] number of credits to award for interaction in expo
  * @apiParam {String} [language] language of the product (default is user's device language)
  * @apiParam {String} businessId businessId
+ * @apiParam {String} [place] Place of work (seller, customer, both) MANDATORY FOR SERVICES (type 6)
  *
  * @apiSuccessExample {json} Success-Response
  * {
@@ -190,6 +191,7 @@ const {
  * @apiError (Errors) 443241 One or more communities (from communityIds) is not found
  * @apiError (Errors) 443970 Invalid business id
  * @apiError (Errors) 443971 Business not found
+ * @apiError (Errors) 444007 Invalid place
  * @apiError (Errors) 4000007 Token not valid
  * @apiError (Errors) 4000060 Users products blocked and user is blocked from creating new products
  */
@@ -281,6 +283,7 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
       year,
       brandId,
       businessId,
+      place,
     } = fields;
 
     let product = new Product();
@@ -305,6 +308,18 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
     }
 
     product.businessId = businessId;
+
+    if (type === Const.productTypeService) {
+      if (!place || !["seller", "customer", "both"].includes(place)) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeInvalidPlace,
+          message: "AddProductControllerV2, add service - invalid place",
+        });
+      }
+
+      product.place = place;
+    }
 
     if (productCategoryId) {
       if (!Utils.isValidObjectId(productCategoryId)) {

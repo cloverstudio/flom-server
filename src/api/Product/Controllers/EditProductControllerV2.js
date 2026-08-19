@@ -54,6 +54,7 @@ const {
  * @apiParam {Number} [creditsPerLinkedExpo] number of credits to award for interaction in expo
  * @apiParam {String} [language] language of the product (default is user's device language)
  * @apiParam {String} [businessId] businessId
+ * @apiParam {String} [place] Place of work (seller, customer, both)
  *
  * @apiSuccessExample Success-Response:
  *  {
@@ -184,6 +185,7 @@ const {
  * @apiError (Errors) 443915 Can't change file order, file processing failed
  * @apiError (Errors) 443970 Invalid business id
  * @apiError (Errors) 443971 Business not found
+ * @apiError (Errors) 444007 Invalid place
  * @apiError (Errors) 4000007 Token not valid
  */
 
@@ -430,6 +432,7 @@ router.patch(
       const vehicleYear = fields.vehicleYear;
       const year = fields.year;
       const businessId = fields.businessId;
+      const place = fields.place;
 
       let appropriateForKids = fields.appropriateForKids;
 
@@ -457,6 +460,20 @@ router.patch(
         }
 
         product.businessId = businessId;
+      }
+
+      if (product.type === Const.productTypeService) {
+        if (place) {
+          if (!["seller", "customer", "both"].includes(place)) {
+            return Base.newErrorResponse({
+              response,
+              code: Const.responsecodeInvalidPlace,
+              message: "EditProductControllerV2, edit service - invalid place",
+            });
+          }
+
+          product.place = place;
+        }
       }
 
       let location =

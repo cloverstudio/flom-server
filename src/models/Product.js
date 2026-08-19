@@ -194,6 +194,7 @@ const schema = new mongoose.Schema(
     slug: String,
     oldSlugs: [String],
     businessId: String,
+    place: String, // seller, customer, both
   },
   { timestamps: true },
 );
