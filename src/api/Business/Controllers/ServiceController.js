@@ -124,7 +124,7 @@ router.get("/:businessId/services", auth({ allowUser: true }), async function (r
  *
  * @apiHeader {String} access-token Users unique access-token.
  *
- * @apiParam (Query string) {String}  tagId      Business tag id for which suggested services should be returned
+ * @apiParam (Query string) {String}  tagIds     Business tag ids for which suggested services should be returned, separated with comma (eg. tag1,tag2,tag3)
  * @apiParam (Query string) {String}  [market]   Market code to filter suggested services (country code - HR, NG, US)
  * @apiParam (Query string) {String}  [keyword]  Keyword to search tags (1 character - finds those starting with the character, 2 or more characters - finds those containing the keyword)
  *
@@ -135,24 +135,20 @@ router.get("/:businessId/services", auth({ allowUser: true }), async function (r
  *     "data": {
  *         "suggestedServices": [
  *             {
- *                 "id": "si_leaking_tap_repair",
+ *                 "tagId": "tag_plumbing",
+ *                 "suggestedServiceId": "si_leaking_tap_repair",
  *                 "display": {
  *                     "en-NG": "Leaking tap repair",
  *                     "default": "Leaking tap repair"
- *                 },
- *                 "markets": [
- *                     "NG"
- *                 ]
+ *                 }
  *             },
  *             {
- *                 "id": "si_burst_pipe_repair",
+ *                 "tagId": "tag_plumbing",
+ *                 "suggestedServiceId": "si_burst_pipe_repair",
  *                 "display": {
  *                     "en-NG": "Burst pipe repair",
  *                     "default": "Burst pipe repair"
- *                 },
- *                 "markets": [
- *                     "NG"
- *                 ]
+ *                 }
  *             }
  *         ]
  *     }
@@ -172,9 +168,14 @@ router.get("/:businessId/services", auth({ allowUser: true }), async function (r
 router.get("/services/suggested", auth({ allowUser: true }), async function (request, response) {
   try {
     const { user } = request;
-    const { tagId, keyword, market } = request.query;
+    const { keyword, market } = request.query;
+    const tagIdsString = request.query.tagIds || "";
+    const tagIds = tagIdsString
+      .split(",")
+      .map((id) => id.trim())
+      .filter((id) => id.length > 0);
 
-    if (!tagId) {
+    if (tagIds.length === 0) {
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeInvalidTag,
@@ -182,41 +183,45 @@ router.get("/services/suggested", auth({ allowUser: true }), async function (req
       });
     }
 
-    const tag = businessTags.find((t) => t.id === tagId);
+    const suggestedServices = [];
 
-    if (!tag) {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeInvalidTag,
-        message: "ServiceController, get suggested services - tag not found",
-      });
-    }
+    tagIds.forEach((tagId) => {
+      const tag = businessTags.find((t) => t.id === tagId);
 
-    if (!tag.suggestedItems || tag.suggestedItems.length === 0) {
-      return Base.successResponse(response, Const.responsecodeSucceed, { suggestedServices: [] });
-    }
+      if (!tag) {
+        return;
+      }
 
-    if (market && tag.markets && !tag.markets.includes(market)) {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeInvalidMarket,
-        message: "ServiceController, get suggested services - tag is not available on the market",
-      });
-    }
+      if (!tag.suggestedItems || tag.suggestedItems.length === 0) {
+        return;
+      }
 
-    let suggestedServices = tag.suggestedItems;
+      if (market && tag.markets && !tag.markets.includes(market)) {
+        return;
+      }
 
-    if (keyword && keyword.length > 0) {
-      suggestedServices = suggestedServices.filter((s) => {
-        const displayName = s.display["en-NG"] || s.display.default || "";
+      let tagSuggestedServices = tag.suggestedItems;
 
-        if (keyword.length === 1) {
-          return displayName.toLowerCase().startsWith(keyword.toLowerCase());
-        } else {
-          return displayName.toLowerCase().includes(keyword.toLowerCase());
-        }
-      });
-    }
+      if (keyword && keyword.length > 0) {
+        tagSuggestedServices = tagSuggestedServices.filter((s) => {
+          const displayName = s.display["en-NG"] || s.display.default || "";
+
+          if (keyword.length === 1) {
+            return displayName.toLowerCase().startsWith(keyword.toLowerCase());
+          } else {
+            return displayName.toLowerCase().includes(keyword.toLowerCase());
+          }
+        });
+      }
+
+      tagSuggestedServices = tagSuggestedServices.map((s) => ({
+        tagId,
+        suggestedServiceId: s.id,
+        display: s.display,
+      }));
+
+      suggestedServices.push(...tagSuggestedServices);
+    });
 
     Base.successResponse(response, Const.responsecodeSucceed, { suggestedServices });
   } catch (error) {
