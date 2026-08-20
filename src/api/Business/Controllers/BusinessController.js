@@ -331,6 +331,7 @@ router.get("/:businessId", auth({ allowUser: true }), async function (request, r
       businessId,
       isDeleted: false,
       type: Const.productTypeService,
+      "moderation.status": Const.moderationStatusApproved,
     }).lean();
 
     business.services = services;
