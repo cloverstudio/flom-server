@@ -3,7 +3,7 @@
 const router = require("express").Router();
 const Base = require("../../Base");
 const { Const, countries, businessTags } = require("#config");
-const { auth } = require("#middleware");
+const { auth, autoApproveProduct } = require("#middleware");
 const Utils = require("#utils");
 const Logics = require("#logics");
 const { Business, User, Outlet, Terminal, Product } = require("#models");
@@ -434,119 +434,132 @@ router.get("/services/:serviceId", auth({ allowUser: true }), async function (re
  * @apiError (Errors) 4000007 Token not valid
  */
 
-router.post("/services", auth({ allowUser: true }), async function (request, response) {
-  try {
-    const { user } = request;
-    const { businessId, name, description, originalPrice: op = null, place } = request.body;
+router.post(
+  "/services",
+  auth({ allowUser: true }),
+  autoApproveProduct,
+  async function (request, response) {
+    try {
+      const { autoApprove = false } = request;
+      const { user } = request;
+      const { businessId, name, description, originalPrice: op = null, place } = request.body;
 
-    if (!businessId || !Utils.isValidObjectId(businessId)) {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeInvalidBusinessId,
-        message: "ServiceController, add service - invalid businessId",
-      });
-    }
-
-    const business = await Business.findById(businessId).lean();
-
-    if (!business) {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeBusinessNotFound,
-        message: "ServiceController, add service - business not found",
-      });
-    }
-
-    const allowed = await Logics.checkBusinessPermissions({
-      userId: user._id.toString(),
-      business,
-      action: "services:add",
-    });
-
-    if (!allowed) {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeUserNotAllowed,
-        message: "ServiceController, add service - user is not allowed to add a service",
-      });
-    }
-
-    const info = {
-      type: Const.productTypeService,
-      businessId: business._id.toString(),
-      itemCount: 1,
-    };
-
-    if (!name || typeof name !== "string" || name.length < 3 || name.length > 100) {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeInvalidName,
-        message: "ServiceController, add service - invalid name",
-      });
-    }
-    info.name = name;
-
-    if (description) {
-      if (typeof description !== "string") {
+      if (!businessId || !Utils.isValidObjectId(businessId)) {
         return Base.newErrorResponse({
           response,
-          code: Const.responsecodeInvalidDescription,
-          message: "ServiceController, add service - invalid description",
+          code: Const.responsecodeInvalidBusinessId,
+          message: "ServiceController, add service - invalid businessId",
         });
       }
 
-      info.description = description;
-    }
+      const business = await Business.findById(businessId).lean();
 
-    if (!place || !["seller", "customer", "both"].includes(place)) {
+      if (!business) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeBusinessNotFound,
+          message: "ServiceController, add service - business not found",
+        });
+      }
+
+      const allowed = await Logics.checkBusinessPermissions({
+        userId: user._id.toString(),
+        business,
+        action: "services:add",
+      });
+
+      if (!allowed) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeUserNotAllowed,
+          message: "ServiceController, add service - user is not allowed to add a service",
+        });
+      }
+
+      const info = {
+        type: Const.productTypeService,
+        businessId: business._id.toString(),
+        itemCount: 1,
+        moderation: {
+          status: autoApprove ? Const.moderationStatusApproved : Const.moderationStatusPending,
+        },
+      };
+
+      if (!name || typeof name !== "string" || name.length < 3 || name.length > 100) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeInvalidName,
+          message: "ServiceController, add service - invalid name",
+        });
+      }
+      info.name = name;
+
+      if (description) {
+        if (typeof description !== "string") {
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeInvalidDescription,
+            message: "ServiceController, add service - invalid description",
+          });
+        }
+
+        info.description = description;
+      }
+
+      if (!place || !["seller", "customer", "both"].includes(place)) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeInvalidPlace,
+          message: "ServiceController, add service - invalid place",
+        });
+      }
+      info.place = place;
+
+      if (op) {
+        if (!op.countryCode || !countries[op.countryCode]) {
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeInvalidCountryCode,
+            message: "ServiceController, add service - invalid originalPrice countryCode",
+          });
+        }
+        if (!op.currency || !countries[op.countryCode].currency.includes(op.currency)) {
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeInvalidCurrency,
+            message: "ServiceController, add service - invalid originalPrice currency",
+          });
+        }
+        if (!op.value || typeof op.value !== "number" || op.value < 0) {
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeInvalidValueParameter,
+            message: "ServiceController, add service - invalid originalPrice value",
+          });
+        }
+
+        info.originalPrice = {
+          countryCode: op.countryCode,
+          currency: op.currency,
+          value: op.value,
+        };
+      }
+
+      const service = await Product.create(info);
+
+      await Business.findByIdAndUpdate(businessId, { lastActive: Date.now() });
+
+      Base.successResponse(response, Const.responsecodeSucceed, { service: service.toObject() });
+    } catch (error) {
       return Base.newErrorResponse({
         response,
-        code: Const.responsecodeInvalidPlace,
-        message: "ServiceController, add service - invalid place",
+        code: Const.httpCodeServerError,
+        message: "ServiceController, add service",
+        error,
       });
     }
-    info.place = place;
-
-    if (op) {
-      if (!op.countryCode || !countries[op.countryCode]) {
-        return Base.newErrorResponse({
-          response,
-          code: Const.responsecodeInvalidCountryCode,
-          message: "ServiceController, add service - invalid originalPrice countryCode",
-        });
-      }
-      if (!op.currency || !countries[op.countryCode].currency.includes(op.currency)) {
-        return Base.newErrorResponse({
-          response,
-          code: Const.responsecodeInvalidCurrency,
-          message: "ServiceController, add service - invalid originalPrice currency",
-        });
-      }
-      if (!op.value || typeof op.value !== "number" || op.value < 0) {
-        return Base.newErrorResponse({
-          response,
-          code: Const.responsecodeInvalidValueParameter,
-          message: "ServiceController, add service - invalid originalPrice value",
-        });
-      }
-
-      info.originalPrice = { countryCode: op.countryCode, currency: op.currency, value: op.value };
-    }
-
-    const service = await Product.create(info);
-
-    await Business.findByIdAndUpdate(businessId, { lastActive: Date.now() });
-
-    Base.successResponse(response, Const.responsecodeSucceed, { service: service.toObject() });
-  } catch (error) {
-    return Base.newErrorResponse({
-      response,
-      code: Const.httpCodeServerError,
-      message: "ServiceController, add service",
-      error,
-    });
-  }
-});
+  },
+);
 
 /**
  * @api {patch} /api/v2/businesses/services/:serviceId  Update service flom_v1
@@ -640,147 +653,161 @@ router.post("/services", auth({ allowUser: true }), async function (request, res
  * @apiError (Errors) 4000007 Token not valid
  */
 
-router.patch("/services/:serviceId", auth({ allowUser: true }), async function (request, response) {
-  try {
-    const { user } = request;
-    const { serviceId } = request.params;
-    const { name, description, originalPrice: op = null, businessId, place } = request.body;
+router.patch(
+  "/services/:serviceId",
+  auth({ allowUser: true }),
+  autoApproveProduct,
+  async function (request, response) {
+    try {
+      const { autoApprove = false } = request;
+      const { user } = request;
+      const { serviceId } = request.params;
+      const { name, description, originalPrice: op = null, businessId, place } = request.body;
 
-    if (!serviceId || !Utils.isValidObjectId(serviceId)) {
+      if (!serviceId || !Utils.isValidObjectId(serviceId)) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeInvalidServiceId,
+          message: "ServiceController, update service - invalid serviceId",
+        });
+      }
+
+      const service = await Product.findById(serviceId).lean();
+
+      if (!service) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeServiceNotFound,
+          message: "ServiceController, update service - service not found",
+        });
+      }
+
+      const allowed = await Logics.checkBusinessPermissions({
+        userId: user._id.toString(),
+        businessId: service.businessId.toString(),
+        action: "prices:edit",
+      });
+
+      if (!allowed) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeUserNotAllowed,
+          message: "ServiceController, update service - user is not allowed to update the service",
+        });
+      }
+
+      const info = {
+        "moderation.status": autoApprove
+          ? Const.moderationStatusApproved
+          : Const.moderationStatusPending,
+      };
+
+      if (businessId) {
+        if (!Utils.isValidObjectId(businessId)) {
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeInvalidBusinessId,
+            message: "ServiceController, update service - invalid businessId",
+          });
+        }
+
+        const business = await Business.findById(businessId).lean();
+
+        if (!business) {
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeBusinessNotFound,
+            message: "ServiceController, update service - business not found",
+          });
+        }
+
+        info.businessId = businessId;
+      }
+
+      if (name) {
+        if (typeof name !== "string" || name.length < 3 || name.length > 100) {
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeInvalidName,
+            message: "ServiceController, update service - invalid name",
+          });
+        }
+
+        info.name = name;
+      }
+
+      if (description) {
+        if (typeof description !== "string") {
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeInvalidDescription,
+            message: "ServiceController, update service - invalid description",
+          });
+        }
+
+        info.description = description;
+      }
+
+      if (place) {
+        if (!["seller", "customer", "both"].includes(place)) {
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeInvalidPlace,
+            message: "ServiceController, update service - invalid place",
+          });
+        }
+
+        info.place = place;
+      }
+
+      if (op) {
+        if (!op.countryCode || !countries[op.countryCode]) {
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeInvalidCountryCode,
+            message: "ServiceController, update service - invalid originalPrice countryCode",
+          });
+        }
+        if (!op.currency || !countries[op.countryCode].currency.includes(op.currency)) {
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeInvalidCurrency,
+            message: "ServiceController, update service - invalid originalPrice currency",
+          });
+        }
+        if (!op.value || typeof op.value !== "number" || op.value < 0) {
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeInvalidValueParameter,
+            message: "ServiceController, update service - invalid originalPrice value",
+          });
+        }
+
+        info.originalPrice = {
+          countryCode: op.countryCode,
+          currency: op.currency,
+          value: op.value,
+        };
+      }
+
+      const updatedService = await Product.findByIdAndUpdate(serviceId, info, {
+        new: true,
+        lean: true,
+      });
+
+      await Business.findByIdAndUpdate(service.businessId, { lastActive: Date.now() });
+
+      Base.successResponse(response, Const.responsecodeSucceed, { service: updatedService });
+    } catch (error) {
       return Base.newErrorResponse({
         response,
-        code: Const.responsecodeInvalidServiceId,
-        message: "ServiceController, update service - invalid serviceId",
+        code: Const.httpCodeServerError,
+        message: "ServiceController, update service",
+        error,
       });
     }
-
-    const service = await Product.findById(serviceId).lean();
-
-    if (!service) {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeServiceNotFound,
-        message: "ServiceController, update service - service not found",
-      });
-    }
-
-    const allowed = await Logics.checkBusinessPermissions({
-      userId: user._id.toString(),
-      businessId: service.businessId.toString(),
-      action: "prices:edit",
-    });
-
-    if (!allowed) {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeUserNotAllowed,
-        message: "ServiceController, update service - user is not allowed to update the service",
-      });
-    }
-
-    const info = {};
-
-    if (businessId) {
-      if (!Utils.isValidObjectId(businessId)) {
-        return Base.newErrorResponse({
-          response,
-          code: Const.responsecodeInvalidBusinessId,
-          message: "ServiceController, update service - invalid businessId",
-        });
-      }
-
-      const business = await Business.findById(businessId).lean();
-
-      if (!business) {
-        return Base.newErrorResponse({
-          response,
-          code: Const.responsecodeBusinessNotFound,
-          message: "ServiceController, update service - business not found",
-        });
-      }
-
-      info.businessId = businessId;
-    }
-
-    if (name) {
-      if (typeof name !== "string" || name.length < 3 || name.length > 100) {
-        return Base.newErrorResponse({
-          response,
-          code: Const.responsecodeInvalidName,
-          message: "ServiceController, update service - invalid name",
-        });
-      }
-
-      info.name = name;
-    }
-
-    if (description) {
-      if (typeof description !== "string") {
-        return Base.newErrorResponse({
-          response,
-          code: Const.responsecodeInvalidDescription,
-          message: "ServiceController, update service - invalid description",
-        });
-      }
-
-      info.description = description;
-    }
-
-    if (place) {
-      if (!["seller", "customer", "both"].includes(place)) {
-        return Base.newErrorResponse({
-          response,
-          code: Const.responsecodeInvalidPlace,
-          message: "ServiceController, update service - invalid place",
-        });
-      }
-
-      info.place = place;
-    }
-
-    if (op) {
-      if (!op.countryCode || !countries[op.countryCode]) {
-        return Base.newErrorResponse({
-          response,
-          code: Const.responsecodeInvalidCountryCode,
-          message: "ServiceController, update service - invalid originalPrice countryCode",
-        });
-      }
-      if (!op.currency || !countries[op.countryCode].currency.includes(op.currency)) {
-        return Base.newErrorResponse({
-          response,
-          code: Const.responsecodeInvalidCurrency,
-          message: "ServiceController, update service - invalid originalPrice currency",
-        });
-      }
-      if (!op.value || typeof op.value !== "number" || op.value < 0) {
-        return Base.newErrorResponse({
-          response,
-          code: Const.responsecodeInvalidValueParameter,
-          message: "ServiceController, update service - invalid originalPrice value",
-        });
-      }
-
-      info.originalPrice = { countryCode: op.countryCode, currency: op.currency, value: op.value };
-    }
-
-    const updatedService = await Product.findByIdAndUpdate(serviceId, info, {
-      new: true,
-      lean: true,
-    });
-
-    await Business.findByIdAndUpdate(service.businessId, { lastActive: Date.now() });
-
-    Base.successResponse(response, Const.responsecodeSucceed, { service: updatedService });
-  } catch (error) {
-    return Base.newErrorResponse({
-      response,
-      code: Const.httpCodeServerError,
-      message: "ServiceController, update service",
-      error,
-    });
-  }
-});
+  },
+);
 
 /**
  * @api {delete} /api/v2/businesses/services/:serviceId  Delete service flom_v1
