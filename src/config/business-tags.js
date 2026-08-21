@@ -14,7 +14,7 @@ module.exports = [
         display: { "en-NG": "Knotless braids", default: "Knotless braids" },
       },
       {
-        id: "si_cornrows",
+        id: "si_cornrows_didi",
         display: { "en-NG": "Cornrows (didi)", default: "Cornrows (didi)" },
       },
       {
@@ -24,10 +24,6 @@ module.exports = [
       {
         id: "si_box_braids",
         display: { "en-NG": "Box braids", default: "Box braids" },
-      },
-      {
-        id: "si_threading",
-        display: { "en-NG": "Threading", default: "Threading" },
       },
       {
         id: "si_faux_locs",
@@ -42,8 +38,40 @@ module.exports = [
         display: { "en-NG": "Wig installation", default: "Wig installation" },
       },
       {
+        id: "si_weave_on",
+        display: { "en-NG": "Weave-on", default: "Weave-on" },
+      },
+      {
+        id: "si_locs_retwist",
+        display: { "en-NG": "Locs retwist", default: "Locs retwist" },
+      },
+      {
+        id: "si_hair_treatment",
+        display: { "en-NG": "Hair treatment", default: "Hair treatment" },
+      },
+      {
+        id: "si_retouching",
+        display: { "en-NG": "Retouching", default: "Retouching" },
+      },
+      {
+        id: "si_barbing_haircut",
+        display: { "en-NG": "Barbing / haircut", default: "Barbing / haircut" },
+      },
+      {
         id: "si_beard_trim",
         display: { "en-NG": "Beard trim", default: "Beard trim" },
+      },
+      {
+        id: "si_childrens_braids",
+        display: { "en-NG": "Children's braids", default: "Children's braids" },
+      },
+      {
+        id: "si_take_down_old_braids",
+        display: { "en-NG": "Take-down (old braids)", default: "Take-down (old braids)" },
+      },
+      {
+        id: "si_threading",
+        display: { "en-NG": "Threading", default: "Threading" },
       },
     ],
   },
@@ -58,23 +86,52 @@ module.exports = [
     markets: ["NG"],
     suggestedItems: [
       {
-        id: "si_acrylic_nails",
-        display: { "en-NG": "Acrylic nails", default: "Acrylic nails" },
+        id: "si_bridal_makeup",
+        display: { "en-NG": "Bridal makeup", default: "Bridal makeup" },
       },
-      { id: "si_manicure", display: { "en-NG": "Manicure", default: "Manicure" } },
-      { id: "si_pedicure", display: { "en-NG": "Pedicure", default: "Pedicure" } },
       {
-        id: "si_eyelash_extensions",
-        display: { "en-NG": "Eyelash extensions", default: "Eyelash extensions" },
+        id: "si_owambe_party_makeup",
+        display: { "en-NG": "Owambe / party makeup", default: "Owambe / party makeup" },
       },
-      { id: "si_nail_fix", display: { "en-NG": "Nail fix", default: "Nail fix" } },
       {
         id: "si_gele_tying",
         display: { "en-NG": "Gele tying", default: "Gele tying" },
       },
       {
-        id: "si_bridal_makeup",
-        display: { "en-NG": "Bridal makeup", default: "Bridal makeup" },
+        id: "si_makeup_class",
+        display: { "en-NG": "Makeup class", default: "Makeup class" },
+      },
+      {
+        id: "si_lash_extensions",
+        display: { "en-NG": "Lash extensions", default: "Lash extensions" },
+      },
+      {
+        id: "si_eyebrow_shaping",
+        display: { "en-NG": "Eyebrow shaping", default: "Eyebrow shaping" },
+      },
+      {
+        id: "si_manicure",
+        display: { "en-NG": "Manicure", default: "Manicure" },
+      },
+      {
+        id: "si_pedicure",
+        display: { "en-NG": "Pedicure", default: "Pedicure" },
+      },
+      {
+        id: "si_acrylic_nails",
+        display: { "en-NG": "Acrylic nails", default: "Acrylic nails" },
+      },
+      {
+        id: "si_gel_polish",
+        display: { "en-NG": "Gel polish", default: "Gel polish" },
+      },
+      {
+        id: "si_nail_fix",
+        display: { "en-NG": "Nail fix", default: "Nail fix" },
+      },
+      {
+        id: "si_home_service_makeup",
+        display: { "en-NG": "Home service makeup", default: "Home service makeup" },
       },
     ],
   },
@@ -98,8 +155,18 @@ module.exports = [
     regulated: null,
     markets: ["NG"],
     suggestedItems: [
-      { id: "si_agbada", display: { "en-NG": "Agbada", default: "Agbada" } },
-      { id: "si_kaftan", display: { "en-NG": "Kaftan", default: "Kaftan" } },
+      {
+        id: "si_agbada",
+        display: { "en-NG": "Agbada", default: "Agbada" },
+      },
+      {
+        id: "si_kaftan",
+        display: { "en-NG": "Kaftan", default: "Kaftan" },
+      },
+      {
+        id: "si_senator",
+        display: { "en-NG": "Senator", default: "Senator" },
+      },
       {
         id: "si_ankara_gown",
         display: { "en-NG": "Ankara gown", default: "Ankara gown" },
@@ -109,12 +176,32 @@ module.exports = [
         display: { "en-NG": "Aso-ebi outfit", default: "Aso-ebi outfit" },
       },
       {
+        id: "si_skirt_and_blouse",
+        display: { "en-NG": "Skirt & blouse", default: "Skirt & blouse" },
+      },
+      {
         id: "si_mens_suit",
         display: { "en-NG": "Men's suit", default: "Men's suit" },
       },
       {
+        id: "si_bridal_dress",
+        display: { "en-NG": "Bridal dress", default: "Bridal dress" },
+      },
+      {
         id: "si_alterations_adjustment",
         display: { "en-NG": "Alterations / adjustment", default: "Alterations / adjustment" },
+      },
+      {
+        id: "si_school_uniform",
+        display: { "en-NG": "School uniform", default: "School uniform" },
+      },
+      {
+        id: "si_corporate_wear",
+        display: { "en-NG": "Corporate wear", default: "Corporate wear" },
+      },
+      {
+        id: "si_beadwork_and_stoning",
+        display: { "en-NG": "Beadwork & stoning", default: "Beadwork & stoning" },
       },
       {
         id: "si_aso_oke_styling",
@@ -131,6 +218,40 @@ module.exports = [
     synonyms: ["ankara", "lace", "aso oke", "adire", "material", "textile"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_ankara_per_yard",
+        display: { "en-NG": "Ankara (per yard)", default: "Ankara (per yard)" },
+      },
+      {
+        id: "si_lace",
+        display: { "en-NG": "Lace", default: "Lace" },
+      },
+      {
+        id: "si_aso_oke",
+        display: { "en-NG": "Aso-oke", default: "Aso-oke" },
+      },
+      {
+        id: "si_adire",
+        display: { "en-NG": "Adire", default: "Adire" },
+      },
+      {
+        id: "si_george_wrapper",
+        display: { "en-NG": "George wrapper", default: "George wrapper" },
+      },
+      {
+        id: "si_senator_material",
+        display: { "en-NG": "Senator material", default: "Senator material" },
+      },
+      {
+        id: "si_guinea_brocade",
+        display: { "en-NG": "Guinea brocade", default: "Guinea brocade" },
+      },
+      {
+        id: "si_chiffon",
+        display: { "en-NG": "Chiffon", default: "Chiffon" },
+      },
+    ],
   },
   {
     id: "tag_clothing_shoes",
@@ -179,6 +300,72 @@ module.exports = [
     ],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_jollof_rice_party_tray",
+        display: { "en-NG": "Jollof rice (party tray)", default: "Jollof rice (party tray)" },
+      },
+      {
+        id: "si_fried_rice",
+        display: { "en-NG": "Fried rice", default: "Fried rice" },
+      },
+      {
+        id: "si_ofada_rice_ayamase",
+        display: { "en-NG": "Ofada rice & ayamase", default: "Ofada rice & ayamase" },
+      },
+      {
+        id: "si_egusi_soup",
+        display: { "en-NG": "Egusi soup", default: "Egusi soup" },
+      },
+      {
+        id: "si_efo_riro",
+        display: { "en-NG": "Efo riro", default: "Efo riro" },
+      },
+      {
+        id: "si_amala_ewedu",
+        display: { "en-NG": "Amala & ewedu", default: "Amala & ewedu" },
+      },
+      {
+        id: "si_pounded_yam",
+        display: { "en-NG": "Pounded yam", default: "Pounded yam" },
+      },
+      {
+        id: "si_suya",
+        display: { "en-NG": "Suya", default: "Suya" },
+      },
+      {
+        id: "si_asun",
+        display: { "en-NG": "Asun", default: "Asun" },
+      },
+      {
+        id: "si_moi_moi",
+        display: { "en-NG": "Moi moi", default: "Moi moi" },
+      },
+      {
+        id: "si_pepper_soup",
+        display: { "en-NG": "Pepper soup", default: "Pepper soup" },
+      },
+      {
+        id: "si_small_chops_platter",
+        display: { "en-NG": "Small chops platter", default: "Small chops platter" },
+      },
+      {
+        id: "si_cooler_of_rice",
+        display: { "en-NG": "Cooler of rice", default: "Cooler of rice" },
+      },
+      {
+        id: "si_per_plate_catering",
+        display: { "en-NG": "Per-plate catering", default: "Per-plate catering" },
+      },
+      {
+        id: "si_office_lunch",
+        display: { "en-NG": "Office lunch", default: "Office lunch" },
+      },
+      {
+        id: "si_yam_porridge",
+        display: { "en-NG": "Yam porridge", default: "Yam porridge" },
+      },
+    ],
   },
   {
     id: "tag_baking_confectionery",
@@ -189,6 +376,52 @@ module.exports = [
     synonyms: ["cake", "bread", "puff puff", "pastries", "chin chin", "baker"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_birthday_cake",
+        display: { "en-NG": "Birthday cake", default: "Birthday cake" },
+      },
+      {
+        id: "si_wedding_cake",
+        display: { "en-NG": "Wedding cake", default: "Wedding cake" },
+      },
+      {
+        id: "si_cupcakes",
+        display: { "en-NG": "Cupcakes", default: "Cupcakes" },
+      },
+      {
+        id: "si_chin_chin",
+        display: { "en-NG": "Chin chin", default: "Chin chin" },
+      },
+      {
+        id: "si_puff_puff",
+        display: { "en-NG": "Puff puff", default: "Puff puff" },
+      },
+      {
+        id: "si_meat_pie",
+        display: { "en-NG": "Meat pie", default: "Meat pie" },
+      },
+      {
+        id: "si_samosa",
+        display: { "en-NG": "Samosa", default: "Samosa" },
+      },
+      {
+        id: "si_spring_rolls",
+        display: { "en-NG": "Spring rolls", default: "Spring rolls" },
+      },
+      {
+        id: "si_doughnuts",
+        display: { "en-NG": "Doughnuts", default: "Doughnuts" },
+      },
+      {
+        id: "si_bread",
+        display: { "en-NG": "Bread", default: "Bread" },
+      },
+      {
+        id: "si_small_chops_tray",
+        display: { "en-NG": "Small chops tray", default: "Small chops tray" },
+      },
+    ],
   },
   {
     id: "tag_drinks_refreshments",
@@ -199,6 +432,36 @@ module.exports = [
     synonyms: ["mai shayi", "tea seller", "juice", "zobo", "parfait", "smoothies", "bar"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_zobo",
+        display: { "en-NG": "Zobo", default: "Zobo" },
+      },
+      {
+        id: "si_chapman",
+        display: { "en-NG": "Chapman", default: "Chapman" },
+      },
+      {
+        id: "si_palm_wine",
+        display: { "en-NG": "Palm wine", default: "Palm wine" },
+      },
+      {
+        id: "si_smoothies",
+        display: { "en-NG": "Smoothies", default: "Smoothies" },
+      },
+      {
+        id: "si_cocktail_service",
+        display: { "en-NG": "Cocktail service", default: "Cocktail service" },
+      },
+      {
+        id: "si_crate_of_soft_drinks",
+        display: { "en-NG": "Crate of soft drinks", default: "Crate of soft drinks" },
+      },
+      {
+        id: "si_bottled_water_pack",
+        display: { "en-NG": "Bottled water (pack)", default: "Bottled water (pack)" },
+      },
+    ],
   },
   {
     id: "tag_fresh_produce",
@@ -288,7 +551,10 @@ module.exports = [
         id: "si_phone_case",
         display: { "en-NG": "Phone case", default: "Phone case" },
       },
-      { id: "si_charger", display: { "en-NG": "Charger", default: "Charger" } },
+      {
+        id: "si_charger",
+        display: { "en-NG": "Charger", default: "Charger" },
+      },
       {
         id: "si_earphones",
         display: { "en-NG": "Earphones", default: "Earphones" },
@@ -332,6 +598,36 @@ module.exports = [
     synonyms: ["gen repair", "generator engineer", "inverter", "solar"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_generator_servicing",
+        display: { "en-NG": "Generator servicing", default: "Generator servicing" },
+      },
+      {
+        id: "si_carburettor_repair",
+        display: { "en-NG": "Carburettor repair", default: "Carburettor repair" },
+      },
+      {
+        id: "si_rewinding",
+        display: { "en-NG": "Rewinding", default: "Rewinding" },
+      },
+      {
+        id: "si_fuel_pump_repair",
+        display: { "en-NG": "Fuel pump repair", default: "Fuel pump repair" },
+      },
+      {
+        id: "si_generator_installation",
+        display: { "en-NG": "Generator installation", default: "Generator installation" },
+      },
+      {
+        id: "si_generator_sale",
+        display: { "en-NG": "Generator sale", default: "Generator sale" },
+      },
+      {
+        id: "si_emergency_repair",
+        display: { "en-NG": "Emergency repair", default: "Emergency repair" },
+      },
+    ],
   },
   {
     id: "tag_cooling_repair",
@@ -362,6 +658,14 @@ module.exports = [
       {
         id: "si_freezer_repair",
         display: { "en-NG": "Freezer repair", default: "Freezer repair" },
+      },
+      {
+        id: "si_compressor_replacement",
+        display: { "en-NG": "Compressor replacement", default: "Compressor replacement" },
+      },
+      {
+        id: "si_deep_freezer_servicing",
+        display: { "en-NG": "Deep freezer servicing", default: "Deep freezer servicing" },
       },
     ],
   },
@@ -404,7 +708,7 @@ module.exports = [
         display: { "en-NG": "Clutch repair", default: "Clutch repair" },
       },
       {
-        id: "si_roadside_callout",
+        id: "si_roadside_call_out",
         display: { "en-NG": "Roadside call-out", default: "Roadside call-out" },
       },
     ],
@@ -497,7 +801,7 @@ module.exports = [
         display: { "en-NG": "House wiring", default: "House wiring" },
       },
       {
-        id: "si_socket_switch_repair",
+        id: "si_socket_and_switch_repair",
         display: { "en-NG": "Socket & switch repair", default: "Socket & switch repair" },
       },
       {
@@ -527,7 +831,10 @@ module.exports = [
         id: "si_meter_connection",
         display: { "en-NG": "Meter connection", default: "Meter connection" },
       },
-      { id: "si_rewiring", display: { "en-NG": "Rewiring", default: "Rewiring" } },
+      {
+        id: "si_rewiring",
+        display: { "en-NG": "Rewiring", default: "Rewiring" },
+      },
     ],
   },
   {
@@ -561,6 +868,18 @@ module.exports = [
         display: { "en-NG": "Sink installation", default: "Sink installation" },
       },
       {
+        id: "si_water_heater_repair",
+        display: { "en-NG": "Water heater repair", default: "Water heater repair" },
+      },
+      {
+        id: "si_water_pump_installation",
+        display: { "en-NG": "Water pump installation", default: "Water pump installation" },
+      },
+      {
+        id: "si_full_house_plumbing",
+        display: { "en-NG": "Full house plumbing", default: "Full house plumbing" },
+      },
+      {
         id: "si_emergency_call_out",
         display: { "en-NG": "Emergency call-out", default: "Emergency call-out" },
       },
@@ -575,6 +894,40 @@ module.exports = [
     synonyms: ["painter", "screeding", "POP ceiling", "interior"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_interior_painting",
+        display: { "en-NG": "Interior painting", default: "Interior painting" },
+      },
+      {
+        id: "si_exterior_painting",
+        display: { "en-NG": "Exterior painting", default: "Exterior painting" },
+      },
+      {
+        id: "si_pop_ceiling",
+        display: { "en-NG": "POP ceiling", default: "POP ceiling" },
+      },
+      {
+        id: "si_screeding",
+        display: { "en-NG": "Screeding", default: "Screeding" },
+      },
+      {
+        id: "si_wall_design_stencil",
+        display: { "en-NG": "Wall design / stencil", default: "Wall design / stencil" },
+      },
+      {
+        id: "si_wallpaper",
+        display: { "en-NG": "Wallpaper", default: "Wallpaper" },
+      },
+      {
+        id: "si_pop_repair",
+        display: { "en-NG": "POP repair", default: "POP repair" },
+      },
+      {
+        id: "si_touch_up",
+        display: { "en-NG": "Touch-up", default: "Touch-up" },
+      },
+    ],
   },
   {
     id: "tag_building_construction",
@@ -605,6 +958,36 @@ module.exports = [
     synonyms: ["cleaner", "house cleaning", "fumigation", "pest control"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_deep_cleaning",
+        display: { "en-NG": "Deep cleaning", default: "Deep cleaning" },
+      },
+      {
+        id: "si_post_construction_cleaning",
+        display: { "en-NG": "Post-construction cleaning", default: "Post-construction cleaning" },
+      },
+      {
+        id: "si_move_in_cleaning",
+        display: { "en-NG": "Move-in cleaning", default: "Move-in cleaning" },
+      },
+      {
+        id: "si_office_cleaning",
+        display: { "en-NG": "Office cleaning", default: "Office cleaning" },
+      },
+      {
+        id: "si_fumigation_pest_control",
+        display: { "en-NG": "Fumigation / pest control", default: "Fumigation / pest control" },
+      },
+      {
+        id: "si_sofa_and_rug_washing",
+        display: { "en-NG": "Sofa & rug washing", default: "Sofa & rug washing" },
+      },
+      {
+        id: "si_water_tank_cleaning",
+        display: { "en-NG": "Water tank cleaning", default: "Water tank cleaning" },
+      },
+    ],
   },
   {
     id: "tag_tutoring_lessons",
@@ -691,6 +1074,40 @@ module.exports = [
     ],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_full_event_planning",
+        display: { "en-NG": "Full event planning", default: "Full event planning" },
+      },
+      {
+        id: "si_decoration",
+        display: { "en-NG": "Decoration", default: "Decoration" },
+      },
+      {
+        id: "si_chair_and_canopy_rental",
+        display: { "en-NG": "Chair & canopy rental", default: "Chair & canopy rental" },
+      },
+      {
+        id: "si_ushering_service",
+        display: { "en-NG": "Ushering service", default: "Ushering service" },
+      },
+      {
+        id: "si_mc_compere",
+        display: { "en-NG": "MC / compere", default: "MC / compere" },
+      },
+      {
+        id: "si_souvenir_sourcing",
+        display: { "en-NG": "Souvenir sourcing", default: "Souvenir sourcing" },
+      },
+      {
+        id: "si_traditional_wedding_setup",
+        display: { "en-NG": "Traditional wedding setup", default: "Traditional wedding setup" },
+      },
+      {
+        id: "si_serving_staff",
+        display: { "en-NG": "Serving staff", default: "Serving staff" },
+      },
+    ],
   },
   {
     id: "tag_music_dj",
