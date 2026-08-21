@@ -6,7 +6,7 @@ const { Const, countries, businessTags } = require("#config");
 const { auth, autoApproveProduct } = require("#middleware");
 const Utils = require("#utils");
 const Logics = require("#logics");
-const { Business, User, Outlet, Terminal, Product } = require("#models");
+const { Business, Product, ServiceCandidate } = require("#models");
 
 /**
  * @api {get} /api/v2/businesses/:businessId/services  Get service list flom_v1
@@ -358,6 +358,8 @@ router.get("/services/:serviceId", auth({ allowUser: true }), async function (re
  * @apiParam {String}     place                   Place of work (seller, customer, both)
  * @apiParam {String}     [description]           Service description
  * @apiParam {Object}     [originalPrice]         Service original price object (countryCode, currency, value) eg. { "countryCode": "HR", "currency": "EUR", "value": 100 }
+ * @apiParam {String}     [businessTagId]         Business tag ID for the service
+ * @apiParam {String}     [suggestedServiceId]    Suggested service ID
  *
  * @apiSuccessExample Success Response
  * {
@@ -442,7 +444,15 @@ router.post(
     try {
       const { autoApprove = false } = request;
       const { user } = request;
-      const { businessId, name, description, originalPrice: op = null, place } = request.body;
+      const {
+        businessId,
+        name,
+        description,
+        originalPrice: op = null,
+        place,
+        businessTagId,
+        suggestedServiceId,
+      } = request.body;
 
       if (!businessId || !Utils.isValidObjectId(businessId)) {
         return Base.newErrorResponse({
@@ -483,6 +493,8 @@ router.post(
         moderation: {
           status: autoApprove ? Const.moderationStatusApproved : Const.moderationStatusPending,
         },
+        businessTagId,
+        suggestedServiceId,
       };
 
       if (!name || typeof name !== "string" || name.length < 3 || name.length > 100) {
@@ -548,6 +560,16 @@ router.post(
       const service = await Product.create(info);
 
       await Business.findByIdAndUpdate(businessId, { lastActive: Date.now() });
+
+      if (!suggestedServiceId) {
+        const normalizedName = ServiceCandidate.normalizeName(name);
+
+        await ServiceCandidate.updateOne(
+          { normalizedName, businessTagId, market: user.countryCode },
+          { $addToSet: { names: name, businessIds: businessId } },
+          { upsert: true },
+        );
+      }
 
       Base.successResponse(response, Const.responsecodeSucceed, { service: service.toObject() });
     } catch (error) {

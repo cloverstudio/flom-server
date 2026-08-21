@@ -6,7 +6,15 @@ const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
 const { auth, autoApproveProduct } = require("#middleware");
-const { Category, Product, User, ApiAccessLog, ConversionRate, Business } = require("#models");
+const {
+  Category,
+  Product,
+  User,
+  ApiAccessLog,
+  ConversionRate,
+  Business,
+  ServiceCandidate,
+} = require("#models");
 const { handleTags } = require("#logics");
 const { recombee } = require("#services");
 const mediaHandler = require("#media");
@@ -82,6 +90,8 @@ const {
  * @apiParam {String} [language] language of the product (default is user's device language)
  * @apiParam {String} businessId businessId
  * @apiParam {String} [place] Place of work (seller, customer, both) MANDATORY FOR SERVICES (type 6)
+ * @apiParam {String} [businessTagId]         Business tag ID for the service
+ * @apiParam {String} [suggestedServiceId]    Suggested service ID
  *
  * @apiSuccessExample {json} Success-Response
  * {
@@ -293,6 +303,8 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
       brandId,
       businessId,
       place,
+      businessTagId,
+      suggestedServiceId,
     } = fields;
 
     let product = new Product();
@@ -519,6 +531,8 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
     if (vehicleYear) product.vehicleYear = vehicleYear;
     if (year) product.year = year;
     if (appropriateForKids) product.appropriateForKids = appropriateForKids;
+    if (businessTagId) product.businessTagId = businessTagId;
+    if (suggestedServiceId) product.suggestedServiceId = suggestedServiceId;
 
     const tagsInput = fields.tags;
     if (tagsInput !== undefined) {
@@ -555,6 +569,18 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
     }
 
     await product.save();
+
+    if (checkBusiness) {
+      if (type === Const.productTypeService && !suggestedServiceId) {
+        const normalizedName = ServiceCandidate.normalizeName(productName);
+
+        await ServiceCandidate.updateOne(
+          { normalizedName, businessTagId, market: user.countryCode },
+          { $addToSet: { names: productName, businessIds: businessId } },
+          { upsert: true },
+        );
+      }
+    }
 
     try {
       await recombee.upsertProduct({ product: product.toObject() });
