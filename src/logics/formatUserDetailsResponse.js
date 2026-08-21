@@ -278,7 +278,7 @@ function sanitizeUser({ user }) {
   delete user.nigerianBankAccounts;
   delete user.firstName;
   delete user.lastName;
-  delete user.address;
+  // delete user.address;
   delete user.name;
 
   for (let i = 0; i < user.UUID.length; i++) {
