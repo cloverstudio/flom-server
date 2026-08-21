@@ -201,6 +201,15 @@ router.patch(
     try {
       const { autoApprove = false } = request;
 
+      // TODO: remove guards?
+      let checkBusiness = false;
+      if (
+        (request.iosCode && request.iosCode >= 678) ||
+        (request.androidCode && request.androidCode >= 140090)
+      ) {
+        checkBusiness = true;
+      }
+
       const { fields = {}, files = {} } = await Utils.formParse(request);
       console.log("EditProductControllerV2 fields", fields, "files", files);
 
@@ -440,39 +449,41 @@ router.patch(
 
       const { tags } = fields;
 
-      if (businessId) {
-        if (!Utils.isValidObjectId(businessId)) {
-          return Base.newErrorResponse({
-            response,
-            code: Const.responsecodeInvalidBusinessId,
-            message: "EditProductControllerV2, invalid businessId",
-          });
-        }
-
-        const business = await Business.findById(businessId).lean();
-
-        if (!business) {
-          return Base.newErrorResponse({
-            response,
-            code: Const.responsecodeBusinessNotFound,
-            message: "EditProductControllerV2, business not found",
-          });
-        }
-
-        product.businessId = businessId;
-      }
-
-      if (product.type === Const.productTypeService) {
-        if (place) {
-          if (!["seller", "customer", "both"].includes(place)) {
+      if (checkBusiness) {
+        if (businessId) {
+          if (!Utils.isValidObjectId(businessId)) {
             return Base.newErrorResponse({
               response,
-              code: Const.responsecodeInvalidPlace,
-              message: "EditProductControllerV2, edit service - invalid place",
+              code: Const.responsecodeInvalidBusinessId,
+              message: "EditProductControllerV2, invalid businessId",
             });
           }
 
-          product.place = place;
+          const business = await Business.findById(businessId).lean();
+
+          if (!business) {
+            return Base.newErrorResponse({
+              response,
+              code: Const.responsecodeBusinessNotFound,
+              message: "EditProductControllerV2, business not found",
+            });
+          }
+
+          product.businessId = businessId;
+        }
+
+        if (product.type === Const.productTypeService) {
+          if (place) {
+            if (!["seller", "customer", "both"].includes(place)) {
+              return Base.newErrorResponse({
+                response,
+                code: Const.responsecodeInvalidPlace,
+                message: "EditProductControllerV2, edit service - invalid place",
+              });
+            }
+
+            product.place = place;
+          }
         }
       }
 

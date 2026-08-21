@@ -200,6 +200,15 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
   try {
     const { autoApprove = false } = request;
 
+    // TODO: remove guards?
+    let checkBusiness = false;
+    if (
+      (request.iosCode && request.iosCode >= 678) ||
+      (request.androidCode && request.androidCode >= 140090)
+    ) {
+      checkBusiness = true;
+    }
+
     let { fields, files } = await Utils.formParse(request);
 
     if (fields.productPrice || fields.maxPrice || fields.minPrice) {
@@ -289,36 +298,38 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
     let product = new Product();
     let parentCategory, category;
 
-    if (!businessId || !Utils.isValidObjectId(businessId)) {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeInvalidBusinessId,
-        message: "AddProductControllerV2, invalid businessId",
-      });
-    }
-
-    const business = await Business.findById(businessId).lean();
-
-    if (!business) {
-      return Base.newErrorResponse({
-        response,
-        code: Const.responsecodeBusinessNotFound,
-        message: "AddProductControllerV2, business not found",
-      });
-    }
-
-    product.businessId = businessId;
-
-    if (type === Const.productTypeService) {
-      if (!place || !["seller", "customer", "both"].includes(place)) {
+    if (checkBusiness) {
+      if (!businessId || !Utils.isValidObjectId(businessId)) {
         return Base.newErrorResponse({
           response,
-          code: Const.responsecodeInvalidPlace,
-          message: "AddProductControllerV2, add service - invalid place",
+          code: Const.responsecodeInvalidBusinessId,
+          message: "AddProductControllerV2, invalid businessId",
         });
       }
 
-      product.place = place;
+      const business = await Business.findById(businessId).lean();
+
+      if (!business) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeBusinessNotFound,
+          message: "AddProductControllerV2, business not found",
+        });
+      }
+
+      product.businessId = businessId;
+
+      if (type === Const.productTypeService) {
+        if (!place || !["seller", "customer", "both"].includes(place)) {
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeInvalidPlace,
+            message: "AddProductControllerV2, add service - invalid place",
+          });
+        }
+
+        product.place = place;
+      }
     }
 
     if (productCategoryId) {
