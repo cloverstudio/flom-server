@@ -6,7 +6,15 @@ const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
 const { auth, autoApproveProduct } = require("#middleware");
-const { Category, Product, User, ApiAccessLog, ConversionRate, Business } = require("#models");
+const {
+  Category,
+  Product,
+  User,
+  ApiAccessLog,
+  ConversionRate,
+  Business,
+  ServiceCandidate,
+} = require("#models");
 const { handleTags } = require("#logics");
 const { recombee } = require("#services");
 const mediaHandler = require("#media");
@@ -23,7 +31,7 @@ const {
 } = require("../helpers");
 
 /**
- * @api {post} /api/v2/product/add/new Add Product v2 flom_v1
+ * @api {post} /api/v2/product/add/new Add product or service v2 flom_v1
  * @apiVersion 2.0.23
  * @apiName Add Product v2 flom_v1
  * @apiGroup WebAPI Products
@@ -54,8 +62,7 @@ const {
  * @apiParam {String} currencyCode currencyCode (DEPRECATED)
  * @apiParam {String} currencySymbol currencySymbol (DEPRECATED)
  * @apiParam {String} currencyCountryCode currencyCountryCode (DEPRECATED)
- * @apiParam {String} [type] type of the product: 1 - video, 2 - quick video, 3 - podcast, 4 - text story, 5 - product. Defaults to product.
- * Is converted to Number for model.
+ * @apiParam {String} [type] type of the product: 5 - product, 6 - service. Defaults to product.
  * @apiParam {String} [colorId] colorId
  * @apiParam {String} [genderId] genderId
  * @apiParam {String} [sizeId] sizeId
@@ -81,6 +88,10 @@ const {
  * @apiParam {Number} [engagementBudgetCredits] engagement budget in credits
  * @apiParam {Number} [creditsPerLinkedExpo] number of credits to award for interaction in expo
  * @apiParam {String} [language] language of the product (default is user's device language)
+ * @apiParam {String} businessId businessId
+ * @apiParam {String} [place] Place of work (seller, customer, both) MANDATORY FOR SERVICES (type 6)
+ * @apiParam {String} [businessTagId]         Business tag ID for the service
+ * @apiParam {String} [suggestedServiceId]    Suggested service ID
  *
  * @apiSuccessExample {json} Success-Response
  * {
@@ -180,6 +191,7 @@ const {
  * @apiError (Errors) 400128 Not a valid categoryId
  * @apiError (Errors) 400129 Category not found
  * @apiError (Errors) 400131 Invalid category for this product type
+ * @apiError (Errors) 400162 Link not valid
  * @apiError (Errors) 443228 Invalid visibility parameter
  * @apiError (Errors) 443490 No tribe ids parameter
  * @apiError (Errors) 443473 One or more tribe ids is invalid
@@ -187,14 +199,25 @@ const {
  * @apiError (Errors) 443487 One or more tribes (from tribeIds) is not found
  * @apiError (Errors) 443240 One or more community ids is invalid
  * @apiError (Errors) 443241 One or more communities (from communityIds) is not found
+ * @apiError (Errors) 443970 Invalid business id
+ * @apiError (Errors) 443971 Business not found
+ * @apiError (Errors) 444007 Invalid place
  * @apiError (Errors) 4000007 Token not valid
  * @apiError (Errors) 4000060 Users products blocked and user is blocked from creating new products
- * @apiError (Errors) 400162 Link not valid
  */
 
 router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (request, response) {
   try {
     const { autoApprove = false } = request;
+
+    // TODO: remove guards?
+    let checkBusiness = false;
+    if (
+      (request.iosVersion && request.iosVersion >= 678) ||
+      (request.androidVersion && request.androidVersion >= 140090)
+    ) {
+      checkBusiness = true;
+    }
 
     let { fields, files } = await Utils.formParse(request);
 
@@ -226,13 +249,14 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
       ? fields.language || request.user.deviceLanguage
       : "en";
 
-    const type = +fields.type || 5;
+    const type =
+      !fields.type || isNaN(+fields.type) || ![5, 6].includes(+fields.type) ? 5 : +fields.type;
 
     let priceCountryCode = fields.priceCountryCode;
     let priceCurrency = fields.priceCurrency;
-    let priceValue = type === Const.productTypeProduct ? +fields.priceValue || -1 : -1;
-    let priceMinValue = type === Const.productTypeProduct ? +fields.priceMinValue || -1 : -1;
-    let priceMaxValue = type === Const.productTypeProduct ? +fields.priceMaxValue || -1 : -1;
+    let priceValue = +fields.priceValue || -1;
+    let priceMinValue = +fields.priceMinValue || -1;
+    let priceMaxValue = +fields.priceMaxValue || -1;
 
     const isNegotiable = fields.isNegotiable == 1 || fields.isNegotiable == "true" ? true : false;
     const itemCount = fields.itemCount || -1;
@@ -248,18 +272,6 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
     }
     if (fields.appropriateForKids) {
       appropriateForKids = !!+fields.appropriateForKids;
-    }
-
-    if (type !== Const.productTypeProduct) {
-      const conversionRates = await ConversionRate.getRates();
-
-      priceCountryCode =
-        user.countryCode ?? Utils.getCountryCodeFromPhoneNumber({ phoneNumber: user.phoneNumber });
-
-      priceCurrency = Utils.getCurrencyFromCountryCode({
-        countryCode: priceCountryCode,
-        rates: conversionRates.rates,
-      });
     }
 
     const originalPrice = {
@@ -289,17 +301,55 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
       vehicleYear,
       year,
       brandId,
+      businessId,
+      place,
+      businessTagId,
+      suggestedServiceId,
     } = fields;
 
     let product = new Product();
     let parentCategory, category;
+
+    if (checkBusiness) {
+      if (!businessId || !Utils.isValidObjectId(businessId)) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeInvalidBusinessId,
+          message: "AddProductControllerV2, invalid businessId",
+        });
+      }
+
+      const business = await Business.findById(businessId).lean();
+
+      if (!business) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeBusinessNotFound,
+          message: "AddProductControllerV2, business not found",
+        });
+      }
+
+      product.businessId = businessId;
+
+      if (type === Const.productTypeService) {
+        if (!place || !["seller", "customer", "both"].includes(place)) {
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeInvalidPlace,
+            message: "AddProductControllerV2, add service - invalid place",
+          });
+        }
+
+        product.place = place;
+      }
+    }
 
     if (productCategoryId) {
       if (!Utils.isValidObjectId(productCategoryId)) {
         return Base.newErrorResponse({
           response,
           code: Const.responsecodeProductInvalidCategoryId,
-          message: `AddProductControllerV2, categoryId is not a valid id`,
+          message: `AddProductControllerV2, productCategoryId is not a valid id`,
         });
       }
 
@@ -393,7 +443,7 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
 
     if (priceValue === -1 && priceMinValue === -1 && priceMaxValue === -1 && !isDraft)
       return Base.successResponse(response, Const.responsecodeProductNoProductPrice);
-    if (Const.productTypes.indexOf(+type) === -1)
+    if (![5, 6].includes(type))
       return Base.successResponse(response, Const.responsecodeProductInvalidType);
 
     if (Const.productVisibilities.indexOf(visibility) === -1) {
@@ -481,12 +531,8 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
     if (vehicleYear) product.vehicleYear = vehicleYear;
     if (year) product.year = year;
     if (appropriateForKids) product.appropriateForKids = appropriateForKids;
-    if (product.ownerId) {
-      const business = await Business.findOne({ "owner._id": product.ownerId.toString() }).lean();
-      if (business) {
-        product.businessId = business._id.toString();
-      }
-    }
+    if (businessTagId) product.businessTagId = businessTagId;
+    if (suggestedServiceId) product.suggestedServiceId = suggestedServiceId;
 
     const tagsInput = fields.tags;
     if (tagsInput !== undefined) {
@@ -523,6 +569,18 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
     }
 
     await product.save();
+
+    if (checkBusiness) {
+      if (type === Const.productTypeService && !suggestedServiceId) {
+        const normalizedName = ServiceCandidate.normalizeName(productName);
+
+        await ServiceCandidate.updateOne(
+          { normalizedName, businessTagId, market: user.countryCode },
+          { $addToSet: { names: productName, businessIds: businessId } },
+          { upsert: true },
+        );
+      }
+    }
 
     try {
       await recombee.upsertProduct({ product: product.toObject() });

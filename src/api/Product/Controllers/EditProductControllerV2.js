@@ -6,7 +6,7 @@ const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
 const { auth, autoApproveProduct } = require("#middleware");
-const { Category, Product, User, ConversionRate } = require("#models");
+const { Category, Product, User, ConversionRate, Business } = require("#models");
 const { handleTags } = require("#logics");
 const { recombee } = require("#services");
 const mediaHandler = require("#media");
@@ -21,7 +21,7 @@ const {
 } = require("../helpers");
 
 /**
- * @api {patch} /api/v2/product/edit/new Edit Product v2 flom_v1
+ * @api {patch} /api/v2/product/edit/new Edit product or service v2 flom_v1
  * @apiVersion 2.0.23
  * @apiName Edit Product v2 flom_v1
  * @apiGroup WebAPI
@@ -53,6 +53,8 @@ const {
  * @apiParam {Number} [engagementBudgetCredits] engagement budget in credits
  * @apiParam {Number} [creditsPerLinkedExpo] number of credits to award for interaction in expo
  * @apiParam {String} [language] language of the product (default is user's device language)
+ * @apiParam {String} [businessId] businessId
+ * @apiParam {String} [place] Place of work (seller, customer, both)
  *
  * @apiSuccessExample Success-Response:
  *  {
@@ -181,6 +183,10 @@ const {
  * @apiError (Errors) 443487 One or more tribes (from tribeIds) is not found
  * @apiError (Errors) 443914 Can't change file order, files are still in processing
  * @apiError (Errors) 443915 Can't change file order, file processing failed
+ * @apiError (Errors) 443970 Invalid business id
+ * @apiError (Errors) 443971 Business not found
+ * @apiError (Errors) 444007 Invalid place
+ * @apiError (Errors) 4000007 Token not valid
  */
 
 router.patch(
@@ -194,6 +200,15 @@ router.patch(
   async function (request, response) {
     try {
       const { autoApprove = false } = request;
+
+      // TODO: remove guards?
+      let checkBusiness = false;
+      if (
+        (request.iosVersion && request.iosVersion >= 678) ||
+        (request.androidVersion && request.androidVersion >= 140090)
+      ) {
+        checkBusiness = true;
+      }
 
       const { fields = {}, files = {} } = await Utils.formParse(request);
       console.log("EditProductControllerV2 fields", fields, "files", files);
@@ -425,12 +440,52 @@ router.patch(
       const showYear = fields.showYear;
       const vehicleYear = fields.vehicleYear;
       const year = fields.year;
+      const businessId = fields.businessId;
+      const place = fields.place;
 
       let appropriateForKids = fields.appropriateForKids;
 
       const { visibility, tribeIds, communityIds } = fields;
 
       const { tags } = fields;
+
+      if (checkBusiness) {
+        if (businessId) {
+          if (!Utils.isValidObjectId(businessId)) {
+            return Base.newErrorResponse({
+              response,
+              code: Const.responsecodeInvalidBusinessId,
+              message: "EditProductControllerV2, invalid businessId",
+            });
+          }
+
+          const business = await Business.findById(businessId).lean();
+
+          if (!business) {
+            return Base.newErrorResponse({
+              response,
+              code: Const.responsecodeBusinessNotFound,
+              message: "EditProductControllerV2, business not found",
+            });
+          }
+
+          product.businessId = businessId;
+        }
+
+        if (product.type === Const.productTypeService) {
+          if (place) {
+            if (!["seller", "customer", "both"].includes(place)) {
+              return Base.newErrorResponse({
+                response,
+                code: Const.responsecodeInvalidPlace,
+                message: "EditProductControllerV2, edit service - invalid place",
+              });
+            }
+
+            product.place = place;
+          }
+        }
+      }
 
       let location =
         locationStr == undefined

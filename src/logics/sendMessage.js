@@ -1,7 +1,15 @@
 const { logger, encryptionManager, redis } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { User, FlomMessage, Room, Group, BlockedChatGPTCountry } = require("#models");
+const {
+  User,
+  FlomMessage,
+  Room,
+  Group,
+  BlockedChatGPTCountry,
+  Business,
+  BusinessMember,
+} = require("#models");
 const socketApi = require("../sockets/socket-api");
 
 const notifyNewMessage = require("./notifyNewMessage");
@@ -124,6 +132,18 @@ async function sendMessage(param) {
         }
         result.sentTo = findGroup.users.filter((uid) => uid != userID);
         break;
+      case Const.chatTypeBusiness:
+        const findBusiness = await Business.findById(chatId).lean();
+        if (!findBusiness) {
+          throw new Error("business model::no business found - chatId: " + chatId);
+        }
+        const members = await BusinessMember.find({ businessId: chatId }).lean();
+        result.sentTo = members
+          .filter((member) => member.userId != userID && member.status === "active")
+          .map((member) => member.userId);
+        break;
+      default:
+        throw new Error("Invalid chat type: " + chatType);
     }
 
     const objMessage = {

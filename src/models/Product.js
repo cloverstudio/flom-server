@@ -194,6 +194,9 @@ const schema = new mongoose.Schema(
     slug: String,
     oldSlugs: [String],
     businessId: String,
+    place: String, // seller, customer, both
+    businessTagId: String,
+    suggestedServiceId: String,
   },
   { timestamps: true },
 );
@@ -257,6 +260,10 @@ class ExtendedProduct extends Product {
 
   static checkProductCategoryGroup({ productType, categoryGroups }) {
     if (categoryGroups.includes(Const.categoryGroupAll)) {
+      return true;
+    }
+
+    if (productType === Const.productTypeService) {
       return true;
     }
 

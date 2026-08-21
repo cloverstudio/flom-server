@@ -95,22 +95,44 @@ router.get("/groups", auth({ allowUser: true }), async function (request, respon
  *     "data": {
  *         "tags": [
  *             {
- *                 "id": "tag_vulcanizing_tyres",
- *                 "slug": "vulcanizing-tyres",
- *                 "group": "Auto",
- *                 "groupId": "auto",
+ *                 "id": "tag_plumbing",
+ *                 "slug": "plumbing",
+ *                 "group": "Building",
+ *                 "groupId": "building",
  *                 "display": {
- *                     "en-NG": "Tyres & Vulcanizing",
- *                     "default": "Tyres & Vulcanizing"
+ *                     "en-NG": "Plumbing",
+ *                     "default": "Plumbing"
  *                 },
  *                 "synonyms": [
- *                     "vulcanizer",
- *                     "tyre",
- *                     "wheel balancing"
+ *                     "plumber",
+ *                     "pipe",
+ *                     "water system"
  *                 ],
  *                 "regulated": null,
  *                 "markets": [
  *                     "NG"
+ *                 ],
+ *                 "suggestedItems": [
+ *                     {
+ *                         "id": "si_leaking_tap_repair",
+ *                         "display": {
+ *                             "en-NG": "Leaking tap repair",
+ *                             "default": "Leaking tap repair"
+ *                         },
+ *                         "markets": [
+ *                             "NG"
+ *                         ]
+ *                     },
+ *                     {
+ *                         "id": "si_burst_pipe_repair",
+ *                         "display": {
+ *                             "en-NG": "Burst pipe repair",
+ *                             "default": "Burst pipe repair"
+ *                         },
+ *                         "markets": [
+ *                             "NG"
+ *                         ]
+ *                     }
  *                 ]
  *             },
  *             {
