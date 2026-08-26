@@ -144,6 +144,40 @@ module.exports = [
     synonyms: ["organic cream", "body care", "perfume", "oils", "soap making"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_facial_treatment",
+        display: { "en-NG": "Facial treatment", default: "Facial treatment" },
+      },
+      {
+        id: "si_body_scrub",
+        display: { "en-NG": "Body scrub", default: "Body scrub" },
+      },
+      {
+        id: "si_waxing",
+        display: { "en-NG": "Waxing", default: "Waxing" },
+      },
+      {
+        id: "si_skincare_consultation",
+        display: { "en-NG": "Skincare consultation", default: "Skincare consultation" },
+      },
+      {
+        id: "si_body_butter",
+        display: { "en-NG": "Body butter", default: "Body butter" },
+      },
+      {
+        id: "si_black_soap",
+        display: { "en-NG": "Black soap", default: "Black soap" },
+      },
+      {
+        id: "si_body_oils",
+        display: { "en-NG": "Body oils", default: "Body oils" },
+      },
+      {
+        id: "si_skincare_set",
+        display: { "en-NG": "Skincare set", default: "Skincare set" },
+      },
+    ],
   },
   {
     id: "tag_tailoring_fashion",
@@ -262,6 +296,36 @@ module.exports = [
     synonyms: ["boutique", "okrika", "thrift", "bend down select", "footwear", "designer"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_okrika_thrift_bale",
+        display: { "en-NG": "Okrika / thrift bale", default: "Okrika / thrift bale" },
+      },
+      {
+        id: "si_ready_to_wear_gown",
+        display: { "en-NG": "Ready-to-wear gown", default: "Ready-to-wear gown" },
+      },
+      {
+        id: "si_mens_shirt",
+        display: { "en-NG": "Men's shirt", default: "Men's shirt" },
+      },
+      {
+        id: "si_sneakers",
+        display: { "en-NG": "Sneakers", default: "Sneakers" },
+      },
+      {
+        id: "si_slippers",
+        display: { "en-NG": "Slippers", default: "Slippers" },
+      },
+      {
+        id: "si_handbag",
+        display: { "en-NG": "Handbag", default: "Handbag" },
+      },
+      {
+        id: "si_childrens_clothes",
+        display: { "en-NG": "Children's clothes", default: "Children's clothes" },
+      },
+    ],
   },
   {
     id: "tag_jewelry_accessories",
@@ -272,6 +336,32 @@ module.exports = [
     synonyms: ["beads", "chains", "watches", "accessories"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_coral_beads",
+        display: { "en-NG": "Coral beads", default: "Coral beads" },
+      },
+      {
+        id: "si_bridal_bead_set",
+        display: { "en-NG": "Bridal bead set", default: "Bridal bead set" },
+      },
+      {
+        id: "si_waist_beads",
+        display: { "en-NG": "Waist beads", default: "Waist beads" },
+      },
+      {
+        id: "si_earrings",
+        display: { "en-NG": "Earrings", default: "Earrings" },
+      },
+      {
+        id: "si_wristwatch",
+        display: { "en-NG": "Wristwatch", default: "Wristwatch" },
+      },
+      {
+        id: "si_hair_accessories",
+        display: { "en-NG": "Hair accessories", default: "Hair accessories" },
+      },
+    ],
   },
   {
     id: "tag_shoemaking_leather",
@@ -282,6 +372,40 @@ module.exports = [
     synonyms: ["cobbler", "shoe repair", "leather bags", "belts"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_custom_leather_sandals",
+        display: { "en-NG": "Custom leather sandals", default: "Custom leather sandals" },
+      },
+      {
+        id: "si_palm_slippers",
+        display: { "en-NG": "Palm slippers", default: "Palm slippers" },
+      },
+      {
+        id: "si_mens_shoes",
+        display: { "en-NG": "Men's shoes", default: "Men's shoes" },
+      },
+      {
+        id: "si_shoe_repair",
+        display: { "en-NG": "Shoe repair", default: "Shoe repair" },
+      },
+      {
+        id: "si_bag_repair",
+        display: { "en-NG": "Bag repair", default: "Bag repair" },
+      },
+      {
+        id: "si_belt",
+        display: { "en-NG": "Belt", default: "Belt" },
+      },
+      {
+        id: "si_leather_bag",
+        display: { "en-NG": "Leather bag", default: "Leather bag" },
+      },
+      {
+        id: "si_sole_replacement",
+        display: { "en-NG": "Sole replacement", default: "Sole replacement" },
+      },
+    ],
   },
   {
     id: "tag_cooked_food",
@@ -472,6 +596,36 @@ module.exports = [
     synonyms: ["vegetables", "fruits", "pepper", "tomatoes", "foodstuff", "market woman"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_tomatoes_and_pepper_basket",
+        display: { "en-NG": "Tomatoes & pepper (basket)", default: "Tomatoes & pepper (basket)" },
+      },
+      {
+        id: "si_yam_tubers",
+        display: { "en-NG": "Yam tubers", default: "Yam tubers" },
+      },
+      {
+        id: "si_plantain_bunch",
+        display: { "en-NG": "Plantain bunch", default: "Plantain bunch" },
+      },
+      {
+        id: "si_ugu_efo",
+        display: { "en-NG": "Ugu / efo", default: "Ugu / efo" },
+      },
+      {
+        id: "si_onions_bag",
+        display: { "en-NG": "Onions (bag)", default: "Onions (bag)" },
+      },
+      {
+        id: "si_fruit_basket",
+        display: { "en-NG": "Fruit basket", default: "Fruit basket" },
+      },
+      {
+        id: "si_pepper_derica",
+        display: { "en-NG": "Pepper (derica)", default: "Pepper (derica)" },
+      },
+    ],
   },
   {
     id: "tag_meat_fish",
@@ -482,6 +636,44 @@ module.exports = [
     synonyms: ["butcher", "abattoir", "frozen chicken", "fish seller", "cold room"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_frozen_chicken",
+        display: { "en-NG": "Frozen chicken", default: "Frozen chicken" },
+      },
+      {
+        id: "si_turkey",
+        display: { "en-NG": "Turkey", default: "Turkey" },
+      },
+      {
+        id: "si_catfish",
+        display: { "en-NG": "Catfish", default: "Catfish" },
+      },
+      {
+        id: "si_titus_fish",
+        display: { "en-NG": "Titus fish", default: "Titus fish" },
+      },
+      {
+        id: "si_goat_meat",
+        display: { "en-NG": "Goat meat", default: "Goat meat" },
+      },
+      {
+        id: "si_cow_meat",
+        display: { "en-NG": "Cow meat", default: "Cow meat" },
+      },
+      {
+        id: "si_ponmo",
+        display: { "en-NG": "Ponmo", default: "Ponmo" },
+      },
+      {
+        id: "si_snails",
+        display: { "en-NG": "Snails", default: "Snails" },
+      },
+      {
+        id: "si_chicken_lap_carton",
+        display: { "en-NG": "Chicken lap (carton)", default: "Chicken lap (carton)" },
+      },
+    ],
   },
   {
     id: "tag_provisions_groceries",
@@ -492,6 +684,40 @@ module.exports = [
     synonyms: ["provision store", "kiosk", "shop", "supermarket", "groceries"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_rice_50kg_bag",
+        display: { "en-NG": "Rice (50kg bag)", default: "Rice (50kg bag)" },
+      },
+      {
+        id: "si_beans",
+        display: { "en-NG": "Beans", default: "Beans" },
+      },
+      {
+        id: "si_garri",
+        display: { "en-NG": "Garri", default: "Garri" },
+      },
+      {
+        id: "si_palm_oil",
+        display: { "en-NG": "Palm oil", default: "Palm oil" },
+      },
+      {
+        id: "si_groundnut_oil",
+        display: { "en-NG": "Groundnut oil", default: "Groundnut oil" },
+      },
+      {
+        id: "si_semovita",
+        display: { "en-NG": "Semovita", default: "Semovita" },
+      },
+      {
+        id: "si_provision_bundle",
+        display: { "en-NG": "Provision bundle", default: "Provision bundle" },
+      },
+      {
+        id: "si_detergent",
+        display: { "en-NG": "Detergent", default: "Detergent" },
+      },
+    ],
   },
   {
     id: "tag_gas_refill",
@@ -502,6 +728,32 @@ module.exports = [
     synonyms: ["gas plant", "LPG", "gas refill", "cylinder"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_gas_refill_12_5kg",
+        display: { "en-NG": "Gas refill 12.5kg", default: "Gas refill 12.5kg" },
+      },
+      {
+        id: "si_gas_refill_5kg",
+        display: { "en-NG": "Gas refill 5kg", default: "Gas refill 5kg" },
+      },
+      {
+        id: "si_gas_refill_3kg",
+        display: { "en-NG": "Gas refill 3kg", default: "Gas refill 3kg" },
+      },
+      {
+        id: "si_cylinder_sale",
+        display: { "en-NG": "Cylinder sale", default: "Cylinder sale" },
+      },
+      {
+        id: "si_home_delivery_refill",
+        display: { "en-NG": "Home delivery refill", default: "Home delivery refill" },
+      },
+      {
+        id: "si_valve_hose_check",
+        display: { "en-NG": "Valve / hose check", default: "Valve / hose check" },
+      },
+    ],
   },
   {
     id: "tag_water_supply",
@@ -512,6 +764,28 @@ module.exports = [
     synonyms: ["pure water", "bottled water", "dispenser", "tanker", "borehole"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_sachet_water_bag",
+        display: { "en-NG": "Sachet water (bag)", default: "Sachet water (bag)" },
+      },
+      {
+        id: "si_bottled_water_pack",
+        display: { "en-NG": "Bottled water (pack)", default: "Bottled water (pack)" },
+      },
+      {
+        id: "si_water_tanker_supply",
+        display: { "en-NG": "Water tanker supply", default: "Water tanker supply" },
+      },
+      {
+        id: "si_dispenser_bottle_refill",
+        display: { "en-NG": "Dispenser bottle refill", default: "Dispenser bottle refill" },
+      },
+      {
+        id: "si_borehole_water",
+        display: { "en-NG": "Borehole water", default: "Borehole water" },
+      },
+    ],
   },
   {
     id: "tag_phone_repair_accessories",
@@ -578,6 +852,40 @@ module.exports = [
     synonyms: ["TV", "speakers", "gadgets", "electronics", "alaba"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_tv",
+        display: { "en-NG": "TV", default: "TV" },
+      },
+      {
+        id: "si_sound_system",
+        display: { "en-NG": "Sound system", default: "Sound system" },
+      },
+      {
+        id: "si_home_theatre",
+        display: { "en-NG": "Home theatre", default: "Home theatre" },
+      },
+      {
+        id: "si_blender",
+        display: { "en-NG": "Blender", default: "Blender" },
+      },
+      {
+        id: "si_rechargeable_fan",
+        display: { "en-NG": "Rechargeable fan", default: "Rechargeable fan" },
+      },
+      {
+        id: "si_power_bank",
+        display: { "en-NG": "Power bank", default: "Power bank" },
+      },
+      {
+        id: "si_inverter",
+        display: { "en-NG": "Inverter", default: "Inverter" },
+      },
+      {
+        id: "si_pressing_iron",
+        display: { "en-NG": "Pressing iron", default: "Pressing iron" },
+      },
+    ],
   },
   {
     id: "tag_computers_it",
@@ -588,6 +896,40 @@ module.exports = [
     synonyms: ["laptop repair", "software", "networking", "CCTV", "IT support"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_laptop_repair",
+        display: { "en-NG": "Laptop repair", default: "Laptop repair" },
+      },
+      {
+        id: "si_os_installation",
+        display: { "en-NG": "OS installation", default: "OS installation" },
+      },
+      {
+        id: "si_data_recovery",
+        display: { "en-NG": "Data recovery", default: "Data recovery" },
+      },
+      {
+        id: "si_printer_repair",
+        display: { "en-NG": "Printer repair", default: "Printer repair" },
+      },
+      {
+        id: "si_cctv_installation",
+        display: { "en-NG": "CCTV installation", default: "CCTV installation" },
+      },
+      {
+        id: "si_uk_used_laptop",
+        display: { "en-NG": "UK-used laptop", default: "UK-used laptop" },
+      },
+      {
+        id: "si_it_support",
+        display: { "en-NG": "IT support", default: "IT support" },
+      },
+      {
+        id: "si_network_setup",
+        display: { "en-NG": "Network setup", default: "Network setup" },
+      },
+    ],
   },
   {
     id: "tag_generator_repair",
@@ -722,6 +1064,36 @@ module.exports = [
     synonyms: ["ladipo", "spare parts", "motor parts"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_brake_pads",
+        display: { "en-NG": "Brake pads", default: "Brake pads" },
+      },
+      {
+        id: "si_filters",
+        display: { "en-NG": "Filters", default: "Filters" },
+      },
+      {
+        id: "si_battery",
+        display: { "en-NG": "Battery", default: "Battery" },
+      },
+      {
+        id: "si_shock_absorbers",
+        display: { "en-NG": "Shock absorbers", default: "Shock absorbers" },
+      },
+      {
+        id: "si_engine_oil",
+        display: { "en-NG": "Engine oil", default: "Engine oil" },
+      },
+      {
+        id: "si_spark_plugs",
+        display: { "en-NG": "Spark plugs", default: "Spark plugs" },
+      },
+      {
+        id: "si_tokunbo_parts",
+        display: { "en-NG": "Tokunbo parts", default: "Tokunbo parts" },
+      },
+    ],
   },
   {
     id: "tag_panel_beating",
@@ -732,6 +1104,32 @@ module.exports = [
     synonyms: ["panel beater", "car painting", "body work"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_dent_removal",
+        display: { "en-NG": "Dent removal", default: "Dent removal" },
+      },
+      {
+        id: "si_full_body_spray",
+        display: { "en-NG": "Full body spray", default: "Full body spray" },
+      },
+      {
+        id: "si_scratch_repair",
+        display: { "en-NG": "Scratch repair", default: "Scratch repair" },
+      },
+      {
+        id: "si_bumper_repair",
+        display: { "en-NG": "Bumper repair", default: "Bumper repair" },
+      },
+      {
+        id: "si_accident_repair",
+        display: { "en-NG": "Accident repair", default: "Accident repair" },
+      },
+      {
+        id: "si_rust_treatment",
+        display: { "en-NG": "Rust treatment", default: "Rust treatment" },
+      },
+    ],
   },
   {
     id: "tag_vulcanizing_tyres",
@@ -742,6 +1140,36 @@ module.exports = [
     synonyms: ["vulcanizer", "tyre", "wheel balancing"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_puncture_repair",
+        display: { "en-NG": "Puncture repair", default: "Puncture repair" },
+      },
+      {
+        id: "si_tyre_change",
+        display: { "en-NG": "Tyre change", default: "Tyre change" },
+      },
+      {
+        id: "si_wheel_balancing",
+        display: { "en-NG": "Wheel balancing", default: "Wheel balancing" },
+      },
+      {
+        id: "si_alignment",
+        display: { "en-NG": "Alignment", default: "Alignment" },
+      },
+      {
+        id: "si_tokunbo_tyres",
+        display: { "en-NG": "Tokunbo tyres", default: "Tokunbo tyres" },
+      },
+      {
+        id: "si_new_tyres",
+        display: { "en-NG": "New tyres", default: "New tyres" },
+      },
+      {
+        id: "si_air_top_up",
+        display: { "en-NG": "Air top-up", default: "Air top-up" },
+      },
+    ],
   },
   {
     id: "tag_transport_rides",
@@ -752,6 +1180,32 @@ module.exports = [
     synonyms: ["okada", "keke", "bus", "taxi", "driver", "car hire"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_airport_pickup",
+        display: { "en-NG": "Airport pickup", default: "Airport pickup" },
+      },
+      {
+        id: "si_intercity_trip",
+        display: { "en-NG": "Intercity trip", default: "Intercity trip" },
+      },
+      {
+        id: "si_car_hire_per_day",
+        display: { "en-NG": "Car hire (per day)", default: "Car hire (per day)" },
+      },
+      {
+        id: "si_hourly_hire_with_driver",
+        display: { "en-NG": "Hourly hire with driver", default: "Hourly hire with driver" },
+      },
+      {
+        id: "si_bus_for_event",
+        display: { "en-NG": "Bus for event", default: "Bus for event" },
+      },
+      {
+        id: "si_wedding_car",
+        display: { "en-NG": "Wedding car", default: "Wedding car" },
+      },
+    ],
   },
   {
     id: "tag_delivery",
@@ -765,6 +1219,28 @@ module.exports = [
       unlocks: ["courier_surfaces"],
     },
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_same_day_dispatch",
+        display: { "en-NG": "Same-day dispatch", default: "Same-day dispatch" },
+      },
+      {
+        id: "si_bike_dispatch",
+        display: { "en-NG": "Bike dispatch", default: "Bike dispatch" },
+      },
+      {
+        id: "si_interstate_delivery",
+        display: { "en-NG": "Interstate delivery", default: "Interstate delivery" },
+      },
+      {
+        id: "si_errand_running",
+        display: { "en-NG": "Errand running", default: "Errand running" },
+      },
+      {
+        id: "si_bulk_delivery",
+        display: { "en-NG": "Bulk delivery", default: "Bulk delivery" },
+      },
+    ],
   },
   {
     id: "tag_carpentry_furniture",
@@ -775,6 +1251,44 @@ module.exports = [
     synonyms: ["carpenter", "furniture maker", "upholstery", "cushion"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_wardrobe",
+        display: { "en-NG": "Wardrobe", default: "Wardrobe" },
+      },
+      {
+        id: "si_kitchen_cabinet",
+        display: { "en-NG": "Kitchen cabinet", default: "Kitchen cabinet" },
+      },
+      {
+        id: "si_bed_frame",
+        display: { "en-NG": "Bed frame", default: "Bed frame" },
+      },
+      {
+        id: "si_sofa_couch",
+        display: { "en-NG": "Sofa / couch", default: "Sofa / couch" },
+      },
+      {
+        id: "si_tv_stand",
+        display: { "en-NG": "TV stand", default: "TV stand" },
+      },
+      {
+        id: "si_office_desk",
+        display: { "en-NG": "Office desk", default: "Office desk" },
+      },
+      {
+        id: "si_door_fixing",
+        display: { "en-NG": "Door fixing", default: "Door fixing" },
+      },
+      {
+        id: "si_furniture_repair",
+        display: { "en-NG": "Furniture repair", default: "Furniture repair" },
+      },
+      {
+        id: "si_shelving",
+        display: { "en-NG": "Shelving", default: "Shelving" },
+      },
+    ],
   },
   {
     id: "tag_welding_metalwork",
@@ -785,6 +1299,40 @@ module.exports = [
     synonyms: ["welder", "iron gate", "burglary proof", "aluminium"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_gate_fabrication",
+        display: { "en-NG": "Gate fabrication", default: "Gate fabrication" },
+      },
+      {
+        id: "si_burglary_proof",
+        display: { "en-NG": "Burglary proof", default: "Burglary proof" },
+      },
+      {
+        id: "si_window_protector",
+        display: { "en-NG": "Window protector", default: "Window protector" },
+      },
+      {
+        id: "si_metal_door",
+        display: { "en-NG": "Metal door", default: "Metal door" },
+      },
+      {
+        id: "si_railing",
+        display: { "en-NG": "Railing", default: "Railing" },
+      },
+      {
+        id: "si_water_tank_stand",
+        display: { "en-NG": "Water tank stand", default: "Water tank stand" },
+      },
+      {
+        id: "si_welding_repair",
+        display: { "en-NG": "Welding repair", default: "Welding repair" },
+      },
+      {
+        id: "si_canopy_frame",
+        display: { "en-NG": "Canopy frame", default: "Canopy frame" },
+      },
+    ],
   },
   {
     id: "tag_electrician",
@@ -938,6 +1486,40 @@ module.exports = [
     synonyms: ["bricklayer", "mason", "tiler", "builder", "site work"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_block_laying",
+        display: { "en-NG": "Block laying", default: "Block laying" },
+      },
+      {
+        id: "si_tiling",
+        display: { "en-NG": "Tiling", default: "Tiling" },
+      },
+      {
+        id: "si_roofing",
+        display: { "en-NG": "Roofing", default: "Roofing" },
+      },
+      {
+        id: "si_foundation_work",
+        display: { "en-NG": "Foundation work", default: "Foundation work" },
+      },
+      {
+        id: "si_renovation",
+        display: { "en-NG": "Renovation", default: "Renovation" },
+      },
+      {
+        id: "si_borehole_drilling",
+        display: { "en-NG": "Borehole drilling", default: "Borehole drilling" },
+      },
+      {
+        id: "si_building_supervision",
+        display: { "en-NG": "Building supervision", default: "Building supervision" },
+      },
+      {
+        id: "si_fence_work",
+        display: { "en-NG": "Fence work", default: "Fence work" },
+      },
+    ],
   },
   {
     id: "tag_laundry_drycleaning",
@@ -948,6 +1530,36 @@ module.exports = [
     synonyms: ["washman", "laundry", "ironing", "dry cleaner"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_wash_and_iron_per_piece",
+        display: { "en-NG": "Wash and iron (per piece)", default: "Wash and iron (per piece)" },
+      },
+      {
+        id: "si_dry_cleaning",
+        display: { "en-NG": "Dry cleaning", default: "Dry cleaning" },
+      },
+      {
+        id: "si_ironing_only",
+        display: { "en-NG": "Ironing only", default: "Ironing only" },
+      },
+      {
+        id: "si_duvet_blanket_wash",
+        display: { "en-NG": "Duvet / blanket wash", default: "Duvet / blanket wash" },
+      },
+      {
+        id: "si_native_wear_cleaning",
+        display: { "en-NG": "Native wear cleaning", default: "Native wear cleaning" },
+      },
+      {
+        id: "si_pickup_and_delivery",
+        display: { "en-NG": "Pickup & delivery", default: "Pickup & delivery" },
+      },
+      {
+        id: "si_weekly_subscription",
+        display: { "en-NG": "Weekly subscription", default: "Weekly subscription" },
+      },
+    ],
   },
   {
     id: "tag_cleaning_fumigation",
@@ -998,6 +1610,40 @@ module.exports = [
     synonyms: ["lesson teacher", "home lesson", "tutor", "JAMB", "WAEC", "music lessons"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_home_lesson_per_hour",
+        display: { "en-NG": "Home lesson (per hour)", default: "Home lesson (per hour)" },
+      },
+      {
+        id: "si_waec_jamb_prep",
+        display: { "en-NG": "WAEC / JAMB prep", default: "WAEC / JAMB prep" },
+      },
+      {
+        id: "si_maths_lesson",
+        display: { "en-NG": "Maths lesson", default: "Maths lesson" },
+      },
+      {
+        id: "si_english_lesson",
+        display: { "en-NG": "English lesson", default: "English lesson" },
+      },
+      {
+        id: "si_computer_training",
+        display: { "en-NG": "Computer training", default: "Computer training" },
+      },
+      {
+        id: "si_music_lesson",
+        display: { "en-NG": "Music lesson", default: "Music lesson" },
+      },
+      {
+        id: "si_driving_lessons",
+        display: { "en-NG": "Driving lessons", default: "Driving lessons" },
+      },
+      {
+        id: "si_holiday_coaching",
+        display: { "en-NG": "Holiday coaching", default: "Holiday coaching" },
+      },
+    ],
   },
   {
     id: "tag_housing_agent",
@@ -1008,6 +1654,36 @@ module.exports = [
     synonyms: ["house agent", "real estate", "rent", "shortlet", "property"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_house_inspection",
+        display: { "en-NG": "House inspection", default: "House inspection" },
+      },
+      {
+        id: "si_self_contain_rent",
+        display: { "en-NG": "Self-contain (rent)", default: "Self-contain (rent)" },
+      },
+      {
+        id: "si_shortlet_per_night",
+        display: { "en-NG": "Shortlet (per night)", default: "Shortlet (per night)" },
+      },
+      {
+        id: "si_shop_space",
+        display: { "en-NG": "Shop space", default: "Shop space" },
+      },
+      {
+        id: "si_land_sale",
+        display: { "en-NG": "Land sale", default: "Land sale" },
+      },
+      {
+        id: "si_agency_service",
+        display: { "en-NG": "Agency service", default: "Agency service" },
+      },
+      {
+        id: "si_property_management",
+        display: { "en-NG": "Property management", default: "Property management" },
+      },
+    ],
   },
   {
     id: "tag_pos_agent_banking",
@@ -1026,6 +1702,36 @@ module.exports = [
     ],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_cash_withdrawal",
+        display: { "en-NG": "Cash withdrawal", default: "Cash withdrawal" },
+      },
+      {
+        id: "si_cash_deposit",
+        display: { "en-NG": "Cash deposit", default: "Cash deposit" },
+      },
+      {
+        id: "si_transfer",
+        display: { "en-NG": "Transfer", default: "Transfer" },
+      },
+      {
+        id: "si_airtime",
+        display: { "en-NG": "Airtime", default: "Airtime" },
+      },
+      {
+        id: "si_data_bundle",
+        display: { "en-NG": "Data bundle", default: "Data bundle" },
+      },
+      {
+        id: "si_bill_payment",
+        display: { "en-NG": "Bill payment", default: "Bill payment" },
+      },
+      {
+        id: "si_account_opening",
+        display: { "en-NG": "Account opening", default: "Account opening" },
+      },
+    ],
   },
   {
     id: "tag_printing_branding",
@@ -1036,6 +1742,40 @@ module.exports = [
     synonyms: ["business cards", "banner", "flex", "souvenirs", "press"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_complimentary_cards",
+        display: { "en-NG": "Complimentary cards", default: "Complimentary cards" },
+      },
+      {
+        id: "si_flyers",
+        display: { "en-NG": "Flyers", default: "Flyers" },
+      },
+      {
+        id: "si_banner",
+        display: { "en-NG": "Banner", default: "Banner" },
+      },
+      {
+        id: "si_t_shirt_printing",
+        display: { "en-NG": "T-shirt printing", default: "T-shirt printing" },
+      },
+      {
+        id: "si_mug_printing",
+        display: { "en-NG": "Mug printing", default: "Mug printing" },
+      },
+      {
+        id: "si_souvenir_branding",
+        display: { "en-NG": "Souvenir branding", default: "Souvenir branding" },
+      },
+      {
+        id: "si_stickers",
+        display: { "en-NG": "Stickers", default: "Stickers" },
+      },
+      {
+        id: "si_invitation_cards",
+        display: { "en-NG": "Invitation cards", default: "Invitation cards" },
+      },
+    ],
   },
   {
     id: "tag_graphics_digital",
@@ -1046,6 +1786,36 @@ module.exports = [
     synonyms: ["graphic design", "flyer", "social media", "website"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_logo_design",
+        display: { "en-NG": "Logo design", default: "Logo design" },
+      },
+      {
+        id: "si_flyer_design",
+        display: { "en-NG": "Flyer design", default: "Flyer design" },
+      },
+      {
+        id: "si_social_media_management",
+        display: { "en-NG": "Social media management", default: "Social media management" },
+      },
+      {
+        id: "si_website_design",
+        display: { "en-NG": "Website design", default: "Website design" },
+      },
+      {
+        id: "si_video_editing",
+        display: { "en-NG": "Video editing", default: "Video editing" },
+      },
+      {
+        id: "si_product_photo_editing",
+        display: { "en-NG": "Product photo editing", default: "Product photo editing" },
+      },
+      {
+        id: "si_content_creation",
+        display: { "en-NG": "Content creation", default: "Content creation" },
+      },
+    ],
   },
   {
     id: "tag_photography_video",
@@ -1056,6 +1826,40 @@ module.exports = [
     synonyms: ["photographer", "videographer", "photo studio", "passport"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_event_coverage",
+        display: { "en-NG": "Event coverage", default: "Event coverage" },
+      },
+      {
+        id: "si_pre_wedding_shoot",
+        display: { "en-NG": "Pre-wedding shoot", default: "Pre-wedding shoot" },
+      },
+      {
+        id: "si_birthday_shoot",
+        display: { "en-NG": "Birthday shoot", default: "Birthday shoot" },
+      },
+      {
+        id: "si_portrait_session",
+        display: { "en-NG": "Portrait session", default: "Portrait session" },
+      },
+      {
+        id: "si_video_coverage",
+        display: { "en-NG": "Video coverage", default: "Video coverage" },
+      },
+      {
+        id: "si_drone_coverage",
+        display: { "en-NG": "Drone coverage", default: "Drone coverage" },
+      },
+      {
+        id: "si_studio_session",
+        display: { "en-NG": "Studio session", default: "Studio session" },
+      },
+      {
+        id: "si_photo_printing_album",
+        display: { "en-NG": "Photo printing / album", default: "Photo printing / album" },
+      },
+    ],
   },
   {
     id: "tag_events_planning",
@@ -1118,6 +1922,32 @@ module.exports = [
     synonyms: ["DJ", "live band", "sound system", "hypeman"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_dj_for_event",
+        display: { "en-NG": "DJ for event", default: "DJ for event" },
+      },
+      {
+        id: "si_live_band",
+        display: { "en-NG": "Live band", default: "Live band" },
+      },
+      {
+        id: "si_sound_system_rental",
+        display: { "en-NG": "Sound system rental", default: "Sound system rental" },
+      },
+      {
+        id: "si_mc_dj_package",
+        display: { "en-NG": "MC + DJ package", default: "MC + DJ package" },
+      },
+      {
+        id: "si_saxophonist",
+        display: { "en-NG": "Saxophonist", default: "Saxophonist" },
+      },
+      {
+        id: "si_cultural_troupe",
+        display: { "en-NG": "Cultural troupe", default: "Cultural troupe" },
+      },
+    ],
   },
   {
     id: "tag_farming_agro",
@@ -1128,6 +1958,40 @@ module.exports = [
     synonyms: ["poultry", "catfish", "fish farm", "piggery", "farm produce", "agro"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_live_chicken",
+        display: { "en-NG": "Live chicken", default: "Live chicken" },
+      },
+      {
+        id: "si_eggs_crate",
+        display: { "en-NG": "Eggs (crate)", default: "Eggs (crate)" },
+      },
+      {
+        id: "si_day_old_chicks",
+        display: { "en-NG": "Day-old chicks", default: "Day-old chicks" },
+      },
+      {
+        id: "si_catfish",
+        display: { "en-NG": "Catfish", default: "Catfish" },
+      },
+      {
+        id: "si_poultry_feed",
+        display: { "en-NG": "Poultry feed", default: "Poultry feed" },
+      },
+      {
+        id: "si_palm_oil_bulk",
+        display: { "en-NG": "Palm oil (bulk)", default: "Palm oil (bulk)" },
+      },
+      {
+        id: "si_snails",
+        display: { "en-NG": "Snails", default: "Snails" },
+      },
+      {
+        id: "si_vegetables_bulk",
+        display: { "en-NG": "Vegetables (bulk)", default: "Vegetables (bulk)" },
+      },
+    ],
   },
   {
     id: "tag_recycling_scrap",
@@ -1138,6 +2002,28 @@ module.exports = [
     synonyms: ["condemn", "scrap", "aluminium buyer", "recycling"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_scrap_metal_buying",
+        display: { "en-NG": "Scrap metal (buying)", default: "Scrap metal (buying)" },
+      },
+      {
+        id: "si_pet_bottles_buying",
+        display: { "en-NG": "PET bottles (buying)", default: "PET bottles (buying)" },
+      },
+      {
+        id: "si_cartons_paper",
+        display: { "en-NG": "Cartons / paper", default: "Cartons / paper" },
+      },
+      {
+        id: "si_old_batteries",
+        display: { "en-NG": "Old batteries", default: "Old batteries" },
+      },
+      {
+        id: "si_e_waste_collection",
+        display: { "en-NG": "E-waste collection", default: "E-waste collection" },
+      },
+    ],
   },
   {
     id: "tag_arts_crafts",
@@ -1148,6 +2034,40 @@ module.exports = [
     synonyms: ["artist", "beadwork", "tie dye", "handmade", "crafts"],
     regulated: null,
     markets: ["NG"],
+    suggestedItems: [
+      {
+        id: "si_portrait_painting",
+        display: { "en-NG": "Portrait painting", default: "Portrait painting" },
+      },
+      {
+        id: "si_beaded_crafts",
+        display: { "en-NG": "Beaded crafts", default: "Beaded crafts" },
+      },
+      {
+        id: "si_ankara_crafts",
+        display: { "en-NG": "Ankara crafts", default: "Ankara crafts" },
+      },
+      {
+        id: "si_wall_art",
+        display: { "en-NG": "Wall art", default: "Wall art" },
+      },
+      {
+        id: "si_wood_carving",
+        display: { "en-NG": "Wood carving", default: "Wood carving" },
+      },
+      {
+        id: "si_crochet_items",
+        display: { "en-NG": "Crochet items", default: "Crochet items" },
+      },
+      {
+        id: "si_gift_hampers",
+        display: { "en-NG": "Gift hampers", default: "Gift hampers" },
+      },
+      {
+        id: "si_handmade_cards",
+        display: { "en-NG": "Handmade cards", default: "Handmade cards" },
+      },
+    ],
   },
   {
     id: "tag_other",
