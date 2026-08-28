@@ -495,6 +495,7 @@ router.post(
         },
         businessTagId,
         suggestedServiceId,
+        ownerId: business.owner._id,
       };
 
       if (!name || typeof name !== "string" || name.length < 3 || name.length > 100) {
