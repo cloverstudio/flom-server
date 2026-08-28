@@ -491,7 +491,8 @@ router.post(
         businessId: business._id.toString(),
         itemCount: 1,
         moderation: {
-          status: autoApprove ? Const.moderationStatusApproved : Const.moderationStatusPending,
+          // status: autoApprove ? Const.moderationStatusApproved : Const.moderationStatusPending,
+          status: Const.moderationStatusApproved,
         },
         businessTagId,
         suggestedServiceId,
