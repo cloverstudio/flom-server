@@ -720,11 +720,12 @@ router.patch(
         });
       }
 
-      const info = {
+      /* const info = {
         "moderation.status": autoApprove
           ? Const.moderationStatusApproved
           : Const.moderationStatusPending,
-      };
+      }; */
+      const info = {};
 
       if (businessId) {
         if (!Utils.isValidObjectId(businessId)) {
