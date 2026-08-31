@@ -89,9 +89,11 @@ const {
  * @apiParam {Number} [creditsPerLinkedExpo] number of credits to award for interaction in expo
  * @apiParam {String} [language] language of the product (default is user's device language)
  * @apiParam {String} businessId businessId
- * @apiParam {String} [place] Place of work (seller, customer, both) MANDATORY FOR SERVICES (type 6)
  * @apiParam {String} [businessTagId]         Business tag ID for the service
  * @apiParam {String} [suggestedServiceId]    Suggested service ID
+ * @apiParam {String} [place] Place of work (seller, customer, both) MANDATORY FOR SERVICES (type 6)
+ * @apiParam {String} [priceTimeUnit] Time unit of product's original price (default, hour, day) (if none is sent, it is set to default)
+ * @apiParam {Boolean} [priceOnRequest] Indicates if the product's price is available on request (default: false)
  *
  * @apiSuccessExample {json} Success-Response
  * {
@@ -202,6 +204,7 @@ const {
  * @apiError (Errors) 443970 Invalid business id
  * @apiError (Errors) 443971 Business not found
  * @apiError (Errors) 444007 Invalid place
+ * @apiError (Errors) 444008 Invalid price time unit
  * @apiError (Errors) 4000007 Token not valid
  * @apiError (Errors) 4000060 Users products blocked and user is blocked from creating new products
  */
@@ -341,6 +344,24 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
         }
 
         product.place = place;
+
+        const timeUnit = fields.priceTimeUnit || "default";
+        const onRequest = !!fields.priceOnRequest || false;
+
+        if (
+          !timeUnit ||
+          typeof timeUnit !== "string" ||
+          !["default", "hour", "day"].includes(timeUnit)
+        ) {
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeInvalidPriceTimeUnit,
+            message: "AddProductControllerV2, invalid price time unit",
+          });
+        }
+
+        originalPrice.timeUnit = timeUnit;
+        originalPrice.onRequest = onRequest;
       }
     }
 

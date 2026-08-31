@@ -23,6 +23,8 @@ const schema = new mongoose.Schema(
       singleValue: { type: Number, default: -1 },
       unlimitedValue: { type: Number, default: -1 },
       exclusiveValue: { type: Number, default: -1 },
+      timeUnit: String,
+      onRequest: { type: Boolean, default: false },
     },
     priceType: Number, // 1 - fixed, 2 - range, 3 - bid
     created: { type: Number, default: Date.now },

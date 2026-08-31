@@ -871,6 +871,7 @@ ResponseCodes.responsecodeLandingPageShellNotFound = 444005;
 ResponseCodes.responsecodeLandingPageShellExists = 444006;
 
 ResponseCodes.responsecodeInvalidPlace = 444007;
+ResponseCodes.responsecodeInvalidPriceTimeUnit = 444008;
 
 // ResponseCodes.responsecodeNoAccessToken = 443897;
 

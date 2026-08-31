@@ -357,7 +357,7 @@ router.get("/services/:serviceId", auth({ allowUser: true }), async function (re
  * @apiParam {String}     name                    Service name
  * @apiParam {String}     place                   Place of work (seller, customer, both)
  * @apiParam {String}     [description]           Service description
- * @apiParam {Object}     [originalPrice]         Service original price object (countryCode, currency, value) eg. { "countryCode": "HR", "currency": "EUR", "value": 100 }
+ * @apiParam {Object}     [originalPrice]         Service original price object (countryCode-string, currency-string, value-number, [timeUnit]-default|hour|day, [onRequest]-boolean(default:false)) eg. { "countryCode": "HR", "currency": "EUR", "value": 100, "timeUnit": "default", "onRequest": false }
  * @apiParam {String}     [businessTagId]         Business tag ID for the service
  * @apiParam {String}     [suggestedServiceId]    Suggested service ID
  *
@@ -433,6 +433,7 @@ router.get("/services/:serviceId", auth({ allowUser: true }), async function (re
  * @apiError (Errors) 443990 Invalid currency
  * @apiError (Errors) 443741 Invalid price value
  * @apiError (Errors) 444007 Invalid place
+ * @apiError (Errors) 444008 Invalid price time unit
  * @apiError (Errors) 4000007 Token not valid
  */
 
@@ -551,11 +552,20 @@ router.post(
             message: "ServiceController, add service - invalid originalPrice value",
           });
         }
+        if (op.timeUnit && !["default", "hour", "day"].includes(op.timeUnit)) {
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeInvalidPriceTimeUnit,
+            message: "ServiceController, add service - invalid originalPrice time unit",
+          });
+        }
 
         info.originalPrice = {
           countryCode: op.countryCode,
           currency: op.currency,
           value: op.value,
+          timeUnit: op.timeUnit || "default",
+          onRequest: !!op.onRequest || false,
         };
       }
 
@@ -594,11 +604,11 @@ router.post(
  *
  * @apiHeader {String} access-token Users unique access-token.
  *
- * @apiParam {String}     [businessId]              Business ID
- * @apiParam {String}     [name]                    Service name
- * @apiParam {String}     [description]             Service description
- * @apiParam {String}     [place]                   Place of work (seller, customer, both)
- * @apiParam {Object}     [originalPrice]           Service original price object (countryCode, currency, value) eg. { "countryCode": "HR", "currency": "EUR", "value": 100 }
+ * @apiParam {String}     [businessId]      Business ID
+ * @apiParam {String}     [name]            Service name
+ * @apiParam {String}     [description]     Service description
+ * @apiParam {String}     [place]           Place of work (seller, customer, both)
+ * @apiParam {Object}     [originalPrice]   Service original price object (countryCode-string, currency-string, value-number, [timeUnit]-default|hour|day, [onRequest]-boolean(default:false)) eg. { "countryCode": "HR", "currency": "EUR", "value": 100, "timeUnit": "default", "onRequest": false }
  *
  * @apiSuccessExample Success Response
  * {
@@ -674,6 +684,7 @@ router.post(
  * @apiError (Errors) 443990 Invalid currency
  * @apiError (Errors) 443741 Invalid price value
  * @apiError (Errors) 444007 Invalid place
+ * @apiError (Errors) 444008 Invalid price time unit
  * @apiError (Errors) 4000007 Token not valid
  */
 
@@ -807,11 +818,20 @@ router.patch(
             message: "ServiceController, update service - invalid originalPrice value",
           });
         }
+        if (op.timeUnit && !["default", "hour", "day"].includes(op.timeUnit)) {
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeInvalidPriceTimeUnit,
+            message: "ServiceController, update service - invalid originalPrice time unit",
+          });
+        }
 
         info.originalPrice = {
           countryCode: op.countryCode,
           currency: op.currency,
           value: op.value,
+          timeUnit: op.timeUnit || "default",
+          onRequest: !!op.onRequest || false,
         };
       }
 
