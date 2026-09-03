@@ -346,7 +346,10 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
         product.place = place;
 
         const timeUnit = fields.priceTimeUnit || "default";
-        const onRequest = !!fields.priceOnRequest || false;
+        const onRequest =
+          !fields.priceOnRequest || !["0", "1"].includes(fields.priceOnRequest)
+            ? false
+            : !!+fields.priceOnRequest;
 
         if (
           !timeUnit ||

@@ -446,7 +446,10 @@ router.patch(
       const businessId = fields.businessId;
       const place = fields.place;
       const priceTimeUnit = fields.priceTimeUnit;
-      const priceOnRequest = !!fields.priceOnRequest;
+      const priceOnRequest =
+        !fields.priceOnRequest || !["0", "1"].includes(fields.priceOnRequest)
+          ? undefined
+          : !!+fields.priceOnRequest;
 
       let appropriateForKids = fields.appropriateForKids;
 
