@@ -592,7 +592,7 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
     await product.save();
 
     if (checkBusiness) {
-      if (type === Const.productTypeService && !suggestedServiceId) {
+      if (type === Const.productTypeService && !suggestedServiceId && productName) {
         const normalizedName = ServiceCandidate.normalizeName(productName);
 
         await ServiceCandidate.updateOne(
