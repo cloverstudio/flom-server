@@ -1390,4 +1390,14 @@ Constants.floodDetectionWhiteList = [
   "+385976376676",
 ];
 
+Constants.messageButtonType = {
+  URL: "url",
+  TRANSFER: "transfer",
+  AUCTION: "auction",
+  ORDER: "order",
+  PRODUCT: "product",
+  SERVICE: "service",
+  LIVE_STREAM: "live_stream",
+};
+
 module.exports = Object.freeze(Constants);
