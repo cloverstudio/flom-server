@@ -6,6 +6,7 @@ const requiredParameters = {
   3: { name: true, description: false },
   4: { name: true, description: true },
   5: { name: true, description: true, categoryId: true, originalPrice: true },
+  6: { name: true, description: true, originalPrice: true },
 };
 
 const errors = {
