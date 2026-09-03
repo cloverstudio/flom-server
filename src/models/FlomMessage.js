@@ -41,11 +41,13 @@ const schema = new mongoose.Schema(
     isAdminMessage: { type: Boolean, default: false },
     wamId: String,
     wamStatus: String,
-    button: {
-      type: String,
-      text: String,
-      target: String,
-    },
+    buttons: [
+      {
+        type: String,
+        text: String,
+        target: String,
+      },
+    ],
   },
   { timestamps: true },
 );
