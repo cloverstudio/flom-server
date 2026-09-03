@@ -60,7 +60,8 @@ function checkDraftProduct(product) {
       (type === Const.productTypeVideoStory && hasVideo && !hasImage && !hasAudio) ||
       (type === Const.productTypePodcast && hasAudio && !hasVideo) ||
       (type === Const.productTypeTextStory && !hasAudio && !hasVideo) ||
-      (type === Const.productTypeProduct && !hasAudio)
+      (type === Const.productTypeProduct && !hasAudio) ||
+      (type === Const.productTypeService && !hasAudio)
     )
   ) {
     return errors["file"];
