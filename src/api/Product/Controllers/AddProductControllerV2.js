@@ -516,8 +516,8 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
       product.communityIds = communityIdsArray;
     }
 
-    product.name = productName;
-    product.slug = await Product.createSlug(productName);
+    product.name = !!productName ? productName : product.name;
+    product.slug = !!productName ? await Product.createSlug(productName) : product.slug;
     product.description = productDescription;
     product.ownerId = user._id;
     product.countryCode = user.countryCode;
