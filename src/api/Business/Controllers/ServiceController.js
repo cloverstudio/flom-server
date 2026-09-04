@@ -487,6 +487,8 @@ router.post(
         });
       }
 
+      const location = user.location || { type: "Point", coordinates: [0, 0] };
+
       const info = {
         type: Const.productTypeService,
         businessId: business._id.toString(),
@@ -498,6 +500,7 @@ router.post(
         businessTagId,
         suggestedServiceId,
         ownerId: business.owner._id,
+        location,
       };
 
       if (!name || typeof name !== "string" || name.length < 3 || name.length > 100) {
