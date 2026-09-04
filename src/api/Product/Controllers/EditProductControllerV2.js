@@ -477,7 +477,7 @@ router.patch(
             });
           }
 
-          product.businessId = businessId;
+          product.business = { _id: business._id.toString(), name: business.name };
         }
 
         if (product.type === Const.productTypeService) {

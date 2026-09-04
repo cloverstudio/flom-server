@@ -199,6 +199,7 @@ const schema = new mongoose.Schema(
     place: String, // seller, customer, both
     businessTagId: String,
     suggestedServiceId: String,
+    business: { _id: String, name: String },
   },
   { timestamps: true },
 );

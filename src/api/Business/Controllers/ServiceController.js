@@ -491,7 +491,6 @@ router.post(
 
       const info = {
         type: Const.productTypeService,
-        businessId: business._id.toString(),
         itemCount: 1,
         moderation: {
           // status: autoApprove ? Const.moderationStatusApproved : Const.moderationStatusPending,
@@ -501,6 +500,7 @@ router.post(
         suggestedServiceId,
         ownerId: business.owner._id,
         location,
+        business: { _id: business._id.toString(), name: business.name },
       };
 
       if (!name || typeof name !== "string" || name.length < 3 || name.length > 100) {
@@ -760,7 +760,7 @@ router.patch(
           });
         }
 
-        info.businessId = businessId;
+        info.business = { _id: business._id.toString(), name: business.name };
       }
 
       if (name) {

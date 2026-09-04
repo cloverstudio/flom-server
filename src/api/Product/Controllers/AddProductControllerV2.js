@@ -332,7 +332,7 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
         });
       }
 
-      product.businessId = businessId;
+      product.business = { _id: business._id.toString(), name: business.name };
 
       if (type === Const.productTypeService) {
         if (!place || !["seller", "customer", "both"].includes(place)) {
