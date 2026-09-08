@@ -783,11 +783,15 @@ Constants.transferTypeAuctionPenalty = 17;
 Constants.transferTypeSellerCompensation = 18;
 Constants.transferTypePlatformFee = 19;
 Constants.transferTypeMessagingFee = 20;
+Constants.transferTypeRefund = 21;
+Constants.transferTypeService = 22;
 Constants.transferTypeBonus = 97;
 Constants.transferTypeBonusData = 98;
 Constants.transferTypePayout = 99;
 
-Constants.transferTypesForNotification = [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 17, 18, 19, 20];
+Constants.transferTypesForNotification = [
+  1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 17, 18, 19, 20, 21, 22,
+];
 Constants.groupTransferTypesForNotification = [1, 2, 6, 8, 10, 13];
 
 Constants.blessEmojiTitles = [
@@ -833,7 +837,9 @@ Constants.blessEmojiTitles = [
   "Fab",
 ];
 
-Constants.transferTypes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 99];
+Constants.transferTypes = [
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 99,
+];
 
 Constants.noticeTransferTypes = [1, 2, 3, 6, 8, 10, 13, 14, 15, 16];
 
