@@ -140,7 +140,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     return Base.successResponse(response, Const.responsecodeSucceed, {
-      message: result.origMessageObj,
+      message: result,
     });
   } catch (error) {
     return Base.errorResponse(response, Const.httpCodeServerError, "SendMessageController", error);
