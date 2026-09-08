@@ -43,7 +43,7 @@ const schema = new mongoose.Schema(
     wamStatus: String,
     buttons: [
       {
-        type: String,
+        type: { type: String },
         text: String,
         target: String,
       },
