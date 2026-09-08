@@ -604,6 +604,7 @@ Constants.notificationTypeShippingReminder = 22;
 Constants.notificationTypeLowGlobalBalance = 23;
 Constants.notificationTypeBusiness = 24;
 Constants.notificationTypeBusinessAssistantInvite = 25;
+Constants.notificationTypeServiceTransfer = 26;
 
 Constants.notificationTypesFromDb = [
   5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
@@ -789,9 +790,7 @@ Constants.transferTypeBonus = 97;
 Constants.transferTypeBonusData = 98;
 Constants.transferTypePayout = 99;
 
-Constants.transferTypesForNotification = [
-  1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 17, 18, 19, 20, 21, 22,
-];
+Constants.transferTypesForNotification = [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 17, 18, 19, 20, 21];
 Constants.groupTransferTypesForNotification = [1, 2, 6, 8, 10, 13];
 
 Constants.blessEmojiTitles = [
