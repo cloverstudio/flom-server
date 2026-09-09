@@ -55,6 +55,8 @@ const {
  * @apiParam {String} [language] language of the product (default is user's device language)
  * @apiParam {String} [businessId] businessId
  * @apiParam {String} [place] Place of work (seller, customer, both)
+ * @apiParam {String} [priceTimeUnit] Time unit of product's original price (default, hour, day) (if none is sent, it is set to default)
+ * @apiParam {Boolean} [priceOnRequest] Indicates if the product's price is available on request (default: false)
  *
  * @apiSuccessExample Success-Response:
  *  {
@@ -186,6 +188,7 @@ const {
  * @apiError (Errors) 443970 Invalid business id
  * @apiError (Errors) 443971 Business not found
  * @apiError (Errors) 444007 Invalid place
+ * @apiError (Errors) 444008 Invalid price time unit
  * @apiError (Errors) 4000007 Token not valid
  */
 
@@ -442,6 +445,11 @@ router.patch(
       const year = fields.year;
       const businessId = fields.businessId;
       const place = fields.place;
+      const priceTimeUnit = fields.priceTimeUnit;
+      const priceOnRequest =
+        !fields.priceOnRequest || !["0", "1"].includes(fields.priceOnRequest)
+          ? undefined
+          : !!+fields.priceOnRequest;
 
       let appropriateForKids = fields.appropriateForKids;
 
@@ -469,7 +477,7 @@ router.patch(
             });
           }
 
-          product.businessId = businessId;
+          product.business = { _id: business._id.toString(), name: business.name };
         }
 
         if (product.type === Const.productTypeService) {
@@ -483,6 +491,25 @@ router.patch(
             }
 
             product.place = place;
+          }
+
+          if (priceTimeUnit && priceTimeUnit !== product.originalPrice.timeUnit) {
+            if (!["default", "hour", "day"].includes(priceTimeUnit)) {
+              return Base.newErrorResponse({
+                response,
+                code: Const.responsecodeInvalidPriceTimeUnit,
+                message: "EditProductControllerV2, edit service - invalid price time unit",
+              });
+            }
+
+            product.originalPrice.timeUnit = priceTimeUnit;
+          }
+
+          if (
+            typeof priceOnRequest === "boolean" &&
+            priceOnRequest !== product.originalPrice.onRequest
+          ) {
+            product.originalPrice.onRequest = priceOnRequest;
           }
         }
       }

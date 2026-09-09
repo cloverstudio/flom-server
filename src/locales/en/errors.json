@@ -493,6 +493,7 @@
   "444005": "Landing page shell not found.",
   "444006": "Landing page shell already exists.",
   "444007": "Invalid place.",
+  "444008": "Invalid price time unit.",
 
   "4000006": "Wrong User Credentials. Please try again later.",
   "4000007": "Invalid Token. Please try again later.",

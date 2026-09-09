@@ -31,9 +31,6 @@ async function notifyUpdateMessage(message) {
       const user1 = splitAry[1];
       const user2 = splitAry[2];
 
-      let toUserId = null;
-      let fromUserId = null;
-
       if (user1 == message.userID) {
         toUserId = user2;
         fromUserId = user1;

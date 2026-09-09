@@ -164,10 +164,6 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       searchQuery["moderation.status"] = { $in: moderationStatus };
     }
 
-    if (user.kidsMode) {
-      searchQuery.appropriateForKids = true;
-    }
-
     const search = request.query.search;
 
     if (search && search !== "") {
