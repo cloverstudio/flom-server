@@ -174,10 +174,8 @@ async function updateByBusinessChat(fromUserId, businessId, rawMessageObj) {
 
     const business = await Business.findById(businessId).lean();
 
-    if (!business || !business.users || !business.users.length) {
-      logger.error(
-        "updateByBusinessChat error: Business not found or has no users: " + business.users,
-      );
+    if (!business) {
+      logger.error("updateByBusinessChat error: Business not found: " + businessId);
       return;
     }
 
