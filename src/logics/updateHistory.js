@@ -2,7 +2,7 @@
 
 const { logger } = require("#infra");
 const { Const } = require("#config");
-const { User, Room, Group, History, Business } = require("#models");
+const { User, Room, Group, History, Business, BusinessMember } = require("#models");
 
 function isFile(messageType) {
   return (
@@ -183,23 +183,26 @@ async function updateByBusinessChat(fromUserId, roomIdSplitted, rawMessageObj) {
 
     const fromUser = await User.findById(fromUserId, User.getDefaultResponseFields()).lean();
 
-    const userId = fromUserId;
     let msg = message.message;
     if (msg) msg = msg.substr(0, 30);
     else msg = "";
 
-    const historyData = {
-      userId: userId,
-      chatId: chatId,
-      chatType: Const.chatTypeBusiness,
-      lastUpdate: Date.now(),
-      isUnread: 1,
-      lastUpdateUser: fromUser,
-      lastMessage: message,
-      keyword: business.name + ", " + msg,
-    };
+    const members = await BusinessMember.find({ businessId, status: "active" }).lean();
 
-    await updateData(historyData, rawMessageObj);
+    for (const m of members) {
+      const historyData = {
+        userId: m.userId,
+        chatId: chatId,
+        chatType: Const.chatTypeBusiness,
+        lastUpdate: Date.now(),
+        isUnread: 1,
+        lastUpdateUser: fromUser,
+        lastMessage: message,
+        keyword: business.name + ", " + msg,
+      };
+
+      await updateData(historyData, rawMessageObj);
+    }
 
     return;
   } catch (error) {
