@@ -7,20 +7,42 @@ const { Const, Config, countries } = require("#config");
 const Utils = require("#utils");
 const Logics = require("#logics");
 const { auth } = require("#middleware");
-const {
-  User,
-  FlomMessage,
-  Test,
-  NonFlomContact,
-  Product,
-  CoreIdentity,
-  IdApplication,
-  MerchantApplication,
-} = require("#models");
-const fs = require("fs");
-const path = require("path");
+const { User, CoreIdentity, IdApplication, MerchantApplication } = require("#models");
 const crypto = require("crypto");
-const { recombee } = require("#services");
+
+router.get("/loglevel", async (request, response) => {
+  try {
+    const level = request.query.level; // debug, info, warn, error, notice
+
+    logger.setLogLevel(level);
+
+    Base.successResponse(response, Const.responsecodeSucceed);
+  } catch (error) {
+    Base.newErrorResponse({
+      response,
+      message: "FixController - loglevel",
+      error,
+    });
+  }
+});
+
+router.get("/logtest", async (request, response) => {
+  try {
+    logger.debug("This is a debug message");
+    logger.info("This is an info message");
+    logger.warn("This is a warn message");
+    logger.error("This is an error message");
+    logger.notice("This is a notice message");
+
+    Base.successResponse(response, Const.responsecodeSucceed);
+  } catch (error) {
+    Base.newErrorResponse({
+      response,
+      message: "FixController - logtest",
+      error,
+    });
+  }
+});
 
 router.get("/push", async function (request, response) {
   try {

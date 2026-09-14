@@ -1,5 +1,19 @@
 const { Config } = require("#config");
 
+const levels = {
+  debug: 5,
+  info: 4,
+  warn: 3,
+  error: 2,
+  notice: 1,
+};
+
+let logLevel = levels.warn;
+
+if (Config.environment === "development" || Config.environment === "local") {
+  logLevel = levels.debug;
+}
+
 const RED = "\x1b[91m";
 const GREEN = "\x1b[92m";
 const YELLOW = "\x1b[93m";
@@ -25,11 +39,19 @@ function warn(msg, err) {
 function notice(msg) {
   printMessage({ msg, level: "notice", COLOR: GREEN });
 }
+function setLogLevel(level) {
+  if (!!levels[level]) {
+    logLevel = levels[level];
+  }
+}
 
 function printMessage({ msg = "", data = "", err = null, level, COLOR = "" }) {
   try {
+    /* const env = Config.environment;
+    if (env !== "development" && level === "debug") return; */
+
     const env = Config.environment;
-    if (env !== "development" && level === "debug") return;
+    if (levels[level] > logLevel) return;
 
     const reset = !COLOR ? "" : RESET;
     msg = !err ? msg : `${msg}\n${err.stack}`;
@@ -49,4 +71,4 @@ function printMessage({ msg = "", data = "", err = null, level, COLOR = "" }) {
   }
 }
 
-module.exports = Object.freeze({ info, debug, error, warn, notice });
+module.exports = Object.freeze({ info, debug, error, warn, notice, setLogLevel });
