@@ -729,9 +729,9 @@ async function getList(lastUpdate, page, request, searchObj = null) {
 
   const businessIds = res
     .filter((item) => item.chatType === Const.chatTypeBusiness)
-    .map((item) => item.room.business)
-    .filter((businessId) => Utils.isValidObjectId(businessId));
-  const businesses = await User.find({ _id: { $in: businessIds } }).lean();
+    .map((item) => item.chatId)
+    .filter((businessId) => businessId && Utils.isValidObjectId(businessId));
+  const businesses = await Business.find({ _id: { $in: businessIds } }).lean();
   const businessesMap = {};
   businesses.forEach((business) => {
     businessesMap[business._id.toString()] = business;

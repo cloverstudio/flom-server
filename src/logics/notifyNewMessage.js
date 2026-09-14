@@ -1,7 +1,7 @@
 const { logger, encryptionManager } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { User, Room, Group, Business } = require("#models");
+const { User, Room, Group, Business, BusinessMember } = require("#models");
 const socketApi = require("../sockets/socket-api");
 
 const sendPush = require("./sendPush");
@@ -193,6 +193,19 @@ async function notifyNewMessage(obj, originalRequestData) {
       }
 
       result.pushMessage = msg;
+    } else if (chatType == Const.chatTypeBusiness) {
+      if (result.sender) {
+        msg = result.sender.name + " posted new message to " + obj.business.name;
+      } else {
+        msg = "New message to " + obj.business.name;
+      }
+
+      const businessId = obj.business._id.toString();
+      const members = await BusinessMember.find({ businessId }).lean();
+      result.users = await User.find(
+        { _id: { $in: members.map((m) => m.userId).filter((id) => id != obj.userID) } },
+        { token: 0 },
+      ).lean();
     }
 
     result.offlineUsers = result.users || [];
