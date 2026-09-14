@@ -201,7 +201,7 @@ async function notifyNewMessage(obj, originalRequestData) {
       }
 
       const businessId = obj.business._id.toString();
-      const members = await BusinessMember.find({ businessId }).lean();
+      const members = await BusinessMember.find({ businessId, status: "active" }).lean();
       result.users = await User.find(
         { _id: { $in: members.map((m) => m.userId).filter((id) => id != obj.userID) } },
         { token: 0 },
