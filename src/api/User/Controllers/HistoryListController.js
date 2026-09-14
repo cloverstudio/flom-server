@@ -767,7 +767,10 @@ async function getList(lastUpdate, page, request, searchObj = null) {
     }
 
     if (item.chatType == Const.chatTypeBusiness) {
-      item.business = businessesMap[item.chatId];
+      const splitted = item.chatId.split("-");
+      if (splitted[0]) {
+        item.business = businessesMap[splitted[0]];
+      }
     }
   });
 
