@@ -195,7 +195,7 @@ async function notifyNewMessage(obj, originalRequestData) {
       result.pushMessage = msg;
     }
 
-    result.offlineUsers = result.users;
+    result.offlineUsers = result.users || [];
 
     const tokenAndBadgeCount = [];
     for (const user of result.offlineUsers) {
