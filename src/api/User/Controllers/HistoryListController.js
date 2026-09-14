@@ -731,7 +731,7 @@ async function getList(lastUpdate, page, request, searchObj = null) {
     .filter((item) => item.chatType === Const.chatTypeBusiness)
     .map((item) => {
       if (!item.chatId) return null;
-      return item.chatId.split("-")[1] || null;
+      return item.chatId.split("-")[0] || null;
     })
     .filter((businessId) => businessId && Utils.isValidObjectId(businessId));
   const businesses = await Business.find({ _id: { $in: businessIds } }).lean();

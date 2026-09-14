@@ -97,7 +97,7 @@ async function searchHistory(lastUpdate, page, keyword, baseUser, pagingRows) {
       .filter((h) => h.chatType == Const.chatTypeBusiness)
       .map((h) => {
         if (!h.chatId) return null;
-        return h.chatId.split("-")[1] || null;
+        return h.chatId.split("-")[0] || null;
       });
 
     const businesses = await Business.find({ _id: { $in: businessIds } }, null, { lean: true });
@@ -108,7 +108,7 @@ async function searchHistory(lastUpdate, page, keyword, baseUser, pagingRows) {
 
     result.list.forEach((history) => {
       if (history.chatType == Const.chatTypeBusiness) {
-        const businessId = history.chatId.split("-")[1];
+        const businessId = history.chatId.split("-")[0];
         history.business = businessMap[businessId];
       }
     });

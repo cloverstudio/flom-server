@@ -158,6 +158,7 @@ async function updateByBusinessChat(fromUserId, roomIdSplitted, rawMessageObj) {
   try {
     const businessId = roomIdSplitted[1];
     const chatId = roomIdSplitted[1] + "-" + roomIdSplitted[2];
+    const buyerId = roomIdSplitted[2];
 
     const message = {
       messageId: rawMessageObj._id.toString(),
@@ -188,10 +189,11 @@ async function updateByBusinessChat(fromUserId, roomIdSplitted, rawMessageObj) {
     else msg = "";
 
     const members = await BusinessMember.find({ businessId, status: "active" }).lean();
+    const userIds = Array.from(new Set([buyerId, ...members.map((m) => m.userId)]));
 
-    for (const m of members) {
+    for (const id of userIds) {
       const historyData = {
-        userId: m.userId,
+        userId: id,
         chatId: chatId,
         chatType: Const.chatTypeBusiness,
         lastUpdate: Date.now(),
