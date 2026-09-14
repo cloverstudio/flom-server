@@ -51,7 +51,7 @@ async function resetUnreadCount(obj) {
     // business chat
     if (roomType == Const.chatTypeBusiness) {
       if (roomIdSplitted.length != 3) return;
-      chatId = roomIdSplitted[1];
+      chatId = roomIdSplitted[1] + "-" + roomIdSplitted[2];
     }
 
     await History.updateOne(
@@ -142,10 +142,9 @@ async function updateByMessage(obj) {
     if (roomType == Const.chatTypeBusiness) {
       if (roomIdSplitted.length != 3) return;
 
-      const businessId = roomIdSplitted[1];
       const fromUserId = userId;
 
-      await updateByBusinessChat(fromUserId, businessId, obj);
+      await updateByBusinessChat(fromUserId, roomIdSplitted, obj);
     }
 
     return;
@@ -155,8 +154,11 @@ async function updateByMessage(obj) {
   }
 }
 
-async function updateByBusinessChat(fromUserId, businessId, rawMessageObj) {
+async function updateByBusinessChat(fromUserId, roomIdSplitted, rawMessageObj) {
   try {
+    const businessId = roomIdSplitted[1];
+    const chatId = roomIdSplitted[1] + "-" + roomIdSplitted[2];
+
     const message = {
       messageId: rawMessageObj._id.toString(),
       message: rawMessageObj.message,
@@ -188,7 +190,7 @@ async function updateByBusinessChat(fromUserId, businessId, rawMessageObj) {
 
     const historyData = {
       userId: userId,
-      chatId: businessId,
+      chatId: chatId,
       chatType: Const.chatTypeBusiness,
       lastUpdate: Date.now(),
       isUnread: 1,
