@@ -67,10 +67,15 @@ router.get("/to-reply", auth({ allowUser: true }), async function (request, resp
       return Base.successResponse(response, Const.responsecodeSucceed, { userIds: [] });
     }
 
-    const uniqueBuyerIds = Array.from(new Set(sellerOrders.map((order) => order.buyer._id)));
+    // const uniqueBuyerIds = Array.from(new Set(sellerOrders.map((order) => order.buyer._id)));
+    const chatIds = Array.from(
+      new Set(sellerOrders.map((order) => order.businessId + "-" + order.buyer._id)),
+    );
+
     const historiesToReply = await History.find({
+      chatType: Const.chatTypeBusiness,
       userId,
-      chatId: { $in: uniqueBuyerIds },
+      chatId: { $in: chatIds },
       "lastUpdateUser._id": { $ne: user._id },
     })
       .sort({ lastUpdate: -1 })
@@ -203,11 +208,24 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
 
     responseData.send = paymentCompletedOrders.length;
 
-    const uniqueBuyerIds = Array.from(new Set(sellerOrders.map((order) => order.buyer._id)));
+    /* const uniqueBuyerIds = Array.from(new Set(sellerOrders.map((order) => order.buyer._id)));
     const historiesToReply = await History.find(
       {
         userId,
         chatId: { $in: uniqueBuyerIds },
+        "lastUpdateUser._id": { $ne: user._id },
+      },
+      { _id: 1 },
+    ).lean(); */
+
+    const chatIds = Array.from(
+      new Set(sellerOrders.map((order) => order.businessId + "-" + order.buyer._id)),
+    );
+    const historiesToReply = await History.find(
+      {
+        chatType: Const.chatTypeBusiness,
+        userId,
+        chatId: { $in: chatIds },
         "lastUpdateUser._id": { $ne: user._id },
       },
       { _id: 1 },
