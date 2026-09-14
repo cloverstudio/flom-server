@@ -5,7 +5,7 @@ const { logger, redis } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
 const Logics = require("#logics");
-const { User, Transfer, Order, Auction, ConversionRate } = require("#models");
+const { User, Transfer, Order, Auction, ConversionRate, Product } = require("#models");
 const { authorizeNet } = require("#services");
 
 let conversionRates = { rates: null, lastUpdated: 0 };
@@ -70,7 +70,11 @@ async function handlePayment({ auction, isFromAccept = false }) {
     const base = DateTime.now();
     const expirationDate = base.plus({ minutes: Const.orderExpirationTime }).toUTC().toMillis();
 
+    const productId = auction.product._id;
+    const product = await Product.findById(productId).lean();
+
     const order = await Order.create({
+      businessId: product.businessId,
       seller: {
         _id: receiver._id.toString(),
         name: receiver.name,
