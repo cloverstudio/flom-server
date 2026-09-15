@@ -3,7 +3,7 @@
 const router = require("express").Router();
 const Base = require("../../Base");
 const { Const } = require("#config");
-const { Room, User } = require("#models");
+const { Room, User, Business, BusinessMember } = require("#models");
 const { getUsersOnlineStatus } = require("#logics");
 
 /**
@@ -129,19 +129,36 @@ router.get("/:roomId/:page", async function (request, response) {
     if (/^[0-9]+$/.test(request.params.page)) page = request.params.page - 1;
     else if (request.params.page == "all") getAll = true;
 
-    const room = await Room.findById(roomId).lean();
-    if (!room) {
-      return Base.successResponse(response, Const.responsecodeRoomDetailInvalidRoomId);
+    const roomIdParts = roomId.split("-");
+    const chatType = roomIdParts[0];
+    let roomUsers = [];
+
+    if (chatType != Const.chatTypeBusiness) {
+      const room = await Room.findById(roomId).lean();
+      if (!room) {
+        return Base.successResponse(response, Const.responsecodeRoomDetailInvalidRoomId);
+      }
+      roomUsers = room.users;
+    } else {
+      const businessId = roomIdParts[1];
+      const buyerId = roomIdParts[2];
+
+      const businessMembers = await BusinessMember.find({
+        businessId,
+        status: "active",
+      }).lean();
+      const businessMembersIds = businessMembers.map((member) => member.userId);
+      roomUsers = [buyerId, ...businessMembersIds];
     }
 
     let query = null;
     if (getAll) {
       query = User.find({
-        _id: { $in: room.users },
+        _id: { $in: roomUsers },
       }).sort({ sortName: "asc" });
     } else {
       query = User.find({
-        _id: { $in: room.users },
+        _id: { $in: roomUsers },
       })
         .sort({ sortName: "asc" })
         .skip(Const.pagingRows * page)
@@ -160,7 +177,7 @@ router.get("/:roomId/:page", async function (request, response) {
     });
 
     return Base.successResponse(response, Const.responsecodeSucceed, {
-      count: room.users.length,
+      count: roomUsers.length,
       list,
     });
   } catch (error) {
