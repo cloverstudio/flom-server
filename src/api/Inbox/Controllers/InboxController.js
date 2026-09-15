@@ -171,7 +171,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
   }
 });
 
-async function getInbox({ user, type, page, size }) {
+async function getInbox({ user, type }) {
   try {
     const userId = user._id.toString();
 
@@ -206,7 +206,7 @@ async function getInbox({ user, type, page, size }) {
         break;
     }
 
-    const orders = await Order.find(query).sort({ createdAt: -1 }).lean();
+    const orders = await Order.find(query).sort({ created: -1 }).lean();
 
     const existingBuyerIds = [];
     const orderToBuyerIdMap = {};
@@ -214,6 +214,7 @@ async function getInbox({ user, type, page, size }) {
       const shouldInclude = !existingBuyerIds.includes(order.buyer._id);
       if (shouldInclude) {
         existingBuyerIds.push(order.buyer._id);
+        order.chatId = order.businessId + "-" + order.buyer._id;
         orderToBuyerIdMap[order.buyer._id] = order;
       }
       return shouldInclude;
@@ -221,9 +222,7 @@ async function getInbox({ user, type, page, size }) {
 
     // const uniqueBuyerIds = Array.from(new Set(existingBuyerIds));
     const chatIds = Array.from(
-      new Set(
-        mostRecentOrdersForUniqueBuyers.map((order) => order.businessId + "-" + order.buyer._id),
-      ),
+      new Set(mostRecentOrdersForUniqueBuyers.map((order) => order.chatId)),
     );
     const histories = await History.find({
       chatType: Const.chatTypeBusiness,
