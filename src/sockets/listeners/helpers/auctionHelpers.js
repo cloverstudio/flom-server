@@ -308,6 +308,22 @@ async function sendNotifications({ order, sender, receiver, localAmountSender })
     orderId: order._id.toString(),
   });
 
+  const seller = receiver;
+  const buyer = sender;
+  const roomId = `${Const.chatTypeBusiness}-${order.businessId}-${buyer._id.toString()}`;
+
+  const params = {
+    isRecursiveCall: false,
+    type: Const.messageTypeOrder,
+    userID: seller._id.toString(),
+    roomID: roomId,
+    message: "",
+    created: Date.now(),
+    attributes: { orderInfo: order },
+  };
+
+  await Logics.sendMessage(params);
+
   if (sender.email) {
     const shippingDestination = !order.shipping.destination
       ? ""
