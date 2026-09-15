@@ -201,6 +201,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
         order.status === Const.orderStatus.PAYMENT_COMPLETED &&
         !existingBuyerIds.includes(order.buyer._id);
       if (shouldInclude) {
+        order.chatId = order.businessId + "-" + order.buyer._id;
         existingBuyerIds.push(order.buyer._id);
       }
       return shouldInclude;
@@ -218,9 +219,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       { _id: 1 },
     ).lean(); */
 
-    const chatIds = Array.from(
-      new Set(sellerOrders.map((order) => order.businessId + "-" + order.buyer._id)),
-    );
+    const chatIds = Array.from(new Set(sellerOrders.map((order) => order.chatId)));
     const historiesToReply = await History.find(
       {
         chatType: Const.chatTypeBusiness,
