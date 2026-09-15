@@ -3,7 +3,8 @@
 const router = require("express").Router();
 const Base = require("../../Base");
 const { Const } = require("#config");
-const { Room, User, Business, BusinessMember } = require("#models");
+const { auth } = require("#middleware");
+const { Room, User, BusinessMember } = require("#models");
 const { getUsersOnlineStatus } = require("#logics");
 
 /**
@@ -120,7 +121,7 @@ const { getUsersOnlineStatus } = require("#logics");
 
 **/
 
-router.get("/:roomId/:page", async function (request, response) {
+router.get("/:roomId/:page", auth({ allowUser: true }), async function (request, response) {
   try {
     const roomId = request.params.roomId;
 
