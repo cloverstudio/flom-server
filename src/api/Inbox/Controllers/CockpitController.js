@@ -156,13 +156,12 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       Const.orderStatus.DELIVERED,
     ];
 
-    const sellerOrders = await Order.find(
-      {
-        "seller._id": userId,
-        status: { $nin: inactiveOrderStates },
-      },
-      { _id: 1, status: 1, price: 1, buyer: 1 },
-    ).lean();
+    const sellerOrders = await Order.find({
+      "seller._id": userId,
+      status: { $nin: inactiveOrderStates },
+    })
+      .sort({ created: -1 })
+      .lean();
 
     if (!sellerOrders || sellerOrders.length === 0) {
       return Base.successResponse(response, Const.responsecodeSucceed, { showCockpit: false });
