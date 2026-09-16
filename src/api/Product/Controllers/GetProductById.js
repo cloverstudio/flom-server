@@ -5,15 +5,8 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const } = require("#config");
 const Utils = require("#utils");
-const {
-  Product,
-  User,
-  AdminPageUser,
-  Category,
-  Review,
-  UserTagInteraction,
-  UserCategoryInteraction,
-} = require("#models");
+const { Product, User, AdminPageUser, Category, Review } = require("#models");
+const Logics = require("#logics");
 const { recombee } = require("#services");
 
 /**
@@ -291,38 +284,8 @@ router.post("/", async function (request, response) {
         logger.error("GetProductById, recombee", error);
       }
 
-      try {
-        const tags = (product.tags ?? "").split(" ").map((tag) => tag.trim().replace("#", ""));
-
-        await UserTagInteraction.updateMany(
-          { userId: user._id.toString(), tag: { $in: tags } },
-          { $inc: { interactions: 1 }, $set: { modified: Date.now() } },
-          { upsert: true },
-        );
-      } catch (error) {
-        logger.error("GetProductById - UserTagInteraction error:", error);
-      }
-
-      try {
-        const categoryId = product.categoryId.toString();
-        const parentCategoryId = product.parentCategoryId;
-        const catIds = [categoryId];
-        if (parentCategoryId != "-1") {
-          catIds.push(parentCategoryId);
-        }
-
-        const categories = (await Category.find({ _id: { $in: catIds } }).lean()).map(
-          (cat) => cat.name,
-        );
-
-        await UserCategoryInteraction.updateMany(
-          { userId: user._id.toString(), category: { $in: categories } },
-          { $inc: { interactions: 1 }, $set: { modified: Date.now() } },
-          { upsert: true },
-        );
-      } catch (error) {
-        logger.error("GetProductById - UserCategoryInteraction error:", error);
-      }
+      Logics.addUserCategoryInteraction({ product, user });
+      Logics.addUserTagInteraction({ product, user });
     }
   } catch (e) {
     if (e.name == "CastError") {

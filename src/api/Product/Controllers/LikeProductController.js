@@ -5,14 +5,8 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const } = require("#config");
 const { auth } = require("#middleware");
-const {
-  Product,
-  User,
-  Transfer,
-  UserTagInteraction,
-  UserCategoryInteraction,
-  Category,
-} = require("#models");
+const { Product, User, Transfer } = require("#models");
+const Logics = require("#logics");
 const { recombee } = require("#services");
 const { sendBonus } = require("#logics");
 
@@ -174,38 +168,8 @@ router.post("/add", auth({ allowUser: true }), async function (request, response
       logger.error("LikeProductController, Add like, recombee", error);
     }
 
-    try {
-      const tags = (product.tags ?? "").split(" ").map((tag) => tag.trim().replace("#", ""));
-
-      await UserTagInteraction.updateMany(
-        { userId: user._id.toString(), tag: { $in: tags } },
-        { $inc: { interactions: 3 }, $set: { modified: Date.now() } },
-        { upsert: true },
-      );
-    } catch (error) {
-      logger.error("LikeProductController, add like - UserTagInteraction error:", error);
-    }
-
-    try {
-      const categoryId = product.categoryId.toString();
-      const parentCategoryId = product.parentCategoryId;
-      const catIds = [categoryId];
-      if (parentCategoryId != "-1") {
-        catIds.push(parentCategoryId);
-      }
-
-      const categories = (await Category.find({ _id: { $in: catIds } }).lean()).map(
-        (cat) => cat.name,
-      );
-
-      await UserCategoryInteraction.updateMany(
-        { userId: user._id.toString(), category: { $in: categories } },
-        { $inc: { interactions: 3 }, $set: { modified: Date.now() } },
-        { upsert: true },
-      );
-    } catch (error) {
-      logger.error("LikeProductController, add like - UserCategoryInteraction error:", error);
-    }
+    Logics.addUserCategoryInteraction({ product, user });
+    Logics.addUserTagInteraction({ product, user });
   } catch (e) {
     if (e.name == "CastError") {
       logger.error("LikeProductController, Add like", e);
@@ -296,38 +260,8 @@ router.post("/remove", auth({ allowUser: true }), async function (request, respo
       logger.error("LikeProductController, dislike, recombee", error);
     }
 
-    try {
-      const tags = (product.tags ?? "").split(" ").map((tag) => tag.trim().replace("#", ""));
-
-      await UserTagInteraction.updateMany(
-        { userId: request.user._id.toString(), tag: { $in: tags } },
-        { $inc: { interactions: -3 }, $set: { modified: Date.now() } },
-        { upsert: true },
-      );
-    } catch (error) {
-      logger.error("LikeProductController, dislike - UserTagInteraction error:", error);
-    }
-
-    try {
-      const categoryId = product.categoryId.toString();
-      const parentCategoryId = product.parentCategoryId;
-      const catIds = [categoryId];
-      if (parentCategoryId != "-1") {
-        catIds.push(parentCategoryId);
-      }
-
-      const categories = (await Category.find({ _id: { $in: catIds } }).lean()).map(
-        (cat) => cat.name,
-      );
-
-      await UserCategoryInteraction.updateMany(
-        { userId: request.user._id.toString(), category: { $in: categories } },
-        { $inc: { interactions: -3 }, $set: { modified: Date.now() } },
-        { upsert: true },
-      );
-    } catch (error) {
-      logger.error("LikeProductController, dislike - UserCategoryInteraction error:", error);
-    }
+    Logics.addUserCategoryInteraction({ product, user: request.user });
+    Logics.addUserTagInteraction({ product, user: request.user });
   } catch (e) {
     if (e.name == "CastError") {
       logger.error("LikeProductController, dislike", e);
