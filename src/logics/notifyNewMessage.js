@@ -406,10 +406,11 @@ async function notifyNewMessage(obj, originalRequestData) {
     payload.undeliveredCount = originalRequestData.undeliveredCount;
     payload.isHighPriority = true;
 
-    if (result.business) {
+    if (obj.business) {
+      console.log("HAS BUSINESS");
       payload.business = {
-        _id: result.business._id.toString(),
-        name: result.business.name,
+        _id: obj.business._id.toString(),
+        name: obj.business.name,
       };
     }
 
