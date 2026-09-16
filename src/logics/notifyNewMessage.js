@@ -202,6 +202,10 @@ async function notifyNewMessage(obj, originalRequestData) {
       const members = await BusinessMember.find({ businessId, status: "active" }).lean();
       const toSend = members.map((m) => m.userId);
       toSend.push(roomIDSplitted[2]);
+
+      console.log("roomIDSplitted[2]:", roomIDSplitted[2]);
+      console.log("toSend:", toSend);
+
       result.users = await User.find(
         { _id: { $in: toSend.filter((id) => id != obj.userID) } },
         { token: 0 },
@@ -221,6 +225,8 @@ async function notifyNewMessage(obj, originalRequestData) {
 
       if (chatType == Const.chatTypeGroup) {
         targetId = obj.group._id.toString();
+      } else if (chatType == Const.chatTypeBusiness) {
+        targetId = obj.roomID;
       } else if (isRoomOrBroadcast) {
         targetId = obj.room._id.toString();
       } else {
