@@ -3,6 +3,7 @@
 const router = require("express").Router();
 const Base = require("../../Base");
 const { Const } = require("#config");
+const Utils = require("#utils");
 const { auth } = require("#middleware");
 const { Room, User, BusinessMember } = require("#models");
 const { getUsersOnlineStatus } = require("#logics");
@@ -135,6 +136,9 @@ router.get("/:roomId/:page", auth({ allowUser: true }), async function (request,
     let roomUsers = [];
 
     if (chatType != Const.chatTypeBusiness) {
+      if (!roomId || !Utils.isValidObjectId(roomId)) {
+        return Base.successResponse(response, Const.responsecodeRoomDetailInvalidRoomId);
+      }
       const room = await Room.findById(roomId).lean();
       if (!room) {
         return Base.successResponse(response, Const.responsecodeRoomDetailInvalidRoomId);
