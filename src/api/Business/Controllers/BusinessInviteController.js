@@ -13,6 +13,7 @@ const {
   Notification,
   FlomMessage,
   BannedNumber,
+  History,
 } = require("#models");
 const Utils = require("#utils");
 const Logics = require("#logics");
@@ -275,6 +276,34 @@ router.get("/:inviteId/accept", auth({ allowUser: true }), async function (reque
       action: "accept",
       invite: updatedInvite,
     });
+
+    // creating chat histories for helper from previous business histories
+    try {
+      const histories = await History.find({
+        chatType: Const.chatTypeBusiness,
+        chatId: { $regex: `^${invite.businessId}` },
+      }).lean();
+
+      const existingChatIds = [];
+
+      const uniqueChatHistories = histories.filter((h) => {
+        if (existingChatIds.includes(h.chatId)) {
+          return false;
+        } else {
+          h.lastUpdate = Date.now();
+          h.isDeleted = false;
+          h.userId = userId;
+          h.pinned = false;
+          h.reaction = {};
+          existingChatIds.push(h.chatId);
+          return true;
+        }
+      });
+
+      await History.create(uniqueChatHistories);
+    } catch (error) {
+      logger.error("BusinessInviteController, error creating chat histories: ", error);
+    }
   } catch (error) {
     return Base.newErrorResponse({
       response,
