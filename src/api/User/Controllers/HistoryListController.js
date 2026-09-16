@@ -604,11 +604,22 @@ async function getList(lastUpdate, page, request, searchObj = null) {
     usersMap[user._id.toString()] = user;
   });
 
+  let businessChatBuyerIds = [];
+
   res.forEach((item) => {
     if (item.chatType === Const.chatTypePrivate) {
       item.user = usersMap[item.chatId];
     }
+
+    if (item.chatType == Const.chatTypeBusiness) {
+      const temp = item.chatId.split("-");
+      businessChatBuyerIds.push(temp[1]);
+      item.buyer = temp[1];
+    }
   });
+
+  businessChatBuyerIds = Array.from(new Set(businessChatBuyerIds));
+
   res = res.filter((item) => {
     if (item.chatType != Const.chatTypePrivate) {
       return true;
@@ -740,6 +751,15 @@ async function getList(lastUpdate, page, request, searchObj = null) {
     businessesMap[business._id.toString()] = business;
   });
 
+  const buyerModels = await User.find(
+    { _id: { $in: businessChatBuyerIds } },
+    User.getDefaultResponseFields(),
+  ).lean();
+  const buyerModelsMap = {};
+  buyerModels.forEach((buyer) => {
+    buyerModelsMap[buyer._id.toString()] = buyer;
+  });
+
   res.forEach((item) => {
     if (item.chatType == Const.chatTypeGroup && item.group && Array.isArray(item.group.users)) {
       const userModels = item.group.users
@@ -770,6 +790,9 @@ async function getList(lastUpdate, page, request, searchObj = null) {
       const splitted = item.chatId.split("-");
       if (splitted[0]) {
         item.business = businessesMap[splitted[0]];
+      }
+      if (item.buyer) {
+        item.buyer = buyerModelsMap[item.buyer];
       }
     }
   });
