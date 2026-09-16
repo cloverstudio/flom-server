@@ -74,7 +74,7 @@ async function handlePayment({ auction, isFromAccept = false }) {
     const product = await Product.findById(productId).lean();
 
     const order = await Order.create({
-      businessId: product.businessId,
+      businessId: product.business?._id || product.businessId,
       seller: {
         _id: receiver._id.toString(),
         name: receiver.name,
