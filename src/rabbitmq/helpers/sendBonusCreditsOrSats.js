@@ -78,14 +78,14 @@ async function sendBonusCreditsOrSats({
       const engagementBudgetCredits = budgetCredits || engagementBudgetCreditsNew;
 
       if (isDeleted || !engagementBonusAllowed || creditsPerLinkedExpo === 0) {
-        logger.error(
+        logger.warn(
           `sendBonusCreditsOrSats - credit bonus per linked expo, product deleted/bonus not allowed/no credits`,
         );
         return;
       }
 
       if (creditsPerLinkedExpo > engagementBudgetCredits) {
-        logger.error(`sendBonusCreditsOrSats - credit bonus per linked expo, budget spent`);
+        logger.warn(`sendBonusCreditsOrSats - credit bonus per linked expo, budget spent`);
         return;
       }
 
@@ -106,7 +106,7 @@ async function sendBonusCreditsOrSats({
         supportTicketId,
       });
 
-      if (check) return;
+      if (check.check || check.error) return;
 
       creditsBonusAmount = Const.bonusAmountMapCredits[bonusType];
       satsBonusAmount = Const.bonusAmountMapSats[bonusType];
@@ -128,7 +128,7 @@ async function sendBonusCreditsOrSats({
         : await User.findById(Config.flomSupportAgentId).lean()) || {};
 
     if (!sender) {
-      logger.error(
+      logger.warn(
         `sendBonusCreditsOrSats - sender ${ownerId || Config.flomSupportAgentId} not found`,
       );
       return;
@@ -137,11 +137,11 @@ async function sendBonusCreditsOrSats({
     const { creditBalance = 0, satsBalance = 0 } = sender;
 
     if (bonusPaymentMethod === "credits" && creditsBonusAmount > creditBalance) {
-      logger.error(`sendBonusCreditsOrSats - sender credit balance insufficient`);
+      logger.warn(`sendBonusCreditsOrSats - sender credit balance insufficient`);
       return;
     }
     if (bonusPaymentMethod === "sats" && satsBonusAmount > satsBalance) {
-      logger.error(`sendBonusCreditsOrSats - sender sats balance insufficient`);
+      logger.warn(`sendBonusCreditsOrSats - sender sats balance insufficient`);
       return;
     }
 
