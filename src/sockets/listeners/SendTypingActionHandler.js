@@ -34,7 +34,6 @@ module.exports = function (socketApi, socket) {
 
       const roomID = param.roomID;
       const chatType = param.roomID.split("-")[0];
-      const roomIDSplitted = param.roomID.split("-");
 
       // websocket notification
       if (chatType == Const.chatTypeGroup) {
@@ -65,9 +64,7 @@ module.exports = function (socketApi, socket) {
         if (user.blocked && user.blocked.includes(fromUser)) return;
         socketApi.emitToRoom(toUser, "typing", param);
       } else if (chatType == Const.chatTypeBusiness) {
-        const roomIDSplitted = roomID.split("-");
-        const businessRoom = Const.chatTypeBusiness + "-" + roomIDSplitted[1];
-        socketApi.emitToRoom(businessRoom, "typing", param);
+        socketApi.emitToRoom(roomID, "typing", param);
       }
 
       return;

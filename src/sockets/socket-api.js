@@ -77,6 +77,28 @@ const socketApi = {
       if (socket) socket.leave(type + "-" + roomId);
     });
   },
+  async join(userId, roomId, nsp = "flom") {
+    const value = await redis.get(Const.redisKeyUserId + userId);
+    if (!value) return;
+
+    value.forEach((socket) => {
+      const socketId = socket.socketId;
+      socket = this[`${nsp}Nsp`].sockets.get(socketId);
+
+      if (socket) socket.join(roomId);
+    });
+  },
+  async leave(userId, roomId, nsp = "flom") {
+    const value = await redis.get(Const.redisKeyUserId + userId);
+    if (!value) return;
+
+    value.forEach((socket) => {
+      const socketId = socket.socketId;
+      socket = this[`${nsp}Nsp`].sockets.get(socketId);
+
+      if (socket) socket.leave(roomId);
+    });
+  },
 };
 
 module.exports = socketApi;

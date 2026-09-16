@@ -9,6 +9,7 @@ const {
   BlockedChatGPTCountry,
   Business,
   BusinessMember,
+  History,
 } = require("#models");
 const socketApi = require("../sockets/socket-api");
 
@@ -221,6 +222,27 @@ async function sendMessage(param) {
 
     const newMessage = await FlomMessage.create(objMessage);
     result.message = newMessage.toObject();
+
+    if (chatType == Const.chatTypeBusiness) {
+      const temp = roomID.split("-");
+      const businessId = temp[1];
+      const buyerId = temp[2];
+
+      const histories = await History.find({
+        chatType: Const.chatTypeBusiness,
+        chatId: `${businessId}-${buyerId}`,
+      }).lean();
+
+      if (histories.length === 0) {
+        const members = await BusinessMember.find({ businessId, status: "active" }).lean();
+        const memberIds = members.map((m) => m.userId.toString());
+        const ids = [...memberIds, buyerId];
+
+        for (const id of ids) {
+          await socketApi.join(id, roomID);
+        }
+      }
+    }
 
     if (roomID.includes(Const.FatAiObjectId) && !param.isRecursiveCall) {
       const chatId = Utils.chatIdByUser(result.user, result.receiverUser);

@@ -113,16 +113,14 @@ async function notifyNewMessage(obj, originalRequestData) {
       // send to user who got message
       socketApi.emitToRoom(toUser, "newmessage", messageCloned);
     } else if (chatType == Const.chatTypeBusiness) {
-      const roomIdParts = messageCloned.roomID.split("-");
-      const businessRoom = Const.chatTypeBusiness + "-" + roomIdParts[1];
-      const otherUserId = roomIdParts[2];
+      const roomId = messageCloned.roomID;
 
-      const usersWhoMutedRoom = await User.find({ muted: businessRoom }, { token: 0 }).lean();
+      const usersWhoMutedRoom = await User.find({ muted: roomId }, { token: 0 }).lean();
 
       messageCloned.business = result.business;
       messageCloned.mutedUsersGroupRoom = usersWhoMutedRoom.map((user) => user._id.toString());
 
-      socketApi.emitToRoom(businessRoom, "newmessage", messageCloned);
+      socketApi.emitToRoom(roomId, "newmessage", messageCloned);
     }
 
     if (chatType == Const.chatTypeBroadcastAdmin) {

@@ -76,11 +76,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       if (chatType === Const.chatTypeGroup || chatType === Const.chatTypeRoom) {
         socketApi.emitToRoom(roomId, "updatemessages", filterMessages);
       } else if (chatType === Const.chatTypeBusiness) {
-        const tempArr = roomId.split("-");
-        const businessRoom = tempArr[0] + "-" + tempArr[1];
-        const otherUserId = tempArr[2];
-
-        socketApi.emitToRoom(businessRoom, "updatemessages", filterMessages);
+        socketApi.emitToRoom(roomId, "updatemessages", filterMessages);
       } else if (chatType === Const.chatTypePrivate) {
         const splitAry = roomId.split("-");
         if (splitAry.length < 2) return;
