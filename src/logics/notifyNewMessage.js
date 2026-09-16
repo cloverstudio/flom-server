@@ -200,8 +200,10 @@ async function notifyNewMessage(obj, originalRequestData) {
 
       const businessId = obj.business._id.toString();
       const members = await BusinessMember.find({ businessId, status: "active" }).lean();
+      const toSend = members.map((m) => m.userId);
+      toSend.push(roomIDSplitted[2]);
       result.users = await User.find(
-        { _id: { $in: members.map((m) => m.userId).filter((id) => id != obj.userID) } },
+        { _id: { $in: toSend.filter((id) => id != obj.userID) } },
         { token: 0 },
       ).lean();
     }
@@ -397,6 +399,14 @@ async function notifyNewMessage(obj, originalRequestData) {
     }
     payload.undeliveredCount = originalRequestData.undeliveredCount;
     payload.isHighPriority = true;
+
+    if (result.business) {
+      payload.business = {
+        _id: result.business._id.toString(),
+        name: result.business.name,
+      };
+    }
+
     sendPush(tokenAndBadgeCount, payload, Config.useVoipPush);
 
     return result;
