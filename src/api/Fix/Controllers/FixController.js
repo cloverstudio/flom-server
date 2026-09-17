@@ -21,29 +21,43 @@ router.get("/product-business", async (request, response) => {
   try {
     const products = await Product.find({}).lean();
     const businesses = await Business.find({}).sort({ created: 1 }).lean();
-    const businessOwnerToBusinessIdMap = {};
+    const businessOwnerToBusinessMap = {};
+    const businessMap = {};
     businesses.forEach((business) => {
       const ownerId = business.owner._id || business.ownerId;
 
-      if (!businessOwnerToBusinessIdMap[ownerId]) {
-        businessOwnerToBusinessIdMap[ownerId] = business._id.toString();
+      if (!businessOwnerToBusinessMap[ownerId]) {
+        businessOwnerToBusinessMap[ownerId] = { _id: business._id.toString(), name: business.name };
       }
+
+      businessMap[business._id.toString()] = business;
     });
 
     const bulkWriteOps = [];
 
     for (const p of products) {
-      if (p.businessId) continue;
-
-      const businessId = businessOwnerToBusinessIdMap[p.ownerId];
-
-      if (businessId) {
-        console.log(`Updating product ${p._id} with businessId ${businessId}`);
+      if (p.business?._id) continue;
+      if (p.businessId) {
+        const b = businessMap[p.businessId];
 
         bulkWriteOps.push({
           updateOne: {
             filter: { _id: p._id },
-            update: { $set: { businessId } },
+            update: { $set: { business: { _id: b._id.toString(), name: b.name } } },
+          },
+        });
+        continue;
+      }
+
+      const b = businessOwnerToBusinessMap[p.ownerId];
+
+      if (b) {
+        console.log(`Updating product ${p._id} with businessId ${b._id}`);
+
+        bulkWriteOps.push({
+          updateOne: {
+            filter: { _id: p._id },
+            update: { $set: { business: { _id: b._id.toString(), name: b.name } } },
           },
         });
       } else {
@@ -60,14 +74,19 @@ router.get("/product-business", async (request, response) => {
           const business = await Logics.createBusiness({ owner, info });
 
           if (business && business._id) {
-            businessOwnerToBusinessIdMap[p.ownerId] = business._id.toString();
+            businessOwnerToBusinessMap[p.ownerId] = {
+              _id: business._id.toString(),
+              name: business.name,
+            };
 
             console.log(`Updating product ${p._id} with businessId ${business._id.toString()}`);
 
             bulkWriteOps.push({
               updateOne: {
                 filter: { _id: p._id },
-                update: { $set: { businessId: business._id.toString() } },
+                update: {
+                  $set: { business: { _id: business._id.toString(), name: business.name } },
+                },
               },
             });
           }
