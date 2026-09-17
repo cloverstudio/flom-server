@@ -35,6 +35,7 @@ const countryIso = require("country-iso");
  * @apiParam (Query string) {String}   [page] Page number for paging (default 1)
  * @apiParam (Query string) {String}   [tags] Product tags
  * @apiParam (Query string) {String}   [businessId] Business ID of the product
+ * @apiParam (Query string) {String}   [includeMyProducts] Include my products in the list (1-true or 0-false, if none is sent default is false)
  *
  * @apiSuccessExample {json} Success Response
  * {
@@ -198,6 +199,8 @@ router.get("/", async function (request, response) {
         ? request.query.productIds
         : [request.query.productIds]
       : undefined;
+
+    const includeMyProducts = request.query.includeMyProducts == "1";
 
     let requestUserId, requestUserTribeIds, requestUserMembershipIds;
     const token = request.headers["access-token"];
@@ -398,6 +401,7 @@ router.get("/", async function (request, response) {
       isGuest,
       blocked,
       businessId,
+      includeMyProducts,
     });
 
     //removing unnecessary fields from products which are visible only if person is in the community
@@ -573,6 +577,7 @@ async function getProducts({
   isGuest,
   blocked,
   businessId,
+  includeMyProducts,
 }) {
   const productQuery = await generateQuery({
     productIds,
@@ -593,6 +598,7 @@ async function getProducts({
     isGuest,
     blocked,
     businessId,
+    includeMyProducts,
   });
 
   var products = await Product.find(productQuery).sort(sort).lean();
@@ -684,8 +690,9 @@ async function generateQuery({
   isGuest,
   blocked,
   businessId,
+  includeMyProducts,
 }) {
-  const query = { ownerId: { $nin: blocked || [] } };
+  const query = { ownerId: { $nin: blocked || [], $in: [] } };
 
   if (businessId) {
     query["business._id"] = businessId;
@@ -713,7 +720,10 @@ async function generateQuery({
     ];
   }
   if (userId) {
-    query.ownerId = userId;
+    query.ownerId.$in = [userId];
+  }
+  if (includeMyProducts && requestUserId) {
+    query.ownerId.$in.push(requestUserId);
   }
   if (type) {
     query.type = type;
@@ -729,7 +739,7 @@ async function generateQuery({
       if (requestUserId && !fetchUsersProducts) {
         blockedUserIds.push(requestUserId);
       }
-      query.ownerId.$nin = [...blockedUserIds, ...query.ownerId.$nin];
+      query.ownerId.$nin = Array.from(new Set([...blockedUserIds, ...query.ownerId.$nin]));
     }
   } else if (moderationStatus) {
     query["moderation.status"] = moderationStatus;
@@ -750,7 +760,8 @@ async function generateQuery({
       }
       return accumulator;
     }, {});
-    query.ownerId.$in = groupedByCountryCode[countryCode] || [];
+    const tempOwners = groupedByCountryCode[countryCode] || [];
+    query.ownerId.$in = Array.from(new Set([...query.ownerId.$in, ...tempOwners]));
   }
   if (lat && lon && type == Const.productTypeProduct.toString()) {
     query.location = {
