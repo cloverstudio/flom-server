@@ -601,6 +601,13 @@ async function getProducts({
     includeMyProducts,
   });
 
+  if (includeMyProducts) {
+    const orQuery = [{ ownerId: productQuery.ownerId }, { "business._id": businessId }];
+    delete productQuery.ownerId;
+    delete productQuery["business._id"];
+    productQuery.$or = orQuery;
+  }
+
   var products = await Product.find(productQuery).sort(sort).lean();
 
   const categoryIds = new Set();
@@ -724,6 +731,7 @@ async function generateQuery({
   }
   if (includeMyProducts && requestUserId) {
     query.ownerId.$in.push(requestUserId);
+    fetchUsersProducts = true;
   }
   if (type) {
     query.type = type;
