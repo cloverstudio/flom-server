@@ -86,6 +86,7 @@ const PERMISSIONS = {
     "bookings:view",
     "members:view",
   ],
+  user: ["business:view", "members:view"],
 };
 
 async function checkBusinessPermissions({
@@ -128,31 +129,27 @@ async function checkBusinessPermissions({
 
     businessId = business._id.toString();
 
+    let role = null;
+
     const businessMember = await getBusinessMember({ userId, businessId });
 
     if (!businessMember) {
-      logger.error(
-        "checkBusinessPermissions error: business member not found, userId: " +
-          userId +
-          ", businessId: " +
-          businessId,
-      );
-      return false;
-    }
+      role = "user";
+    } else {
+      if (businessMember.status !== "active") {
+        logger.error(
+          "checkBusinessPermissions error: business member status is not active, userId: " +
+            userId +
+            ", businessId: " +
+            businessId +
+            ", status: " +
+            businessMember.status,
+        );
+        return false;
+      }
 
-    if (businessMember.status !== "active") {
-      logger.error(
-        "checkBusinessPermissions error: business member status is not active, userId: " +
-          userId +
-          ", businessId: " +
-          businessId +
-          ", status: " +
-          businessMember.status,
-      );
-      return false;
+      role = businessMember.role;
     }
-
-    const role = businessMember.role;
 
     if (!PERMISSIONS[role]) {
       logger.error("checkBusinessPermissions error: role not found in permissions: " + role);
