@@ -34,6 +34,7 @@ const countryIso = require("country-iso");
  * @apiParam (Query string) {String}   [orderBy] Order parameter for product list (asc or desc, default: desc)
  * @apiParam (Query string) {String}   [page] Page number for paging (default 1)
  * @apiParam (Query string) {String}   [tags] Product tags
+ * @apiParam (Query string) {String}   [businessId] Business ID of the product
  *
  * @apiSuccessExample {json} Success Response
  * {
@@ -288,6 +289,24 @@ router.get("/", async function (request, response) {
       userId = user._id.toString();
     }
 
+    const businessId = request.query.businessId;
+
+    if (businessId && !Utils.isValidObjectId(businessId)) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeInvalidBusinessId,
+        message: `NewProductListController, invalid businessId parameter`,
+      });
+    }
+
+    if (businessId && !["5", "6"].includes(type)) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeInvalidTypeParameter,
+        message: `NewProductListController, wrong type parameter`,
+      });
+    }
+
     const typesArray = ["1", "2", "3", "4", "5", "6"];
     if (type !== undefined && typesArray.indexOf(type) === -1) {
       return Base.newErrorResponse({
@@ -378,6 +397,7 @@ router.get("/", async function (request, response) {
       kidsMode,
       isGuest,
       blocked,
+      businessId,
     });
 
     //removing unnecessary fields from products which are visible only if person is in the community
@@ -552,6 +572,7 @@ async function getProducts({
   kidsMode,
   isGuest,
   blocked,
+  businessId,
 }) {
   const productQuery = await generateQuery({
     productIds,
@@ -571,6 +592,7 @@ async function getProducts({
     kidsMode,
     isGuest,
     blocked,
+    businessId,
   });
 
   var products = await Product.find(productQuery).sort(sort).lean();
@@ -661,8 +683,13 @@ async function generateQuery({
   kidsMode,
   isGuest,
   blocked,
+  businessId,
 }) {
   const query = { ownerId: { $nin: blocked || [] } };
+
+  if (businessId) {
+    query["business._id"] = businessId;
+  }
 
   let fetchUsersProducts = false;
   if (productIds && Array.isArray(productIds) && productIds.length > 0) {
@@ -808,8 +835,6 @@ async function generateQuery({
 }
 
 async function addOwners(products) {
-  const start = Date.now();
-
   const ownerIds = products.reduce((acc, cur) => {
     return [...acc, cur.ownerId];
   }, []);
