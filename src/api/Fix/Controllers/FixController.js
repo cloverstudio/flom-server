@@ -7,8 +7,87 @@ const { Const, Config, countries } = require("#config");
 const Utils = require("#utils");
 const Logics = require("#logics");
 const { auth } = require("#middleware");
-const { User, CoreIdentity, IdApplication, MerchantApplication } = require("#models");
+const {
+  User,
+  CoreIdentity,
+  IdApplication,
+  MerchantApplication,
+  Product,
+  Business,
+} = require("#models");
 const crypto = require("crypto");
+
+router.get("/product-business", async (request, response) => {
+  try {
+    const products = await Product.find({}).lean();
+    const businesses = await Business.find({}).sort({ created: 1 }).lean();
+    const businessOwnerToBusinessIdMap = {};
+    businesses.forEach((business) => {
+      const ownerId = business.owner._id || business.ownerId;
+
+      if (!businessOwnerToBusinessIdMap[ownerId]) {
+        businessOwnerToBusinessIdMap[ownerId] = business._id.toString();
+      }
+    });
+
+    const bulkWriteOps = [];
+
+    for (const p of products) {
+      if (p.businessId) continue;
+
+      const businessId = businessOwnerToBusinessIdMap[p.ownerId];
+
+      if (businessId) {
+        console.log(`Updating product ${p._id} with businessId ${businessId}`);
+
+        bulkWriteOps.push({
+          updateOne: {
+            filter: { _id: p._id },
+            update: { $set: { businessId } },
+          },
+        });
+      } else {
+        const owner = await User.findById(p.ownerId).lean();
+
+        if (owner) {
+          const info = {};
+          info.market =
+            owner.countryCode ||
+            Utils.getCountryCodeFromPhoneNumber({ phoneNumber: owner.phoneNumber });
+          info.name = `${owner.userName}'s Business`;
+          info.description = `Business owned by ${owner.userName}`;
+
+          const business = await Logics.createBusiness({ owner, info });
+
+          if (business && business._id) {
+            businessOwnerToBusinessIdMap[p.ownerId] = business._id.toString();
+
+            console.log(`Updating product ${p._id} with businessId ${business._id.toString()}`);
+
+            bulkWriteOps.push({
+              updateOne: {
+                filter: { _id: p._id },
+                update: { $set: { businessId: business._id.toString() } },
+              },
+            });
+          }
+        }
+      }
+    }
+
+    if (bulkWriteOps.length > 0) {
+      await Product.bulkWrite(bulkWriteOps);
+    }
+
+    Base.successResponse(response, Const.responsecodeSucceed);
+  } catch (error) {
+    Base.newErrorResponse({
+      response,
+      message: "FixController - product-business",
+      error,
+    });
+  }
+});
 
 router.get("/loglevel", async (request, response) => {
   try {
