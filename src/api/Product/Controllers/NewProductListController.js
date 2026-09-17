@@ -842,6 +842,17 @@ async function generateQuery({
 
     query.hashtags = { $all: arrayOfTagsIds };
   }
+
+  if (query.ownerId?.$in?.length === 0) {
+    delete query.ownerId.$in;
+  }
+  if (query.ownerId?.$nin?.length === 0) {
+    delete query.ownerId.$nin;
+  }
+  if (query.ownerId && Object.keys(query.ownerId).length === 0) {
+    delete query.ownerId;
+  }
+
   return query;
 }
 
