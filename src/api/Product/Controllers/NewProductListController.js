@@ -615,9 +615,11 @@ async function getProducts({
 
   products.forEach((product) => {
     product._id = product._id.toString();
-    product.category = categoriesObj[product.categoryId];
-    if (product.parentCategoryId !== "-1") {
-      product.parentCategory = categoriesObj[product.parentCategoryId];
+    if (product.category) {
+      product.category = categoriesObj[product.categoryId];
+      if (product.parentCategoryId !== "-1") {
+        product.parentCategory = categoriesObj[product.parentCategoryId];
+      }
     }
   });
 
