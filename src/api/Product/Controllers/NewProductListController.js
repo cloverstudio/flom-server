@@ -727,7 +727,7 @@ async function generateQuery({
     const blockedUserIds = blockedUsers.map((user) => user._id.toString());
 
     //if userId filter is present and that user is not blocked then skip filtering blocked users and request user products
-    if (!userId || (userId && blockedUserIds.indexOf(userId) !== -1)) {
+    if (!businessId && (!userId || (userId && blockedUserIds.indexOf(userId) !== -1))) {
       if (requestUserId && !fetchUsersProducts) {
         blockedUserIds.push(requestUserId);
       }
