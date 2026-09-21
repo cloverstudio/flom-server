@@ -17,6 +17,7 @@ const {
 } = require("#models");
 const Utils = require("#utils");
 const Logics = require("#logics");
+const { socketApi } = require("#sockets");
 
 /**
  * @api {get} /api/v2/businesses/invites/token/:token  Get business invite by token flom_v1
@@ -304,6 +305,21 @@ router.get("/:inviteId/accept", auth({ allowUser: true }), async function (reque
       await History.create(uniqueChatHistories);
     } catch (error) {
       logger.error("BusinessInviteController, error creating chat histories: ", error);
+    }
+
+    try {
+      const businessHistories = await History.find({
+        chatType: Const.chatTypeBusiness,
+        chatId: { $regex: `^${invite.businessId}` },
+      }).lean();
+
+      const businessRoomIds = Array.from(new Set(businessHistories.map((b) => "6-" + b.chatId)));
+
+      for (const id of businessRoomIds) {
+        socketApi.join(userId, id);
+      }
+    } catch (error) {
+      logger.error("BusinessInviteController, error adding user to business chat rooms: ", error);
     }
   } catch (error) {
     return Base.newErrorResponse({

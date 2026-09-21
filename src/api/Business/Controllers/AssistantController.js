@@ -3,11 +3,12 @@
 const router = require("express").Router();
 const Base = require("../../Base");
 const { logger } = require("#infra");
-const { Const, Config } = require("#config");
+const { Const } = require("#config");
 const { auth } = require("#middleware");
-const { Business, BusinessMember, User, Notification, FlomMessage } = require("#models");
+const { Business, BusinessMember, History } = require("#models");
 const Utils = require("#utils");
 const Logics = require("#logics");
+const { socketApi } = require("#sockets");
 
 /**
  * @api {post} /api/v2/businesses/assistants/actions  Perform action on assistant flom_v1
@@ -120,6 +121,32 @@ router.post("/assistants/actions", auth({ allowUser: true }), async function (re
       await BusinessMember.updateOne({ businessId, userId: targetId }, { status: "active" });
     } else if (action === "change_role") {
       await BusinessMember.updateOne({ businessId, userId: targetId }, { role });
+    }
+
+    if (action === "remove" || action === "deactivate") {
+      const businessHistories = await History.find({
+        chatType: Const.chatTypeBusiness,
+        chatId: { $regex: `^${businessId}-` },
+      }).lean();
+
+      const businessRoomIds = Array.from(new Set(businessHistories.map((b) => "6-" + b.chatId)));
+
+      for (const id of businessRoomIds) {
+        socketApi.remove(targetId, id);
+      }
+    }
+
+    if (action === "activate") {
+      const businessHistories = await History.find({
+        chatType: Const.chatTypeBusiness,
+        chatId: { $regex: `^${businessId}-` },
+      }).lean();
+
+      const businessRoomIds = Array.from(new Set(businessHistories.map((b) => "6-" + b.chatId)));
+
+      for (const id of businessRoomIds) {
+        socketApi.join(targetId, id);
+      }
     }
 
     return Base.successResponse(response, Const.responsecodeSucceed, {});
