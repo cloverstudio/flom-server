@@ -295,6 +295,7 @@ router.get("/:inviteId/accept", auth({ allowUser: true }), async function (reque
           h.userId = userId;
           h.pinned = false;
           h.reaction = {};
+          delete h._id;
           existingChatIds.push(h.chatId);
           return true;
         }
