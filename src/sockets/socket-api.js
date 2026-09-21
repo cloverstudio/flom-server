@@ -90,6 +90,7 @@ const socketApi = {
   },
   async leave(userId, roomId, nsp = "flom") {
     const value = await redis.get(Const.redisKeyUserId + userId);
+    console.log("leave value:", value);
     if (!value) return;
 
     value.forEach((socket) => {

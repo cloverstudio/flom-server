@@ -134,8 +134,10 @@ router.post("/assistants/actions", auth({ allowUser: true }), async function (re
 
         const businessRoomIds = Array.from(new Set(businessHistories.map((b) => "6-" + b.chatId)));
 
+        console.log("businessRoomIds", businessRoomIds);
+
         for (const id of businessRoomIds) {
-          socketApi.leave(targetId, id);
+          await socketApi.leave(targetId, id);
         }
       }
 
@@ -148,7 +150,7 @@ router.post("/assistants/actions", auth({ allowUser: true }), async function (re
         const businessRoomIds = Array.from(new Set(businessHistories.map((b) => "6-" + b.chatId)));
 
         for (const id of businessRoomIds) {
-          socketApi.join(targetId, id);
+          await socketApi.join(targetId, id);
         }
       }
     } catch (error) {
