@@ -116,6 +116,7 @@ module.exports = Object.freeze({
   Tribe: require("./Tribe"),
   Type: require("./Type"),
 
+  UnexpectedError: require("./UnexpectedError"),
   User: require("./User"),
   UserCategoryInteraction: require("./UserCategoryInteraction"),
   UserTagInteraction: require("./UserTagInteraction"),

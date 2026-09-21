@@ -17,6 +17,18 @@ const {
 } = require("#models");
 const crypto = require("crypto");
 
+router.get("/errortest", async (request, response) => {
+  try {
+    throw new Error("nova greška");
+  } catch (error) {
+    Base.newErrorResponse({
+      response,
+      message: "FixController - errortest",
+      error,
+    });
+  }
+});
+
 router.get("/product-business", async (request, response) => {
   try {
     const products = await Product.find({}).lean();

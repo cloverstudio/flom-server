@@ -2,6 +2,7 @@ const { Const } = require("#config");
 const { logger } = require("#infra");
 const Utils = require("#utils");
 const { Localizer } = require("#services");
+const { UnexpectedError } = require("#models");
 
 function errorResponse(response, httpCode, message, error) {
   if (message && error) {
@@ -48,7 +49,11 @@ function newErrorResponse({ response, code, type, message, error, data, param, p
   const deviceType = request.headers["device-type"];
 
   if (!code) {
-    logger.error(message + " | Device type: " + deviceType, error);
+    const reference = Utils.getRandomString(8, "limited");
+
+    createUnexpectedError({ reference, error, request });
+
+    logger.error(message + " | Device: " + deviceType + " | Reference: " + reference, error);
     response.status(Const.httpCodeServerError);
     return response.send("");
   }
@@ -59,10 +64,10 @@ function newErrorResponse({ response, code, type, message, error, data, param, p
 
   if (code !== Const.responsecodeNoActiveLiveStreamFoundForUser) {
     if (!error)
-      logger.error(`Error code: ${code} | Error message: ${message} | Device type: ${deviceType}`);
+      logger.error(`Error code: ${code} | Error message: ${message} | Device: ${deviceType}`);
     else
       logger.error(
-        `Error code: ${code} | Error message: ${message} | Device type: ${deviceType}`,
+        `Error code: ${code} | Error message: ${message} | Device: ${deviceType}`,
         error,
       );
   }
@@ -81,6 +86,35 @@ function newErrorResponse({ response, code, type, message, error, data, param, p
   }
 
   response.json(responseData);
+}
+
+async function createUnexpectedError({ reference, error, request }) {
+  try {
+    const info = {
+      source: "main_app",
+      reference,
+      error: { name: error.name, message: error.message, stack: error.stack },
+      request: {
+        method: request.method,
+        path: request.path,
+        body: request.body,
+        params: request.params,
+        query: request.query,
+      },
+    };
+
+    if (request.user) {
+      info.user = {
+        _id: request.user._id.toString(),
+        userName: request.user.userName,
+        phoneNumber: request.user.phoneNumber,
+      };
+    }
+
+    await UnexpectedError.create(info);
+  } catch (err) {
+    logger.error("Failed to create unexpected error record: ", err);
+  }
 }
 
 module.exports = {

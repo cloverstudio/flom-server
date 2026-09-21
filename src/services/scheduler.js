@@ -12,5 +12,6 @@ module.exports = {
     schedule.scheduleJob("10 */2 * * *", jobs.expireBusinessInvites);
     schedule.scheduleJob("35 * * * *", jobs.sendBusinessInviteNotifications);
     schedule.scheduleJob("1 6 */2 * *", jobs.removeExpiredIdempotencyRecords);
+    schedule.scheduleJob("1 0 * * 0", jobs.cleanUnexpectedErrors);
   },
 };
