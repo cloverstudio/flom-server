@@ -44,8 +44,11 @@ function successResponse(response, code, data) {
 }
 
 function newErrorResponse({ response, code, type, message, error, data, param, param2 }) {
+  const request = response.req;
+  const deviceType = request.headers["device-type"];
+
   if (!code) {
-    logger.error(message, error);
+    logger.error(message + " | Device type: " + deviceType, error);
     response.status(Const.httpCodeServerError);
     return response.send("");
   }
@@ -55,8 +58,13 @@ function newErrorResponse({ response, code, type, message, error, data, param, p
   const loc = new Localizer(lang);
 
   if (code !== Const.responsecodeNoActiveLiveStreamFoundForUser) {
-    if (!error) logger.error(`Error code: ${code} | Error message: ${message}`);
-    else logger.error(`Error code: ${code} | Error message: ${message}`, error);
+    if (!error)
+      logger.error(`Error code: ${code} | Error message: ${message} | Device type: ${deviceType}`);
+    else
+      logger.error(
+        `Error code: ${code} | Error message: ${message} | Device type: ${deviceType}`,
+        error,
+      );
   }
 
   response.status(Const.httpCodeSucceed);
