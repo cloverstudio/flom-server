@@ -134,8 +134,6 @@ router.post("/assistants/actions", auth({ allowUser: true }), async function (re
 
         const businessRoomIds = Array.from(new Set(businessHistories.map((b) => "6-" + b.chatId)));
 
-        console.log("businessRoomIds", businessRoomIds);
-
         for (const id of businessRoomIds) {
           await socketApi.leave(targetId, id);
         }

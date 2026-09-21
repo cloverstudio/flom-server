@@ -120,6 +120,8 @@ async function notifyNewMessage(obj, originalRequestData) {
       messageCloned.business = result.business;
       messageCloned.mutedUsersGroupRoom = usersWhoMutedRoom.map((user) => user._id.toString());
 
+      console.log("Emitting new message to business room:", roomId);
+
       socketApi.emitToRoom(roomId, "newmessage", messageCloned);
     }
 
