@@ -175,8 +175,11 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       count: result.count,
     });
   } catch (error) {
-    Base.errorResponse(response, Const.httpCodeServerError, "GroupListController - GET", error);
-    return;
+    Base.newErrorResponse({
+      response,
+      message: "GroupListController - GET",
+      error,
+    });
   }
 });
 
@@ -194,12 +197,11 @@ router.get("/:page", auth({ allowUser: true }), async function (request, respons
       count: result.count,
     });
   } catch (error) {
-    return Base.errorResponse(
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "GroupListController - GET page",
+      message: "GroupListController - GET page",
       error,
-    );
+    });
   }
 });
 

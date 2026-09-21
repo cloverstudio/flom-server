@@ -27,14 +27,11 @@ router.post("", async function (request, response) {
     form.multiples = true;
 
     if (!fs.existsSync(Config.uploadPath)) {
-      logger.error("FileUploadController, upload dir doesnt exist");
-      Base.errorResponse(
+      return Base.newErrorResponse({
         response,
-        Const.httpCodeServerError,
-        "FileUploadController",
-        "Upload dir doesnt exist",
-      );
-      return;
+        code: Const.responsecodeMessageFileUploadFailed,
+        message: "FileUploadController, upload dir doesnt exist",
+      });
     }
 
     const { fields, files } = await Utils.formParse(request, {
@@ -43,15 +40,21 @@ router.post("", async function (request, response) {
     });
 
     if (Object.keys(files).length === 0) {
-      Base.successResponse(response, Const.responsecodeMessageFileUploadFailed);
-      return;
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeMessageFileUploadFailed,
+        message: "FileUploadController, no file uploaded",
+      });
     }
 
     const file = files[Object.keys(files)[0]];
 
     if (!file) {
-      Base.successResponse(response, Const.responsecodeMessageFileUploadFailed);
-      return;
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeMessageFileUploadFailed,
+        message: "FileUploadController, file not found after parsing",
+      });
     }
 
     let mediaDuration;
@@ -60,7 +63,7 @@ router.post("", async function (request, response) {
         const info = await mediaHandler.getMediaInfo(file.path);
         mediaDuration = info.duration;
       } catch (err) {
-        logger.error("FileUploadController", err);
+        logger.error("FileUploadController, media info error", err);
       }
     }
 
@@ -107,7 +110,7 @@ router.post("", async function (request, response) {
         const thumbDestPath = Config.uploadPath + "/" + thumbModel._id.toString();
         await fsp.rename(destPathTmp, thumbDestPath);
       } catch (err) {
-        logger.error("FileUploadController", err);
+        logger.error("FileUploadController, thumbnail creation error", err);
       }
     }
 
@@ -131,7 +134,11 @@ router.post("", async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed, responseJson);
   } catch (error) {
-    return Base.errorResponse(response, Const.httpCodeServerError, "FileUploadController", error);
+    Base.newErrorResponse({
+      response,
+      message: "FileUploadController, Error uploading file",
+      error,
+    });
   }
 });
 

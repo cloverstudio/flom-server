@@ -128,13 +128,21 @@ router.get("/:groupId/:page", auth({ allowUser: true }), async function (request
     const page = request.params.page - 1;
 
     if (!groupId) {
-      return Base.successResponse(response, Const.responsecodeGroupDetailInvalidGroupId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeGroupDetailInvalidGroupId,
+        message: "GroupUsersController, missing group id",
+      });
     }
 
     const groupFindResult = await Group.findById(groupId).lean();
 
     if (!groupFindResult) {
-      return Base.successResponse(response, Const.responsecodeGroupDetailInvalidGroupId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeGroupDetailInvalidGroupId,
+        message: "GroupUsersController, invalid group id",
+      });
     }
 
     result.group = groupFindResult;
@@ -161,7 +169,11 @@ router.get("/:groupId/:page", auth({ allowUser: true }), async function (request
       list: result.list,
     });
   } catch (error) {
-    return Base.errorResponse(response, Const.httpCodeServerError, "GroupUsersController", error);
+    Base.newErrorResponse({
+      response,
+      message: "GroupUsersController",
+      error,
+    });
   }
 });
 

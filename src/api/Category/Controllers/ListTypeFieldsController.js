@@ -2,7 +2,6 @@
 
 const router = require("express").Router();
 const Base = require("../../Base");
-const { logger } = require("#infra");
 const { Const } = require("#config");
 const { auth } = require("#middleware");
 const { Type, SubType, Color, Brand, Gender, Size } = require("#models");
@@ -24,8 +23,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
   const typeId = request.body.typeId;
 
   if (typeId === undefined) {
-    logger.error("ListTypeFieldsController, no type id");
-    return Base.successResponse(response, Const.responsecodeNoTypeId);
+    return Base.newErrorResponse({
+      response,
+      code: Const.responsecodeNoTypeId,
+      message: "ListTypeFieldsController, missing type id",
+    });
   }
 
   try {
@@ -58,9 +60,12 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     };
 
     Base.successResponse(response, Const.responsecodeSucceed, result);
-  } catch (e) {
-    Base.errorResponse(response, Const.httpCodeServerError, "ListTypeFieldsController", e);
-    return;
+  } catch (error) {
+    Base.newErrorResponse({
+      response,
+      message: "ListTypeFieldsController, Get list of type fields",
+      error,
+    });
   }
 });
 

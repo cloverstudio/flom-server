@@ -2,7 +2,6 @@
 
 const router = require("express").Router();
 const Base = require("../../Base");
-const { logger } = require("#infra");
 const { Const } = require("#config");
 const { auth } = require("#middleware");
 const { MainCategory, SubCategory } = require("#models");
@@ -25,8 +24,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
   const mainCategoryId = request.body.mainCategoryId;
 
   if (!mainCategoryId) {
-    logger.error("ListSubCategoryController, missing main category id");
-    return Base.successResponse(response, Const.responsecodeNoMainCategoryId);
+    return Base.newErrorResponse({
+      response,
+      code: Const.responsecodeNoMainCategoryId,
+      message: "ListSubCategoryController, missing main category id",
+    });
   }
 
   try {
@@ -40,9 +42,12 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const subCategories = await SubCategory.find(query).lean();
 
     Base.successResponse(response, Const.responsecodeSucceed, subCategories);
-  } catch (e) {
-    Base.errorResponse(response, Const.httpCodeServerError, "ListSubCategoryController", e);
-    return;
+  } catch (error) {
+    Base.newErrorResponse({
+      response,
+      message: "ListSubCategoryController, Get list of sub categories",
+      error,
+    });
   }
 });
 

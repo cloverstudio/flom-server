@@ -2,7 +2,6 @@
 
 const router = require("express").Router();
 const Base = require("../../Base");
-const { logger } = require("#infra");
 const { Const } = require("#config");
 const { auth } = require("#middleware");
 const { Type, VehicleMake } = require("#models");
@@ -23,8 +22,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
   const subCategoryId = request.body.subCategoryId;
 
   if (!subCategoryId) {
-    logger.error("ListTypesAndMakesController, no subcategory id");
-    return Base.successResponse(response, Const.responsecodeNoSubCategoryId);
+    return Base.newErrorResponse({
+      response,
+      code: Const.responsecodeNoSubCategoryId,
+      message: "ListTypesAndMakesController, missing sub category id",
+    });
   }
 
   try {
@@ -42,9 +44,12 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     let result = { types, vehicleMakes };
 
     Base.successResponse(response, Const.responsecodeSucceed, result);
-  } catch (e) {
-    Base.errorResponse(response, Const.httpCodeServerError, "ListTypesAndMakesController", e);
-    return;
+  } catch (error) {
+    Base.newErrorResponse({
+      response,
+      message: "ListTypesAndMakesController, Get list of types and makes",
+      error,
+    });
   }
 });
 

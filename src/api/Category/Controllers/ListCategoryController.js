@@ -93,9 +93,12 @@ router.post("/", async function (request, response) {
       .lean();
 
     Base.successResponse(response, Const.responsecodeSucceed, categories);
-  } catch (e) {
-    Base.errorResponse(response, Const.httpCodeServerError, "ListCategoryController", e);
-    return;
+  } catch (error) {
+    Base.newErrorResponse({
+      response,
+      message: "ListCategoryController, Get list of categories",
+      error,
+    });
   }
 });
 

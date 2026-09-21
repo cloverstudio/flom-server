@@ -169,14 +169,20 @@ router.get("/:groupId", auth({ allowUser: true }), async function (request, resp
 
     const groupId = request.params.groupId;
     if (!groupId) {
-      Base.successResponse(response, Const.responsecodeGroupDetailInvalidGroupId);
-      return;
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeGroupDetailInvalidGroupId,
+        message: "GroupDetailController, missing group id",
+      });
     }
 
     const group = await Group.findById(groupId).lean();
     if (!group) {
-      Base.successResponse(response, Const.responsecodeGroupDetailInvalidGroupId);
-      return;
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeGroupDetailInvalidGroupId,
+        message: "GroupDetailController, invalid group id",
+      });
     }
 
     result.group = group;
@@ -189,8 +195,11 @@ router.get("/:groupId", auth({ allowUser: true }), async function (request, resp
 
     Base.successResponse(response, Const.responsecodeSucceed, result);
   } catch (error) {
-    Base.errorResponse(response, Const.httpCodeServerError, "GroupDetailController", error);
-    return;
+    Base.newErrorResponse({
+      response,
+      message: "GroupDetailController, fetching group details",
+      error,
+    });
   }
 });
 

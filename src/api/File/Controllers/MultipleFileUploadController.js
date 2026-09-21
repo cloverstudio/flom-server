@@ -33,8 +33,11 @@ router.post("", async function (request, response) {
 
     form.parse(request, async function (err, fields, files) {
       if (!files.file) {
-        Base.successResponse(response, Const.responsecodeMessageFileUploadFailed);
-        return;
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeMessageFileUploadFailed,
+          message: "MultipleFileUploadController, no file uploaded",
+        });
       } else if (!files.file.length) {
         //case: only one file
         //files.file.lenght is undefined when only one file is being uploaded
@@ -200,7 +203,11 @@ router.post("", async function (request, response) {
       }
     };
   } catch (error) {
-    Base.errorResponse(response, Const.httpCodeServerError, "MultipleFileUploadController", error);
+    Base.newErrorResponse({
+      response,
+      message: "MultipleFileUploadController, Error uploading multiple files",
+      error,
+    });
   }
 });
 

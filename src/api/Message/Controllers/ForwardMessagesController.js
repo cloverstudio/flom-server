@@ -14,7 +14,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const messageList = [];
 
     if (!Array.isArray(messages)) {
-      return Base.successResponse(response, Const.responsecodeForwardMessagesNotArray);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeForwardMessageInvalidMessageId,
+        message: "ForwardMessagesController, messages is not an array",
+      });
     }
 
     for (const message of messages) {
@@ -29,12 +33,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed, { messages: messageList });
   } catch (error) {
-    return Base.errorResponse(
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "ForwardMessagesController",
+      message: "ForwardMessagesController",
       error,
-    );
+    });
   }
 });
 

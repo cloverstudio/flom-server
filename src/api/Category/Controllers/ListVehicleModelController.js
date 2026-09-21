@@ -46,16 +46,22 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const vehicleMakeId = request.body.vehicleMakeId;
 
     if (vehicleMakeId === undefined) {
-      logger.error("ListVehicleModelController, no vehicle make id");
-      return Base.successResponse(response, Const.responsecodeNoVehicleMakeId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeNoVehicleMakeId,
+        message: "ListVehicleModelController, missing vehicle make id",
+      });
     }
 
     let models = await VehicleModel.find({ vehicleMakeId }).select({ name: 1, _id: 1 });
 
     Base.successResponse(response, Const.responsecodeSucceed, models);
-  } catch (e) {
-    Base.errorResponse(response, Const.httpCodeServerError, "ListVehicleModelController", e);
-    return;
+  } catch (error) {
+    Base.newErrorResponse({
+      response,
+      message: "ListVehicleModelController, Get list of vehicle models",
+      error,
+    });
   }
 });
 

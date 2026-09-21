@@ -74,9 +74,12 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     Base.successResponse(response, Const.responsecodeSucceed, {
       sentGift: 1,
     });
-  } catch (e) {
-    Base.errorResponse(response, Const.httpCodeServerError, "AddFeedbackController", e);
-    return;
+  } catch (error) {
+    Base.newErrorResponse({
+      response,
+      message: "AddFeedbackController, Error adding feedback",
+      error,
+    });
   }
 });
 

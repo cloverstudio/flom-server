@@ -141,17 +141,17 @@ router.get("/packets", async function (request, response) {
         packets.push(blessPackets.splice(0, 8).sort((a, b) => a.position - b.position));
       }
     }
+
     Base.successResponse(response, Const.responsecodeSucceed, {
       packets,
       hasNext: page * itemsPerPage < total,
     });
   } catch (error) {
-    return Base.errorResponse(
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "BlessController - get packets",
+      message: "BlessController, Get packets",
       error,
-    );
+    });
   }
 });
 
@@ -174,7 +174,11 @@ router.get("/packets", async function (request, response) {
 router.get("/emojis/:emojiName", async function (request, response) {
   try {
     if (!request.params.emojiName) {
-      return Base.successResponse(response, Const.responsecodeFileNotFound);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeFileNotFound,
+        message: "BlessController, Get bless packet emoji, file not found (start)",
+      });
     }
 
     const fileName = request.params.emojiName;
@@ -201,9 +205,17 @@ router.get("/emojis/:emojiName", async function (request, response) {
       console.log("ENOENT 2");
     }
 
-    return Base.successResponse(response, Const.responsecodeFileNotFound, "BlessController");
+    return Base.newErrorResponse({
+      response,
+      code: Const.responsecodeFileNotFound,
+      message: "BlessController, Get bless packet emoji, file not found (end)",
+    });
   } catch (error) {
-    return Base.errorResponse(response, Const.httpCodeServerError, "BlessController", error);
+    Base.newErrorResponse({
+      response,
+      message: "BlessController, Get bless packet emoji",
+      error,
+    });
   }
 });
 

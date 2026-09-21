@@ -98,13 +98,12 @@ router.get("", async (request, response) => {
       reservedAt: freeNumber ? Math.floor(modified / 1000) : undefined,
       tempToken: freeNumber ? Utils.getRandomString() : undefined,
     });
-  } catch (e) {
-    return Base.errorResponse(
+  } catch (error) {
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "GetFreeDidWWNumberController",
-      e,
-    );
+      message: "GetFreeDidWWNumberController",
+      error,
+    });
   }
 });
 

@@ -50,7 +50,6 @@ router.post("", async (request, response) => {
             ? chunkJson.attributes.did_number.trim()
             : "+" + chunkJson.attributes.did_number.trim();
 
-          //Spremi u bazu
           await DidWWLog.create({
             sourcePhoneNumber,
             destinationPhoneNumber,
@@ -63,8 +62,12 @@ router.post("", async (request, response) => {
     });
 
     Base.successResponse(response, Const.responsecodeSucceed, {});
-  } catch (e) {
-    return Base.errorResponse(response, Const.httpCodeServerError, "DidWWCallbackController", e);
+  } catch (error) {
+    Base.newErrorResponse({
+      response,
+      message: "DidWWCallbackController",
+      error,
+    });
   }
 });
 

@@ -33,9 +33,12 @@ router.post("/", async function (request, response) {
     const categories = await MainCategory.find().lean();
 
     Base.successResponse(response, Const.responsecodeSucceed, categories);
-  } catch (e) {
-    Base.errorResponse(response, Const.httpCodeServerError, "ListMainCategoryController", e);
-    return;
+  } catch (error) {
+    Base.newErrorResponse({
+      response,
+      message: "ListMainCategoryController, Get list of main categories",
+      error,
+    });
   }
 });
 
