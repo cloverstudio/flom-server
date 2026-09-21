@@ -3,6 +3,7 @@
 const router = require("express").Router();
 const Base = require("../../Base");
 const { Const } = require("#config");
+const { BusinessMember } = require("#models");
 const { auth } = require("#middleware");
 const { messageList } = require("#logics");
 
@@ -76,6 +77,26 @@ router.get(
 
       if (!roomId || roomId.includes("null")) {
         return Base.successResponse(response, Const.responsecodeMessageListInvalidParam);
+      }
+
+      const arr = roomId.split("-");
+
+      if (arr[0] == Const.chatTypeBusiness) {
+        const businessId = arr[1];
+
+        const businessMember = await BusinessMember.findOne({
+          businessId,
+          userId: userID,
+          status: "active",
+        }).lean();
+
+        if (!businessMember) {
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeUserIsNotActiveBusinessMember,
+            message: `SendMessageController, user is not active business member`,
+          });
+        }
       }
 
       const messages = await messageList({

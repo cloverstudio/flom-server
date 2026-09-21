@@ -4,7 +4,7 @@ const router = require("express").Router();
 const Base = require("../../Base");
 const { Const, Config } = require("#config");
 const { auth } = require("#middleware");
-const { WhatsAppUserMapping } = require("#models");
+const { WhatsAppUserMapping, BusinessMember } = require("#models");
 const { sendMessage } = require("#logics");
 const { createOfferMessage } = require("../helpers");
 const mediaHandler = require("#media");
@@ -105,6 +105,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const { userID, roomID } = request.body;
 
     const arr = roomID.split("-");
+
     if (arr[0] == Const.chatTypePrivate) {
       let s, r;
       if (arr[1] == userID) {
@@ -123,6 +124,24 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
       if (whatsAppMapping) {
         request.body.wa = true;
+      }
+    }
+
+    if (arr[0] == Const.chatTypeBusiness) {
+      const businessId = arr[1];
+
+      const businessMember = await BusinessMember.findOne({
+        businessId,
+        userId: userID,
+        status: "active",
+      }).lean();
+
+      if (!businessMember) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeUserIsNotActiveBusinessMember,
+          message: `SendMessageController, user is not active business member`,
+        });
       }
     }
 
