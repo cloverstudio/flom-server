@@ -92,6 +92,14 @@ const socketApi = {
     const value = await redis.get(Const.redisKeyUserId + userId);
     if (!value) return;
 
+    const namespace = this[`${nsp}Nsp`];
+    if (namespace) {
+      console.log(`Namespace ${namespace.name} exists`);
+
+      const sockets = namespace.sockets;
+      console.log(`Sockets in namespace ${namespace.name}: `, Object.keys(sockets));
+    }
+
     value.forEach((socket) => {
       const socketId = socket.socketId;
       socket = this[`${nsp}Nsp`].sockets.get(socketId);
