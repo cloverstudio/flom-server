@@ -11,8 +11,7 @@ const socketApi = {
     this.auctionsNsp = io.of(Config.socketAuctionsNameSpace);
 
     this.flomNsp.on("connection", (socket) => {
-      logger.debug("Flom namespace connected: ", JSON.stringify(socket, null, 2));
-      // logger.debug("Flom socket data printout: ", JSON.stringify(socket.data, null, 2));
+      logger.debug("Flom namespace connected: " + socket.id);
 
       socket.on("disconnect", async (reason) => {
         try {
@@ -32,8 +31,7 @@ const socketApi = {
     });
 
     this.auctionsNsp.on("connection", (socket) => {
-      logger.debug("Auctions namespace connected: ", JSON.stringify(socket, null, 2));
-      // logger.debug("Auctions socket data printout: ", JSON.stringify(socket.data, null, 2));
+      logger.debug("Auctions namespace connected: " + socket.id);
 
       socket.on("disconnect", async (reason) => {});
 
