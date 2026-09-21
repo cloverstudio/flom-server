@@ -123,33 +123,37 @@ router.post("/assistants/actions", auth({ allowUser: true }), async function (re
       await BusinessMember.updateOne({ businessId, userId: targetId }, { role });
     }
 
-    if (action === "remove" || action === "deactivate") {
-      const businessHistories = await History.find({
-        chatType: Const.chatTypeBusiness,
-        chatId: { $regex: `^${businessId}-` },
-      }).lean();
+    Base.successResponse(response, Const.responsecodeSucceed, {});
 
-      const businessRoomIds = Array.from(new Set(businessHistories.map((b) => "6-" + b.chatId)));
+    try {
+      if (action === "remove" || action === "deactivate") {
+        const businessHistories = await History.find({
+          chatType: Const.chatTypeBusiness,
+          chatId: { $regex: `^${businessId}-` },
+        }).lean();
 
-      for (const id of businessRoomIds) {
-        socketApi.remove(targetId, id);
+        const businessRoomIds = Array.from(new Set(businessHistories.map((b) => "6-" + b.chatId)));
+
+        for (const id of businessRoomIds) {
+          socketApi.leave(targetId, id);
+        }
       }
-    }
 
-    if (action === "activate") {
-      const businessHistories = await History.find({
-        chatType: Const.chatTypeBusiness,
-        chatId: { $regex: `^${businessId}-` },
-      }).lean();
+      if (action === "activate") {
+        const businessHistories = await History.find({
+          chatType: Const.chatTypeBusiness,
+          chatId: { $regex: `^${businessId}-` },
+        }).lean();
 
-      const businessRoomIds = Array.from(new Set(businessHistories.map((b) => "6-" + b.chatId)));
+        const businessRoomIds = Array.from(new Set(businessHistories.map((b) => "6-" + b.chatId)));
 
-      for (const id of businessRoomIds) {
-        socketApi.join(targetId, id);
+        for (const id of businessRoomIds) {
+          socketApi.join(targetId, id);
+        }
       }
+    } catch (error) {
+      logger.error("AssistantController, socket operation error: ", error);
     }
-
-    return Base.successResponse(response, Const.responsecodeSucceed, {});
   } catch (error) {
     return Base.newErrorResponse({
       response,
