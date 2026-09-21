@@ -102,7 +102,7 @@ async function createUnexpectedError({ reference, error, request }) {
     const deviceType = request.headers["device-type"];
 
     const info = {
-      source: "main_app",
+      origin: "main_app",
       reference,
       deviceType,
       error: { name: error.name, message: error.message, stack: error.stack },
