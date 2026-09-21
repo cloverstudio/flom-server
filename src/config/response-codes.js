@@ -872,7 +872,7 @@ ResponseCodes.responsecodeLandingPageShellExists = 444006;
 
 ResponseCodes.responsecodeInvalidPlace = 444007;
 ResponseCodes.responsecodeInvalidPriceTimeUnit = 444008;
-ResponseCodes.responsecodeUserIsNotActiveBusinessMember = 444009;
+ResponseCodes.responsecodeUserIsNotActiveBusinessMemberOrBuyer = 444009;
 
 // ResponseCodes.responsecodeNoAccessToken = 443897;
 

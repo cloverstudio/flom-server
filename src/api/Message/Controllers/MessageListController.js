@@ -83,6 +83,7 @@ router.get(
 
       if (arr[0] == Const.chatTypeBusiness) {
         const businessId = arr[1];
+        const buyerId = arr[2];
 
         const businessMember = await BusinessMember.findOne({
           businessId,
@@ -90,11 +91,11 @@ router.get(
           status: "active",
         }).lean();
 
-        if (!businessMember) {
+        if (!businessMember && userID !== buyerId) {
           return Base.newErrorResponse({
             response,
-            code: Const.responsecodeUserIsNotActiveBusinessMember,
-            message: `SendMessageController, user is not active business member`,
+            code: Const.responsecodeUserIsNotActiveBusinessMemberOrBuyer,
+            message: `SendMessageController, user is not active business member or buyer`,
           });
         }
       }

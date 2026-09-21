@@ -81,6 +81,7 @@ module.exports = function (socketApi, socket) {
 
       if (arr[0] == Const.chatTypeBusiness) {
         const businessId = arr[1];
+        const buyerId = arr[2];
 
         const businessMember = await BusinessMember.findOne({
           businessId,
@@ -88,13 +89,13 @@ module.exports = function (socketApi, socket) {
           status: "active",
         }).lean();
 
-        if (!businessMember) {
+        if (!businessMember && param.userID !== buyerId) {
           console.error(
-            "user is not active business member - " +
-              Const.responsecodeUserIsNotActiveBusinessMember,
+            "user is not active business member or buyer - " +
+              Const.responsecodeUserIsNotActiveBusinessMemberOrBuyer,
           );
           return socket.emit("socketerror", {
-            code: Const.responsecodeUserIsNotActiveBusinessMember,
+            code: Const.responsecodeUserIsNotActiveBusinessMemberOrBuyer,
           });
         }
       }
