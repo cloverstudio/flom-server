@@ -5,8 +5,12 @@ const { Localizer } = require("#services");
 const { UnexpectedError } = require("#models");
 
 function errorResponse(response, httpCode, message, error) {
+  const request = response.req;
+  const deviceType = request.headers["device-type"];
+
   if (message && error) {
     logger.error(message, error);
+    logger.error(`Device: ${deviceType}`);
   }
   response.status(httpCode);
   response.send("");
