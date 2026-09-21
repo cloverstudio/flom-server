@@ -489,6 +489,8 @@
   "444008": "Neispravna vremenska jedinica cijene.",
   "444009": "Korisnik nije aktivan član obrta.",
 
+  "444010": "Nešto je pošlo po zlu. Molim pokušajte ponovno kasnije. (Referenca: {{param}})",
+
   "4000006": "Pogrešne korisničke vjerodajnice. Molim pokušajte ponovno kasnije.",
   "4000007": "Neispravan token. Molim pokušajte ponovno kasnije.",
   "4000008": "Pogrešan naziv profila prilikom ažuriranja. Molim pokušajte ponovno kasnije.",

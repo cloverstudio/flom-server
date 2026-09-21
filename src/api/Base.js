@@ -48,14 +48,15 @@ function newErrorResponse({ response, code, type, message, error, data, param, p
   const request = response.req;
   const deviceType = request.headers["device-type"];
 
+  let reference;
+
   if (!code) {
-    const reference = Utils.getRandomString(8, "limited");
+    code = Const.responsecodeUnexpectedError;
+
+    reference = Utils.getRandomString(8, "limited");
+    param = reference;
 
     createUnexpectedError({ reference, error, request });
-
-    logger.error(message + " | Device: " + deviceType + " | Reference: " + reference, error);
-    response.status(Const.httpCodeServerError);
-    return response.send("");
   }
 
   const { lang } = response;
@@ -63,7 +64,11 @@ function newErrorResponse({ response, code, type, message, error, data, param, p
   const loc = new Localizer(lang);
 
   if (code !== Const.responsecodeNoActiveLiveStreamFoundForUser) {
-    if (!error)
+    if (reference)
+      logger.error(
+        `Error code: ${code} | Error message: Unexpected error | Device: ${deviceType} | Reference: ${reference}`,
+      );
+    else if (!error)
       logger.error(`Error code: ${code} | Error message: ${message} | Device: ${deviceType}`);
     else
       logger.error(
@@ -90,9 +95,12 @@ function newErrorResponse({ response, code, type, message, error, data, param, p
 
 async function createUnexpectedError({ reference, error, request }) {
   try {
+    const deviceType = request.headers["device-type"];
+
     const info = {
       source: "main_app",
       reference,
+      deviceType,
       error: { name: error.name, message: error.message, stack: error.stack },
       request: {
         method: request.method,
