@@ -96,7 +96,10 @@ const socketApi = {
       const socketId = socket.socketId;
       socket = this[`${nsp}Nsp`].sockets.get(socketId);
 
-      if (socket) socket.leave(roomId);
+      if (socket) {
+        logger.debug(`Socket ${socketId} leaving room ${roomId}`);
+        socket.leave(roomId);
+      }
     });
   },
 };
