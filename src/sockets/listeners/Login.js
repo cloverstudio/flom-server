@@ -33,6 +33,7 @@ module.exports = function (socketApi, socket) {
       // add socket id to the user
       let val = await redis.get(Const.redisKeyUserId + userId);
       if (!val) val = [];
+      val = val.filter((v) => v.connected && v.connected > Date.now() - 1000 * 60 * 60 * 24 * 7);
       val.push({
         socketId: socketId,
         connected: Date.now(),
