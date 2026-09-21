@@ -203,9 +203,6 @@ async function notifyNewMessage(obj, originalRequestData) {
       const toSend = members.map((m) => m.userId);
       toSend.push(roomIDSplitted[2]);
 
-      console.log("roomIDSplitted[2]:", roomIDSplitted[2]);
-      console.log("toSend:", toSend);
-
       result.users = await User.find(
         { _id: { $in: toSend.filter((id) => id != obj.userID) } },
         { token: 0 },
@@ -407,7 +404,6 @@ async function notifyNewMessage(obj, originalRequestData) {
     payload.isHighPriority = true;
 
     if (obj.business) {
-      console.log("HAS BUSINESS");
       payload.business = {
         _id: obj.business._id.toString(),
         name: obj.business.name,
