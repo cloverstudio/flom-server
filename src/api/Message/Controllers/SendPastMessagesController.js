@@ -57,34 +57,52 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const { messages } = request.body;
 
     if (!messages) {
-      return Base.successResponse(response, Const.responsecodeMessagesMustBeDefined);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeMessagesMustBeDefined,
+        message: `SendPastMessagesController, messages must be defined`,
+      });
     }
 
     if (!Array.isArray(messages)) {
-      return Base.successResponse(response, Const.responsecodeMessagesMustBeArray);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeMessagesMustBeArray,
+        message: `SendPastMessagesController, messages must be an array`,
+      });
     }
 
     if (messages.length === 0) {
-      return Base.successResponse(response, Const.responsecodeMessagesMustContainAtLeastOneObject);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeMessagesMustContainAtLeastOneObject,
+        message: `SendPastMessagesController, messages must contain at least one object`,
+      });
     }
 
     for (let i = 0; i < messages.length; i++) {
       const messageObj = messages[i];
       const { roomID, message, created } = messageObj;
       if (!roomID) {
-        return Base.successResponse(response, Const.responsecodeAllMessagesObjectMustContainRoomID);
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeAllMessagesObjectMustContainRoomID,
+          message: `SendPastMessagesController, all messages object must contain roomID`,
+        });
       }
       if (!message) {
-        return Base.successResponse(
+        return Base.newErrorResponse({
           response,
-          Const.responsecodeAllMessagesObjectMustContainMessage,
-        );
+          code: Const.responsecodeAllMessagesObjectMustContainMessage,
+          message: `SendPastMessagesController, all messages object must contain message`,
+        });
       }
       if (!created) {
-        return Base.successResponse(
+        return Base.newErrorResponse({
           response,
-          Const.responsecodeAllMessagesObjectMustContainCreated,
-        );
+          code: Const.responsecodeAllMessagesObjectMustContainCreated,
+          message: `SendPastMessagesController, all messages object must contain created`,
+        });
       }
     }
 
@@ -101,12 +119,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed, { messages: sentMessages });
   } catch (error) {
-    return Base.errorResponse(
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "SendPastMessagesController",
+      message: "SendPastMessagesController",
       error,
-    );
+    });
   }
 });
 

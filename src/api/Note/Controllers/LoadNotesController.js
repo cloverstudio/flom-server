@@ -72,8 +72,11 @@ router.get("/:chatId", auth({ allowUser: true }), async function (request, respo
       note: result.note,
     });
   } catch (error) {
-    Base.errorResponse(response, Const.httpCodeServerError, "LoadNotesController", error);
-    return;
+    Base.newErrorResponse({
+      response,
+      message: "LoadNotesController",
+      error,
+    });
   }
 });
 

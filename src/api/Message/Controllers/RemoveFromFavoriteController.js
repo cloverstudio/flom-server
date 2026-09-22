@@ -26,7 +26,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const messageId = request.body.messageId;
 
     if (!messageId) {
-      return Base.successResponse(response, Const.responsecodeRemoveFromFavoriteNoMessageId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeRemoveFromFavoriteNoMessageId,
+        message: `RemoveFromFavoriteController, no messageId parameter`,
+      });
     }
 
     const exists = await Favorite.findOne({
@@ -35,19 +39,22 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     });
 
     if (!exists) {
-      return Base.successResponse(response, Const.responsecodeRemoveFromFavoriteInvalidMessageId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeRemoveFromFavoriteInvalidMessageId,
+        message: `RemoveFromFavoriteController, messageId does not exist`,
+      });
     }
 
     await Favorite.deleteMany({ _id: exists.id });
 
     return Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    return Base.errorResponse(
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "RemoveFromFavoriteController",
+      message: "RemoveFromFavoriteController",
       error,
-    );
+    });
   }
 });
 

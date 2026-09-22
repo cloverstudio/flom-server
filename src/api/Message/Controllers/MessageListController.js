@@ -76,7 +76,11 @@ router.get(
         : Const.MessageLoadDirection.append;
 
       if (!roomId || roomId.includes("null")) {
-        return Base.successResponse(response, Const.responsecodeMessageListInvalidParam);
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeMessageListInvalidParam,
+          message: `MessageListController, invalid roomId parameter`,
+        });
       }
 
       const arr = roomId.split("-");
@@ -95,7 +99,7 @@ router.get(
           return Base.newErrorResponse({
             response,
             code: Const.responsecodeUserIsNotActiveBusinessMemberOrBuyer,
-            message: `SendMessageController, user is not active business member or buyer`,
+            message: `MessageListController, user is not active business member or buyer`,
           });
         }
       }
@@ -110,12 +114,11 @@ router.get(
 
       return Base.successResponse(response, Const.responsecodeSucceed, { messages });
     } catch (error) {
-      return Base.errorResponse(
+      Base.newErrorResponse({
         response,
-        Const.httpCodeServerError,
-        "MessageListController",
+        message: "MessageListController",
         error,
-      );
+      });
     }
   },
 );

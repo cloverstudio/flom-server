@@ -236,12 +236,11 @@ router.get("/:keyword/:page", auth({ allowUser: true }), async function (request
 
     return Base.successResponse(response, Const.responsecodeSucceed, { messages, count });
   } catch (error) {
-    return Base.errorResponse(
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "SearchMessageController",
+      message: "SearchMessageController",
       error,
-    );
+    });
   }
 });
 

@@ -41,7 +41,11 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, { notes });
   } catch (error) {
-    return Base.errorResponse(response, Const.httpCodeServerError, "NoteListController", error);
+    Base.newErrorResponse({
+      response,
+      message: "NoteListController",
+      error,
+    });
   }
 });
 

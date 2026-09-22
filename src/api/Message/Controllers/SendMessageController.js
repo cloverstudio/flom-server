@@ -2,6 +2,7 @@
 
 const router = require("express").Router();
 const Base = require("../../Base");
+const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const { auth } = require("#middleware");
 const { WhatsAppUserMapping, BusinessMember } = require("#models");
@@ -146,7 +147,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       }
     }
 
-    console.log("SendMessageController param:" + JSON.stringify(request.body));
+    logger.debug("SendMessageController param:" + JSON.stringify(request.body));
 
     let result;
     try {
@@ -163,7 +164,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       message: result,
     });
   } catch (error) {
-    return Base.errorResponse(response, Const.httpCodeServerError, "SendMessageController", error);
+    Base.newErrorResponse({
+      response,
+      message: "SendMessageController",
+      error,
+    });
   }
 });
 

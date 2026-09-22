@@ -84,12 +84,11 @@ async function handleRequest(request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed, { messages });
   } catch (error) {
-    return Base.errorResponse(
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "UndeliverMessageListController",
+      message: "UndeliverMessageListController",
       error,
-    );
+    });
   }
 }
 

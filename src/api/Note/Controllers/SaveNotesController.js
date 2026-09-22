@@ -36,8 +36,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const chatId = request.body.chatId;
 
     if (!chatId) {
-      Base.successResponse(response, Const.resCodeSaveNoteNoChatID);
-      return;
+      return Base.newErrorResponse({
+        response,
+        code: Const.resCodeSaveNoteNoChatID,
+        message: `SaveNotesController, missing chatId`,
+      });
     }
 
     const savedNote = await Note.findOneAndUpdate(
@@ -48,8 +51,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed, { note: savedNote });
   } catch (error) {
-    Base.errorResponse(response, Const.httpCodeServerError, "SaveNotesController", error);
-    return;
+    Base.newErrorResponse({
+      response,
+      message: "SaveNotesController",
+      error,
+    });
   }
 });
 
