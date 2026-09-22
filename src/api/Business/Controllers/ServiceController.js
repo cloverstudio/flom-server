@@ -99,7 +99,7 @@ router.get("/:businessId/services", auth({ allowUser: true }), async function (r
     }
 
     const services = await Product.find({
-      businessId,
+      "business._id": businessId,
       isDeleted: false,
       type: Const.productTypeService,
     }).lean();
@@ -500,7 +500,7 @@ router.post(
         suggestedServiceId,
         ownerId: business.owner._id,
         location,
-        business: { _id: business._id.toString(), name: business.name },
+        business: { _id: business._id.toString(), name: business.name, avatar: business.avatar },
       };
 
       if (!name || typeof name !== "string" || name.length < 3 || name.length > 100) {
@@ -760,7 +760,11 @@ router.patch(
           });
         }
 
-        info.business = { _id: business._id.toString(), name: business.name };
+        info.business = {
+          _id: business._id.toString(),
+          name: business.name,
+          avatar: business.avatar,
+        };
       }
 
       if (name) {
@@ -892,7 +896,6 @@ router.delete(
     try {
       const { user } = request;
       const { serviceId } = request.params;
-      const { name, description, originalPrice: op } = request.body;
 
       if (!serviceId || !Utils.isValidObjectId(serviceId)) {
         return Base.newErrorResponse({
@@ -914,7 +917,7 @@ router.delete(
 
       const allowed = await Logics.checkBusinessPermissions({
         userId: user._id.toString(),
-        businessId: service.businessId.toString(),
+        businessId: service.business._id.toString(),
         action: "services:delete",
       });
 

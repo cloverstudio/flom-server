@@ -332,7 +332,11 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
         });
       }
 
-      product.business = { _id: business._id.toString(), name: business.name };
+      product.business = {
+        _id: business._id.toString(),
+        name: business.name,
+        avatar: business.avatar,
+      };
 
       if (type === Const.productTypeService) {
         if (!place || !["seller", "customer", "both"].includes(place)) {

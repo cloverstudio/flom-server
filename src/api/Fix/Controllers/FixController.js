@@ -39,7 +39,11 @@ router.get("/product-business", async (request, response) => {
       const ownerId = business.owner._id || business.ownerId;
 
       if (!businessOwnerToBusinessMap[ownerId]) {
-        businessOwnerToBusinessMap[ownerId] = { _id: business._id.toString(), name: business.name };
+        businessOwnerToBusinessMap[ownerId] = {
+          _id: business._id.toString(),
+          name: business.name,
+          avatar: business.avatar,
+        };
       }
 
       businessMap[business._id.toString()] = business;
@@ -48,14 +52,15 @@ router.get("/product-business", async (request, response) => {
     const bulkWriteOps = [];
 
     for (const p of products) {
-      if (p.business?._id) continue;
-      if (p.businessId) {
-        const b = businessMap[p.businessId];
+      if (p.businessId || p.business._id) {
+        const b = businessMap[p.businessId || p.business._id];
 
         bulkWriteOps.push({
           updateOne: {
             filter: { _id: p._id },
-            update: { $set: { business: { _id: b._id.toString(), name: b.name } } },
+            update: {
+              $set: { business: { _id: b._id.toString(), name: b.name, avatar: b.avatar } },
+            },
           },
         });
         continue;
@@ -69,7 +74,9 @@ router.get("/product-business", async (request, response) => {
         bulkWriteOps.push({
           updateOne: {
             filter: { _id: p._id },
-            update: { $set: { business: { _id: b._id.toString(), name: b.name } } },
+            update: {
+              $set: { business: { _id: b._id.toString(), name: b.name, avatar: b.avatar } },
+            },
           },
         });
       } else {
@@ -89,6 +96,7 @@ router.get("/product-business", async (request, response) => {
             businessOwnerToBusinessMap[p.ownerId] = {
               _id: business._id.toString(),
               name: business.name,
+              avatar: business.avatar,
             };
 
             console.log(`Updating product ${p._id} with businessId ${business._id.toString()}`);
@@ -97,7 +105,13 @@ router.get("/product-business", async (request, response) => {
               updateOne: {
                 filter: { _id: p._id },
                 update: {
-                  $set: { business: { _id: business._id.toString(), name: business.name } },
+                  $set: {
+                    business: {
+                      _id: business._id.toString(),
+                      name: business.name,
+                      avatar: business.avatar,
+                    },
+                  },
                 },
               },
             });

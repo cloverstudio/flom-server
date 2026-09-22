@@ -477,7 +477,11 @@ router.patch(
             });
           }
 
-          product.business = { _id: business._id.toString(), name: business.name };
+          product.business = {
+            _id: business._id.toString(),
+            name: business.name,
+            avatar: business.avatar,
+          };
         }
 
         if (product.type === Const.productTypeService) {
