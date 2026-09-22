@@ -8,6 +8,7 @@ const mongoose = require("mongoose");
 const schema = new mongoose.Schema(
   {
     origin: String,
+    api: String,
     reference: String,
     deviceType: String,
     error: { name: String, message: String, stack: String },

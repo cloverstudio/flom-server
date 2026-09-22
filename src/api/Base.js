@@ -60,7 +60,7 @@ function newErrorResponse({ response, code, type, message, error, data, param, p
     reference = Utils.getRandomString(8, "limited");
     param = reference;
 
-    createUnexpectedError({ reference, error, request });
+    createUnexpectedError({ message, reference, error, request });
   }
 
   const { lang } = response;
@@ -98,7 +98,7 @@ function newErrorResponse({ response, code, type, message, error, data, param, p
   response.json(responseData);
 }
 
-async function createUnexpectedError({ reference, error, request }) {
+async function createUnexpectedError({ message, reference, error, request }) {
   try {
     const deviceType = request.headers["device-type"];
 
@@ -107,6 +107,7 @@ async function createUnexpectedError({ reference, error, request }) {
       reference,
       deviceType,
       error: { name: error.name, message: error.message, stack: error.stack },
+      api: message,
       request: {
         method: request.method,
         path: request.path,
