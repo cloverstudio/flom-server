@@ -12,10 +12,15 @@ async function getAddressFromCoordinates({ lat, lon }) {
 
     const cache = await LocationRequestCache.findOne({
       url: baseUrl,
-      modified: { $gt: Date.now() - 8 * 60 * 60 * 1000 },
+      modified: { $gt: Date.now() - 4 * 60 * 60 * 1000 },
     }).lean();
 
     if (cache) {
+      if (!cache.success) {
+        logger.error("getAddressFromCoordinates: cache found but marked as unsuccessful", cache);
+        return undefined;
+      }
+
       data = cache.dataObject;
     } else {
       const { data: d } = await sendRequest({
@@ -23,18 +28,18 @@ async function getAddressFromCoordinates({ lat, lon }) {
         url,
       });
 
-      if (!d || !d.address) {
-        logger.error("getAddressFromCoordinates: no address found in response", d);
-        return undefined;
-      }
-
       data = d;
 
       await LocationRequestCache.updateOne(
         { url: baseUrl },
-        { url: baseUrl, dataObject: d, modified: Date.now() },
+        { url: baseUrl, dataObject: d, modified: Date.now(), success: d && d.address },
         { upsert: true },
       );
+
+      if (!d || !d.address) {
+        logger.error("getAddressFromCoordinates: no address found in response", d);
+        return undefined;
+      }
     }
 
     const res = data;

@@ -104,26 +104,31 @@ router.get("/durations", auth({ allowUser: true }), async (request, response) =>
 
       const cache = await LocationRequestCache.findOne({
         url: apiRequest.url,
-        modified: { $gt: Date.now() - 8 * 60 * 60 * 1000 },
+        modified: { $gt: Date.now() - 4 * 60 * 60 * 1000 },
       }).lean();
 
       if (cache) {
+        if (!cache.success) {
+          logger.error("DirectionsController: cache found but marked as unsuccessful", cache);
+          continue;
+        }
+
         data = cache.dataObject;
       } else {
         const { err, data: d } = await Utils.sendRequest(apiRequest);
-
-        if (err) {
-          logger.error("DirectionsController error: " + err);
-          continue;
-        }
 
         data = d;
 
         await LocationRequestCache.updateOne(
           { url: apiRequest.url },
-          { url: apiRequest.url, dataObject: d, modified: Date.now() },
+          { url: apiRequest.url, dataObject: d, modified: Date.now(), success: !err },
           { upsert: true },
         );
+
+        if (err) {
+          logger.error("DirectionsController error: " + err);
+          continue;
+        }
       }
 
       if (data?.routes?.[0]?.duration) {

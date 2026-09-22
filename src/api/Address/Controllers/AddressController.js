@@ -106,26 +106,31 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
 
     const cache = await LocationRequestCache.findOne({
       url,
-      modified: { $gt: Date.now() - 8 * 60 * 60 * 1000 },
+      modified: { $gt: Date.now() - 4 * 60 * 60 * 1000 },
     }).lean();
 
     if (cache) {
+      if (!cache.success) {
+        logger.error("AddressController error: cache found but marked as unsuccessful", cache);
+        return Base.successResponse(response, Const.responsecodeSucceed, { suggestions: [] });
+      }
+
       data = cache.dataArray;
     } else {
       const { err, data: d } = await Utils.sendRequest(apiRequest);
-
-      if (err) {
-        logger.error("AddressController error: " + err);
-        return Base.successResponse(response, Const.responsecodeSucceed, { suggestions: [] });
-      }
 
       data = d;
 
       await LocationRequestCache.updateOne(
         { url },
-        { url, dataArray: d, modified: Date.now() },
+        { url, dataArray: d, modified: Date.now(), success: !err },
         { upsert: true },
       );
+
+      if (err) {
+        logger.error("AddressController error: " + err);
+        return Base.successResponse(response, Const.responsecodeSucceed, { suggestions: [] });
+      }
     }
 
     const suggestions = data.map((d) => {
