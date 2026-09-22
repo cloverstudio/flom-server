@@ -59,16 +59,28 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const messageId = request.body.messageId;
 
     if (!roomId || roomId == "") {
-      return Base.successResponse(response, Const.responsecodeForwardMessageInvalidChatId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeForwardMessageInvalidChatId,
+        message: `ForwardMessageController, Invalid chatId`,
+      });
     }
 
     if (!messageId || messageId == "") {
-      return Base.successResponse(response, Const.responsecodeForwardMessageInvalidMessageId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeForwardMessageInvalidMessageId,
+        message: `ForwardMessageController, Invalid messageId`,
+      });
     }
 
     const message = await FlomMessage.findById(messageId).lean();
     if (!message) {
-      return Base.successResponse(response, Const.responsecodeForwardMessageInvalidMessageId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeForwardMessageInvalidMessageId,
+        message: `ForwardMessageController, Invalid messageId`,
+      });
     }
 
     const messageParam = { ...message };
@@ -85,12 +97,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed, { message: result });
   } catch (error) {
-    return Base.errorResponse(
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "ForwardMessageController",
+      message: "ForwardMessageController",
       error,
-    );
+    });
   }
 });
 

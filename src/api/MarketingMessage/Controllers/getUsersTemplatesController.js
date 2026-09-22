@@ -40,9 +40,12 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     dataToSend.marketingTemplates = marketingTemplates.map((m) => m.toObject());
 
     Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
-  } catch (e) {
-    Base.errorResponse(response, Const.httpCodeServerError, "getUsersTemplatesController", e);
-    return;
+  } catch (error) {
+    Base.newErrorResponse({
+      response,
+      message: "getUsersTemplatesController",
+      error,
+    });
   }
 });
 

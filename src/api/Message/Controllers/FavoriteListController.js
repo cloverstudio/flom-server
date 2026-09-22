@@ -273,7 +273,11 @@ router.get("/:page", auth({ allowUser: true }), async function (request, respons
       count: favorites.length,
     });
   } catch (error) {
-    return Base.errorResponse(response, Const.httpCodeServerError, "FavoriteListController", error);
+    Base.newErrorResponse({
+      response,
+      message: "FavoriteListController",
+      error,
+    });
   }
 });
 

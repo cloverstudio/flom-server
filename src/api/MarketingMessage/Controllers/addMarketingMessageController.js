@@ -47,19 +47,35 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const isValidReceivers = validateReceivers(receivers);
 
     if (!isValidAction) {
-      return Base.successResponse(response, Const.responsecodeInvalidMarketingAction);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeInvalidMarketingAction,
+        message: `addMarketingMessageController, Invalid marketing action`,
+      });
     }
 
     if (!message) {
-      return Base.successResponse(response, Const.responsecodeNoMarketingMessage);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeNoMarketingMessage,
+        message: `addMarketingMessageController, No marketing message`,
+      });
     }
 
     if (marketingAction == 2 && !product) {
-      return Base.successResponse(response, Const.responsecodeNoMarketingProductId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeNoMarketingProductId,
+        message: `addMarketingMessageController, No marketing product ID`,
+      });
     }
 
     if (!isValidReceivers) {
-      return Base.successResponse(response, Const.responsecodeNotValidToId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeNotValidToId,
+        message: `addMarketingMessageController, Not valid receivers`,
+      });
     }
 
     const newMarketingMessage = new MarketingMessage({
@@ -113,9 +129,12 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     Base.successResponse(response, Const.responsecodeSucceed);
-  } catch (e) {
-    Base.errorResponse(response, Const.httpCodeServerError, "addMarketingMessageController", e);
-    return;
+  } catch (error) {
+    Base.newErrorResponse({
+      response,
+      message: "addMarketingMessageController, Add marketing message",
+      error,
+    });
   }
 });
 

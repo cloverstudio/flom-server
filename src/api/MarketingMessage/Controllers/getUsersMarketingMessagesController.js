@@ -48,14 +48,12 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
-  } catch (e) {
-    Base.errorResponse(
+  } catch (error) {
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "getUsersMarketingMessagesController",
-      e,
-    );
-    return;
+      message: "getUsersMarketingMessagesController, get",
+      error,
+    });
   }
 });
 
@@ -91,14 +89,12 @@ router.get("/:id", auth({ allowUser: true }), async function (request, response)
     dataToSend.marketingMessage = marketingMessage.toObject();
 
     Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
-  } catch (e) {
-    Base.errorResponse(
+  } catch (error) {
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "getUsersMarketingMessagesController by id",
-      e,
-    );
-    return;
+      message: "getUsersMarketingMessagesController, get by id",
+      error,
+    });
   }
 });
 

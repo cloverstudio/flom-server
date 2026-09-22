@@ -35,13 +35,21 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const messageId = request.body.messageId;
 
     if (!messageId) {
-      return Base.successResponse(response, Const.responsecodeAddToFavoriteNoMessageId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeAddToFavoriteNoMessageId,
+        message: `AddToFavoriteController, no messageId`,
+      });
     }
 
     const message = await FlomMessage.findById(messageId).lean();
 
     if (!message) {
-      return Base.successResponse(response, Const.responsecodeAddToFavoriteInvalidMessageId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeAddToFavoriteInvalidMessageId,
+        message: `AddToFavoriteController, invalid messageId`,
+      });
     }
 
     const existedFavorite = await Favorite.findOne({
@@ -50,7 +58,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }).lean();
 
     if (existedFavorite) {
-      return Base.successResponse(response, Const.responsecodeAddToFavoriteExistedMessageId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeAddToFavoriteExistedMessageId,
+        message: `AddToFavoriteController, existed messageId`,
+      });
     }
 
     const favorite = await Favorite.create({
@@ -64,12 +76,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       favorite: favorite.toObject(),
     });
   } catch (error) {
-    return Base.errorResponse(
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "AddToFavoriteController",
+      message: "AddToFavoriteController",
       error,
-    );
+    });
   }
 });
 

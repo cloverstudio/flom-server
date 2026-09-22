@@ -32,12 +32,20 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const messageIds = messageId ? messageId.split(",").map((id) => id.trim()) : null;
     const user = request.user;
     if (!messageIds || messageIds.length === 0) {
-      return Base.successResponse(response, Const.responsecodeDeliverMessageNoMessageId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeDeliverMessageNoMessageId,
+        message: `DeliverMessageController, no messageId`,
+      });
     }
 
     const messages = await FlomMessage.find({ _id: { $in: messageIds } }).lean();
     if (messages.length === 0) {
-      return Base.successResponse(response, Const.responsecodeDeliverMessageWrongMessageId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeDeliverMessageWrongMessageId,
+        message: `DeliverMessageController, wrong messageId`,
+      });
     }
 
     const undeliveredMessages = messages.filter(
@@ -95,12 +103,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    return Base.errorResponse(
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "DeliverMessageController",
+      message: "DeliverMessageController",
       error,
-    );
+    });
   }
 });
 
