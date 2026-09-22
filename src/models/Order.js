@@ -7,7 +7,7 @@ const mongoose = require("mongoose");
 
 const schema = new mongoose.Schema(
   {
-    businessId: String,
+    business: { _id: String, name: String },
     price: { countryCode: String, currency: String, value: Number, valueInSats: Number },
     products: [{ _id: String, name: String, condition: String, quantity: Number, file: {} }],
     seller: {
