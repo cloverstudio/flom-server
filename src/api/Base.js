@@ -71,6 +71,7 @@ function newErrorResponse({ response, code, type, message, error, data, param, p
     if (reference)
       logger.error(
         `Error code: ${code} | Error message: Unexpected error | Device: ${deviceType} | Reference: ${reference}`,
+        error,
       );
     else if (!error)
       logger.error(`Error code: ${code} | Error message: ${message} | Device: ${deviceType}`);
