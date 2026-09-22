@@ -9,8 +9,6 @@ async function logApiAccess(req, res, next) {
       api: req.originalUrl,
       body: req.body || {},
       headers: req.headers || {},
-      created: Date.now(),
-      createdReadable: new Date().toISOString(),
     });
   } catch (error) {
     logger.error("LogAPIAccess", error);

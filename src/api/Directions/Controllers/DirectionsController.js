@@ -6,6 +6,7 @@ const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
+const { LocationRequestCache } = require("#models");
 
 /**
  * @api {get} /api/v2/directions/durations Get distance durations
@@ -100,14 +101,30 @@ router.get("/durations", auth({ allowUser: true }), async (request, response) =>
       };
 
       let data = {};
-      const { err, data: d } = await Utils.sendRequest(apiRequest);
 
-      if (err) {
-        logger.error("DirectionsController error: " + err);
-        continue;
+      const cache = await LocationRequestCache.findOne({
+        url: apiRequest.url,
+        modified: { $gt: Date.now() - 8 * 60 * 60 * 1000 },
+      }).lean();
+
+      if (cache) {
+        data = cache.dataObject;
+      } else {
+        const { err, data: d } = await Utils.sendRequest(apiRequest);
+
+        if (err) {
+          logger.error("DirectionsController error: " + err);
+          continue;
+        }
+
+        data = d;
+
+        await LocationRequestCache.updateOne(
+          { url: apiRequest.url },
+          { url: apiRequest.url, dataObject: d, modified: Date.now() },
+          { upsert: true },
+        );
       }
-
-      data = d;
 
       if (data?.routes?.[0]?.duration) {
         durations[mode] = formatDuration(+data.routes[0].duration);

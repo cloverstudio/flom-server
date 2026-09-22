@@ -7,14 +7,13 @@ const mongoose = require("mongoose");
 
 const schema = new mongoose.Schema(
   {
-    type: String,
-    api: String,
-    userName: String,
-    body: {},
-    headers: {},
+    url: String,
+    dataObject: {},
+    dataArray: [],
     created: { type: Number, default: Date.now, index: true },
+    modified: { type: Number, default: Date.now, index: true },
   },
   { timestamps: true },
 );
 
-module.exports = db.db1.model("APIAccessLog", schema, "api_access_logs");
+module.exports = db.db1.model("LocationRequestCache", schema, "location_request_cache");

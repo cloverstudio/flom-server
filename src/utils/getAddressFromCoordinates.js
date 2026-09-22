@@ -1,18 +1,43 @@
 const { logger } = require("#infra");
 const { Config } = require("#config");
 const sendRequest = require("./sendRequest");
+const { LocationRequestCache } = require("#models");
 
 async function getAddressFromCoordinates({ lat, lon }) {
   try {
-    const { data: res } = await sendRequest({
-      method: "GET",
-      url: `${Config.locationIqUrl}/v1/reverse?key=${Config.locationIqKey}&lat=${lat}&lon=${lon}&format=json&normalizeaddress=1`,
-    });
+    const baseUrl = `${Config.locationIqUrl}/v1/reverse?lat=${lat}&lon=${lon}&format=json&normalizeaddress=1`;
+    const url = baseUrl + `&key=${Config.locationIqKey}`;
 
-    if (!res || !res.address) {
-      logger.error("getAddressFromCoordinates: no address found in response", res);
-      return undefined;
+    let data = {};
+
+    const cache = await LocationRequestCache.findOne({
+      url: baseUrl,
+      modified: { $gt: Date.now() - 8 * 60 * 60 * 1000 },
+    }).lean();
+
+    if (cache) {
+      data = cache.dataObject;
+    } else {
+      const { data: d } = await sendRequest({
+        method: "GET",
+        url,
+      });
+
+      if (!d || !d.address) {
+        logger.error("getAddressFromCoordinates: no address found in response", d);
+        return undefined;
+      }
+
+      data = d;
+
+      await LocationRequestCache.updateOne(
+        { url: baseUrl },
+        { url: baseUrl, dataObject: d, modified: Date.now() },
+        { upsert: true },
+      );
     }
+
+    const res = data;
 
     const address = {
       country: res.address.country ?? "",

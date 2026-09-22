@@ -6,6 +6,7 @@ const { Const, Config } = require("#config");
 const { logger } = require("#infra");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
+const { LocationRequestCache } = require("#models");
 
 /**
  * @api {get} /api/v2/address/autocomplete Address autocomplete
@@ -94,15 +95,38 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       },
     };
 
+    const queryString = apiRequest.query
+      ? Object.entries(apiRequest.query)
+          .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+          .filter((i) => !i.startsWith("key="))
+          .join("&")
+      : "";
+    const url = apiRequest.url + "?" + queryString;
     let data = [];
-    const { err, data: d } = await Utils.sendRequest(apiRequest);
 
-    if (err) {
-      logger.error("AddressController error: " + err);
-      return Base.successResponse(response, Const.responsecodeSucceed, { suggestions: [] });
+    const cache = await LocationRequestCache.findOne({
+      url,
+      modified: { $gt: Date.now() - 8 * 60 * 60 * 1000 },
+    }).lean();
+
+    if (cache) {
+      data = cache.dataArray;
+    } else {
+      const { err, data: d } = await Utils.sendRequest(apiRequest);
+
+      if (err) {
+        logger.error("AddressController error: " + err);
+        return Base.successResponse(response, Const.responsecodeSucceed, { suggestions: [] });
+      }
+
+      data = d;
+
+      await LocationRequestCache.updateOne(
+        { url },
+        { url, dataArray: d, modified: Date.now() },
+        { upsert: true },
+      );
     }
-
-    data = d;
 
     const suggestions = data.map((d) => {
       const a = d.address;
