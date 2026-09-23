@@ -312,6 +312,10 @@ async function sendNotifications({ order, sender, receiver, localAmountSender })
   const buyer = sender;
   const roomId = `${Const.chatTypeBusiness}-${order.businessId}-${buyer._id.toString()}`;
 
+  const orderInfo = JSON.parse(JSON.stringify(order));
+  delete orderInfo.shipping;
+  delete orderInfo.events;
+
   const params = {
     isRecursiveCall: false,
     type: Const.messageTypeOrder,
@@ -319,7 +323,7 @@ async function sendNotifications({ order, sender, receiver, localAmountSender })
     roomID: roomId,
     message: "",
     created: Date.now(),
-    attributes: { orderInfo: order },
+    attributes: { orderInfo },
   };
 
   await Logics.sendMessage(params);
