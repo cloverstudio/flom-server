@@ -33,7 +33,13 @@ router.get("/", async function (request, response) {
       user = await User.findOne({ "token.token": accessToken }).lean();
     }
 
-    if (!productId) return Base.successResponse(response, Const.responsecodeProductNoProductId);
+    if (!productId) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeProductNoProductId,
+        message: "AddViewToProductController, no product id",
+      });
+    }
 
     const product = await Product.findByIdAndUpdate(
       productId,
@@ -69,12 +75,20 @@ router.get("/", async function (request, response) {
       Logics.addUserCategoryInteraction({ product, user });
       Logics.addUserTagInteraction({ product, user });
     }
-  } catch (e) {
-    if (e.name == "CastError") {
-      return Base.successResponse(response, Const.responsecodeProductWrongProductIdFormat);
+  } catch (error) {
+    if (error.name == "CastError") {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeProductWrongProductIdFormat,
+        message: "AddViewToProductController, wrong product id format",
+      });
     }
-    Base.errorResponse(response, Const.httpCodeServerError, "AddViewToProductController", e);
-    return;
+
+    Base.newErrorResponse({
+      response,
+      message: "AddViewToProductController",
+      error,
+    });
   }
 });
 

@@ -225,7 +225,11 @@ router.patch(
       const productId = fields.productId;
 
       if (!productId || !Utils.isValidObjectId(productId)) {
-        return Base.successResponse(response, Const.responsecodeProductNotFound);
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeProductNotFound,
+          message: "EditProductControllerV2, product not found",
+        });
       }
 
       const fileOrderString = fields.fileOrder;
@@ -256,12 +260,21 @@ router.patch(
       });
 
       if (!product) {
-        return Base.successResponse(response, Const.responsecodeProductNotFound);
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeProductNotFound,
+          message: "EditProductControllerV2, product not found",
+        });
       }
 
       // check if user is owner
-      if (product.ownerId != requestUserId && !isAdmin)
-        return Base.successResponse(response, Const.responsecodeNotProductOwner);
+      if (product.ownerId != requestUserId && !isAdmin) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeNotProductOwner,
+          message: "EditProductControllerV2, user is not product owner",
+        });
+      }
 
       // check if price has countrycode & currency
       const conversionRates = await ConversionRate.getRates();
@@ -828,9 +841,12 @@ router.patch(
       }
 
       Base.successResponse(response, Const.responsecodeSucceed, productObj);
-    } catch (e) {
-      Base.errorResponse(response, Const.httpCodeServerError, "EditProductControllerV2", e);
-      return;
+    } catch (error) {
+      Base.newErrorResponse({
+        response,
+        message: "EditProductControllerV2",
+        error,
+      });
     }
   },
 );

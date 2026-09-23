@@ -110,7 +110,13 @@ router.post("/", async function (request, response) {
     const page = request.body.page ? request.body.page : 1;
     const skip = page > 0 ? (page - 1) * Const.pagingRows : 0;
 
-    if (!ownerId) return Base.successResponse(response, Const.responsecodeProductNoOwnerId);
+    if (!ownerId) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeProductNoOwnerId,
+        message: "SearchMerchantProductsController, no owner id provided",
+      });
+    }
 
     const ownerFromDb = await User.findOne(
       { _id: ownerId, "isDeleted.value": false },
@@ -126,11 +132,19 @@ router.post("/", async function (request, response) {
     }
 
     if (!ownerFromDb) {
-      return Base.successResponse(response, Const.responsecodeUserNotFound);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserNotFound,
+        message: "SearchMerchantProductsController, user not found",
+      });
     }
 
     if (ownerFromDb.isDeleted.value) {
-      return Base.successResponse(response, Const.responsecodeUserDeleted);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserDeleted,
+        message: "SearchMerchantProductsController, user deleted",
+      });
     }
 
     let products = {},
@@ -145,8 +159,13 @@ router.post("/", async function (request, response) {
     if (productName) {
       if (accessToken) {
         const user = await User.findOne({ "token.token": accessToken }).lean();
-        if (!user) return Base.successResponse(response, Const.responsecodeSigninInvalidToken);
-
+        if (!user) {
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeSigninInvalidToken,
+            message: "SearchMerchantProductsController, invalid token",
+          });
+        }
         kidsMode = user.kidsMode;
 
         let userTribeIdsArray = await Tribe.aggregate([
@@ -244,7 +263,13 @@ router.post("/", async function (request, response) {
     } else {
       if (accessToken) {
         const user = await User.findOne({ "token.token": accessToken }).lean();
-        if (!user) return Base.successResponse(response, Const.responsecodeSigninInvalidToken);
+        if (!user) {
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeSigninInvalidToken,
+            message: "SearchMerchantProductsController, invalid token",
+          });
+        }
 
         kidsMode = user.kidsMode;
 
@@ -412,9 +437,12 @@ router.post("/", async function (request, response) {
     });
 
     Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
-  } catch (e) {
-    console.log("Error: ", e);
-    Base.errorResponse(response, Const.httpCodeServerError);
+  } catch (error) {
+    Base.newErrorResponse({
+      response,
+      message: "SearchMerchantProductsController",
+      error,
+    });
   }
 });
 

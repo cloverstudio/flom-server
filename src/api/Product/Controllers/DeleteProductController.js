@@ -35,11 +35,22 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     // check if product exist
     const product = await Product.findOne({ _id: productId, isDeleted: false });
-    if (!product) return Base.successResponse(response, Const.responsecodeProductNotFound);
+    if (!product) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeProductNotFound,
+        message: "DeleteProductController, product not found",
+      });
+    }
 
     // check owner
-    if (product.ownerId != user._id.toString())
-      return Base.successResponse(response, Const.responsecodeUserIsNotProductOwner);
+    if (product.ownerId != user._id.toString()) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserIsNotProductOwner,
+        message: "DeleteProductController, user is not product owner",
+      });
+    }
 
     if (product.contentPurchaseHistory && product.contentPurchaseHistory.length > 0) {
       return Base.newErrorResponse({
@@ -115,14 +126,20 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     try {
       await product.save();
     } catch (error) {
-      logger.error("DeleteProductController, product save error", error);
-      return Base.successResponse(response, Const.responsecodeProductDeleteError);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeProductDeleteError,
+        message: "DeleteProductController, product delete error",
+      });
     }
 
     Base.successResponse(response, Const.responsecodeSucceed);
-  } catch (e) {
-    Base.errorResponse(response, Const.httpCodeServerError, "DeleteProductController", e);
-    return;
+  } catch (error) {
+    Base.newErrorResponse({
+      response,
+      message: "DeleteProductController",
+      error,
+    });
   }
 });
 

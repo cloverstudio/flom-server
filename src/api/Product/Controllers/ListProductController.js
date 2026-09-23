@@ -156,7 +156,11 @@ router.post("/", async function (request, response) {
       const user = await User.findOne({ "token.token": accessToken }).lean();
 
       if (!user) {
-        return Base.successResponse(response, Const.responsecodeSigninInvalidToken);
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeSigninInvalidToken,
+          message: "ListProductController, invalid access token",
+        });
       }
 
       kidsMode = user.kidsMode;
@@ -249,8 +253,12 @@ router.post("/", async function (request, response) {
       } */
 
     Base.successResponse(response, Const.responsecodeSucceed, outgoingData);
-  } catch (e) {
-    return Base.errorResponse(response, Const.httpCodeServerError, "ListProductController", e);
+  } catch (error) {
+    Base.newErrorResponse({
+      response,
+      message: "ListProductController",
+      error,
+    });
   }
 });
 

@@ -35,7 +35,11 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
   try {
     // check if user is merchant
     if (request.user.typeAcc !== 1 && request.user.flow.typeAcc !== 1) {
-      return Base.successResponse(response, Const.responsecodeMerchantNotFound);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeMerchantNotFound,
+        message: "ListMerchantProductsForPushController, user is not a merchant",
+      });
     }
 
     let products = await Product.find(
@@ -58,14 +62,12 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
-  } catch (e) {
-    Base.errorResponse(
+  } catch (error) {
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "ListMerchantProductsForPushController",
-      e,
-    );
-    return;
+      message: "ListMerchantProductsForPushController",
+      error,
+    });
   }
 });
 

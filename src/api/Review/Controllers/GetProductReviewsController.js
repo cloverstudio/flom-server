@@ -98,12 +98,20 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const skip = page > 0 ? (page - 1) * Const.pagingRows : 0;
 
     if (!product_id) {
-      return Base.successResponse(response, Const.responsecodeNoProductId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeNoProductId,
+        message: "GetProductReviewsController, no product id provided",
+      });
     }
 
     const product = await Product.findOne({ _id: product_id, isDeleted: false }).lean();
     if (!product) {
-      return Base.successResponse(response, Const.responsecodeProductNotFound);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeProductNotFound,
+        message: "GetProductReviewsController, product not found",
+      });
     }
 
     const requestUserId = request.user._id.toString();
@@ -183,9 +191,12 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     };
 
     Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
-  } catch (e) {
-    Base.errorResponse(response, Const.httpCodeServerError, "GetProductReviewsController", e);
-    return;
+  } catch (error) {
+    Base.newErrorResponse({
+      response,
+      message: "GetProductReviewsController",
+      error,
+    });
   }
 });
 

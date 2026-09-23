@@ -131,7 +131,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       request.user.typeAcc !== Const.userTypeMerchant &&
       request.user.flow.typeAcc !== Const.userTypeMerchant
     ) {
-      return Base.successResponse(response, Const.responsecodeMerchantNotFound);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeMerchantNotFound,
+        message: "ListMerchantProductController, user is not a merchant",
+      });
     }
 
     const { userRate, userCountryCode, userCurrency, conversionRates } =
@@ -272,9 +276,12 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     });
     //console.log(dataToSend);
     Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
-  } catch (e) {
-    Base.errorResponse(response, Const.httpCodeServerError, "ListMerchantProductController", e);
-    return;
+  } catch (error) {
+    Base.newErrorResponse({
+      response,
+      message: "ListMerchantProductController",
+      error,
+    });
   }
 });
 

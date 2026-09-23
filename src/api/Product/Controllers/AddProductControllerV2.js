@@ -453,25 +453,58 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
       }
     }
 
-    if (!productName && !isDraft)
-      return Base.successResponse(response, Const.responsecodeProductNoProductName);
+    if (!productName && !isDraft) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeProductNoProductName,
+        message: "AddProductControllerV2, no product name",
+      });
+    }
 
-    if (!productCategoryId && !productMainCategoryId && !isDraft)
-      return Base.successResponse(response, Const.responsecodeProductNoProductCategoryId);
+    if (!productCategoryId && !productMainCategoryId && !isDraft) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeProductNoProductCategoryId,
+        message: "AddProductControllerV2, no product category id",
+      });
+    }
 
-    if (!productDescription && !isDraft)
-      return Base.successResponse(response, Const.responsecodeProductNoProductDescription);
+    if (!productDescription && !isDraft) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeProductNoProductDescription,
+        message: "AddProductControllerV2, no product description",
+      });
+    }
 
-    if (priceValue === -1 && priceMinValue === -1 && priceMaxValue === -1 && !isDraft)
-      return Base.successResponse(response, Const.responsecodeProductNoProductPrice);
-    if (![5, 6].includes(type))
-      return Base.successResponse(response, Const.responsecodeProductInvalidType);
+    if (priceValue === -1 && priceMinValue === -1 && priceMaxValue === -1 && !isDraft) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeProductNoProductPrice,
+        message: "AddProductControllerV2, no product price",
+      });
+    }
+    if (![5, 6].includes(type)) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeProductInvalidType,
+        message: "AddProductControllerV2, invalid product type",
+      });
+    }
 
     if (Const.productVisibilities.indexOf(visibility) === -1) {
-      return Base.successResponse(response, Const.responsecodeWrongVisibilityParameter);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeWrongVisibilityParameter,
+        message: "AddProductControllerV2, wrong visibility parameter",
+      });
     } else if (visibility === Const.productVisibilityTribes) {
       if (!tribeIds || tribeIds === "") {
-        return Base.successResponse(response, Const.responsecodeNoTribeIds);
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeNoTribeIds,
+          message: "AddProductControllerV2, no tribe ids",
+        });
       }
       const tribeIdsArray = tribeIds.split(",");
 
@@ -634,16 +667,19 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
     sendApprovedProductNotifications({ product: productObj, owner: request.user });
     sendApprovedProductBonuses({ product: productObj, owner: request.user });
     sendNewsletterToSubscribers({ product: productObj, owner: request.user });
-  } catch (e) {
-    if (e.message === "Error while compressing video file") {
+  } catch (error) {
+    if (error.message === "Error while compressing video file") {
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeCompressingVideoFailed,
         message: "AddProductControllerV2, compressing video failed",
       });
     }
-    Base.errorResponse(response, Const.httpCodeServerError, "AddProductControllerV2", e);
-    return;
+    Base.newErrorResponse({
+      response,
+      message: "AddProductControllerV2",
+      error,
+    });
   }
 });
 

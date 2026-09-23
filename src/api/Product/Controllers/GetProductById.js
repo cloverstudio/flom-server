@@ -126,10 +126,20 @@ router.post("/", async function (request, response) {
     const accessToken = request.headers["access-token"];
     let user;
 
-    if (!productId) return Base.successResponse(response, Const.responsecodeProductNoProductId);
+    if (!productId) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeProductNoProductId,
+        message: "GetProductById, no product id provided",
+      });
+    }
 
     if (!Utils.isValidObjectId(productId)) {
-      return Base.successResponse(response, Const.responsecodeInvalidProductId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeInvalidProductId,
+        message: "GetProductById, invalid productId",
+      });
     }
 
     const product = await Product.findOne({ _id: productId, isDeleted: false }).lean();
@@ -137,11 +147,19 @@ router.post("/", async function (request, response) {
     let dataToSend = {};
 
     if (!product) {
-      return Base.successResponse(response, Const.responsecodeProductNotFound);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeProductNotFound,
+        message: "GetProductById, product not found",
+      });
     }
 
     if (!accessToken && product.appropriateForKids === false) {
-      return Base.successResponse(response, Const.responsecodeSensitiveContent);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeSensitiveContent,
+        message: "GetProductById, sensitive content",
+      });
     }
 
     const { userRate, userCountryCode, userCurrency, conversionRates } =
@@ -153,7 +171,15 @@ router.post("/", async function (request, response) {
     if (accessToken) {
       if (accessToken.length === Const.tokenLength) {
         user = await User.findOne({ "token.token": accessToken }).lean();
-        if (!user) return Base.successResponse(response, Const.responsecodeSigninInvalidToken);
+
+        if (!user) {
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeSigninInvalidToken,
+            message: "GetProductById, invalid access token",
+          });
+        }
+
         const userId = user._id.toString();
         const productTribeIds = product.tribeIds;
         const productCommunityIds = product.communityIds;
@@ -165,7 +191,11 @@ router.post("/", async function (request, response) {
         });
 
         if (user.kidsMode === true && product.appropriateForKids === false) {
-          return Base.successResponse(response, Const.responsecodeSensitiveContent);
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeSensitiveContent,
+            message: "GetProductById, sensitive content",
+          });
         }
 
         if (
@@ -173,25 +203,41 @@ router.post("/", async function (request, response) {
           (product.moderation.status !== Const.moderationStatusApproved &&
             userId !== product.ownerId)
         ) {
-          return Base.successResponse(response, Const.responsecodeRestrictedContent);
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeRestrictedContent,
+            message: "GetProductById, restricted content",
+          });
         } else if (
           (product.visibility === "community" && !isUserCommunityMember) ||
           (product.moderation.status !== Const.moderationStatusApproved &&
             userId !== product.ownerId)
         ) {
-          return Base.successResponse(response, Const.responsecodeRestrictedContent);
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeRestrictedContent,
+            message: "GetProductById, restricted content",
+          });
         }
       } else {
         const adminUser = await AdminPageUser.findOne({ "token.token": accessToken }).lean();
         if (!adminUser) {
-          return Base.successResponse(response, Const.responsecodeSigninInvalidToken);
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeSigninInvalidToken,
+            message: "GetProductById, invalid access token",
+          });
         }
       }
     } else if (
       product.visibility !== "public" ||
       product.moderation.status !== Const.moderationStatusApproved
     ) {
-      return Base.successResponse(response, Const.responsecodeRestrictedContent);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeRestrictedContent,
+        message: "GetProductById, restricted content",
+      });
     }
 
     const category = await Category.findOne({ _id: product.categoryId }).lean();
@@ -287,12 +333,19 @@ router.post("/", async function (request, response) {
       Logics.addUserCategoryInteraction({ product, user });
       Logics.addUserTagInteraction({ product, user });
     }
-  } catch (e) {
-    if (e.name == "CastError") {
-      logger.error("GetProductById", e);
-      return Base.successResponse(response, Const.responsecodeProductWrongProductIdFormat);
+  } catch (error) {
+    if (error.name == "CastError") {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeProductWrongProductIdFormat,
+        message: "GetProductById, wrong product id format",
+      });
     }
-    Base.errorResponse(response, Const.httpCodeServerError, "GetProductById", e);
+    Base.newErrorResponse({
+      response,
+      message: "GetProductById",
+      error,
+    });
   }
 });
 

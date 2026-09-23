@@ -290,13 +290,19 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     dataToSend.hasNext = hasNext;
 
     Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
-  } catch (e) {
-    if (e.name == "CastError") {
-      logger.error("GetPaidProducts", e);
-      return Base.successResponse(response, Const.responsecodeProductWrongProductIdFormat);
+  } catch (error) {
+    if (error.name == "CastError") {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeProductWrongProductIdFormat,
+        message: "GetPaidProducts, wrong product id format",
+      });
     }
-    Base.errorResponse(response, Const.httpCodeServerError, "GetPaidProducts", e);
-    return;
+    Base.newErrorResponse({
+      response,
+      message: "GetPaidProducts",
+      error,
+    });
   }
 });
 

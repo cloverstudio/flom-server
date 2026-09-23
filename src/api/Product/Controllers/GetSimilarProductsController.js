@@ -205,10 +205,22 @@ router.post("/", async function (request, response) {
     const productId = request.body.productId;
     const accessToken = request.headers["access-token"];
 
-    if (!productId) return Base.successResponse(response, Const.responsecodeNoProductId);
+    if (!productId) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeNoProductId,
+        message: "GetSimilarProductsController, no product id",
+      });
+    }
 
     let product = await Product.findOne({ _id: productId, isDeleted: false }).lean();
-    if (!product) return Base.successResponse(response, Const.responsecodeProductNotFound);
+    if (!product) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeProductNotFound,
+        message: "GetSimilarProductsController, product not found",
+      });
+    }
 
     const categoryId = product.categoryId;
     const productMainCategoryId = product.productMainCategoryId;
@@ -225,7 +237,13 @@ router.post("/", async function (request, response) {
 
     if (accessToken) {
       user = await User.findOne({ "token.token": accessToken }).lean();
-      if (!user) return Base.successResponse(response, Const.responsecodeSigninInvalidToken);
+      if (!user) {
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeSigninInvalidToken,
+          message: "GetSimilarProductsController, invalid token",
+        });
+      }
 
       kidsMode = user.kidsMode;
       blocked = user.blocked || [];
@@ -311,8 +329,12 @@ router.post("/", async function (request, response) {
     });
 
     Base.successResponse(response, Const.responsecodeSucceed, { similarProducts });
-  } catch (e) {
-    Base.errorResponse(response, Const.httpCodeServerError, "GetSimilarProductsController", e);
+  } catch (error) {
+    Base.newErrorResponse({
+      response,
+      message: "GetSimilarProductsController",
+      error,
+    });
   }
 });
 
