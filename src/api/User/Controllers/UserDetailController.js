@@ -321,7 +321,7 @@ router.get("/:userId", async function (request, response) {
             });
 
             try {
-              const address = await Utils.getAddressFromCoordinates({
+              const address = await Logics.getAddressFromCoordinates({
                 lat: coordinates[1],
                 lon: coordinates[0],
               });

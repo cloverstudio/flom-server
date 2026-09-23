@@ -5,16 +5,9 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
+const Logics = require("#logics");
 const { auth, autoApproveProduct } = require("#middleware");
-const {
-  Category,
-  Product,
-  User,
-  ApiAccessLog,
-  ConversionRate,
-  Business,
-  ServiceCandidate,
-} = require("#models");
+const { Category, Product, User, ApiAccessLog, Business, ServiceCandidate } = require("#models");
 const { handleTags } = require("#logics");
 const { recombee } = require("#services");
 const mediaHandler = require("#media");
@@ -451,7 +444,7 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
           createdDate: new Date(),
         });
 
-        const address = await Utils.getAddressFromCoordinates({
+        const address = await Logics.getAddressFromCoordinates({
           lat: coordinates[1],
           lon: coordinates[0],
         });

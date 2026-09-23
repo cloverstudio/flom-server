@@ -408,7 +408,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       });
 
       try {
-        const address = await Utils.getAddressFromCoordinates({
+        const address = await Logics.getAddressFromCoordinates({
           lat: coordinates[1],
           lon: coordinates[0],
         });

@@ -1,7 +1,7 @@
 const { logger } = require("#infra");
 const { Config } = require("#config");
-const sendRequest = require("./sendRequest");
 const { LocationRequestCache } = require("#models");
+const Utils = require("#utils");
 
 async function getAddressFromCoordinates({ lat, lon }) {
   try {
@@ -23,7 +23,7 @@ async function getAddressFromCoordinates({ lat, lon }) {
 
       data = cache.dataObject;
     } else {
-      const { data: d } = await sendRequest({
+      const { data: d } = await Utils.sendRequest({
         method: "GET",
         url,
       });

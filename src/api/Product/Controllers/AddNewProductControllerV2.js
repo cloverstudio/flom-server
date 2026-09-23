@@ -5,6 +5,7 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const } = require("#config");
 const Utils = require("#utils");
+const Logics = require("#logics");
 const { auth, autoApproveProduct } = require("#middleware");
 const { Category, Product, User, ApiAccessLog, Sound } = require("#models");
 const { recombee } = require("#services");
@@ -506,7 +507,7 @@ router.post(
             createdDate: new Date(),
           });
 
-          address = await Utils.getAddressFromCoordinates({
+          address = await Logics.getAddressFromCoordinates({
             lat: coordinates[1],
             lon: coordinates[0],
           });

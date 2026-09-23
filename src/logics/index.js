@@ -54,4 +54,6 @@ module.exports = Object.freeze({
 
   addUserCategoryInteraction: require("./addUserCategoryInteraction"),
   addUserTagInteraction: require("./addUserTagInteraction"),
+
+  getAddressFromCoordinates: require("./getAddressFromCoordinates"),
 });
