@@ -11,6 +11,11 @@ async function sendPush(tokenAndBadgeCount, payload, isVoip) {
         continue;
       }
 
+      if (payload.touser) delete payload.touser;
+      if (payload.fromuser) delete payload.fromuser;
+      if (payload.toUser) delete payload.toUser;
+      if (payload.fromUser) delete payload.fromUser;
+
       try {
         let data = {
           pushToken,
