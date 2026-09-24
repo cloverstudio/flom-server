@@ -193,16 +193,13 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       });
     }
 
-    Base.successResponse(response, Const.responsecodeSucceed, {
-      products,
-    });
+    Base.successResponse(response, Const.responsecodeSucceed, { products });
   } catch (error) {
-    Base.errorResponse(
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "RecentlyViewedProductsController",
+      message: "RecentlyViewedProductsController, get",
       error,
-    );
+    });
   }
 });
 
@@ -246,17 +243,29 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const { user } = request;
 
     if (!productId) {
-      return Base.successResponse(response, Const.responsecodeNoProductId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeNoProductId,
+        message: "RecentlyViewedProductsController, add, no productId provided",
+      });
     }
     if (!Utils.isValidObjectId(productId)) {
-      return Base.successResponse(response, Const.responsecodeProductWrongProductIdFormat);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeProductWrongProductIdFormat,
+        message: "RecentlyViewedProductsController, add, wrong productId format",
+      });
     }
     const product = await Product.findOne(
       { _id: productId, type: 5, isDeleted: false },
       { _id: 1 },
     ).lean();
     if (!product) {
-      return Base.successResponse(response, Const.responsecodeProductNotFound);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeProductNotFound,
+        message: "RecentlyViewedProductsController, add, product not found",
+      });
     }
 
     const { recentlyViewedProducts = [] } = user;
@@ -277,12 +286,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, { productAdded: true });
   } catch (error) {
-    Base.errorResponse(
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "RecentlyViewedProductsController",
+      message: "RecentlyViewedProductsController, add",
       error,
-    );
+    });
   }
 });
 

@@ -336,8 +336,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         });
 
         if (!merchantCodeFound) {
-          logger.error("UpdateProfileController, responsecodeNoMerchantCode");
-          return Base.successResponse(response, Const.responsecodeNoMerchantCode);
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeNoMerchantCode,
+            message: "UpdateProfileController, no merchant code",
+          });
         }
 
         user.bankAccounts = bankAccounts;
@@ -358,13 +361,19 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         try {
           category = await Category.findOne({ _id: categoryBusinessId }).lean();
         } catch (error) {
-          logger.error("UpdateProfileController, responsecodeCategoryNotFound", error);
-          return Base.successResponse(response, Const.responsecodeCategoryNotFound);
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeCategoryNotFound,
+            message: "UpdateProfileController, category not found 1",
+          });
         }
 
         if (!category) {
-          logger.error("UpdateProfileController, responsecodeCategoryNotFound");
-          return Base.successResponse(response, Const.responsecodeCategoryNotFound);
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeCategoryNotFound,
+            message: "UpdateProfileController, category not found 2",
+          });
         }
 
         user.categoryBusinessId = categoryBusinessId;
@@ -385,8 +394,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       const coordinates = location.split(",").map((c) => Number(c));
 
       if (coordinates.length !== 2) {
-        logger.error("UpdateProfileController, responsecodeMerchantLocationWrongFormat");
-        return Base.successResponse(response, Const.responsecodeMerchantLocationWrongFormat);
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeMerchantLocationWrongFormat,
+          message: "UpdateProfileController, merchant location wrong format",
+        });
       }
 
       user.location = {
@@ -428,8 +440,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     if (userName && user.userName !== userName) {
       if (userName.length < 3) {
-        logger.error("UpdateProfileController, responsecodeUsernameTooShort");
-        return Base.successResponse(response, Const.responsecodeUsernameTooShort);
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeUsernameTooShort,
+          message: "UpdateProfileController, username too short",
+        });
       }
 
       const regexTerminalCode = /[^0-9]/g;
@@ -440,8 +455,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         userName.startsWith("Deleted_") ||
         userName.startsWith("deleted_")
       ) {
-        logger.error("UpdateProfileController, responsecodeUsernameInvalidCharsUsed");
-        return Base.successResponse(response, Const.responsecodeUsernameInvalidCharsUsed);
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeUsernameInvalidCharsUsed,
+          message: "UpdateProfileController, username invalid chars used",
+        });
       }
 
       const userNameRegex = new RegExp(`^${userName}$`, "i");
@@ -450,8 +468,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       }).lean();
 
       if (result) {
-        logger.error("UpdateProfileController, responsecodeUsernameNotAvailable");
-        return Base.successResponse(response, Const.responsecodeUsernameNotAvailable);
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeUsernameNotAvailable,
+          message: "UpdateProfileController, username not available",
+        });
       } else {
         const regex = RegExp("([a-zA-Z0-9]|-|_|~)");
         const invalidChars = [];
@@ -463,8 +484,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         });
 
         if (invalidChars.length > 0) {
-          logger.error("UpdateProfileController, responsecodeUsernameInvalidCharsUsed");
-          return Base.successResponse(response, Const.responsecodeUsernameInvalidCharsUsed);
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeUsernameInvalidCharsUsed,
+            message: "UpdateProfileController, username invalid chars used",
+          });
         }
 
         user.userName = userName;
@@ -476,23 +500,35 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       lightningUserName = lightningUserName.toLowerCase();
 
       if (user.hasChangedLnUserName) {
-        logger.error("UpdateProfileController, responsecodeLnUserNameAlreadyChangedOnce");
-        return Base.successResponse(response, Const.responsecodeLnUserNameAlreadyChangedOnce);
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeLnUserNameAlreadyChangedOnce,
+          message: "UpdateProfileController, LN username already changed once",
+        });
       }
 
       if (lightningUserName.length > 12) {
-        logger.error("UpdateProfileController, responsecodeLnUserNameTooLong");
-        return Base.successResponse(response, Const.responsecodeLnUserNameTooLong);
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeLnUserNameTooLong,
+          message: "UpdateProfileController, LN username too long",
+        });
       }
 
       const regexTerminalCode = /[^0-9]/g;
       if (!lightningUserName.match(regexTerminalCode)) {
-        logger.error("UpdateProfileController, responsecodeInvalidLnUserName");
-        return Base.successResponse(response, Const.responsecodeInvalidLnUserName);
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeInvalidLnUserName,
+          message: "UpdateProfileController, invalid LN username",
+        });
       }
       if (/[^a-z0-9\-_+.]/g.test(lightningUserName)) {
-        logger.error("UpdateProfileController, responsecodeInvalidLnUserName");
-        return Base.successResponse(response, Const.responsecodeInvalidLnUserName);
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeInvalidLnUserName,
+          message: "UpdateProfileController, invalid LN username",
+        });
       }
 
       const lnRegex = new RegExp(`^${lightningUserName}$`, "i");
@@ -501,8 +537,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         $or: [{ lightningUserName: lnRegex }, { userName: lnRegex }],
       }).lean();
       if (result) {
-        logger.error("UpdateProfileController, responsecodeLnUserNameNotAvailable");
-        return Base.successResponse(response, Const.responsecodeLnUserNameNotAvailable);
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeLnUserNameNotAvailable,
+          message: "UpdateProfileController, LN username not available",
+        });
       }
 
       const baseUrl = Config.environment === "production" ? "flom.app" : "flom.dev";
@@ -551,8 +590,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       const { data, err } = await Utils.sendRequest(options);
 
       if (err) {
-        logger.error("UpdateProfileController, responsecodeInvalidStateCode");
-        return Base.successResponse(response, Const.responsecodeInvalidStateCode);
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeInvalidStateCode,
+          message: "UpdateProfileController, invalid state code",
+        });
       }
 
       res = data;
@@ -563,8 +605,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       });
 
       if (!hasStateCode) {
-        logger.error("UpdateProfileController, responsecodeInvalidStateCode");
-        return Base.successResponse(response, Const.responsecodeInvalidStateCode);
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeInvalidStateCode,
+          message: "UpdateProfileController, invalid state code",
+        });
       }
 
       user.stateCode = stateCode;
@@ -577,15 +622,21 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       const { data, err } = await Utils.sendRequest(options);
 
       if (err) {
-        logger.error("UpdateProfileController, responsecodeInvalidStateCodeOrZipCode");
-        return Base.successResponse(response, Const.responsecodeInvalidStateCodeOrZipCode);
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeInvalidStateCodeOrZipCode,
+          message: "UpdateProfileController, invalid state code or zip code",
+        });
       }
 
       res = data;
 
       if (res.combined_use_rate === 0) {
-        logger.error("UpdateProfileController, responsecodeInvalidStateCodeOrZipCode");
-        return Base.successResponse(response, Const.responsecodeInvalidStateCodeOrZipCode);
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeInvalidStateCodeOrZipCode,
+          message: "UpdateProfileController, invalid state code or zip code",
+        });
       }
 
       user.stateCode = stateCode;
@@ -703,7 +754,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
         await fsp.rename(destPathTmp + ".png", destPathTmp);
       } else {
-        Base.errorResponse(response, "thumb creation failed");
+        return Base.newErrorResponse({
+          response,
+          message: "UpdateProfileController",
+          error: new Error("Invalid file type for thumbnail"),
+        });
       }
 
       user.avatar = {
@@ -769,17 +824,28 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     if (slug && user.slug !== slug) {
       if (user.oldSlug) {
-        return Base.successResponse(response, Const.responsecodeSlugAlreadyChanged);
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeSlugAlreadyChanged,
+          message: "UpdateProfileController, slug already changed",
+        });
       }
 
       const regex = /^[a-z0-9_-]+$/;
       if (slug.length < 3 || slug.length > 30 || !regex.test(slug)) {
-        return Base.successResponse(response, Const.responsecodeSlugInvalid);
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeSlugInvalid,
+          message: "UpdateProfileController, invalid slug",
+        });
       }
 
       if (await User.exists({ $or: [{ slug }, { oldSlug: slug }] })) {
-        logger.error("UpdateProfileController, responsecodeSlugNotAvailable");
-        return Base.successResponse(response, Const.responsecodeSlugNotAvailable);
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeSlugNotAvailable,
+          message: "UpdateProfileController, slug not available",
+        });
       }
 
       user.oldSlug = user.slug;
@@ -794,7 +860,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, { user });
   } catch (error) {
-    Base.errorResponse(response, Const.httpCodeServerError, "UpdateProfileController", error);
+    Base.newErrorResponse({
+      response,
+      message: "UpdateProfileController",
+      error,
+    });
   }
 });
 

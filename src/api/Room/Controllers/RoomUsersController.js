@@ -137,11 +137,19 @@ router.get("/:roomId/:page", auth({ allowUser: true }), async function (request,
 
     if (chatType != Const.chatTypeBusiness) {
       if (!roomId || !Utils.isValidObjectId(roomId)) {
-        return Base.successResponse(response, Const.responsecodeRoomDetailInvalidRoomId);
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeRoomDetailInvalidRoomId,
+          message: "RoomUsersController, invalid room id",
+        });
       }
       const room = await Room.findById(roomId).lean();
       if (!room) {
-        return Base.successResponse(response, Const.responsecodeRoomDetailInvalidRoomId);
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeNoRoomFound,
+          message: "RoomUsersController, room not found",
+        });
       }
       roomUsers = room.users;
     } else {
@@ -181,12 +189,13 @@ router.get("/:roomId/:page", auth({ allowUser: true }), async function (request,
       if (key !== -1) list[key].onlineStatus = row.onlineStatus;
     });
 
-    return Base.successResponse(response, Const.responsecodeSucceed, {
-      count: roomUsers.length,
-      list,
-    });
+    Base.successResponse(response, Const.responsecodeSucceed, { count: roomUsers.length, list });
   } catch (error) {
-    return Base.errorResponse(response, Const.httpCodeServerError, "RoomUserList", error);
+    Base.newErrorResponse({
+      response,
+      message: "RoomUsersController",
+      error,
+    });
   }
 });
 

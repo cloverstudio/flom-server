@@ -73,7 +73,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     const organization = await Organization.findById(request.user.organizationId).lean();
     if (!organization) {
-      return Base.successResponse(response, Const.httpCodeServerError);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeSigninWrongOrganizationId,
+        message: "CreateRoomController, organization not found",
+      });
     }
 
     const maxRoomNumber = organization.maxRoomNumber;
@@ -81,7 +85,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       organizationId: request.user.organizationId,
     });
     if (numberOfRooms >= maxRoomNumber) {
-      return Base.successResponse(response, Const.responsecodeMaxRoomNumber);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeMaxRoomNumber,
+        message: "CreateRoomController, max room number reached",
+      });
     }
 
     let useOld = false;
@@ -93,7 +101,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       : [];
 
     if (userIds.length === 0) {
-      return Base.successResponse(response, Const.httpCodeServerError);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeInvalidUserId,
+        message: "CreateRoomController, no valid user ids provided",
+      });
     }
 
     const resultRoom = await logic(
@@ -107,12 +119,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     );
 
     if (!resultRoom) {
-      return Base.errorResponse(
+      return Base.newErrorResponse({
         response,
-        Const.httpCodeServerError,
-        "CreateRoomController",
-        "Failed to create room",
-      );
+        code: Const.responsecodeNoRoomFound,
+        message: "CreateRoomController, failed to create room",
+      });
     }
 
     const roomId = resultRoom._id.toString();
@@ -136,8 +147,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed, { room: resultRoom });
   } catch (error) {
-    console.error("Error in CreateRoomController:", error);
-    return Base.errorResponse(response, Const.httpCodeServerError, "CreateRoomController", error);
+    Base.newErrorResponse({
+      response,
+      message: "CreateRoomController",
+      error,
+    });
   }
 });
 

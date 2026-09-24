@@ -43,18 +43,27 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
 
     //check for required values
     if (!phoneNumber) {
-      logger.error("MerchantEnrollmentController, missing phoneNumber!");
-      return Base.successResponse(response, Const.responsecodeNoPhoneNumber);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeNoPhoneNumber,
+        message: "MerchantEnrollmentController, missing phoneNumber",
+      });
     }
 
     if (!bank) {
-      logger.error("MerchantEnrollmentController, missing financialInstitutionCode!");
-      return Base.successResponse(response, Const.responsecodeNoFinancialInstitutionCode);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeNoFinancialInstitutionCode,
+        message: "MerchantEnrollmentController, missing financialInstitutionCode",
+      });
     }
 
     if (!merchantDOB) {
-      logger.error("MerchantEnrollmentController, missing merchantDOB!");
-      return Base.successResponse(response, Const.responsecodeNoMerchantDOB);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeNoMerchantDOB,
+        message: "MerchantEnrollmentController, missing merchantDOB",
+      });
     }
 
     if (Const.fakePhoneNumbers.indexOf(phoneNumber) !== -1) {
@@ -156,9 +165,13 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
 
     if (responseCode !== "00") {
       const errorCode = Utils.getMCashErrorCode(responseCode);
-      logger.error("MCash Error: " + JSON.stringify(responseDescription));
 
-      return Base.successResponse(response, errorCode);
+      return Base.newErrorResponse({
+        response,
+        code: errorCode,
+        message:
+          "MerchantEnrollmentController, MCash Error: " + +JSON.stringify(responseDescription),
+      });
     }
 
     const { MerchantCode: merchantCode } = registrationResponse;
@@ -181,13 +194,12 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
     return Base.successResponse(response, Const.responsecodeSucceed, {
       merchantCode,
     });
-  } catch (e) {
-    return Base.errorResponse(
+  } catch (error) {
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "MerchantEnrollmentController",
-      e,
-    );
+      message: "MerchantEnrollmentController",
+      error,
+    });
   }
 });
 

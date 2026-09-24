@@ -221,11 +221,19 @@ router.get("/:userId", async function (request, response) {
   try {
     const { userId } = request.params;
     if (!userId) {
-      return Base.successResponse(response, Const.responsecodeUserDetailInvalidUserId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserDetailInvalidUserId,
+        message: "UserDetailController, no userId provided",
+      });
     }
 
     if (!Utils.isValidObjectId(userId)) {
-      return Base.successResponse(response, Const.responsecodeUserDetailInvalidUserId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserDetailInvalidUserId,
+        message: "UserDetailController, invalid userId",
+      });
     }
 
     const user = await User.findOne({ _id: userId }).lean();
@@ -242,10 +250,18 @@ router.get("/:userId", async function (request, response) {
       }*/
 
     if (!user) {
-      return Base.successResponse(response, Const.responsecodeUserNotFound);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserNotFound,
+        message: "UserDetailController, user not found",
+      });
     }
     if (user?.isDeleted.value) {
-      return Base.successResponse(response, Const.responsecodeUserDeleted);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserDeleted,
+        message: "UserDetailController, user is deleted",
+      });
     }
 
     let appVersion = await AppVersion.findOne({});
@@ -413,7 +429,11 @@ router.get("/:userId", async function (request, response) {
       groupCallBaseUrl: Config.groupCallBaseUrl,
     });
   } catch (error) {
-    return Base.errorResponse(response, Const.httpCodeServerError, "UserDetailController", error);
+    Base.newErrorResponse({
+      response,
+      message: "UserDetailController",
+      error,
+    });
   }
 });
 

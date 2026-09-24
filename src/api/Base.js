@@ -4,18 +4,6 @@ const Utils = require("#utils");
 const { Localizer } = require("#services");
 const { UnexpectedError } = require("#models");
 
-function errorResponse(response, httpCode, message, error) {
-  const request = response.req;
-  const deviceType = request.headers["device-type"];
-
-  if (message && error) {
-    logger.error(message, error);
-    logger.error(`Device: ${deviceType}`);
-  }
-  response.status(httpCode);
-  response.send("");
-}
-
 //if code != Const.responsecodeSucceed -> data param will be used for localizer to send dynamic parameter to error message
 //in code == Const.responsecodeSucceed -> data param will be used regularly to send data back to client
 function successResponse(response, code, data) {
@@ -132,7 +120,6 @@ async function createUnexpectedError({ message, reference, error, request }) {
 }
 
 module.exports = {
-  errorResponse,
   successResponse,
   newErrorResponse,
 };

@@ -79,10 +79,21 @@ const { User } = require("#models");
 router.post("/", auth({ allowUser: true }), async function (request, response) {
   const phoneNumber = request.body.phoneNumber;
 
-  if (!phoneNumber) return Base.successResponse(response, Const.responsecodeNoPhoneNumber);
+  if (!phoneNumber) {
+    return Base.newErrorResponse({
+      response,
+      code: Const.responsecodeNoPhoneNumber,
+      message: "GetUserByPhoneController, no phoneNumber provided",
+    });
+  }
 
-  if (!phoneNumber.startsWith("+"))
-    return Base.successResponse(response, Const.responsecodeWrongPhoneNumberFormat);
+  if (!phoneNumber.startsWith("+")) {
+    return Base.newErrorResponse({
+      response,
+      code: Const.responsecodeWrongPhoneNumberFormat,
+      message: "GetUserByPhoneController, wrong phoneNumber format",
+    });
+  }
 
   try {
     let user = await User.findOne({
@@ -92,7 +103,13 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       isAppUser: true,
     });
 
-    if (!user) return Base.successResponse(response, Const.responsecodePhoneNumberNotFound);
+    if (!user) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodePhoneNumberNotFound,
+        message: "GetUserByPhoneController, phoneNumber not found",
+      });
+    }
 
     user = user.toObject();
     // user.nigerianBankAccounts.forEach((bankAccount) => {
@@ -108,9 +125,12 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     result.user = user;
 
     return Base.successResponse(response, Const.responsecodeSucceed, result);
-  } catch (e) {
-    Base.errorResponse(response, Const.httpCodeServerError, "GetUserByPhoneController", e);
-    return;
+  } catch (error) {
+    Base.newErrorResponse({
+      response,
+      message: "GetUserByPhoneController",
+      error,
+    });
   }
 });
 

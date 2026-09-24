@@ -380,18 +380,30 @@ router.post("/", async (request, response) => {
     );
     console.log("kooood   ", activationCode);
     return Base.successResponse(response, Const.responsecodeSucceed);
-  } catch (e) {
-    logger.error(`Error in SMS Verification for ${request.body.phoneNumber}: `, e);
+  } catch (error) {
+    logger.error(`Error in SMS Verification for ${request.body.phoneNumber}: `, error);
 
-    if (e.message === "Missing phoneNumber!") {
-      return Base.successResponse(response, Const.responsecodeNoPhoneNumber);
+    if (error.message === "Missing phoneNumber!") {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeNoPhoneNumber,
+        message: "SmsVerificationController, no phoneNumber provided",
+      });
     }
 
-    if (e.message === "Wrong phoneNumber format!") {
-      return Base.successResponse(response, Const.responsecodeWrongPhoneNumberFormat);
+    if (error.message === "Wrong phoneNumber format!") {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeWrongPhoneNumberFormat,
+        message: "SmsVerificationController, wrong phoneNumber format",
+      });
     }
 
-    return Base.errorResponse(response, Const.httpCodeServerError);
+    Base.newErrorResponse({
+      response,
+      message: "SmsVerificationController",
+      error,
+    });
   }
 });
 

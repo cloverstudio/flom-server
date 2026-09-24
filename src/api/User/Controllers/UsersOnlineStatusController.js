@@ -51,8 +51,11 @@ router.post("/", async (request, response) => {
       userIds === undefined ||
       userIds.length === 0
     ) {
-      console.error("UsersOnlineStatusController: userIds is not defined");
-      return Base.successResponse(response, Const.responsecodeUserIdsMustBeDefined);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserIdsMustBeDefined,
+        message: "UsersOnlineStatusController, no userIds provided",
+      });
     }
 
     if (!Array.isArray(userIds)) {
@@ -60,15 +63,22 @@ router.post("/", async (request, response) => {
     }
 
     if (userIds.length === 0) {
-      console.error("UsersOnlineStatusController: userIds empty array");
-      return Base.successResponse(response, Const.responsecodeUserIdsMustBeDefined);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserIdsMustBeDefined,
+        message: "UsersOnlineStatusController, userIds empty array",
+      });
     }
 
     const onlineStatus = await getUsersOnlineStatus(userIds);
 
     return Base.successResponse(response, Const.responsecodeSucceed, onlineStatus);
   } catch (error) {
-    Base.errorResponse(response, Const.httpCodeServerError, "UsersOnlineStatusController", error);
+    Base.newErrorResponse({
+      response,
+      message: "UsersOnlineStatusController",
+      error,
+    });
   }
 });
 

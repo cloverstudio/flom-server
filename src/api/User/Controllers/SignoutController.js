@@ -82,7 +82,11 @@ router.post("", auth({ allowUser: true }), async function (request, response) {
     Utils.clearCookies(response, request.headers.origin);
     return Base.successResponse(response, Const.responsecodeSucceed, []);
   } catch (error) {
-    return Base.errorResponse(response, Const.httpCodeServerError, "SignoutController", error);
+    Base.newErrorResponse({
+      response,
+      message: "SignoutController",
+      error,
+    });
   }
 });
 

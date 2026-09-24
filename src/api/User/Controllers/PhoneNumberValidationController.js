@@ -56,11 +56,19 @@ router.post("/", async (request, response) => {
     let isWebClient = request.body.isWebClient || false;
 
     if (!phoneNumber) {
-      return Base.successResponse(response, Const.responsecodeNoPhoneNumber);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeNoPhoneNumber,
+        message: "PhoneNumberValidationController, no phoneNumber provided",
+      });
     }
 
     if (!activationCode) {
-      return Base.successResponse(response, Const.responsecodeNoActivationCode);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeNoActivationCode,
+        message: "PhoneNumberValidationController, no activationCode provided",
+      });
     }
 
     if (Const.flomAgentPhoneNumbers.includes(phoneNumber)) {
@@ -75,7 +83,11 @@ router.post("/", async (request, response) => {
     let user = await User.findOne({ phoneNumber: phoneNumber }).lean();
 
     if (!user) {
-      return Base.successResponse(response, Const.responsecodeSigninUserNotFound);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeSigninUserNotFound,
+        message: "PhoneNumberValidationController, user not found",
+      });
     }
 
     if (user?.isDeleted.value) {
@@ -94,7 +106,11 @@ router.post("/", async (request, response) => {
         typeof activationCode,
       );
 
-      return Base.successResponse(response, Const.responsecodeSignupInvalidActivationCode);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeSignupInvalidActivationCode,
+        message: "PhoneNumberValidationController, invalid activation code",
+      });
     }
 
     const senderUser = await User.findOne({ _id: Config.flomSupportAgentId }).lean();
@@ -249,13 +265,12 @@ router.post("/", async (request, response) => {
     // response.cookie("access-token", tokenToSend, Config.cookieConfig);
     // response.cookie("userId", user._id, Config.cookieConfig);
     return Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
-  } catch (e) {
-    return Base.errorResponse(
+  } catch (error) {
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "PhoneNumberValidationController",
-      e,
-    );
+      message: "PhoneNumberValidationController",
+      error,
+    });
   }
 });
 

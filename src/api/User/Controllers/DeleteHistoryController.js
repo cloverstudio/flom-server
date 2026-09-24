@@ -12,8 +12,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     let chatIds = request.body.chatIds;
 
     if (!chatIds) {
-      logger.error("DeleteHistoryController, chatIds missing");
-      return Base.successResponse(response, Const.responsecodeDeleteHistoryNoChatId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeDeleteHistoryNoChatId,
+        message: "DeleteHistoryController, no chatIds provided",
+      });
     }
 
     chatIds = chatIds.split(",").map((id) => {
@@ -28,12 +31,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    return Base.errorResponse(
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "DeleteHistoryController",
+      message: "DeleteHistoryController",
       error,
-    );
+    });
   }
 });
 

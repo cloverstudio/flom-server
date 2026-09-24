@@ -233,12 +233,11 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       hasNext: page * Const.newPagingRows < total,
     });
   } catch (error) {
-    Base.errorResponse(
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "RecentlyViewedProductsController",
+      message: "UsersProductsController",
       error,
-    );
+    });
   }
 });
 

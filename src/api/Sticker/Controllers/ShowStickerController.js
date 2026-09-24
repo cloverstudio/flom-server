@@ -15,15 +15,11 @@ const fs = require("fs");
 
 router.get("/", function (request, response) {
   if (!request.headers("Referer")) {
-    Base.errorResponse(
+    return Base.newErrorResponse({
       response,
-      Const.httpCodeSucceed,
-      Const.responsecodeInvalidParameter,
-      "Download Failed",
-      false,
-    );
-
-    return;
+      message: "ShowStickerController, no sticker, no referer header present",
+      error: new Error("No referer header present"),
+    });
   }
 
   const filePath = Config.publicPath + "/images/nosticker.png";
@@ -33,15 +29,11 @@ router.get("/", function (request, response) {
 
 router.get("/:fileID", function (request, response) {
   if (!request.headers("Referer")) {
-    Base.errorResponse(
+    return Base.newErrorResponse({
       response,
-      Const.httpCodeSucceed,
-      Const.responsecodeInvalidParameter,
-      "Download Failed",
-      false,
-    );
-
-    return;
+      message: "ShowStickerController, fileId, no referer header present",
+      error: new Error("No referer header present"),
+    });
   }
 
   const fileID = request.params.fileID;

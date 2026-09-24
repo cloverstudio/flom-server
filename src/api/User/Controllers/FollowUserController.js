@@ -48,18 +48,19 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       dataToSend.followedBusinesses = request.user.followedBusinesses;
 
     Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
-  } catch (e) {
-    if (e.name == "CastError") {
-      logger.error("FollowUserController, get followed businesses", e);
-      return Base.successResponse(response, Const.responsecodeUserWrongUserIdFormat);
+  } catch (error) {
+    if (error.name == "CastError") {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserWrongUserIdFormat,
+        message: "FollowUserController, get followed businesses, wrong userId format",
+      });
     }
-    Base.errorResponse(
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "FollowUserController, get followed businesses",
-      e,
-    );
-    return;
+      message: "FollowUserController, get followed businesses",
+      error,
+    });
   }
 });
 
@@ -226,18 +227,19 @@ router.get("/followers", auth({ allowUser: true }), async function (request, res
     if (followers) dataToSend.followers = followers;
 
     Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
-  } catch (e) {
-    if (e.name == "CastError") {
-      logger.error("FollowUserController, get followers", e);
-      return Base.successResponse(response, Const.responsecodeUserWrongUserIdFormat);
+  } catch (error) {
+    if (error.name == "CastError") {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserWrongUserIdFormat,
+        message: "FollowUserController, get followers, wrong userId format",
+      });
     }
-    Base.errorResponse(
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "FollowUserController, get followers",
-      e,
-    );
-    return;
+      message: "FollowUserController, get followers",
+      error,
+    });
   }
 });
 
@@ -377,16 +379,30 @@ router.post("/add", auth({ allowUser: true }), async function (request, response
     const { userId, liveStreamId, push = true, whatsApp = true } = request.body;
     const { user: requestUser } = request;
 
-    if (!userId) return Base.successResponse(response, Const.responsecodeUserNoUserId);
+    if (!userId) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserNoUserId,
+        message: "FollowUserController, follow user by id, no userId provided",
+      });
+    }
 
     const user = await User.findOne({ _id: userId }).lean();
 
     if (!user) {
-      return Base.successResponse(response, Const.responsecodeUserNotFound);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserNotFound,
+        message: "FollowUserController, follow user by id, user not found",
+      });
     }
 
     if (user?.isDeleted.value) {
-      return Base.successResponse(response, Const.responsecodeUserDeleted);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserDeleted,
+        message: "FollowUserController, follow user by id, user deleted",
+      });
     }
 
     let followedBusinesses = [];
@@ -397,7 +413,11 @@ router.post("/add", auth({ allowUser: true }), async function (request, response
     const index = followedBusinesses.indexOf(userId);
 
     if (index > -1) {
-      return Base.successResponse(response, Const.responsecodeUserAlreadyFollowed);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserAlreadyFollowed,
+        message: "FollowUserController, follow user by id, user already followed",
+      });
     }
 
     followedBusinesses.push(userId);
@@ -454,18 +474,19 @@ router.post("/add", auth({ allowUser: true }), async function (request, response
     }
 
     Base.successResponse(response, Const.responsecodeSucceed);
-  } catch (e) {
-    if (e.name == "CastError") {
-      logger.error("FollowUserController, follow user by id", e);
-      return Base.successResponse(response, Const.responsecodeUserWrongUserIdFormat);
+  } catch (error) {
+    if (error.name == "CastError") {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserWrongUserIdFormat,
+        message: "FollowUserController, follow user by id, wrong userId format",
+      });
     }
-    Base.errorResponse(
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "FollowUserController, follow user by id",
-      e,
-    );
-    return;
+      message: "FollowUserController, follow user by id",
+      error,
+    });
   }
 });
 
@@ -507,16 +528,30 @@ router.post("/remove", auth({ allowUser: true }), async function (request, respo
 
     const userId = request.body.userId;
 
-    if (!userId) return Base.successResponse(response, Const.responsecodeUserNoUserId);
+    if (!userId) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserNoUserId,
+        message: "FollowUserController, unfollow user by id, no userId provided",
+      });
+    }
 
     const user = await User.findOne({ _id: userId }).lean();
 
     if (!user) {
-      return Base.successResponse(response, Const.responsecodeUserNotFound);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserNotFound,
+        message: "FollowUserController, unfollow user by id, user not found",
+      });
     }
 
     if (user.isDeleted.value) {
-      return Base.successResponse(response, Const.responsecodeUserDeleted);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserDeleted,
+        message: "FollowUserController, unfollow user by id, user deleted",
+      });
     }
 
     let followedBusinesses = [];
@@ -527,13 +562,21 @@ router.post("/remove", auth({ allowUser: true }), async function (request, respo
     const index = followedBusinesses.indexOf(userId);
 
     if (index < 0) {
-      return Base.successResponse(response, Const.responsecodeUserNotFollowed);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserNotFollowed,
+        message: "FollowUserController, unfollow user by id, user not followed",
+      });
     }
 
     const unFollowedUser = followedBusinesses.splice(index, 1);
 
     if (unFollowedUser === userId) {
-      return Base.successResponse(response, Const.responsecodeUserNotUnFollowed);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserNotUnFollowed,
+        message: "FollowUserController, unfollow user by id, user not unfollowed",
+      });
     }
 
     requestUser.notificationSubscriptions = requestUser.notificationSubscriptions || [];
@@ -549,18 +592,19 @@ router.post("/remove", auth({ allowUser: true }), async function (request, respo
     });
 
     Base.successResponse(response, Const.responsecodeSucceed);
-  } catch (e) {
-    if (e.name == "CastError") {
-      logger.error("FollowUserController, unfollow user by id", e);
-      return Base.successResponse(response, Const.responsecodeUserWrongUserIdFormat);
+  } catch (error) {
+    if (error.name == "CastError") {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserWrongUserIdFormat,
+        message: "FollowUserController, unfollow user by id, wrong userId format",
+      });
     }
-    Base.errorResponse(
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "FollowUserController, unfollow user by id",
-      e,
-    );
-    return;
+      message: "FollowUserController, unfollow user by id",
+      error,
+    });
   }
 });
 
@@ -604,22 +648,40 @@ router.post("/update", auth({ allowUser: true }), async function (request, respo
 
     const { userId, push, whatsApp } = request.body;
 
-    if (!userId) return Base.successResponse(response, Const.responsecodeUserNoUserId);
+    if (!userId) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserNoUserId,
+        message: "FollowUserController, update user subscription by id, no userId provided",
+      });
+    }
 
     const user = await User.findOne({ _id: userId }).lean();
 
     if (!user) {
-      return Base.successResponse(response, Const.responsecodeUserNotFound);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserNotFound,
+        message: "FollowUserController, update user subscription by id, user not found",
+      });
     }
 
     if (user.isDeleted.value) {
-      return Base.successResponse(response, Const.responsecodeUserDeleted);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserDeleted,
+        message: "FollowUserController, update user subscription by id, user deleted",
+      });
     }
 
     requestUser.notificationSubscriptions = requestUser.notificationSubscriptions || [];
     const sub = requestUser.notificationSubscriptions.find((s) => s.userId === userId);
     if (!sub) {
-      return Base.successResponse(response, Const.responsecodeUserNotFollowed);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserNotFollowed,
+        message: "FollowUserController, update user subscription by id, user not followed",
+      });
     }
 
     if (push !== undefined && typeof push === "boolean") {
@@ -636,18 +698,19 @@ router.post("/update", auth({ allowUser: true }), async function (request, respo
     });
 
     return Base.successResponse(response, Const.responsecodeSucceed);
-  } catch (e) {
-    if (e.name == "CastError") {
-      logger.error("FollowUserController, update user subscription by id", e);
-      return Base.successResponse(response, Const.responsecodeUserWrongUserIdFormat);
+  } catch (error) {
+    if (error.name == "CastError") {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserWrongUserIdFormat,
+        message: "FollowUserController, update user subscription by id, wrong userId format",
+      });
     }
-    Base.errorResponse(
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "FollowUserController, update user subscription by id",
-      e,
-    );
-    return;
+      message: "FollowUserController, update user subscription by id",
+      error,
+    });
   }
 });
 
@@ -693,18 +756,19 @@ router.get("/:userId", auth({ allowUser: true }), async function (request, respo
     if (user.followedBusinesses) dataToSend.followedBusinesses = user.followedBusinesses;
 
     Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
-  } catch (e) {
-    if (e.name == "CastError") {
-      logger.error("FollowUserController, followed businesses by userid", e);
-      return Base.successResponse(response, Const.responsecodeUserWrongUserIdFormat);
+  } catch (error) {
+    if (error.name == "CastError") {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserWrongUserIdFormat,
+        message: "FollowUserController, followed businesses by id, wrong userId format",
+      });
     }
-    Base.errorResponse(
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "FollowUserController, followed businesses by userid",
-      e,
-    );
-    return;
+      message: "FollowUserController, followed businesses by id",
+      error,
+    });
   }
 });
 

@@ -37,7 +37,11 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed, { users, groups, rooms });
   } catch (error) {
-    return Base.errorResponse(response, Const.httpCodeServerError, "MuteListController", error);
+    Base.newErrorResponse({
+      response,
+      message: "MuteListController",
+      error,
+    });
   }
 });
 

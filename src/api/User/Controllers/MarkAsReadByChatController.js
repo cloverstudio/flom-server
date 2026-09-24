@@ -20,11 +20,19 @@ const { History } = require("#models");
 router.post("/", auth({ allowUser: true }), async function (request, response) {
   try {
     if (!request.body.chatId) {
-      return Base.successResponse(response, Const.responsecodeMuteWrongParam);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeMuteWrongParam,
+        message: "MarkAsReadByChatController, no chatId provided",
+      });
     }
 
     if (!request.body.chatType) {
-      return Base.successResponse(response, Const.responsecodeMuteWrongParam);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeMuteWrongParam,
+        message: "MarkAsReadByChatController, no chatType provided",
+      });
     }
 
     await History.updateMany(
@@ -40,12 +48,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed, {});
   } catch (error) {
-    return Base.errorResponse(
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "MarkAsReadByChatController",
+      message: "MarkAsReadByChatController",
       error,
-    );
+    });
   }
 });
 

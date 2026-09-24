@@ -46,8 +46,12 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
 
       return Base.successResponse(response, Const.responsecodeSucceed, { receivePayments: true });
     }
-  } catch (e) {
-    Base.errorResponse(response, Const.httpCodeServerError, "ReceivePaymentsController GET", e);
+  } catch (error) {
+    Base.newErrorResponse({
+      response,
+      message: "ReceivePaymentsController GET",
+      error,
+    });
   }
 });
 
@@ -94,8 +98,12 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
       return Base.successResponse(response, Const.responsecodeSucceed, { receivePayments: true });
     }
-  } catch (e) {
-    Base.errorResponse(response, Const.httpCodeServerError, "ReceivePaymentsController POST", e);
+  } catch (error) {
+    Base.newErrorResponse({
+      response,
+      message: "ReceivePaymentsController POST",
+      error,
+    });
   }
 });
 

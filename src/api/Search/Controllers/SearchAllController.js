@@ -262,7 +262,11 @@ router.get("/:page", auth({ allowUser: true }), async function (request, respons
       count: result.count,
     });
   } catch (error) {
-    return Base.errorResponse(response, Const.httpCodeServerError, "UserDetailController", error);
+    Base.newErrorResponse({
+      response,
+      message: "SearchAllController",
+      error,
+    });
   }
 });
 

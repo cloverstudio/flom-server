@@ -52,20 +52,48 @@ router.post("/add", auth({ allowUser: true }), async function (request, response
     const newAdminId = request.body.newAdminId;
     const roomId = request.body.roomId;
 
-    if (!newAdminId) return Base.successResponse(response, Const.responsecodeNoAdminId);
-    if (!roomId) return Base.successResponse(response, Const.responsecodeNoRoomId);
+    if (!newAdminId) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeNoAdminId,
+        message: "RoomAdminController, add, no admin id",
+      });
+    }
+    if (!roomId) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeNoRoomId,
+        message: "RoomAdminController, add, no room id",
+      });
+    }
 
     // find a room
     const room = await Room.findById(roomId);
-    if (!room) return Base.successResponse(response, Const.responsecodeNoRoomFound);
+    if (!room) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeNoRoomFound,
+        message: "RoomAdminController, add, no room found",
+      });
+    }
 
     // check if user who wants to add new admin is admin
-    if (!room.admins.includes(request.user._id.toString()))
-      return Base.successResponse(response, Const.responsecodeUserIsNotAdmin);
+    if (!room.admins.includes(request.user._id.toString())) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserIsNotAdmin,
+        message: "RoomAdminController, add, user is not admin",
+      });
+    }
 
     // check if user is already admin
-    if (room.admins.includes(newAdminId))
-      return Base.successResponse(response, Const.responsecodeUserIsAlreadyAdmin);
+    if (room.admins.includes(newAdminId)) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserIsAlreadyAdmin,
+        message: "RoomAdminController, add, user is already admin",
+      });
+    }
 
     // add new user as admin
     room.admins.push(newAdminId);
@@ -78,10 +106,12 @@ router.post("/add", auth({ allowUser: true }), async function (request, response
     dataToSend.room = room.toObject();
 
     Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
-  } catch (e) {
-    console.log("Error: ", e);
-    Base.errorResponse(response, Const.httpCodeServerError);
-    return;
+  } catch (error) {
+    Base.newErrorResponse({
+      response,
+      message: "RoomAdminController, add",
+      error,
+    });
   }
 });
 
@@ -133,25 +163,58 @@ router.post("/delete", auth({ allowUser: true }), async function (request, respo
     const removeAdminId = request.body.removeAdminId;
     const roomId = request.body.roomId;
 
-    if (!removeAdminId) return Base.successResponse(response, Const.responsecodeNoAdminId);
+    if (!removeAdminId) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeNoAdminId,
+        message: "RoomAdminController, delete, no admin id",
+      });
+    }
 
-    if (!roomId) return Base.successResponse(response, Const.responsecodeNoRoomId);
+    if (!roomId) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeNoRoomId,
+        message: "RoomAdminController, delete, no room id",
+      });
+    }
 
     // find a room
     const room = await Room.findById(roomId);
-    if (!room) return Base.successResponse(response, Const.responsecodeNoRoomFound);
+    if (!room) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeNoRoomFound,
+        message: "RoomAdminController, delete, no room found",
+      });
+    }
 
     // check if user who wants to delete admin is admin
-    if (!room.admins.includes(request.user._id.toString()))
-      return Base.successResponse(response, Const.responsecodeUserIsNotAdmin);
+    if (!room.admins.includes(request.user._id.toString())) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserIsNotAdmin,
+        message: "RoomAdminController, delete, user is not admin",
+      });
+    }
 
     // check if user to remove is admin
-    if (!room.admins.includes(removeAdminId))
-      return Base.successResponse(response, Const.responsecodeUserIsNotAdmin);
+    if (!room.admins.includes(removeAdminId)) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserIsNotAdmin,
+        message: "RoomAdminController, delete, user to remove is not admin",
+      });
+    }
 
     // check if user to remove is owner
-    if (room.owner.toString() == removeAdminId)
-      return Base.successResponse(response, Const.responsecodeUserIsOwner);
+    if (room.owner.toString() == removeAdminId) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserIsOwner,
+        message: "RoomAdminController, delete, user to remove is owner",
+      });
+    }
 
     // remove user as admin
     room.admins = room.admins.filter((str) => str != removeAdminId);
@@ -164,10 +227,12 @@ router.post("/delete", auth({ allowUser: true }), async function (request, respo
     dataToSend.room = room.toObject();
 
     Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
-  } catch (e) {
-    console.log("Error: ", e);
-    Base.errorResponse(response, Const.httpCodeServerError);
-    return;
+  } catch (error) {
+    Base.newErrorResponse({
+      response,
+      message: "RoomAdminController, delete",
+      error,
+    });
   }
 });
 

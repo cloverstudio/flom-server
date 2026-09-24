@@ -86,12 +86,20 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const users = request.body.users;
 
     if (!Array.isArray(users)) {
-      return Base.successResponse(response, Const.responsecodeRemoveUsersFromRoomWrongUserId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeRemoveUsersFromRoomWrongUserId,
+        message: "RemoveUsersFromRoomController, wrong user id",
+      });
     }
 
     const room = await Room.findById(roomId).lean();
     if (!room) {
-      return Base.successResponse(response, Const.responsecodeRemoveUsersFromRoomWrongRoomId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeRemoveUsersFromRoomWrongRoomId,
+        message: "RemoveUsersFromRoomController, wrong room id",
+      });
     }
 
     // check if user who wants to add users to toom is admin
@@ -99,7 +107,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       !room.admins.includes(request.user._id.toString()) &&
       request.user._id.toString() != room.owner.toString()
     ) {
-      return Base.successResponse(response, Const.responsecodeAddUsersToRoomUserIsNotAdmin);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeAddUsersToRoomUserIsNotAdmin,
+        message: "RemoveUsersFromRoomController, user is not admin",
+      });
     }
 
     const usersFilterd = users.filter((userId) => Utils.isValidObjectId(userId));
@@ -128,8 +140,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed, { room: updatedRoom });
   } catch (error) {
-    logger.error("RemoveUsersFromRoomController", error);
-    return Base.errorResponse(response, Const.httpCodeServerError);
+    Base.newErrorResponse({
+      response,
+      message: "RemoveUsersFromRoomController",
+      error,
+    });
   }
 });
 

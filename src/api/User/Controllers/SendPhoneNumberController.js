@@ -76,13 +76,19 @@ router.post("/", (request, response) => {
 
   //check for required values
   if (!phoneNumber) {
-    console.log("Missing phoneNumber!");
-    return Base.successResponse(response, Const.responsecodeNoPhoneNumber);
+    return Base.newErrorResponse({
+      response,
+      code: Const.responsecodeNoPhoneNumber,
+      message: "SendPhoneNumberController, no phoneNumber provided",
+    });
   }
 
   if (!activationCode) {
-    console.log("Missing activationCode!");
-    return Base.successResponse(response, Const.responsecodeNoActivationCode);
+    return Base.newErrorResponse({
+      response,
+      code: Const.responsecodeNoActivationCode,
+      message: "SendPhoneNumberController, no activationCode provided",
+    });
   }
 
   const requestbody =
@@ -117,8 +123,11 @@ router.post("/", (request, response) => {
         jsonData["Pre-MerchantSelfRegistrationResponse"].ResponseDescription._text;
 
       if (responseDescription != "00") {
-        console.log("Merch does not exist!");
-        return Base.successResponse(response, Const.merchantDoesntExist);
+        return Base.newErrorResponse({
+          response,
+          code: Const.merchantDoesntExist,
+          message: "SendPhoneNumberController, merchant does not exist",
+        });
       } else {
         const financials =
           jsonData["Pre-MerchantSelfRegistrationResponse"].FinancialInstitutions
@@ -147,8 +156,11 @@ router.post("/", (request, response) => {
         let user = findResult[0];
 
         if (!user) {
-          console.log("Merchant not found!");
-          return Base.successResponse(response, Const.responsecodeMerchantNotFound);
+          return Base.newErrorResponse({
+            response,
+            code: Const.responsecodeMerchantNotFound,
+            message: "SendPhoneNumberController, merchant not found",
+          });
         }
 
         if (user.activationCode === activationCode) {
@@ -205,10 +217,12 @@ router.post("/", (request, response) => {
           Base.successResponse(response, Const.responsecodeSignupInvalidActivationCode);
         }
       }
-    } catch (e) {
-      console.log("Error: ", e);
-      Base.errorResponse(response, Const.httpCodeServerError);
-      return;
+    } catch (error) {
+      Base.newErrorResponse({
+        response,
+        message: "SendPhoneNumberController",
+        error,
+      });
     }
   })();
 });

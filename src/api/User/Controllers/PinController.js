@@ -27,10 +27,21 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     let chatId = request.body.chatId;
     const user = request.user;
 
-    if (pin != 0 && pin != 1)
-      return Base.successResponse(response, Const.responsecodePinChatWrongPinParam);
+    if (pin != 0 && pin != 1) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodePinChatWrongPinParam,
+        message: "PinController, wrong pin parameter",
+      });
+    }
 
-    if (!chatId) return Base.successResponse(response, Const.responsecodePinChatWrongChatIdParam);
+    if (!chatId) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodePinChatWrongChatIdParam,
+        message: "PinController, wrong chatId parameter",
+      });
+    }
 
     chatId = chatId.split(",").map((id) => {
       return id.trim();
@@ -44,7 +55,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    return Base.errorResponse(response, Const.httpCodeServerError, "PinController", error);
+    Base.newErrorResponse({
+      response,
+      message: "PinController",
+      error,
+    });
   }
 });
 

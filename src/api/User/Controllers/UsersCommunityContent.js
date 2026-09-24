@@ -124,7 +124,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       return Base.newErrorResponse({
         response,
         code: Const.responsecodeUserIdNotValid,
-        message: "UsersCommunityContent error, userId not a valid Id",
+        message: "UsersCommunityContent, userId not a valid Id",
       });
     }
 
@@ -133,11 +133,19 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
         _id: request.query.userId,
       }).lean();
       if (!user) {
-        return Base.successResponse(response, Const.responsecodeUserNotFound);
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeUserNotFound,
+          message: "UsersCommunityContent, user not found",
+        });
       }
 
       if (user?.isDeleted.value) {
-        return Base.successResponse(response, Const.responsecodeUserDeleted);
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeUserDeleted,
+          message: "UsersCommunityContent, user is deleted",
+        });
       }
     }
 
@@ -229,8 +237,11 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       itemsPerPage,
     });
   } catch (error) {
-    console.log("UsersCommunityContent error, ", error);
-    return Base.errorResponse(response, Const.httpCodeServerError);
+    Base.newErrorResponse({
+      response,
+      message: "UsersCommunityContent",
+      error,
+    });
   }
 });
 

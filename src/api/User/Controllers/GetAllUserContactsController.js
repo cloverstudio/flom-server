@@ -24,7 +24,13 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const userId = request.body.userId;
     const keyword = request.body.keyword;
 
-    if (!userId) return Base.successResponse(response, Const.responsecodeNoUserId);
+    if (!userId) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeNoUserId,
+        message: "GetAllUserContactsController, no userId provided",
+      });
+    }
 
     let result = {};
 
@@ -57,10 +63,13 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     result.list = allUsers.map((user) => user.toObject());
 
-    return Base.successResponse(response, Const.responsecodeSucceed, result);
-  } catch (e) {
-    Base.errorResponse(response, Const.httpCodeServerError, "GetAllUserContactsController", e);
-    return;
+    Base.successResponse(response, Const.responsecodeSucceed, result);
+  } catch (error) {
+    Base.newErrorResponse({
+      response,
+      message: "GetAllUserContactsController",
+      error,
+    });
   }
 });
 

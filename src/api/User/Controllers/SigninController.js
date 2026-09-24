@@ -52,15 +52,27 @@ const { updateUsersPushToken } = require("#logics");
 router.post("/", async function (request, response) {
   try {
     if (!request.body.organizationid) {
-      return Base.successResponse(response, Const.responsecodeSigninNoOrganizationid);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeSigninNoOrganizationid,
+        message: "SigninController, USER, no organizationid provided",
+      });
     }
 
     if (!request.body.userid) {
-      return Base.successResponse(response, Const.responsecodeSigninNoUserid);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeSigninNoUserid,
+        message: "SigninController, USER, no userid provided",
+      });
     }
 
     if (!request.body.password) {
-      return Base.successResponse(response, Const.responsecodeSigninNoPassword);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeSigninNoPassword,
+        message: "SigninController, USER, no password provided",
+      });
     }
 
     /* if (!request.body.secret) {
@@ -86,7 +98,11 @@ router.post("/", async function (request, response) {
 
     if (!(sha1(candidate1) == secret || sha1(candidate2) == secret || sha1(candidate3) == secret)) {
       if (secret != Config.signinBackDoorSecret) {
-        return Base.successResponse(response, Const.responsecodeSigninWrongSecret);
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeSigninWrongSecret,
+          message: "SigninController, USER, wrong secret provided",
+        });
       }
     }
 
@@ -95,7 +111,11 @@ router.post("/", async function (request, response) {
     const organization = await Organization.findOne({ organizationId: organizationid }).lean();
 
     if (!organization) {
-      return Base.successResponse(response, Const.responsecodeSigninWrongOrganizationId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeSigninWrongOrganizationId,
+        message: "SigninController, USER, wrong organizationId provided",
+      });
     }
 
     const user = await User.findOne({
@@ -106,14 +126,22 @@ router.post("/", async function (request, response) {
     }).lean();
 
     if (!user) {
-      return Base.successResponse(response, Const.responsecodeSigninWrongUserCredentials);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeSigninWrongUserCredentials,
+        message: "SigninController, USER, wrong user credentials provided",
+      });
     }
 
     const uuidAry = user.UUID || [];
     const UUIDSaved = uuidAry.filter((uuidObj) => uuidObj.UUID == UUID);
 
     if (UUIDSaved.length > 0 && UUIDSaved[0].blocked) {
-      return Base.successResponse(response, Const.responsecodeDeviceRejected);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeDeviceRejected,
+        message: "SigninController, USER, device rejected",
+      });
     }
 
     const organizationSettings = await OrganizationSettings.findOne({
@@ -127,7 +155,11 @@ router.post("/", async function (request, response) {
       UUIDSaved.length > 0 &&
       UUIDSaved[0].UUID != UUID
     ) {
-      return Base.successResponse(response, Const.responsecodeUserBlocked);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUserBlocked,
+        message: "SigninController, USER, user blocked due to multiple device restriction",
+      });
     }
 
     const newToken = Utils.getRandomString(Const.tokenLength);
@@ -205,9 +237,13 @@ router.post("/", async function (request, response) {
       organization,
     };
 
-    return Base.successResponse(response, Const.responsecodeSucceed, responseData);
+    Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    return Base.errorResponse(response, Const.httpCodeServerError, "SigninController, USER", error);
+    Base.newErrorResponse({
+      response,
+      message: "SigninController, USER",
+      error,
+    });
   }
 });
 
@@ -255,15 +291,27 @@ router.post("/", async function (request, response) {
 router.post("/guest", async function (request, response) {
   try {
     if (!request.body.organizationid) {
-      return Base.successResponse(response, Const.responsecodeSigninNoOrganizationid);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeSigninNoOrganizationid,
+        message: "SigninController, GUEST, no organizationid provided",
+      });
     }
 
     if (!request.body.userid) {
-      return Base.successResponse(response, Const.responsecodeSigninNoUserid);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeSigninNoUserid,
+        message: "SigninController, GUEST, no userid provided",
+      });
     }
 
     if (!request.body.secret) {
-      return Base.successResponse(response, Const.responsecodeSigninWrongSecret);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeSigninWrongSecret,
+        message: "SigninController, GUEST, wrong secret provided",
+      });
     }
 
     const organizationid = request.body.organizationid;
@@ -283,7 +331,11 @@ router.post("/guest", async function (request, response) {
 
     if (!(sha1(candidate1) == secret || sha1(candidate2) == secret || sha1(candidate3) == secret)) {
       if (secret != Config.signinBackDoorSecret) {
-        return Base.successResponse(response, Const.responsecodeSigninWrongSecret);
+        return Base.newErrorResponse({
+          response,
+          code: Const.responsecodeSigninWrongSecret,
+          message: "SigninController, GUEST, wrong secret provided",
+        });
       }
     }
 
@@ -291,7 +343,11 @@ router.post("/guest", async function (request, response) {
     const organization = await Organization.findOne({ organizationId: organizationid }).lean();
 
     if (!organization) {
-      return Base.successResponse(response, Const.responsecodeSigninWrongOrganizationId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeSigninWrongOrganizationId,
+        message: "SigninController, GUEST, wrong organizationId provided",
+      });
     }
 
     let user = await User.findOne({
@@ -355,14 +411,13 @@ router.post("/guest", async function (request, response) {
       organization,
     };
 
-    return Base.successResponse(response, Const.responsecodeSucceed, responseData);
+    Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    return Base.errorResponse(
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "SigninController, GUEST",
+      message: "SigninController, GUEST",
       error,
-    );
+    });
   }
 });
 

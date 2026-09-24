@@ -306,7 +306,11 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       hasNext: page * limit < total ? true : false,
     });
   } catch (error) {
-    Base.errorResponse(response, Const.httpCodeServerError, "StoryController", error);
+    Base.newErrorResponse({
+      response,
+      message: "StoryController",
+      error,
+    });
   }
 });
 

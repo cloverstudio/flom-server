@@ -31,7 +31,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     const room = await Room.findById(roomId).lean();
     if (!room) {
-      return Base.successResponse(response, Const.responsecodeLeaveRoomWrongRoomId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeLeaveRoomWrongRoomId,
+        message: "LeaveRoomController, room not found",
+      });
     }
 
     const roomQuery = { $pull: { users: loginUserId }, $set: { modified: Date.now() } };
@@ -70,8 +74,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    console.error("Error in LeaveRoomController:", error);
-    return Base.errorResponse(response, Const.httpCodeServerError);
+    Base.newErrorResponse({
+      response,
+      message: "LeaveRoomController",
+      error,
+    });
   }
 });
 

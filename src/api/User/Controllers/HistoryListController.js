@@ -47,12 +47,11 @@ router.get("/search", auth({ allowUser: true }), async function (request, respon
 
     return Base.successResponse(response, Const.responsecodeSucceed, res);
   } catch (error) {
-    return Base.errorResponse(
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "HistoryListController search error",
+      message: "HistoryListController search",
       error,
-    );
+    });
   }
 });
 
@@ -402,12 +401,11 @@ router.get("/:page", auth({ allowUser: true }), async function (request, respons
 
     return Base.successResponse(response, Const.responsecodeSucceed, res);
   } catch (error) {
-    return Base.errorResponse(
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "HistoryListController page error",
+      message: "HistoryListController page",
       error,
-    );
+    });
   }
 });
 
@@ -427,12 +425,11 @@ router.get("/diff/:lastUpdate", auth({ allowUser: true }), async function (reque
 
     return Base.successResponse(response, Const.responsecodeSucceed, res);
   } catch (error) {
-    return Base.errorResponse(
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "HistoryListController diff lastUpdate error",
+      message: "HistoryListController diff lastUpdate",
       error,
-    );
+    });
   }
 });
 

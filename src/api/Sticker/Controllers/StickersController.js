@@ -54,7 +54,11 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
 
     const org = await Organization.findById(organizationId);
     if (!org) {
-      return Base.successResponse(response, Const.responsecodeStickersWrongOrganizationId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeStickersWrongOrganizationId,
+        message: "StickersController, no organization found",
+      });
     }
 
     const stickers = await Sticker.find({
@@ -83,9 +87,11 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     Base.successResponse(response, Const.responsecodeSucceed, { stickers: formatted });
     return;
   } catch (error) {
-    console.log("StickersController critical err", error);
-    Base.errorResponse(response, Const.httpCodeServerError);
-    return;
+    Base.newErrorResponse({
+      response,
+      message: "StickersController",
+      error,
+    });
   }
 });
 

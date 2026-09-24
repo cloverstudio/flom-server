@@ -86,16 +86,28 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const user = request.user;
 
     if (!Array.isArray(userIds) || userIds.length === 0) {
-      return Base.successResponse(response, Const.responsecodeAddUsersToRoomWrongUserId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeAddUsersToRoomWrongUserId,
+        message: "AddUsersToRoomController, wrong user id format",
+      });
     }
 
     const room = await Room.findById(roomId).lean();
     if (!room) {
-      return Base.successResponse(response, Const.responsecodeAddUsersToRoomWrongRoomId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeAddUsersToRoomWrongRoomId,
+        message: "AddUsersToRoomController, wrong room id format",
+      });
     }
 
     if (!room.admins.includes(user._id.toString()) && user._id.toString() !== room.owner) {
-      return Base.successResponse(response, Const.responsecodeAddUsersToRoomUserIsNotAdmin);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeAddUsersToRoomUserIsNotAdmin,
+        message: "AddUsersToRoomController, user is not admin",
+      });
     }
 
     const users = await User.find({ _id: { $in: userIds } }).lean();
@@ -115,8 +127,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed, { room: updatedRoom });
   } catch (error) {
-    console.error("Error in AddUsersToRoomController:", error);
-    return Base.errorResponse(response, Const.httpCodeServerError);
+    Base.newErrorResponse({
+      response,
+      message: "AddUsersToRoomController",
+      error,
+    });
   }
 });
 

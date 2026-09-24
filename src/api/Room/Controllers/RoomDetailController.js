@@ -138,11 +138,23 @@ const { Room, User } = require("#models");
 router.get("/:roomId", auth({ allowUser: true }), async function (request, response) {
   try {
     const roomId = request.params.roomId;
-    if (!roomId) return Base.successResponse(response, Const.responsecodeNoRoomId);
+    if (!roomId) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeNoRoomId,
+        message: "RoomDetailController, no room id",
+      });
+    }
 
     // find a room
     const room = await Room.findById(roomId).lean();
-    if (!room) return Base.successResponse(response, Const.responsecodeNoRoomFound);
+    if (!room) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeNoRoomFound,
+        message: "RoomDetailController, no room found",
+      });
+    }
 
     const usersLimited = room.users;
     if (Array.isArray(usersLimited)) {
@@ -166,7 +178,11 @@ router.get("/:roomId", auth({ allowUser: true }), async function (request, respo
 
     return Base.successResponse(response, Const.responsecodeSucceed, { room });
   } catch (error) {
-    return Base.errorResponse(response, Const.httpCodeServerError, "RoomDetail", error);
+    Base.newErrorResponse({
+      response,
+      message: "RoomDetailController",
+      error,
+    });
   }
 });
 

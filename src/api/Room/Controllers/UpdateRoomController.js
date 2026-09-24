@@ -89,16 +89,28 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const userId = request.user._id.toString();
 
     if (!roomId || !Utils.isValidObjectId(roomId)) {
-      return Base.successResponse(response, Const.responsecodeUpdateRoomWrongRoomId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUpdateRoomWrongRoomId,
+        message: "UpdateRoomController, wrong room id",
+      });
     }
 
     const room = await Room.findById(roomId).lean();
     if (!room) {
-      return Base.successResponse(response, Const.responsecodeUpdateRoomWrongRoomId);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUpdateRoomWrongRoomId,
+        message: "UpdateRoomController, wrong room id",
+      });
     }
 
     if (room.owner.toString() !== userId) {
-      return Base.successResponse(response, Const.responsecodeUpdateRoomNotAllowed);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeUpdateRoomNotAllowed,
+        message: "UpdateRoomController, not allowed",
+      });
     }
 
     const validateResult = await validate(fields, files.file);
@@ -155,9 +167,13 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const updatedRoom = await Room.findByIdAndUpdate(roomId, updateData, { new: true, lean: true });
     updatedRoom.ownerModel = request.user;
 
-    return Base.successResponse(response, Const.responsecodeSucceed, { room: updatedRoom });
+    Base.successResponse(response, Const.responsecodeSucceed, { room: updatedRoom });
   } catch (error) {
-    return Base.errorResponse(response, Const.httpCodeServerError, "UpdateRoomController", error);
+    Base.newErrorResponse({
+      response,
+      message: "UpdateRoomController",
+      error,
+    });
   }
 });
 

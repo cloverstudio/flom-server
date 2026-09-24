@@ -42,7 +42,11 @@ const { User } = require("#models");
 router.post("", auth({ allowUser: true }), async function (request, response) {
   try {
     if (!request.body.pushSubscription) {
-      return Base.successResponse(response, Const.responsecodeSavePushTokenWrongToken);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeSavePushTokenWrongToken,
+        message: "SaveWebPushSubscriptionController, no pushSubscription provided",
+      });
     }
 
     const user = request.user;
@@ -64,14 +68,13 @@ router.post("", auth({ allowUser: true }), async function (request, response) {
       user.webPushSubscription = savedPushSubscriptions;
     }
 
-    return Base.successResponse(response, Const.responsecodeSucceed, { user });
+    Base.successResponse(response, Const.responsecodeSucceed, { user });
   } catch (error) {
-    return Base.errorResponse(
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "SaveWebPushSubscriptionController",
+      message: "SaveWebPushSubscriptionController",
       error,
-    );
+    });
   }
 });
 

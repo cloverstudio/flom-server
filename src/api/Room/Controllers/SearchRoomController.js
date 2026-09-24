@@ -69,7 +69,11 @@ router.get("/:page", auth({ allowUser: true }), async (request, response) => {
 
     return Base.successResponse(response, Const.responsecodeSucceed, { list: rooms, count });
   } catch (error) {
-    return Base.errorResponse(response, Const.httpCodeServerError, "SearchRoomController", error);
+    Base.newErrorResponse({
+      response,
+      message: "SearchRoomController",
+      error,
+    });
   }
 });
 

@@ -42,12 +42,16 @@ const { getMerchantsPhoneNumber, createNewUser } = require("#logics");
 				}
     **/
 
-router.get("/:code", auth({ allowUser: true }), async (req, res) => {
-  if (!req.params.code) {
-    return Base.successResponse(res, Const.responsecodeNoMerchantCode);
+router.get("/:code", auth({ allowUser: true }), async (request, response) => {
+  if (!request.params.code) {
+    return Base.newErrorResponse({
+      response,
+      code: Const.responsecodeNoMerchantCode,
+      message: "getUserByMerchantCodeController, no merchant code provided",
+    });
   }
 
-  const merchantCode = req.params.code;
+  const merchantCode = request.params.code;
   const phoneNumber = await getMerchantsPhoneNumber(merchantCode);
 
   const query = {
@@ -60,7 +64,7 @@ router.get("/:code", auth({ allowUser: true }), async (req, res) => {
     let user = await User.findOne(query).lean();
 
     if (user) {
-      return Base.successResponse(res, Const.responsecodeSucceed, user);
+      return Base.successResponse(response, Const.responsecodeSucceed, user);
     }
 
     if (phoneNumber) {
@@ -68,16 +72,19 @@ router.get("/:code", auth({ allowUser: true }), async (req, res) => {
         phoneNumber,
         typeAcc: Const.userTypeMerchant,
         isAppUser: false,
-        ref: req.user._id.toString(),
+        ref: request.user._id.toString(),
         merchantCode,
       });
-      return Base.successResponse(res, Const.responsecodeSucceed, user);
+      return Base.successResponse(response, Const.responsecodeSucceed, user);
     } else {
-      return Base.successResponse(res, Const.responsecodeSucceed, {});
+      return Base.successResponse(response, Const.responsecodeSucceed, {});
     }
   } catch (error) {
-    console.error("getUserByMerchantCodeController: ", error);
-    return Base.errorResponse(res, Const.httpCodeServerError);
+    Base.newErrorResponse({
+      response,
+      message: "getUserByMerchantCodeController",
+      error,
+    });
   }
 });
 

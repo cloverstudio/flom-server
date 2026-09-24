@@ -45,8 +45,11 @@ router.get("/", async (request, response) => {
       `<page><div>Kindly check your message for link to Download Flom. Thank you!</div></page>`,
     );
   } catch (error) {
-    console.log(error);
-    return Base.errorResponse(response, Const.httpCodeServerError);
+    Base.newErrorResponse({
+      response,
+      message: "SendInvitationSMSController, get",
+      error,
+    });
   }
 });
 
@@ -73,10 +76,13 @@ router.post("/", async (request, response) => {
 
     console.log(JSON.stringify(apiResponse, null, 4));
 
-    return Base.successResponse(response, Const.responsecodeSucceed);
+    Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    console.log(error);
-    return Base.errorResponse(response, Const.httpCodeServerError);
+    Base.newErrorResponse({
+      response,
+      message: "SendInvitationSMSController, post",
+      error,
+    });
   }
 });
 

@@ -48,7 +48,11 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       count: result.count,
     });
   } catch (error) {
-    Base.errorResponse(response, Const.httpCodeServerError, "UserSearchController", error);
+    Base.newErrorResponse({
+      response,
+      message: "UserSearchController",
+      error,
+    });
   }
 });
 
@@ -64,7 +68,11 @@ router.get("/:page", auth({ allowUser: true }), async function (request, respons
       count: result.count,
     });
   } catch (error) {
-    Base.errorResponse(response, Const.httpCodeServerError, "UserSearchController, PAGE", error);
+    Base.newErrorResponse({
+      response,
+      message: "UserSearchController, PAGE",
+      error,
+    });
   }
 });
 

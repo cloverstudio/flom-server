@@ -29,12 +29,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed, {});
   } catch (error) {
-    return Base.errorResponse(
+    Base.newErrorResponse({
       response,
-      Const.httpCodeServerError,
-      "MarkAllAsReadController",
+      message: "MarkAllAsReadController",
       error,
-    );
+    });
   }
 });
 

@@ -24,11 +24,21 @@ const { User } = require("#models");
 
 router.post("/", auth({ allowUser: true }), async function (request, response) {
   try {
-    if (!request.body.action)
-      return Base.successResponse(response, Const.responsecodeMuteWrongParam);
+    if (!request.body.action) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeMuteWrongParam,
+        message: "MuteController, no action provided",
+      });
+    }
 
-    if (!request.body.target)
-      return Base.successResponse(response, Const.responsecodeMuteWrongParam);
+    if (!request.body.target) {
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeMuteWrongParam,
+        message: "MuteController, no target provided",
+      });
+    }
 
     const action = request.body.action;
     const target = request.body.target.split(",").map((id) => {
@@ -40,14 +50,22 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     } else if (action == Const.muteActionMute) {
       currentMuteList = Array.from(new Set([...currentMuteList, ...target]));
     } else {
-      return Base.successResponse(response, Const.responsecodeMuteWrongParam);
+      return Base.newErrorResponse({
+        response,
+        code: Const.responsecodeMuteWrongParam,
+        message: "MuteController, wrong action provided",
+      });
     }
 
     await User.findByIdAndUpdate(request.user._id.toString(), { muted: currentMuteList });
 
     return Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    return Base.errorResponse(response, Const.httpCodeServerError, "MuteController", error);
+    Base.newErrorResponse({
+      response,
+      message: "MuteController",
+      error,
+    });
   }
 });
 
