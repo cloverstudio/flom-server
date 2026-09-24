@@ -1,4 +1,4 @@
-const { Const } = require("#config");
+const { Const, Config } = require("#config");
 const { logger } = require("#infra");
 const Utils = require("#utils");
 const { Localizer } = require("#services");
@@ -11,7 +11,9 @@ function successResponse(response, code, data) {
   response.set("connection", "Keep-alive");
 
   if (code != Const.responsecodeSucceed) {
-    logger.error(`Error code: ${code}`);
+    const reference = createReference();
+
+    logger.error(`ERROR CODE: ${code} | REFERENCE: ${reference}`);
 
     const { lang } = response;
     delete response.lang;
@@ -22,7 +24,7 @@ function successResponse(response, code, data) {
 
     response.json({
       code,
-      errorMessage: loc.e(code, data),
+      errorMessage: loc.e(code, data) + ` (Ref: ${reference})`,
       time: Date.now(),
     });
   } else {
@@ -40,14 +42,10 @@ function errorResponse({ response, code, type, message, error, data, param, para
   const request = response.req;
   const deviceType = request.headers["device-type"];
 
-  let reference;
+  const reference = createReference();
 
   if (!code) {
     code = Const.responsecodeUnexpectedError;
-
-    reference = Utils.getRandomString(8, "limited");
-    param = reference;
-
     createUnexpectedError({ message, reference, error, request });
   }
 
@@ -58,14 +56,14 @@ function errorResponse({ response, code, type, message, error, data, param, para
   if (code !== Const.responsecodeNoActiveLiveStreamFoundForUser) {
     if (reference)
       logger.error(
-        `Error code: ${code} | Error message: Unexpected error | Device: ${deviceType} | Reference: ${reference}`,
+        `Code: ${code} | Message: Unexpected error | ${deviceType} | Ref: ${reference}`,
         error,
       );
     else if (!error)
-      logger.error(`Error code: ${code} | Error message: ${message} | Device: ${deviceType}`);
+      logger.error(`Code: ${code} | Message: ${message} | ${deviceType} | Ref: ${reference}`);
     else
       logger.error(
-        `Error code: ${code} | Error message: ${message} | Device: ${deviceType}`,
+        `Code: ${code} | Message: ${message} | ${deviceType} | Ref: ${reference}`,
         error,
       );
   }
@@ -75,7 +73,7 @@ function errorResponse({ response, code, type, message, error, data, param, para
 
   const responseData = {
     code,
-    errorMessage: loc.e(code, param, param2),
+    errorMessage: loc.e(code, param, param2) + ` (Ref: ${reference})`,
     time: Date.now(),
   };
 
@@ -89,9 +87,10 @@ function errorResponse({ response, code, type, message, error, data, param, para
 async function createUnexpectedError({ message, reference, error, request }) {
   try {
     const deviceType = request.headers["device-type"];
+    const i = Config.instance || "0";
 
     const info = {
-      origin: "main_app",
+      origin: "main_app_" + i,
       reference,
       deviceType,
       error: { name: error.name, message: error.message, stack: error.stack },
@@ -117,6 +116,27 @@ async function createUnexpectedError({ message, reference, error, request }) {
   } catch (err) {
     logger.error("Failed to create unexpected error record: ", err);
   }
+}
+
+let refArray = [];
+
+function createReference() {
+  if (refArray.length > 1000) {
+    refArray = [];
+  }
+
+  const i = Config.instance || "0";
+
+  let ref,
+    refExists = true;
+
+  while (refExists) {
+    ref = Utils.generateRandomString(8, "limited");
+    refExists = refArray.includes(ref);
+    refArray.push(ref);
+  }
+
+  return `M${i}-${ref}`;
 }
 
 module.exports = {
