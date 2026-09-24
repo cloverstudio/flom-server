@@ -54,7 +54,11 @@ router.get("/", auth({ allowUser: true }), async (request, response) => {
     const user = request.user;
 
     if (!user) {
-      return Base.successResponse(response, Const.responsecodeInvalidToken);
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeInvalidToken,
+        message: `UserGetContactsController, invalid token`,
+      });
     }
 
     const contacts = await UserContact.find({ userId: user._id.toString() });
@@ -81,11 +85,15 @@ router.get("/", auth({ allowUser: true }), async (request, response) => {
       };
     });
 
-    return Base.successResponse(response, Const.responsecodeSucceed, {
+    Base.successResponse(response, Const.responsecodeSucceed, {
       users: usersWithContactName,
     });
   } catch (error) {
-    Base.successResponse(response, Const.httpCodeServerError, "UserGetContactsController", error);
+    Base.errorResponse({
+      response,
+      message: `UserGetContactsController`,
+      error,
+    });
   }
 });
 

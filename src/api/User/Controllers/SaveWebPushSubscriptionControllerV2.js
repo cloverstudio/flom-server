@@ -44,8 +44,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const { pushSubscription = {} } = request.body;
 
     if (!pushSubscription || !pushSubscription.endpoint) {
-      logger.error("SaveWebPushSubscriptionControllerV2, wrong token");
-      return Base.successResponse(response, Const.responsecodeSavePushTokenWrongToken);
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeSavePushTokenWrongToken,
+        message: `SaveWebPushSubscriptionControllerV2, wrong token`,
+      });
     }
 
     const { user } = request;

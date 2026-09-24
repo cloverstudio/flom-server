@@ -170,7 +170,13 @@ router.get("/:productId", async function (request, response) {
   try {
     const productId = request.params.productId;
 
-    if (!productId) return Base.successResponse(response, Const.responsecodeProductNoProductId);
+    if (!productId) {
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeProductNoProductId,
+        message: `GetProductInfoForExpo, no product id provided`,
+      });
+    }
 
     if (!Utils.isValidObjectId(productId)) {
       return Base.errorResponse({
@@ -284,15 +290,18 @@ router.get("/:productId", async function (request, response) {
     }
 
     Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
-  } catch (e) {
-    console.log("Error: ", e);
-    if (e.name == "CastError") {
-      return Base.successResponse(response, Const.responsecodeProductWrongProductIdFormat);
+  } catch (error) {
+    if (error.name == "CastError") {
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeProductWrongProductIdFormat,
+        message: `GetProductInfoForExpo, wrong product id format`,
+      });
     }
     Base.errorResponse({
       response,
       message: `GetProductInfoForExpo`,
-      error: e,
+      error,
     });
   }
 });

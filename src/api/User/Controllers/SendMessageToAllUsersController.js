@@ -68,7 +68,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const permission = request.user.permission;
 
     if (!message || permission !== 2) {
-      return Base.successResponse(response, Const.responsecodeFailedToSendMessage, {});
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeFailedToSendMessage,
+        message: `SendMessageToAllUsersController, failed to send message`,
+      });
     }
 
     const allUsers = await User.find({ status: 1, isAppUser: true, shadow: false });
@@ -90,7 +94,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       messagesSent: allUsers.length,
     });
   } catch (error) {
-    Base.successResponse(response, Const.responsecodeFailedToSendMessage, {});
+    Base.errorResponse({
+      response,
+      message: `SendMessageToAllUsersController`,
+      error,
+    });
   }
 });
 

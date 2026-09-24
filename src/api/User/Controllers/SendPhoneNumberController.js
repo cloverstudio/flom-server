@@ -212,9 +212,13 @@ router.post("/", (request, response) => {
             tkn: tokenToSend,
           };
 
-          Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
+          return Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
         } else {
-          Base.successResponse(response, Const.responsecodeSignupInvalidActivationCode);
+          return Base.errorResponse({
+            response,
+            code: Const.responsecodeSignupInvalidActivationCode,
+            message: "SendPhoneNumberController, invalid activation code",
+          });
         }
       }
     } catch (error) {

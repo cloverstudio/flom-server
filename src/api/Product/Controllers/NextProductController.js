@@ -170,7 +170,13 @@ router.post("/", async function (request, response) {
 
     if (accessToken) {
       const user = await User.findOne({ "token.token": accessToken }).lean();
-      if (!user) return Base.successResponse(response, Const.responsecodeSigninInvalidToken);
+      if (!user) {
+        return Base.errorResponse({
+          response,
+          code: Const.responsecodeSigninInvalidToken,
+          message: `NextProductController, invalid access token`,
+        });
+      }
 
       if (user.blocked && user.blocked.length > 0) {
         if (!matchQuery.ownerId) matchQuery.ownerId = {};

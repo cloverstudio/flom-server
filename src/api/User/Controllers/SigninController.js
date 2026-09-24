@@ -75,10 +75,6 @@ router.post("/", async function (request, response) {
       });
     }
 
-    /* if (!request.body.secret) {
-            return Base.successResponse(response, Const.responsecodeSigninWrongSecret);
-        } */
-
     const organizationid = request.body.organizationid;
     const userid = request.body.userid;
     const password = request.body.password;
