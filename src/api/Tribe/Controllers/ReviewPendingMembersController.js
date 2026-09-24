@@ -55,7 +55,7 @@ router.patch(
       const { accepted, memberId } = request.body;
 
       if (!Utils.isValidObjectId(tribeId) || !Utils.isValidObjectId(memberId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeTribeBadId,
           message: `ReviewPendingMembersController, bad tribe id`,
@@ -64,7 +64,7 @@ router.patch(
 
       const tribe = await Tribe.findById(tribeId);
       if (!tribe) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeTribeNotFound,
           message: `ReviewPendingMembersController, no tribe found`,
@@ -76,7 +76,7 @@ router.patch(
         tribe.members.accepted.find((member) => member.id === requestUserId)?.role !==
           Const.tribeMemberRoleCoOwner
       ) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeTribeEditNotAllowed,
           message: `ReviewPendingMembersController, review not allowed`,
@@ -84,7 +84,7 @@ router.patch(
       }
 
       if (tribe.ownerId === memberId) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeTribeAlreadyJoined,
           message: `ReviewPendingMembersController, can't review Base`,
@@ -93,7 +93,7 @@ router.patch(
 
       const requestToJoin = tribe.members.requested.find((member) => member.id === memberId);
       if (!requestToJoin) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeTribePendingMemberNotFound,
           message: `ReviewPendingMembersController, pending member not found`,
@@ -104,7 +104,7 @@ router.patch(
 
       const userStatus = accepted === "1";
       if (userStatus && tribe.members.accepted.length === Const.tribeMaxSize) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeTribeFull,
           message: `ReviewPendingMembersController, tribe full`,
@@ -128,7 +128,7 @@ router.patch(
 
       Base.successResponse(response, Const.responsecodeSucceed, { userStatus });
     } catch (error) {
-      Base.newErrorResponse({ response, message: "ReviewPendingMembersController", error });
+      Base.errorResponse({ response, message: "ReviewPendingMembersController", error });
     }
   },
 );

@@ -126,7 +126,7 @@ router.get("/", async function (request, response) {
     let user;
 
     if (!slug) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSlugMissing,
         message: "GetProductBySlug, slug missing",
@@ -141,7 +141,7 @@ router.get("/", async function (request, response) {
     let dataToSend = {};
 
     if (!product) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductNotFound,
         message: "GetProductBySlug, product not found",
@@ -149,7 +149,7 @@ router.get("/", async function (request, response) {
     }
 
     if (!accessToken && product.appropriateForKids === false) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSensitiveContent,
         message: "GetProductBySlug, sensitive content",
@@ -168,7 +168,7 @@ router.get("/", async function (request, response) {
       if (accessToken.length === Const.tokenLength) {
         user = await User.findOne({ "token.token": accessToken }).lean();
         if (!user) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeSigninInvalidToken,
             message: "GetProductBySlug, invalid token",
@@ -186,7 +186,7 @@ router.get("/", async function (request, response) {
         });
 
         if (user.kidsMode === true && product.appropriateForKids === false) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeSensitiveContent,
             message: "GetProductBySlug, sensitive content",
@@ -198,7 +198,7 @@ router.get("/", async function (request, response) {
           (product.moderation.status !== Const.moderationStatusApproved &&
             userId !== product.ownerId)
         ) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeRestrictedContent,
             message: "GetProductBySlug, restricted content",
@@ -208,7 +208,7 @@ router.get("/", async function (request, response) {
           (product.moderation.status !== Const.moderationStatusApproved &&
             userId !== product.ownerId)
         ) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeRestrictedContent,
             message: "GetProductBySlug, restricted content",
@@ -217,7 +217,7 @@ router.get("/", async function (request, response) {
       } else {
         const adminUser = await AdminPageUser.findOne({ "token.token": accessToken }).lean();
         if (!adminUser) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeSigninInvalidToken,
             message: "GetProductBySlug, invalid token",
@@ -228,7 +228,7 @@ router.get("/", async function (request, response) {
       product.visibility !== "public" ||
       product.moderation.status !== Const.moderationStatusApproved
     ) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeRestrictedContent,
         message: "GetProductBySlug, restricted content",
@@ -329,7 +329,7 @@ router.get("/", async function (request, response) {
       Logics.addUserTagInteraction({ product, user });
     }
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "GetProductBySlug",

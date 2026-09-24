@@ -125,7 +125,7 @@ router.get("/", auth({ allowUser: true }), async (request, response) => {
       pagination: { itemsPerPage, page, total: tribeCount },
     });
   } catch (error) {
-    Base.newErrorResponse({ response, message: "TribeListController", error });
+    Base.errorResponse({ response, message: "TribeListController", error });
   }
 });
 

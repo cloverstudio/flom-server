@@ -341,7 +341,7 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
 
     updateUsersBankAccounts({ user });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "App StartupController",
       error,

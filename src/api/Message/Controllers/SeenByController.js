@@ -19,7 +19,7 @@ router.get("/:messageid", auth({ allowUser: true }), async function (request, re
     const messageId = request.params.messageid;
 
     if (!Utils.isValidObjectId(messageId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeForwardMessageInvalidMessageId,
         message: `SeenByController, invalid messageId`,
@@ -29,7 +29,7 @@ router.get("/:messageid", auth({ allowUser: true }), async function (request, re
     const message = await FlomMessage.findById(messageId).lean();
 
     if (!message) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeForwardMessageInvalidMessageId,
         message: `SeenByController, invalid messageId, message not found`,
@@ -108,7 +108,7 @@ router.get("/:messageid", auth({ allowUser: true }), async function (request, re
       deliveredTo: deliveredToAry,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "SeenByController",
       error,

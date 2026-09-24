@@ -173,7 +173,7 @@ router.get("/:productId", async function (request, response) {
     if (!productId) return Base.successResponse(response, Const.responsecodeProductNoProductId);
 
     if (!Utils.isValidObjectId(productId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidProductId,
         message: `GetProductInfoForExpo - invalid productId parameter`,
@@ -186,7 +186,7 @@ router.get("/:productId", async function (request, response) {
     const product = await Product.findOne(query).lean();
 
     if (!product) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductNotFound,
         message: `GetProductInfoForExpo - product not found`,
@@ -194,7 +194,7 @@ router.get("/:productId", async function (request, response) {
     }
 
     if (product.moderation.status !== Const.moderationStatusApproved) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidApprovalStatus,
         message: `GetProductInfoForExpo - product approval status invalid`,
@@ -276,7 +276,7 @@ router.get("/:productId", async function (request, response) {
     }
 
     if (!dataToSend) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductNotFound,
         message: `GetProductInfoForExpo - product not found, empty data`,
@@ -289,7 +289,7 @@ router.get("/:productId", async function (request, response) {
     if (e.name == "CastError") {
       return Base.successResponse(response, Const.responsecodeProductWrongProductIdFormat);
     }
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: `GetProductInfoForExpo`,
       error: e,

@@ -23,7 +23,7 @@ router.get("/:id", async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed, {});
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "TestController - statics",
       error,
@@ -41,7 +41,7 @@ router.post("/", idempotency, async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed, { randomString });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "TestController",
       error,

@@ -96,7 +96,7 @@ router.get("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (reque
       flomojiList: flomojiListWithLinks,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetFlomojiListController, GET List",
       error,

@@ -61,7 +61,7 @@ router.get(
       const { type = "", size = "medium" } = request.query;
 
       if (type !== "light" && type !== "dark" && type !== "") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidParameter,
           message: `WallpaperController - invalid type`,
@@ -69,7 +69,7 @@ router.get(
         });
       }
       if (size !== "medium" && size !== "small" && size !== "large") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidParameter,
           message: `WallpaperController - invalid size`,
@@ -87,7 +87,7 @@ router.get(
 
       Base.successResponse(response, Const.responsecodeSucceed, { wallpapers });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "WallpaperController",
         error,
@@ -126,7 +126,7 @@ router.get(
   async function (request, response) {
     try {
       if (!request.params.wallpaperName) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidParameter,
           message: `WallpaperController, fetch - invalid fileName parameter`,
@@ -141,7 +141,7 @@ router.get(
 
         response.sendFile(filePath);
       } catch (error) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeFileNotFound,
           message: `WallpaperController, fetch - file not found`,
@@ -149,13 +149,13 @@ router.get(
       }
     } catch (error) {
       if (error.code === "ENOENT") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeFileNotFound,
           message: `WallpaperController, fetch - file not found`,
         });
       }
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         message: "WallpaperController - fetch",
         error,

@@ -52,7 +52,7 @@ const { updateUsersPushToken } = require("#logics");
 router.post("/", async function (request, response) {
   try {
     if (!request.body.organizationid) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSigninNoOrganizationid,
         message: "SigninController, USER, no organizationid provided",
@@ -60,7 +60,7 @@ router.post("/", async function (request, response) {
     }
 
     if (!request.body.userid) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSigninNoUserid,
         message: "SigninController, USER, no userid provided",
@@ -68,7 +68,7 @@ router.post("/", async function (request, response) {
     }
 
     if (!request.body.password) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSigninNoPassword,
         message: "SigninController, USER, no password provided",
@@ -98,7 +98,7 @@ router.post("/", async function (request, response) {
 
     if (!(sha1(candidate1) == secret || sha1(candidate2) == secret || sha1(candidate3) == secret)) {
       if (secret != Config.signinBackDoorSecret) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeSigninWrongSecret,
           message: "SigninController, USER, wrong secret provided",
@@ -111,7 +111,7 @@ router.post("/", async function (request, response) {
     const organization = await Organization.findOne({ organizationId: organizationid }).lean();
 
     if (!organization) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSigninWrongOrganizationId,
         message: "SigninController, USER, wrong organizationId provided",
@@ -126,7 +126,7 @@ router.post("/", async function (request, response) {
     }).lean();
 
     if (!user) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSigninWrongUserCredentials,
         message: "SigninController, USER, wrong user credentials provided",
@@ -137,7 +137,7 @@ router.post("/", async function (request, response) {
     const UUIDSaved = uuidAry.filter((uuidObj) => uuidObj.UUID == UUID);
 
     if (UUIDSaved.length > 0 && UUIDSaved[0].blocked) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeDeviceRejected,
         message: "SigninController, USER, device rejected",
@@ -155,7 +155,7 @@ router.post("/", async function (request, response) {
       UUIDSaved.length > 0 &&
       UUIDSaved[0].UUID != UUID
     ) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserBlocked,
         message: "SigninController, USER, user blocked due to multiple device restriction",
@@ -239,7 +239,7 @@ router.post("/", async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "SigninController, USER",
       error,
@@ -291,7 +291,7 @@ router.post("/", async function (request, response) {
 router.post("/guest", async function (request, response) {
   try {
     if (!request.body.organizationid) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSigninNoOrganizationid,
         message: "SigninController, GUEST, no organizationid provided",
@@ -299,7 +299,7 @@ router.post("/guest", async function (request, response) {
     }
 
     if (!request.body.userid) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSigninNoUserid,
         message: "SigninController, GUEST, no userid provided",
@@ -307,7 +307,7 @@ router.post("/guest", async function (request, response) {
     }
 
     if (!request.body.secret) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSigninWrongSecret,
         message: "SigninController, GUEST, wrong secret provided",
@@ -331,7 +331,7 @@ router.post("/guest", async function (request, response) {
 
     if (!(sha1(candidate1) == secret || sha1(candidate2) == secret || sha1(candidate3) == secret)) {
       if (secret != Config.signinBackDoorSecret) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeSigninWrongSecret,
           message: "SigninController, GUEST, wrong secret provided",
@@ -343,7 +343,7 @@ router.post("/guest", async function (request, response) {
     const organization = await Organization.findOne({ organizationId: organizationid }).lean();
 
     if (!organization) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSigninWrongOrganizationId,
         message: "SigninController, GUEST, wrong organizationId provided",
@@ -413,7 +413,7 @@ router.post("/guest", async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "SigninController, GUEST",
       error,

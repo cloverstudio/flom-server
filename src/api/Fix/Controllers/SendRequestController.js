@@ -26,7 +26,7 @@ router.post(
       const responseData = { res };
       Base.successResponse(response, Const.responsecodeSucceed, responseData);
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "SendRequestController",
         error,

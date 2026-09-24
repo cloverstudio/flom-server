@@ -49,7 +49,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "getUsersMarketingMessagesController, get",
       error,
@@ -90,7 +90,7 @@ router.get("/:id", auth({ allowUser: true }), async function (request, response)
 
     Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "getUsersMarketingMessagesController, get by id",
       error,

@@ -40,7 +40,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const responseData = {};
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "RecordRatingAttemptController",
       error,

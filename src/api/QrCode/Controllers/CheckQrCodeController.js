@@ -22,7 +22,7 @@ router.get("/:code", async function (request, response) {
     const value = await redis.get(Const.redisKeyQrCode + code);
 
     if (!value || !value.userId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotFound,
         type: Const.logTypeLogin,
@@ -32,7 +32,7 @@ router.get("/:code", async function (request, response) {
 
     const user = await User.findById(value.userId);
     if (!user) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotFound,
         type: Const.logTypeLogin,
@@ -41,7 +41,7 @@ router.get("/:code", async function (request, response) {
     }
 
     if (user?.isDeleted?.value) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserDeleted,
         type: Const.logTypeLogin,
@@ -71,7 +71,7 @@ router.get("/:code", async function (request, response) {
       userId: value.userId,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "CheckQrCodeController",
       error,

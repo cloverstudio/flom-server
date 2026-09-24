@@ -136,7 +136,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       users: usersForReturn,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetBestCreatorsController",
       error,

@@ -89,7 +89,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const userId = request.user._id.toString();
 
     if (!roomId || !Utils.isValidObjectId(roomId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUpdateRoomWrongRoomId,
         message: "UpdateRoomController, wrong room id",
@@ -98,7 +98,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     const room = await Room.findById(roomId).lean();
     if (!room) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUpdateRoomWrongRoomId,
         message: "UpdateRoomController, wrong room id",
@@ -106,7 +106,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (room.owner.toString() !== userId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUpdateRoomNotAllowed,
         message: "UpdateRoomController, not allowed",
@@ -169,7 +169,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, { room: updatedRoom });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "UpdateRoomController",
       error,

@@ -122,7 +122,7 @@ router.get("/", auth({ allowUser: true }), async (request, response) => {
       socialMediaLinks: user.socialMediaLinks ?? [],
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "UserSocialMediaController, GET List",
       error,
@@ -190,7 +190,7 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
     const socialMediaArray = user.socialMediaLinks || [];
 
     if (request.headers["content-type"].indexOf("multipart") === -1) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInputNotMultipart,
         message: `UserSocialMediaController, POST - input is not multipart form data`,
@@ -208,14 +208,14 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
     const { image } = files;
 
     if (!title) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoSocialMediaTitle,
         message: `UserSocialMediaController, POST - no social media title`,
       });
     }
     if (!url) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoSocialMediaURL,
         message: `UserSocialMediaController, POST - no social media url`,
@@ -227,7 +227,7 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
     }, 0);
 
     if (!!alreadyExists) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSocialMediaAlreadyExists,
         message: `UserSocialMediaController, POST - social media already exists`,
@@ -239,7 +239,7 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
       const mimeType = image.type;
 
       if (mimeType.indexOf("image") === -1) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeOnlyImageFilesAllowed,
           message: `UserSocialMediaController, POST - only image files allowed`,
@@ -248,7 +248,7 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
 
       const { fileData, code } = await Utils.handleImageFile(image);
       if (code === 123) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeExtensionNotAllowed,
           message: `UserSocialMediaController, POST - image extension not allowed`,
@@ -282,7 +282,7 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
       socialMediaLinks: updatedUser.socialMediaLinks || [],
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "UserSocialMediaController, POST",
       error,
@@ -352,7 +352,7 @@ router.patch("/:id", auth({ allowUser: true }), async (request, response) => {
     const socialMedia = user.socialMediaLinks.filter((media) => media.id === id)[0];
 
     if (!socialMedia) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSocialMediaDoesNotExist,
         message: `UserSocialMediaController, PATCH - social media does not exist`,
@@ -360,7 +360,7 @@ router.patch("/:id", auth({ allowUser: true }), async (request, response) => {
     }
 
     if (request.headers["content-type"].indexOf("multipart") === -1) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInputNotMultipart,
         message: `UserSocialMediaController, PATCH - input is not multipart form data`,
@@ -401,7 +401,7 @@ router.patch("/:id", auth({ allowUser: true }), async (request, response) => {
       const mimeType = image.type;
 
       if (mimeType.indexOf("image") === -1) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeOnlyImageFilesAllowed,
           message: `UserSocialMediaController, PATCH - only image files allowed`,
@@ -410,7 +410,7 @@ router.patch("/:id", auth({ allowUser: true }), async (request, response) => {
 
       const { fileData, code } = await Utils.handleImageFile(image);
       if (code === 123) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeExtensionNotAllowed,
           message: `UserSocialMediaController, PATCH - image extension not allowed`,
@@ -432,7 +432,7 @@ router.patch("/:id", auth({ allowUser: true }), async (request, response) => {
       socialMediaLinks: updatedUser.socialMediaLinks,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "UserSocialMediaController, PATCH",
       error,
@@ -553,7 +553,7 @@ router.delete("/:id", auth({ allowUser: true }), async (request, response) => {
     });
 
     if (newSocialMediaArray.length === user.socialMediaLinks.length) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSocialMediaDoesNotExist,
         message: `UserSocialMediaController, DELETE - social media not found`,
@@ -570,7 +570,7 @@ router.delete("/:id", auth({ allowUser: true }), async (request, response) => {
       socialMediaLinks: updatedUser.socialMediaLinks || [],
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "UserSocialMediaController, DELETE",
       error,

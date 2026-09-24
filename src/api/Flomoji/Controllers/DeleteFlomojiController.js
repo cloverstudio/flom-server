@@ -70,7 +70,7 @@ router.delete(
       const flomojiId = request.params.flomojiId;
 
       if (!flomojiId) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoFlomojiId,
           message: "DeleteFlomojiController, DELETE - no flomoji ID",
@@ -80,7 +80,7 @@ router.delete(
       const flomoji = await BlessPacket.findOne({ _id: flomojiId }).lean();
 
       if (!flomoji) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeFlomojiNotFound,
           message: "DeleteFlomojiController, DELETE - no flomoji found with given ID",
@@ -99,7 +99,7 @@ router.delete(
       );
 
       if (!result) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeDeleteFlomojiProblem,
           message:
@@ -111,7 +111,7 @@ router.delete(
         deletedFlomoji: result.toObject(),
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "DeleteFlomojiController, DELETE",
         error,

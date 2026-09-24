@@ -65,7 +65,7 @@ router.post("/:businessId/avatar", auth({ allowUser: true }), async function (re
     const businessId = request.params.businessId;
 
     if (!businessId || !Utils.isValidObjectId(businessId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidBusinessId,
         message: "BusinessAvatarController, upload avatar, invalid businessId",
@@ -75,7 +75,7 @@ router.post("/:businessId/avatar", auth({ allowUser: true }), async function (re
     const business = await Business.findById(businessId).lean();
 
     if (!business || business.owner._id !== user._id.toString()) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeBusinessNotFound,
         message:
@@ -88,7 +88,7 @@ router.post("/:businessId/avatar", auth({ allowUser: true }), async function (re
     const { fields, files } = await Utils.formParse(request);
 
     if (!files || !files.avatar) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeFileNotFound,
         message: "BusinessAvatarController, upload avatar, no file uploaded",
@@ -100,7 +100,7 @@ router.post("/:businessId/avatar", auth({ allowUser: true }), async function (re
     const { type, name, path: filePath, size } = file;
 
     if (!type.startsWith("image/")) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeFileTypeNotSupported,
         message: "BusinessAvatarController, upload avatar, invalid file type",
@@ -150,7 +150,7 @@ router.post("/:businessId/avatar", auth({ allowUser: true }), async function (re
 
     return Base.successResponse(response, Const.responsecodeSucceed, { avatar: formatted });
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "BusinessAvatarController, upload avatar",

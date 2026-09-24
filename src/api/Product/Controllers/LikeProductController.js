@@ -51,13 +51,13 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
   } catch (error) {
     if (error.name == "CastError") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductWrongProductIdFormat,
         message: "LikeProductController, GET, wrong product id format",
       });
     }
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "LikeProductController, GET",
       error,
@@ -104,7 +104,7 @@ router.post("/add", auth({ allowUser: true }), async function (request, response
     const recommId = request.body.recommId ?? null;
 
     if (!productId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductNoProductId,
         message: "LikeProductController, Add like, no product id",
@@ -114,7 +114,7 @@ router.post("/add", auth({ allowUser: true }), async function (request, response
     const product = await Product.findOne({ _id: productId, isDeleted: false }).lean();
 
     if (!product) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductNotFound,
         message: "LikeProductController, Add like, product not found",
@@ -128,7 +128,7 @@ router.post("/add", auth({ allowUser: true }), async function (request, response
     const index = likedProducts.indexOf(productId);
 
     if (index > -1) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductAlreadyLiked,
         message: "LikeProductController, Add like, product already liked",
@@ -192,13 +192,13 @@ router.post("/add", auth({ allowUser: true }), async function (request, response
     Logics.addUserTagInteraction({ product, user });
   } catch (error) {
     if (error.name == "CastError") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductWrongProductIdFormat,
         message: "LikeProductController, Add like, wrong product id format",
       });
     }
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "LikeProductController, Add like",
       error,
@@ -242,7 +242,7 @@ router.post("/remove", auth({ allowUser: true }), async function (request, respo
     const productId = request.body.productId;
 
     if (!productId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductNoProductId,
         message: "LikeProductController, dislike, no product id",
@@ -252,7 +252,7 @@ router.post("/remove", auth({ allowUser: true }), async function (request, respo
     const product = await Product.findOne({ _id: productId }).exec();
 
     if (!product) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductNotFound,
         message: "LikeProductController, dislike, product not found",
@@ -264,7 +264,7 @@ router.post("/remove", auth({ allowUser: true }), async function (request, respo
     if (request.user.likedProducts) likedProducts = request.user.likedProducts;
 
     if (!likedProducts.includes(productId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductNotLiked,
         message: "LikeProductController, dislike, product not liked",
@@ -297,13 +297,13 @@ router.post("/remove", auth({ allowUser: true }), async function (request, respo
     Logics.addUserTagInteraction({ product, user: request.user });
   } catch (error) {
     if (error.name == "CastError") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductWrongProductIdFormat,
         message: "LikeProductController, dislike, wrong product id format",
       });
     }
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "LikeProductController, dislike",
       error,

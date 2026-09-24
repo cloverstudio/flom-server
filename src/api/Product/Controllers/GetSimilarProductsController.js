@@ -206,7 +206,7 @@ router.post("/", async function (request, response) {
     const accessToken = request.headers["access-token"];
 
     if (!productId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoProductId,
         message: "GetSimilarProductsController, no product id",
@@ -215,7 +215,7 @@ router.post("/", async function (request, response) {
 
     let product = await Product.findOne({ _id: productId, isDeleted: false }).lean();
     if (!product) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductNotFound,
         message: "GetSimilarProductsController, product not found",
@@ -238,7 +238,7 @@ router.post("/", async function (request, response) {
     if (accessToken) {
       user = await User.findOne({ "token.token": accessToken }).lean();
       if (!user) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeSigninInvalidToken,
           message: "GetSimilarProductsController, invalid token",
@@ -330,7 +330,7 @@ router.post("/", async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, { similarProducts });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetSimilarProductsController",
       error,

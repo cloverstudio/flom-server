@@ -188,7 +188,7 @@ router.get("/", async function (request, response) {
   try {
     const accessToken = request.headers["access-token"];
     if (!accessToken) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoToken,
         message: "SupportUserSearchController, no access token",
@@ -197,7 +197,7 @@ router.get("/", async function (request, response) {
 
     const user = await User.findOne({ "token.token": accessToken }).lean();
     if (!user) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidToken,
         message: "SupportUserSearchController, invalid token - support agent not found",
@@ -207,7 +207,7 @@ router.get("/", async function (request, response) {
     const userId = user._id.toString();
 
     if (userId !== Config.flomSupportAgentId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidUserId,
         message: "SupportUserSearchController, invalid user id - user is not support agent",
@@ -242,7 +242,7 @@ router.get("/", async function (request, response) {
     const responseData = { users, paginationData: { page, total, hasNext } };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "SupportUserSearchController",
       error,

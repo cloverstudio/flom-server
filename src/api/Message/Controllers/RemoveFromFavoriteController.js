@@ -26,7 +26,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const messageId = request.body.messageId;
 
     if (!messageId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeRemoveFromFavoriteNoMessageId,
         message: `RemoveFromFavoriteController, no messageId parameter`,
@@ -39,7 +39,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     });
 
     if (!exists) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeRemoveFromFavoriteInvalidMessageId,
         message: `RemoveFromFavoriteController, messageId does not exist`,
@@ -50,7 +50,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "RemoveFromFavoriteController",
       error,

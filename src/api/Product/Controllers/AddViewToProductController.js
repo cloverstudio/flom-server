@@ -34,7 +34,7 @@ router.get("/", async function (request, response) {
     }
 
     if (!productId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductNoProductId,
         message: "AddViewToProductController, no product id",
@@ -77,14 +77,14 @@ router.get("/", async function (request, response) {
     }
   } catch (error) {
     if (error.name == "CastError") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductWrongProductIdFormat,
         message: "AddViewToProductController, wrong product id format",
       });
     }
 
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "AddViewToProductController",
       error,

@@ -151,7 +151,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }).lean();
 
     if (merchantApplicationTest) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeApplicationAlreadyExists,
         message: `MerchantApplicationController - add new merchant application, pending or approved application with userId already exists`,
@@ -159,49 +159,49 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (!firstName) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoFirstName,
         message: `MerchantApplicationController - add new merchant application, no first name`,
       });
     }
     if (!lastName) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoLastName,
         message: `MerchantApplicationController - add new merchant application, no last name`,
       });
     }
     if (dateOfBirth === undefined || dateOfBirth === null) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoDateOfBirth,
         message: `MerchantApplicationController - add new merchant application, no date of birth`,
       });
     }
     if (!streetName) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoStreetName,
         message: `MerchantApplicationController - add new merchant application, no street name`,
       });
     }
     if (!streetNumber) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoStreetNumber,
         message: `MerchantApplicationController - add new merchant application, no street number`,
       });
     }
     if (!city) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoCity,
         message: `MerchantApplicationController - add new merchant application, no city`,
       });
     }
     if (!zip) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoZip,
         message: `MerchantApplicationController - add new merchant application, no zip`,
@@ -209,14 +209,14 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
     if (!bankId) {
       if (!bankName) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoBankName,
           message: `MerchantApplicationController - add new merchant application, no bank name`,
         });
       }
       if (!bankCountry) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoBankCountry,
           message: `MerchantApplicationController - add new merchant application, no bank country`,
@@ -224,7 +224,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       }
     }
     if (!bankAccountNumber) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoBankAccountNumber,
         message: `MerchantApplicationController - add new merchant application, no bank account number`,
@@ -235,7 +235,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     if (bankId) {
       bank = await Bank.findById(bankId).lean();
       if (!bank) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeBankDoesNotExist,
           message: `MerchantApplicationController - add new merchant application, no bank in database with given id`,
@@ -266,7 +266,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const fileKeys = Object.keys(files);
 
     if (fileKeys.length < 2 || fileKeys.length > 3) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidFilesCount,
         message: `MerchantApplicationController - add new merchant application, invalid files count`,
@@ -278,7 +278,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         files[fileKeys[0]].type.indexOf("image") === -1 ||
         files[fileKeys[1]].type.indexOf("image") === -1
       ) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidFileType,
           message: `MerchantApplicationController - add new merchant application, invalid file type`,
@@ -290,7 +290,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         files[fileKeys[1]].type.indexOf("image") === -1 ||
         files[fileKeys[2]].type.indexOf("image") === -1
       ) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidFileType,
           message: `MerchantApplicationController - add new merchant application, invalid file type`,
@@ -330,7 +330,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       merchantApplication: merchantApplicationObj,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "MerchantApplicationController - add new merchant application",
       error,
@@ -421,7 +421,7 @@ router.get(
       const { applicationId } = request.params;
 
       if (!Utils.isValidObjectId(applicationId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNotValidId,
           message: `MerchantApplicationController - get merchant application, applicationId is not a valid id`,
@@ -432,7 +432,7 @@ router.get(
         _id: applicationId,
       }).lean();
       if (!merchantApplication) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeMerchantApplicationNotFound,
           message: `MerchantApplicationController - get merchant application, merchant application not found`,
@@ -442,7 +442,7 @@ router.get(
 
       Base.successResponse(response, Const.responsecodeSucceed, { merchantApplication });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "MerchantApplicationController - add new merchant application",
         error,
@@ -545,7 +545,7 @@ router.get(
         pagination: { total, itemsPerPage },
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "MerchantApplicationController - get merchant applications list",
         error,
@@ -641,7 +641,7 @@ router.patch(
       const { paypalAmountReceived } = request.body;
 
       if (!paypalAmountReceived) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoAmountReceived,
           message: `MerchantApplicationController - confirm paypal email, no paypalAmountReceived parameter`,
@@ -650,7 +650,7 @@ router.patch(
 
       const user = await User.findOne({ "token.token": token });
       if (!user) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUserNotFound,
           message: `MerchantApplicationController - user not found`,
@@ -662,7 +662,7 @@ router.patch(
         approvalStatus: Const.merchantApplicationStatusPendingPaypalSent,
       });
       if (!merchantApplication) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeMerchantApplicationNotFound,
           message: `MerchantApplicationController - confirm paypal email, merchant application not found`,
@@ -680,7 +680,7 @@ router.patch(
         updatedMerchantApplication: savedApplication.toObject(),
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "MerchantApplicationController - confirm paypal email",
         error,
@@ -773,7 +773,7 @@ router.patch("/update", auth({ allowUser: true }), async function (request, resp
     const { paypalEmail } = request.body;
 
     if (!paypalEmail) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodePaypalEmailNotFound,
         message: `MerchantApplicationController - update application with paypal email, no paypalEmail parameter`,
@@ -782,7 +782,7 @@ router.patch("/update", auth({ allowUser: true }), async function (request, resp
 
     const user = await User.findOne({ "token.token": token });
     if (!user) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotFound,
         message: `MerchantApplicationController - update application with paypal email, user not found`,
@@ -799,7 +799,7 @@ router.patch("/update", auth({ allowUser: true }), async function (request, resp
       },
     });
     if (!merchantApplication) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeMerchantApplicationNotFound,
         message: `MerchantApplicationController - update application with paypal email, merchant application not found`,
@@ -817,7 +817,7 @@ router.patch("/update", auth({ allowUser: true }), async function (request, resp
       updatedMerchantApplication: savedApplication.toObject(),
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "MerchantApplicationController - update application with paypal email",
       error,
@@ -925,7 +925,7 @@ router.patch(
       const approvalComment = request.body.approvalComment || "";
 
       if (!Utils.isValidObjectId(applicationId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNotValidId,
           message: `MerchantApplicationController - update status, applicationId is not a valid id`,
@@ -934,14 +934,14 @@ router.patch(
 
       const merchantApplication = await MerchantApplication.findOne({ _id: applicationId });
       if (!merchantApplication) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeMerchantApplicationNotFound,
           message: `MerchantApplicationController - update status, merchant application not found`,
         });
       }
       if ([2, 3, 6].indexOf(approvalStatus) === -1) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidApprovalStatus,
           message: `MerchantApplicationController - update status, invalid approvalStatus`,
@@ -960,7 +960,7 @@ router.patch(
         ((user.phoneNumber.startsWith("+234") && !bankInfoExists) ||
           (!user.phoneNumber.startsWith("+234") && !merchantApplication.paypalEmail))
       ) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodePaypalEmailNotConfirmed,
           message: `MerchantApplicationController - update status, merchant application not confirmed, payout info missing`,
@@ -1042,7 +1042,7 @@ router.patch(
         logger.error("MerchantApplicationController - bonus payout", error);
       }
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "MerchantApplicationController - update status",
         error,

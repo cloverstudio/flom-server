@@ -76,7 +76,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (!name) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoTemplateName,
         message: `MarketingNotificationTemplateController - add template, no name parameter`,
@@ -120,7 +120,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       marketingNotificationTemplate: marketingNotificationTemplateObj,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "MarketingNotificationsTemplateController - add new template",
       error,
@@ -218,7 +218,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       hasNext: page * Const.newPagingRows < total,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "MarketingNotificationsTemplateController - templates list",
       error,
@@ -290,7 +290,7 @@ router.put("/:templateId", auth({ allowUser: true }), async function (request, r
     let contentType = +request.body.contentType || undefined;
 
     if (!Utils.isValidObjectId(templateId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidTemplateId,
         message: `MarketingNotificationTemplateController - update template, invalid templateId parameter`,
@@ -302,7 +302,7 @@ router.put("/:templateId", auth({ allowUser: true }), async function (request, r
       creatorId: requestUserId,
     });
     if (!template) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeTemplateNotFound,
         message: `MarketingNotificationTemplateController - update template, invalid templateId parameter`,
@@ -354,7 +354,7 @@ router.put("/:templateId", auth({ allowUser: true }), async function (request, r
       marketingNotificationTemplate: templateObj,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "MarketingNotificationsTemplateController - update template",
       error,
@@ -394,7 +394,7 @@ router.delete("/:templateId", auth({ allowUser: true }), async function (request
     const { templateId } = request.params;
 
     if (!Utils.isValidObjectId(templateId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidTemplateId,
         message: `MarketingNotificationTemplateController - delete template, invalid templateId parameter`,
@@ -408,7 +408,7 @@ router.delete("/:templateId", auth({ allowUser: true }), async function (request
 
     Base.successResponse(response, Const.responsecodeSucceed, {});
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "MarketingNotificationsTemplateController - delete template",
       error,

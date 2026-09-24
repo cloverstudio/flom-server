@@ -147,7 +147,7 @@ router.get("/packets", async function (request, response) {
       hasNext: page * itemsPerPage < total,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "BlessController, Get packets",
       error,
@@ -174,7 +174,7 @@ router.get("/packets", async function (request, response) {
 router.get("/emojis/:emojiName", async function (request, response) {
   try {
     if (!request.params.emojiName) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeFileNotFound,
         message: "BlessController, Get bless packet emoji, file not found (start)",
@@ -205,13 +205,13 @@ router.get("/emojis/:emojiName", async function (request, response) {
       console.log("ENOENT 2");
     }
 
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.responsecodeFileNotFound,
       message: "BlessController, Get bless packet emoji, file not found (end)",
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "BlessController, Get bless packet emoji",
       error,

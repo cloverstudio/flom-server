@@ -246,7 +246,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       groupCallBaseUrl: Config.groupCallBaseUrl,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetUserDetailsByTokenController",
       error,

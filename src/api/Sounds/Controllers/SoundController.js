@@ -40,7 +40,7 @@ router.get("/:fileName", async (request, response) => {
     const { fileName } = request.params;
 
     if (!fileName) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeFileNotFound,
         message: "SoundController, GET file, no filename",
@@ -61,14 +61,14 @@ router.get("/:fileName", async (request, response) => {
         throw error;
       }
 
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeFileNotFound,
         message: "SoundController, GET file, file not found",
       });
     }
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "SoundController, GET file",
       error,
@@ -182,7 +182,7 @@ router.get(
         paginationData: { total, hasNext, page, pageSize: size },
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "AdminSoundController, GET list",
         error,

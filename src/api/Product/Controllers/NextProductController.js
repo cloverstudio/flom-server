@@ -205,7 +205,7 @@ router.post("/", async function (request, response) {
     );
 
     if (!filteredProducts.length) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductNotFound,
         message: `NextProductController, no next product found`,
@@ -260,7 +260,7 @@ router.post("/", async function (request, response) {
       product: productObj,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "NextProductController",
       error,

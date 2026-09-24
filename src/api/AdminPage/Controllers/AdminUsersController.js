@@ -117,7 +117,7 @@ router.get(
         pagination: { total, itemsPerPage },
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "AdminUserController - user list",
         error,
@@ -211,7 +211,7 @@ router.patch(
         sendVerificationEmail,
       });
       if (validateAndUpdateUser.code) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: validateAndUpdateUser.code,
           type: Const.logTypeAdminPage,
@@ -223,7 +223,7 @@ router.patch(
         user: validateAndUpdateUser.user,
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "AdminUserController - update user",
         error,
@@ -307,7 +307,7 @@ router.patch(
 
       const { code, message, user } = await validateAndGetUser(userId);
       if (code) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code,
           type: Const.logTypeAdminPage,
@@ -316,7 +316,7 @@ router.patch(
       }
 
       if (requestUserRole <= user.role) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUnauthorized,
           type: Const.logTypeAdminPage,
@@ -339,7 +339,7 @@ router.patch(
         sendVerificationEmail,
       });
       if (validateAndUpdateUser.code) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: validateAndUpdateUser.code,
           type: Const.logTypeAdminPage,
@@ -351,7 +351,7 @@ router.patch(
         user: validateAndUpdateUser.user,
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "AdminUserController - user management",
         error,
@@ -418,7 +418,7 @@ router.get(
 
       const { code, message, user } = await validateAndGetUser(userId);
       if (code) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code,
           type: Const.logTypeAdminPage,
@@ -427,7 +427,7 @@ router.get(
       }
 
       if (requestUserId !== userId && requestUserRole <= user.role) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUnauthorized,
           type: Const.logTypeAdminPage,
@@ -441,7 +441,7 @@ router.get(
         user: { id, ...rest },
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "AdminUserController - user details",
         error,
@@ -489,7 +489,7 @@ router.delete(
 
       const { code, message, user } = await validateAndGetUser(userId);
       if (code) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code,
           type: Const.logTypeAdminPage,
@@ -498,7 +498,7 @@ router.delete(
       }
 
       if (requestUserRole <= user.role) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUnauthorized,
           type: Const.logTypeAdminPage,
@@ -512,7 +512,7 @@ router.delete(
         deleted: true,
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "AdminUserController - delete user",
         error,

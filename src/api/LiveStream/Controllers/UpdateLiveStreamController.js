@@ -205,7 +205,7 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
     const { id } = request.params;
 
     if (!Utils.isValidObjectId(id)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidLiveStreamId,
         message: `UpdateLiveStreamController, invalid liveStreamId: ${id}`,
@@ -245,7 +245,7 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
     const liveStream = await LiveStream.findById(id).lean();
 
     if (!liveStream) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeLiveStreamNotFound,
         message: "UpdateLiveStreamController - live stream not found",
@@ -253,7 +253,7 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
     }
 
     if (liveStream.userId !== userId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message: "UpdateLiveStreamController - user not stream owner",
@@ -305,7 +305,7 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
 
     if (startTimeStamp && !liveStream.startTimeStamp) {
       if (typeof startTimeStamp !== "number") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidTimeStamp,
           message: "UpdateLiveStreamController - invalid startTimeStamp",
@@ -326,7 +326,7 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
 
     if (endTimeStamp && !liveStream.endTimeStamp) {
       if (typeof endTimeStamp !== "number") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidTimeStamp,
           message: "UpdateLiveStreamController - invalid endTimeStamp",
@@ -353,7 +353,7 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
     }
 
     if (visibility && !["public", "tribes", "community"].includes(visibility)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeWrongVisibilityParameter,
         message: "UpdateLiveStreamController - invalid visibility",
@@ -374,7 +374,7 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
       (!visibility && liveStream.visibility === "community" && communityIds)
     ) {
       if (!communityIds || typeof communityIds !== "string") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidCommunityIdsParam,
           message: "UpdateLiveStreamController - invalid communityIds parameter",
@@ -385,7 +385,7 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
 
       for (const id of communityIdsArray) {
         if (!Utils.isValidObjectId(id)) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidMembershipId,
             message: `UpdateLiveStreamController - invalid membershipId: ${id}`,
@@ -395,7 +395,7 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
         const membership = await Membership.findById(id);
 
         if (!membership) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeMembershipNotFound,
             message: `UpdateLiveStreamController - membership ${id} not found`,
@@ -413,7 +413,7 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
       (!visibility && liveStream.visibility === "tribes" && tribeIds)
     ) {
       if (!tribeIds || (tribeIds && typeof tribeIds !== "string")) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidTribeIdsParam,
           message: "UpdateLiveStreamController - invalid tribeIds parameter",
@@ -424,7 +424,7 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
 
       for (const id of tribeIdsArray) {
         if (!Utils.isValidObjectId(id)) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidTribeId,
             message: `UpdateLiveStreamController - invalid tribeId: ${id}`,
@@ -434,7 +434,7 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
         const tribe = await Tribe.findById(id);
 
         if (!tribe) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeTribeNotFound,
             message: `UpdateLiveStreamController - tribe ${id} not found`,
@@ -449,7 +449,7 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
 
     if (tagsFromInput) {
       if (typeof tagsFromInput !== "string") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidTagsParam,
           message: "UpdateLiveStreamController - invalid tags",
@@ -466,7 +466,7 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
 
     if (allowComments !== undefined) {
       if (typeof allowComments !== "boolean") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidAllowCommentsParam,
           message: "UpdateLiveStreamController - invalid allowComments param",
@@ -477,7 +477,7 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
     }
     if (allowSuperBless !== undefined) {
       if (typeof allowSuperBless !== "boolean") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidAllowSuperBlessParam,
           message: "UpdateLiveStreamController - invalid allowSuperBless param",
@@ -488,7 +488,7 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
     }
     if (allowSprayBless !== undefined) {
       if (typeof allowSprayBless !== "boolean") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidAllowSprayBlessParam,
           message: "UpdateLiveStreamController - invalid allowSprayBless param",
@@ -504,7 +504,7 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
 
     if (cohostIds !== undefined) {
       if (liveStream.type !== "event") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidTypeParameter,
           message: "UpdateLiveStreamController - only type 'event' can have cohosts",
@@ -512,7 +512,7 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
       }
 
       if (cohostIds.length > Const.maxLiveStreamCohosts) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeTooManyCohosts,
           message: "UpdateLiveStreamController - too many cohosts",
@@ -521,7 +521,7 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
 
       for (const cohostId of newCohostIds) {
         if (!Utils.isValidObjectId(cohostId)) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidCohostId,
             message: `UpdateLiveStreamController - invalid cohost id: ${cohostId}`,
@@ -531,7 +531,7 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
         const cohost = await User.findById(cohostId, { isDeleted: 1 }).lean();
 
         if (!cohost || cohost?.isDeleted?.value === true) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeCohostNotFound,
             message: `UpdateLiveStreamController - cohost ${cohostId} not found`,
@@ -555,7 +555,7 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
         linkedProductTagIds = [];
 
       if (!Array.isArray(linkedProductIds) || linkedProductIds.length === 0) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoProductId,
           message: "UpdateLiveStreamController - linkedProductIds array missing or empty",
@@ -564,7 +564,7 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
 
       for (const id of linkedProductIds) {
         if (!Utils.isValidObjectId(id)) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidProductId,
             message: "UpdateLiveStreamController, invalid linked product id: " + id,
@@ -574,7 +574,7 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
         const linkedProduct = await Product.findById(id).lean();
 
         if (!linkedProduct) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeLinkedProductNotFound,
             message: "UpdateLiveStreamController, linked product not found: " + id,
@@ -596,7 +596,7 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
       const productIds = linkedProductIds || oldLinkedProductIds || [];
 
       if (!productIds.includes(activeProductId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidProductId,
           message:
@@ -614,7 +614,7 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
     if (camerasToAdd.length > 0) {
       for (const camera of camerasToAdd) {
         if (!camera.streamId) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeStreamIdMissing,
             message: "UpdateLiveStreamController - missing stream id for camera",
@@ -786,7 +786,7 @@ router.patch("/:id", auth({ allowUser: true }), async function (request, respons
       logger.error("UpdateLiveStreamController, messages", error);
     }
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "UpdateLiveStreamController",
       error,

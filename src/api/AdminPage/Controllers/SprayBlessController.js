@@ -48,7 +48,7 @@ router.get(
 
       Base.successResponse(response, Const.responsecodeSucceed, { sprayValue: sprayValue ?? {} });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "SprayBlessController, GET",
         error,
@@ -98,7 +98,7 @@ router.get("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (reque
       sprayValues: sprayValues ?? [],
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "SprayBlessController, GET",
       error,
@@ -151,7 +151,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
     const { errorCode, errorMessage, countryCode, value } = checkParams(request.body);
 
     if (errorCode) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: errorCode,
         message: `SprayBlessController, POST - ${errorMessage}`,
@@ -160,7 +160,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
 
     const alreadyExists = await SprayValue.findOne({ countryCode }).lean();
     if (alreadyExists) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSprayValueAlreadyExists,
         message: `SprayBlessController, POST - spray value with given country code already exists`,
@@ -173,7 +173,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
       sprayValue: sprayValue.toObject(),
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "SprayBlessController, POST",
       error,
@@ -229,7 +229,7 @@ router.patch(
       const user = request.user;
 
       if (errorCode) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: errorCode,
           message: `SprayBlessController, PATCH - ${errorMessage}`,
@@ -256,7 +256,7 @@ router.patch(
         updatedSprayValue: updatedSprayValue.toObject(),
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "SprayBlessController, PATCH",
         error,
@@ -308,7 +308,7 @@ router.delete(
       const user = request.user;
 
       if (!countryCode) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoCountryCodeParameter,
           message: `SprayBlessController, DELETE - no countryCode parameter`,
@@ -317,7 +317,7 @@ router.delete(
 
       const exists = await SprayValue.findOne({ countryCode }).lean();
       if (!exists) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeSprayValueDoesNotExist,
           message: `SprayBlessController, DELETE - spray value with given country code does not exist`,
@@ -337,7 +337,7 @@ router.delete(
         deletedSprayValue: deletedSprayValue.toObject(),
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "SprayBlessController, DELETE",
         error,

@@ -91,7 +91,7 @@ router.get("/me", auth({ allowUser: true }), async function (request, response) 
 
     Base.successResponse(response, Const.responsecodeSucceed, { businesses });
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "BusinessController, list businesses",
@@ -310,7 +310,7 @@ router.get("/:businessId", auth({ allowUser: true }), async function (request, r
     const { businessId } = request.params;
 
     if (!businessId || !Utils.isValidObjectId(businessId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidBusinessId,
         message: "BusinessController, get business - invalid businessId",
@@ -320,7 +320,7 @@ router.get("/:businessId", auth({ allowUser: true }), async function (request, r
     const business = await Business.findById(businessId).lean();
 
     if (!business) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeBusinessNotFound,
         message: "BusinessController, get business - business not found",
@@ -444,7 +444,7 @@ router.get("/:businessId", auth({ allowUser: true }), async function (request, r
 
     Base.successResponse(response, Const.responsecodeSucceed, { business });
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "BusinessController, get business",
@@ -602,7 +602,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const info = {};
 
     if (!name || typeof name !== "string" || name.length < 3 || name.length > 100) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidName,
         message: "BusinessController, create business - invalid name",
@@ -616,7 +616,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       description.length < 3 ||
       description.length > 1000
     ) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidDescription,
         message: "BusinessController, create business - invalid description",
@@ -626,7 +626,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     if (market) {
       if (!countries[market]) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidMarket,
           message: "BusinessController, create business - invalid market",
@@ -639,7 +639,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (tagIds && !Array.isArray(tagIds)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidTag,
         message: "BusinessController, create business - tagIds must be an array",
@@ -655,7 +655,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
       tagIds.forEach((t) => {
         if (!tagMap[t]) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidTag,
             message: "BusinessController, create business - invalid tag ID",
@@ -663,7 +663,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         }
 
         if (tagMap[t].regulated) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidTag,
             message: "BusinessController, create business - regulated tag ID not allowed",
@@ -678,7 +678,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, { business });
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "BusinessController, create business",
@@ -758,7 +758,7 @@ router.patch("/:businessId", auth({ allowUser: true }), async function (request,
     const { name, description, market, tagIds = [] } = request.body;
 
     if (!businessId || !Utils.isValidObjectId(businessId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidBusinessId,
         message: "BusinessController, update business - invalid businessId",
@@ -768,7 +768,7 @@ router.patch("/:businessId", auth({ allowUser: true }), async function (request,
     const business = await Business.findById(businessId).lean();
 
     if (!business) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeBusinessNotFound,
         message: "BusinessController, update business - business not found",
@@ -782,7 +782,7 @@ router.patch("/:businessId", auth({ allowUser: true }), async function (request,
     });
 
     if (!allowed) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message:
@@ -794,7 +794,7 @@ router.patch("/:businessId", auth({ allowUser: true }), async function (request,
 
     if (name) {
       if (typeof name !== "string" || name.length < 3 || name.length > 100) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidName,
           message: "BusinessController, update business - invalid name",
@@ -805,7 +805,7 @@ router.patch("/:businessId", auth({ allowUser: true }), async function (request,
 
     if (description) {
       if (typeof description !== "string" || description.length < 3 || description.length > 1000) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidDescription,
           message: "BusinessController, update business - invalid description",
@@ -816,7 +816,7 @@ router.patch("/:businessId", auth({ allowUser: true }), async function (request,
 
     if (market) {
       if (!countries[market]) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidMarket,
           message: "BusinessController, update business - invalid market",
@@ -827,7 +827,7 @@ router.patch("/:businessId", auth({ allowUser: true }), async function (request,
     }
 
     if (tagIds && !Array.isArray(tagIds)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidTag,
         message: "BusinessController, update business - tagIds must be an array",
@@ -843,7 +843,7 @@ router.patch("/:businessId", auth({ allowUser: true }), async function (request,
 
       tagIds.forEach((t) => {
         if (!tagMap[t]) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidTag,
             message: "BusinessController, update business - invalid tag ID",
@@ -851,7 +851,7 @@ router.patch("/:businessId", auth({ allowUser: true }), async function (request,
         }
 
         if (tagMap[t].regulated) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidTag,
             message: "BusinessController, update business - regulated tag ID not allowed",
@@ -869,7 +869,7 @@ router.patch("/:businessId", auth({ allowUser: true }), async function (request,
 
     Base.successResponse(response, Const.responsecodeSucceed, { business: updatedBusiness });
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "BusinessController, update business",

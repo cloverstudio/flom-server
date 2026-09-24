@@ -55,28 +55,28 @@ router.get("/durations", auth({ allowUser: true }), async (request, response) =>
     const endLon = +request.query.endLon;
 
     if ((!startLat && startLat !== 0) || startLat < -90 || startLat > 90) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoReCaptchaParameter,
         message: "DirectionsController, invalid startLat parameter",
       });
     }
     if ((!startLon && startLon !== 0) || startLon < -180 || startLon > 180) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoReCaptchaParameter,
         message: "DirectionsController, invalid startLon parameter",
       });
     }
     if ((!endLat && endLat !== 0) || endLat < -90 || endLat > 90) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoReCaptchaParameter,
         message: "DirectionsController, invalid endLat parameter",
       });
     }
     if ((!endLon && endLon !== 0) || endLon < -180 || endLon > 180) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoReCaptchaParameter,
         message: "DirectionsController, invalid endLon parameter",
@@ -140,7 +140,7 @@ router.get("/durations", auth({ allowUser: true }), async (request, response) =>
 
     Base.successResponse(response, Const.responsecodeSucceed, { durations });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "DirectionsController",
       error,

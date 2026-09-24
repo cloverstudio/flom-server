@@ -73,7 +73,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     const organization = await Organization.findById(request.user.organizationId).lean();
     if (!organization) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSigninWrongOrganizationId,
         message: "CreateRoomController, organization not found",
@@ -85,7 +85,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       organizationId: request.user.organizationId,
     });
     if (numberOfRooms >= maxRoomNumber) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeMaxRoomNumber,
         message: "CreateRoomController, max room number reached",
@@ -101,7 +101,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       : [];
 
     if (userIds.length === 0) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidUserId,
         message: "CreateRoomController, no valid user ids provided",
@@ -119,7 +119,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     );
 
     if (!resultRoom) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoRoomFound,
         message: "CreateRoomController, failed to create room",
@@ -147,7 +147,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed, { room: resultRoom });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "CreateRoomController",
       error,

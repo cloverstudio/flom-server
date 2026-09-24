@@ -48,7 +48,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       count: result.count,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "UserSearchController",
       error,
@@ -68,7 +68,7 @@ router.get("/:page", auth({ allowUser: true }), async function (request, respons
       count: result.count,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "UserSearchController, PAGE",
       error,

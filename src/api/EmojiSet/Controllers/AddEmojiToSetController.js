@@ -56,7 +56,7 @@ router.post(
   async (request, response) => {
     try {
       if (request.headers["content-type"].indexOf("multipart") === -1) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInputNotMultipart,
           message: `AddEmojiToSetController, POST - input is not multipart form data`,
@@ -72,7 +72,7 @@ router.post(
       const { name, animate, emojiSetId } = fields;
 
       if (emojiSetId === undefined) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoEmojiSetId,
           message: `AddEmojiToSetController - no emoji set id parameter`,
@@ -82,7 +82,7 @@ router.post(
       const emojiSet = await EmojiSet.findById(emojiSetId).lean();
 
       if (!emojiSet) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNotValidEmojiSetId,
           message: `AddEmojiToSetController - not valid emoji set id`,
@@ -90,7 +90,7 @@ router.post(
       }
 
       if (name === undefined) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoEmojiName,
           message: `AddEmojiToSetController - no emoji name parameter`,
@@ -98,7 +98,7 @@ router.post(
       }
 
       if (animate === undefined) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoAnimateParameter,
           message: `AddEmojiToSetController - no emoji animate parameter`,
@@ -110,7 +110,7 @@ router.post(
 
       //smallImage is    optional, if not provided then it should be created from bigImage but resized to 100x100
       if (!fileKeys.includes("bigImage")) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeImageFileInputError,
           message: `AddEmojiToSetController - something went wrong with emoji image files input`,
@@ -122,7 +122,7 @@ router.post(
         const fileMimeType = file.type;
 
         if (fileMimeType.indexOf("image") === -1) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeOnlyImageFilesAllowed,
             message: `AddEmojiToSetController - only image files allowed`,
@@ -132,7 +132,7 @@ router.post(
         const { fileData, code } = await Utils.handleImageFile(file, "emojis", "webp");
 
         if (code === 123) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeExtensionNotAllowed,
             message: `AddEmojiToSetController - image extension not allowed`,
@@ -180,7 +180,7 @@ router.post(
 
       return Base.successResponse(response, Const.responsecodeSucceed);
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "AddEmojiToSetController",
         error,

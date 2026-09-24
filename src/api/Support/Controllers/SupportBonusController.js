@@ -51,7 +51,7 @@ router.post(
       const { supportTicketId, bonusType } = request.body;
 
       if (!supportTicketId || !Utils.isValidObjectId(supportTicketId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeSupportTicketIdNotValid,
           message: `SupportBonusController, invalid supportTicketId ${supportTicketId}`,
@@ -59,7 +59,7 @@ router.post(
       }
 
       if (!bonusType || !["credits"].includes(bonusType)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidBonusType,
           message: `SupportBonusController, invalid bonusType ${bonusType}`,
@@ -68,7 +68,7 @@ router.post(
 
       const ticket = await SupportTicket.findById(supportTicketId).lean();
       if (!ticket) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeSupportTicketNotFound,
           message: `SupportBonusController, support ticket ${supportTicketId} not found`,
@@ -76,7 +76,7 @@ router.post(
       }
 
       if (ticket.type !== "bug_report") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidTypeParameter,
           message: `SupportBonusController, invalid ticket type: ${ticket.type}`,
@@ -89,7 +89,7 @@ router.post(
 
       Base.successResponse(response, Const.responsecodeSucceed);
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "SupportBonusController",
         error,

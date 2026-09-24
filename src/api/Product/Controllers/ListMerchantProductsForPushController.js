@@ -35,7 +35,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
   try {
     // check if user is merchant
     if (request.user.typeAcc !== 1 && request.user.flow.typeAcc !== 1) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeMerchantNotFound,
         message: "ListMerchantProductsForPushController, user is not a merchant",
@@ -63,7 +63,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "ListMerchantProductsForPushController",
       error,

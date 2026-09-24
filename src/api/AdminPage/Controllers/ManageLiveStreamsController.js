@@ -49,7 +49,7 @@ router.post(
       const { targetType, targetId, action } = request.body;
 
       if (!["liveStream", "user"].includes(targetType)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidTargetType,
           message: "ManageLiveStreamsController, invalid target type: " + targetType,
@@ -57,7 +57,7 @@ router.post(
       }
 
       if (!Utils.isValidObjectId(targetId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidTargetId,
           message: "ManageLiveStreamsController, invalid id: " + targetId,
@@ -68,7 +68,7 @@ router.post(
         (targetType === "user" && !["block", "unblock"].includes(action)) ||
         (targetType === "liveStream" && action !== "end")
       ) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidAction,
           message: "ManageLiveStreamsController, invalid action: " + action,
@@ -83,7 +83,7 @@ router.post(
         );
 
         if (!user) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeUserNotFound,
             message: "ManageLiveStreamsController, user not found: " + targetId,
@@ -103,7 +103,7 @@ router.post(
         );
 
         if (!liveStream) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeLiveStreamNotFound,
             message: "ManageLiveStreamsController, live stream not found: " + targetId,
@@ -134,7 +134,7 @@ router.post(
 
       Base.successResponse(response, Const.responsecodeSucceed);
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "ManageLiveStreamsController",
         error,

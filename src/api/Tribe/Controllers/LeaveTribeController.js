@@ -44,7 +44,7 @@ router.patch("/:tribeId/leave", auth({ allowUser: true }), async (request, respo
     const requestUserId = request.user._id.toString();
     const tribeId = request.params.tribeId;
     if (!Utils.isValidObjectId(tribeId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeTribeBadId,
         message: `LeaveTribeController, bad tribe id`,
@@ -53,7 +53,7 @@ router.patch("/:tribeId/leave", auth({ allowUser: true }), async (request, respo
 
     const tribe = await Tribe.findById(tribeId);
     if (!tribe) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeTribeNotFound,
         message: `LeaveTribeController, no tribe found`,
@@ -61,7 +61,7 @@ router.patch("/:tribeId/leave", auth({ allowUser: true }), async (request, respo
     }
 
     if (tribe.ownerId === requestUserId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeTribeOwnerCantLeave,
         message: `LeaveTribeController, tribe owner cant leave`,
@@ -107,7 +107,7 @@ router.patch("/:tribeId/leave", auth({ allowUser: true }), async (request, respo
 
     Base.successResponse(response, Const.responsecodeSucceed, { left: true });
   } catch (error) {
-    Base.newErrorResponse({ response, message: "LeaveTribeController", error });
+    Base.errorResponse({ response, message: "LeaveTribeController", error });
   }
 });
 

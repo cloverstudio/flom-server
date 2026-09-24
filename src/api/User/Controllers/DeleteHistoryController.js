@@ -12,7 +12,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     let chatIds = request.body.chatIds;
 
     if (!chatIds) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeDeleteHistoryNoChatId,
         message: "DeleteHistoryController, no chatIds provided",
@@ -31,7 +31,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "DeleteHistoryController",
       error,

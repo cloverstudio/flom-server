@@ -53,7 +53,7 @@ router.get(
         countries: feeCountries ?? {},
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "FeesController, List countries",
         error,
@@ -119,7 +119,7 @@ router.get(
         fee: fee ?? {},
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "FeesController, GET",
         error,
@@ -242,7 +242,7 @@ router.get("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (reque
     const query = {};
 
     if (countryCode && !countries[countryCode] && countryCode !== "default") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidCountryCode,
         message: `FeesController, GET list - invalid countryCode parameter`,
@@ -252,7 +252,7 @@ router.get("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (reque
     }
 
     if (paymentMethodType && !Const.paymentMethods.includes(+paymentMethodType)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodePaymentMethodNotFound,
         message: `FeesController, GET list - invalid paymentMethod parameter`,
@@ -262,7 +262,7 @@ router.get("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (reque
     }
 
     if (transferType && !Const.transferTypes.includes(+transferType)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeTransferTypeNotFound,
         message: `FeesController, GET list - invalid transferType parameter`,
@@ -277,7 +277,7 @@ router.get("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (reque
       fees: fees ?? [],
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "FeesController, GET",
       error,
@@ -361,7 +361,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
     } = checkParams(request.body);
 
     if (errorCode) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: errorCode,
         message: `FeesController, POST - ${errorMessage}`,
@@ -375,7 +375,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
       transferType,
     }).lean();
     if (alreadyExists) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeFeeAlreadyExists,
         message: `FeesController, POST - fee with given country code, payment method and transfer type already exists`,
@@ -400,7 +400,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
       fee: fee.toObject(),
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "FeesController, POST",
       error,
@@ -470,7 +470,7 @@ router.patch(
       const user = request.user;
 
       if (updateObj.errorCode) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: updateObj.errorCode,
           message: `FeesController, PATCH - ${updateObj.errorMessage}`,
@@ -480,7 +480,7 @@ router.patch(
 
       const exists = await Fee.findById(feeId).lean();
       if (!exists) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeFeeDoesNotExist,
           message: `FeesController, PATCH - fee with given id does not exist`,
@@ -518,7 +518,7 @@ router.patch(
         updatedFee: updatedFee.toObject(),
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "FeesController, PATCH",
         error,
@@ -582,7 +582,7 @@ router.delete(
 
       const exists = await Fee.findById(feeId).lean();
       if (!exists) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeFeeDoesNotExist,
           message: `FeesController, DELETE - fee with given id does not exist`,
@@ -605,7 +605,7 @@ router.delete(
         deletedFee: deletedFee.toObject(),
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "FeesController, DELETE",
         error,

@@ -52,7 +52,7 @@ router.post("/assistants/actions", auth({ allowUser: true }), async function (re
     const { businessId, action, role, targetId } = request.body;
 
     if (!["remove", "deactivate", "activate", "change_role"].includes(action)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidAction,
         message: "AssistantController, invalid action",
@@ -60,7 +60,7 @@ router.post("/assistants/actions", auth({ allowUser: true }), async function (re
     }
 
     if (!businessId || !Utils.isValidObjectId(businessId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidBusinessId,
         message: "AssistantController, invalid businessId",
@@ -70,7 +70,7 @@ router.post("/assistants/actions", auth({ allowUser: true }), async function (re
     const business = await Business.findById(businessId).lean();
 
     if (!business) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeBusinessNotFound,
         message: "AssistantController, business not found",
@@ -78,7 +78,7 @@ router.post("/assistants/actions", auth({ allowUser: true }), async function (re
     }
 
     if (action === "change_role" && !["helper", "manager"].includes(role)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeWrongRole,
         message: "AssistantController, invalid role",
@@ -86,7 +86,7 @@ router.post("/assistants/actions", auth({ allowUser: true }), async function (re
     }
 
     if (user._id.toString() !== business.owner._id) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message:
@@ -97,7 +97,7 @@ router.post("/assistants/actions", auth({ allowUser: true }), async function (re
     const existingAssistant = await BusinessMember.findOne({ businessId, userId: targetId }).lean();
 
     if (!existingAssistant) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidAction,
         message:
@@ -106,7 +106,7 @@ router.post("/assistants/actions", auth({ allowUser: true }), async function (re
     }
 
     if (existingAssistant.role === "owner") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message: "AssistantController, invalid action, target user is the owner of the business",
@@ -155,7 +155,7 @@ router.post("/assistants/actions", auth({ allowUser: true }), async function (re
       logger.error("AssistantController, socket operation error: ", error);
     }
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "AssistantController, update assistant",

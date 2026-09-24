@@ -21,7 +21,7 @@ router.get("/errortest", async (request, response) => {
   try {
     throw new Error("nova greška");
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "FixController - errortest",
       error,
@@ -128,7 +128,7 @@ router.get("/product-business", async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "FixController - product-business",
       error,
@@ -144,7 +144,7 @@ router.get("/loglevel", async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "FixController - loglevel",
       error,
@@ -162,7 +162,7 @@ router.get("/logtest", async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "FixController - logtest",
       error,
@@ -176,7 +176,7 @@ router.get("/push", async function (request, response) {
     const mute = muted === "true";
 
     if (!pn) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoPhoneNumber,
         message: "Push, invalid push type: " + pt,
@@ -188,7 +188,7 @@ router.get("/push", async function (request, response) {
     const pushType = !pt ? null : +pt;
 
     if (!pushType || typeof pushType !== "number") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUnknownPushType,
         message: "Push, invalid push type: " + pt,
@@ -198,7 +198,7 @@ router.get("/push", async function (request, response) {
     const user = await User.findOne({ phoneNumber }).lean();
 
     if (!user) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotFound,
         message: "Push, user not found",
@@ -220,7 +220,7 @@ router.get("/push", async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "FixController - Push",
       error,
@@ -246,7 +246,7 @@ router.get("/pushtest/:pushType", async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "FixController - pushtest",
       error,
@@ -266,7 +266,7 @@ router.post("/form", async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed, { fields, files });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "FixController - form",
       error,
@@ -411,7 +411,7 @@ router.get("/names", async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed, {});
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "FixController - form",
       error,

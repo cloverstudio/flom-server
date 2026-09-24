@@ -139,7 +139,7 @@ router.get("/:roomId", auth({ allowUser: true }), async function (request, respo
   try {
     const roomId = request.params.roomId;
     if (!roomId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoRoomId,
         message: "RoomDetailController, no room id",
@@ -149,7 +149,7 @@ router.get("/:roomId", auth({ allowUser: true }), async function (request, respo
     // find a room
     const room = await Room.findById(roomId).lean();
     if (!room) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoRoomFound,
         message: "RoomDetailController, no room found",
@@ -178,7 +178,7 @@ router.get("/:roomId", auth({ allowUser: true }), async function (request, respo
 
     return Base.successResponse(response, Const.responsecodeSucceed, { room });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "RoomDetailController",
       error,

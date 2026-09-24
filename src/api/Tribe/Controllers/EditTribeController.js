@@ -85,7 +85,7 @@ router.patch("/:tribeId", auth({ allowUser: true }), async (request, response) =
     const tribeId = request.params.tribeId;
 
     if (!Utils.isValidObjectId(tribeId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeTribeBadId,
         message: `EditTribeController, bad tribe id`,
@@ -94,7 +94,7 @@ router.patch("/:tribeId", auth({ allowUser: true }), async (request, response) =
 
     const tribe = await Tribe.findById(tribeId);
     if (!tribe) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeTribeNotFound,
         message: `EditTribeController, no tribe found`,
@@ -107,7 +107,7 @@ router.patch("/:tribeId", auth({ allowUser: true }), async (request, response) =
     } else {
       const tribeMember = tribe.members.accepted.find((member) => member.id === requestUserId);
       if (!tribeMember) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUserNotMember,
           message: `EditTribeController, user not a member`,
@@ -119,7 +119,7 @@ router.patch("/:tribeId", auth({ allowUser: true }), async (request, response) =
     if (
       [Const.tribeMemberRoleCoOwner, Const.tribeMemberRoleOwner].indexOf(requestUserRole) === -1
     ) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeTribeEditNotAllowed,
         message: `EditTribeController, edit not allowed`,
@@ -170,7 +170,7 @@ router.patch("/:tribeId", auth({ allowUser: true }), async (request, response) =
           requestUserId,
         })) || {};
       if (code) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code,
           message: `EditTribeController - invited users, ${message}`,
@@ -209,7 +209,7 @@ router.patch("/:tribeId", auth({ allowUser: true }), async (request, response) =
           ownerId: tribe.ownerId,
         })) || {};
       if (code) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code,
           message: `EditTribeController - update users, ${message}`,
@@ -253,7 +253,7 @@ router.patch("/:tribeId", auth({ allowUser: true }), async (request, response) =
         ).length;
 
         if (coOwnersCount > Const.tribeMaxCoOwners) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeTribeMaxCoOwnerCountReached,
             message: `EditTribeController, maximum co-owners count reached`,
@@ -374,7 +374,7 @@ router.patch("/:tribeId", auth({ allowUser: true }), async (request, response) =
 
     Base.successResponse(response, Const.responsecodeSucceed, { tribe: formatNewTribe(tribe) });
   } catch (error) {
-    Base.newErrorResponse({ response, message: "EditTribeController", error });
+    Base.errorResponse({ response, message: "EditTribeController", error });
   }
 });
 

@@ -333,7 +333,7 @@ router.get("/:slug", async (request, response) => {
     const { slug } = request.params;
 
     if (!slug) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSlugMissing,
         message: "GetUserBySlug, missing slug",
@@ -343,14 +343,14 @@ router.get("/:slug", async (request, response) => {
     const user = await User.findOne({ $or: [{ slug }, { oldSlug: slug }] }).lean();
 
     if (!user) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotFound,
         message: "GetUserBySlug, user not found: " + slug,
       });
     }
     if (user?.isDeleted.value) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserDeleted,
         message: "GetUserBySlug, user deleted: " + slug,
@@ -364,7 +364,7 @@ router.get("/:slug", async (request, response) => {
 
     return Base.successResponse(response, Const.responsecodeSucceed, user);
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "GetUserBySlug",

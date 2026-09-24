@@ -31,7 +31,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     const room = await Room.findById(roomId).lean();
     if (!room) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeLeaveRoomWrongRoomId,
         message: "LeaveRoomController, room not found",
@@ -74,7 +74,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "LeaveRoomController",
       error,

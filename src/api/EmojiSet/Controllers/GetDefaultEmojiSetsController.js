@@ -122,7 +122,7 @@ router.get("/", auth({ allowUser: true }), async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed, { listOfEmojiSets });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetDefaultEmojiSetsController",
       error,

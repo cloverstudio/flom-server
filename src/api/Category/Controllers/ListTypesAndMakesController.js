@@ -22,7 +22,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
   const subCategoryId = request.body.subCategoryId;
 
   if (!subCategoryId) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.responsecodeNoSubCategoryId,
       message: "ListTypesAndMakesController, missing sub category id",
@@ -45,7 +45,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, result);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "ListTypesAndMakesController, Get list of types and makes",
       error,

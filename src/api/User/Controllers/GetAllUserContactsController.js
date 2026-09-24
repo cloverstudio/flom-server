@@ -25,7 +25,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const keyword = request.body.keyword;
 
     if (!userId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoUserId,
         message: "GetAllUserContactsController, no userId provided",
@@ -65,7 +65,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, result);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetAllUserContactsController",
       error,

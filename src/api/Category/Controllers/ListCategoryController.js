@@ -51,7 +51,7 @@ router.post("/", async function (request, response) {
 
     if (request.body.groups) {
       if (!Array.isArray(request.body.groups)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidGroup,
           message: `ListCategoryController, invalid groups parameter`,
@@ -63,7 +63,7 @@ router.post("/", async function (request, response) {
         .filter((group) => Const.categoryGroups.indexOf(group) !== -1);
 
       if (request.body.groups.length !== groups.length) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidGroup,
           message: `ListCategoryController, invalid groups parameter`,
@@ -94,7 +94,7 @@ router.post("/", async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, categories);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "ListCategoryController, Get list of categories",
       error,

@@ -126,7 +126,7 @@ router.get("/token/:token", async function (request, response) {
     const { token } = request.params;
 
     if (!token) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidInviteToken,
         message: "BusinessInviteController, get invite by token, invalid token",
@@ -136,7 +136,7 @@ router.get("/token/:token", async function (request, response) {
     const invite = await BusinessInvite.findOne({ shareToken: token }).lean();
 
     if (!invite) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInviteNotFound,
         message: "BusinessInviteController, get invite by token, invite not found",
@@ -162,7 +162,7 @@ router.get("/token/:token", async function (request, response) {
       invitedBy,
     });
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "BusinessInviteController, get invite by token",
@@ -206,7 +206,7 @@ router.get("/:inviteId/accept", auth({ allowUser: true }), async function (reque
     const { inviteId } = request.params;
 
     if (!inviteId || !Utils.isValidObjectId(inviteId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidInviteId,
         message: "BusinessInviteController, accept invite, invalid inviteId",
@@ -216,7 +216,7 @@ router.get("/:inviteId/accept", auth({ allowUser: true }), async function (reque
     const invite = await BusinessInvite.findById(inviteId).lean();
 
     if (!invite) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInviteNotFound,
         message: "BusinessInviteController, accept invite, invite not found",
@@ -224,7 +224,7 @@ router.get("/:inviteId/accept", auth({ allowUser: true }), async function (reque
     }
 
     if (userId !== invite.userId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message:
@@ -233,7 +233,7 @@ router.get("/:inviteId/accept", auth({ allowUser: true }), async function (reque
     }
 
     if (invite.status === "expired" || invite.expiresAt < Date.now()) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInviteExpired,
         message: "BusinessInviteController, accept invite - invite has expired",
@@ -243,7 +243,7 @@ router.get("/:inviteId/accept", auth({ allowUser: true }), async function (reque
     const member = await BusinessMember.findOne({ inviteId }).lean();
 
     if (!member) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message:
@@ -252,7 +252,7 @@ router.get("/:inviteId/accept", auth({ allowUser: true }), async function (reque
     }
 
     if (member.status !== "invited") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message:
@@ -322,7 +322,7 @@ router.get("/:inviteId/accept", auth({ allowUser: true }), async function (reque
       logger.error("BusinessInviteController, error adding user to business chat rooms: ", error);
     }
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "BusinessInviteController, accept invite",
@@ -366,7 +366,7 @@ router.get("/:inviteId/reject", auth({ allowUser: true }), async function (reque
     const { inviteId } = request.params;
 
     if (!inviteId || !Utils.isValidObjectId(inviteId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidInviteId,
         message: "BusinessInviteController, reject invite, invalid inviteId",
@@ -376,7 +376,7 @@ router.get("/:inviteId/reject", auth({ allowUser: true }), async function (reque
     const invite = await BusinessInvite.findById(inviteId).lean();
 
     if (!invite) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInviteNotFound,
         message: "BusinessInviteController, reject invite, invite not found",
@@ -384,7 +384,7 @@ router.get("/:inviteId/reject", auth({ allowUser: true }), async function (reque
     }
 
     if (userId !== invite.userId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message:
@@ -393,7 +393,7 @@ router.get("/:inviteId/reject", auth({ allowUser: true }), async function (reque
     }
 
     if (invite.status === "expired" || invite.expiresAt < Date.now()) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInviteExpired,
         message: "BusinessInviteController, reject invite - invite has expired",
@@ -403,7 +403,7 @@ router.get("/:inviteId/reject", auth({ allowUser: true }), async function (reque
     const member = await BusinessMember.findOne({ inviteId }).lean();
 
     if (!member) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message:
@@ -412,7 +412,7 @@ router.get("/:inviteId/reject", auth({ allowUser: true }), async function (reque
     }
 
     if (member.status !== "invited") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message:
@@ -438,7 +438,7 @@ router.get("/:inviteId/reject", auth({ allowUser: true }), async function (reque
       invite: updatedInvite,
     });
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "BusinessInviteController, reject invite",
@@ -482,7 +482,7 @@ router.get("/:inviteId/revoke", auth({ allowUser: true }), async function (reque
     const { inviteId } = request.params;
 
     if (!inviteId || !Utils.isValidObjectId(inviteId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidInviteId,
         message: "BusinessInviteController, revoke invite, invalid inviteId",
@@ -492,7 +492,7 @@ router.get("/:inviteId/revoke", auth({ allowUser: true }), async function (reque
     const invite = await BusinessInvite.findById(inviteId).lean();
 
     if (!invite) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInviteNotFound,
         message: "BusinessInviteController, revoke invite, invite not found",
@@ -506,7 +506,7 @@ router.get("/:inviteId/revoke", auth({ allowUser: true }), async function (reque
     });
 
     if (!allowed) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message:
@@ -515,7 +515,7 @@ router.get("/:inviteId/revoke", auth({ allowUser: true }), async function (reque
     }
 
     if (invite.status === "expired" || invite.expiresAt < Date.now()) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInviteExpired,
         message: "BusinessInviteController, revoke invite - invite has expired",
@@ -525,7 +525,7 @@ router.get("/:inviteId/revoke", auth({ allowUser: true }), async function (reque
     const member = await BusinessMember.findOne({ inviteId }).lean();
 
     if (!member) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message:
@@ -534,7 +534,7 @@ router.get("/:inviteId/revoke", auth({ allowUser: true }), async function (reque
     }
 
     if (member.status !== "invited") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message:
@@ -560,7 +560,7 @@ router.get("/:inviteId/revoke", auth({ allowUser: true }), async function (reque
       invite: updatedInvite,
     });
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "BusinessInviteController, revoke invite",
@@ -679,7 +679,7 @@ router.get("/:inviteId", auth({ allowUser: true }), async function (request, res
     const { inviteId } = request.params;
 
     if (!inviteId || !Utils.isValidObjectId(inviteId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidInviteId,
         message: "BusinessInviteController, get invite, invalid inviteId",
@@ -689,7 +689,7 @@ router.get("/:inviteId", auth({ allowUser: true }), async function (request, res
     const invite = await BusinessInvite.findById(inviteId).lean();
 
     if (!invite) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInviteNotFound,
         message: "BusinessInviteController, get invite, invite not found",
@@ -699,7 +699,7 @@ router.get("/:inviteId", auth({ allowUser: true }), async function (request, res
     const members = await BusinessMember.find({ businessId: invite.businessId }).lean();
 
     if (!members.find((m) => m.userId === userId && ["invited", "active"].includes(m.status))) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message: "BusinessInviteController, get invite, user not allowed",
@@ -725,7 +725,7 @@ router.get("/:inviteId", auth({ allowUser: true }), async function (request, res
       invitedBy,
     });
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "BusinessInviteController, get invite",
@@ -806,7 +806,7 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
     } = request.body;
 
     if (!["helper", "manager"].includes(role)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeWrongRole,
         message: "BusinessInviteController, send invite, invalid role",
@@ -814,7 +814,7 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
     }
 
     if (!rawPhoneNumber) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidPhoneNumber,
         message: "BusinessInviteController, send invite, invalid phone number",
@@ -824,7 +824,7 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
     const phoneNumber = Utils.formatPhoneNumber({ phoneNumber: rawPhoneNumber.trim() });
 
     if (!phoneNumber || Const.flomAgentPhoneNumbers.includes(phoneNumber)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidPhoneNumber,
         type: Const.logTypeLogin,
@@ -834,7 +834,7 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
 
     const bannedNumber = await BannedNumber.findOne({ phoneNumber }).lean();
     if (bannedNumber) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodePhoneNumberIsBlocked,
         type: Const.logTypeLogin,
@@ -848,7 +848,7 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
       "isDeleted.value": false,
     });
     if (businessUser) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodePhoneNumberIsBusinessNumber,
         type: Const.logTypeLogin,
@@ -857,7 +857,7 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
     }
 
     if (phoneNumber.startsWith("+234803200") || phoneNumber.startsWith("+234810000")) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodePhoneNumberIsBlocked,
         type: Const.logTypeLogin,
@@ -868,7 +868,7 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
     const existingUser = await User.findOne({ phoneNumber, "isDeleted.value": false }).lean();
 
     if (existingUser && existingUser.isLoginForbidden) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodePhoneNumberIsBlocked,
         type: Const.logTypeLogin,
@@ -877,7 +877,7 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
     }
 
     if (!businessId || !Utils.isValidObjectId(businessId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidBusinessId,
         message: "BusinessInviteController, send invite, invalid businessId",
@@ -887,7 +887,7 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
     const business = await Business.findById(businessId).lean();
 
     if (!business) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeBusinessNotFound,
         message: "BusinessInviteController, send invite, business not found",
@@ -895,7 +895,7 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
     }
 
     if (!firstName || typeof firstName !== "string" || firstName.trim().length < 1) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidFirstName,
         message: "BusinessInviteController, send invite, invalid firstName",
@@ -903,7 +903,7 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
     }
 
     if (lastName && (typeof lastName !== "string" || lastName.trim().length < 1)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidLastName,
         message: "BusinessInviteController, send invite, invalid lastName",
@@ -936,7 +936,7 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
     }).lean();
 
     if (existingMember) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserAlreadyMember,
         message: "BusinessInviteController, send invite, user is already a member of the business",
@@ -950,7 +950,7 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
     }).lean();
 
     if (existingInvite) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInviteAlreadyExists,
         message: "BusinessInviteController, send invite, pending invite already exists",
@@ -964,7 +964,7 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
     });
 
     if (!allowed) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message: "BusinessInviteController, send invite - user is not allowed to invite this role",
@@ -1028,7 +1028,7 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
       invite,
     });
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "BusinessInviteController, send invite",

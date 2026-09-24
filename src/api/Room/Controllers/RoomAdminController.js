@@ -53,14 +53,14 @@ router.post("/add", auth({ allowUser: true }), async function (request, response
     const roomId = request.body.roomId;
 
     if (!newAdminId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoAdminId,
         message: "RoomAdminController, add, no admin id",
       });
     }
     if (!roomId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoRoomId,
         message: "RoomAdminController, add, no room id",
@@ -70,7 +70,7 @@ router.post("/add", auth({ allowUser: true }), async function (request, response
     // find a room
     const room = await Room.findById(roomId);
     if (!room) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoRoomFound,
         message: "RoomAdminController, add, no room found",
@@ -79,7 +79,7 @@ router.post("/add", auth({ allowUser: true }), async function (request, response
 
     // check if user who wants to add new admin is admin
     if (!room.admins.includes(request.user._id.toString())) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserIsNotAdmin,
         message: "RoomAdminController, add, user is not admin",
@@ -88,7 +88,7 @@ router.post("/add", auth({ allowUser: true }), async function (request, response
 
     // check if user is already admin
     if (room.admins.includes(newAdminId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserIsAlreadyAdmin,
         message: "RoomAdminController, add, user is already admin",
@@ -107,7 +107,7 @@ router.post("/add", auth({ allowUser: true }), async function (request, response
 
     Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "RoomAdminController, add",
       error,
@@ -164,7 +164,7 @@ router.post("/delete", auth({ allowUser: true }), async function (request, respo
     const roomId = request.body.roomId;
 
     if (!removeAdminId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoAdminId,
         message: "RoomAdminController, delete, no admin id",
@@ -172,7 +172,7 @@ router.post("/delete", auth({ allowUser: true }), async function (request, respo
     }
 
     if (!roomId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoRoomId,
         message: "RoomAdminController, delete, no room id",
@@ -182,7 +182,7 @@ router.post("/delete", auth({ allowUser: true }), async function (request, respo
     // find a room
     const room = await Room.findById(roomId);
     if (!room) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoRoomFound,
         message: "RoomAdminController, delete, no room found",
@@ -191,7 +191,7 @@ router.post("/delete", auth({ allowUser: true }), async function (request, respo
 
     // check if user who wants to delete admin is admin
     if (!room.admins.includes(request.user._id.toString())) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserIsNotAdmin,
         message: "RoomAdminController, delete, user is not admin",
@@ -200,7 +200,7 @@ router.post("/delete", auth({ allowUser: true }), async function (request, respo
 
     // check if user to remove is admin
     if (!room.admins.includes(removeAdminId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserIsNotAdmin,
         message: "RoomAdminController, delete, user to remove is not admin",
@@ -209,7 +209,7 @@ router.post("/delete", auth({ allowUser: true }), async function (request, respo
 
     // check if user to remove is owner
     if (room.owner.toString() == removeAdminId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserIsOwner,
         message: "RoomAdminController, delete, user to remove is owner",
@@ -228,7 +228,7 @@ router.post("/delete", auth({ allowUser: true }), async function (request, respo
 
     Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "RoomAdminController, delete",
       error,

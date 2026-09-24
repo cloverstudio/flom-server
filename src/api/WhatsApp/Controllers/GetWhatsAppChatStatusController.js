@@ -112,7 +112,7 @@ router.get("/:chatId/status", auth({ allowUser: true }), async function (request
 
     return Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    return Base.newErrorResponse({ response, message: "GetWhatsAppChatStatus", error });
+    return Base.errorResponse({ response, message: "GetWhatsAppChatStatus", error });
   }
 });
 

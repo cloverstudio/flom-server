@@ -287,7 +287,7 @@ router.post(
       const ownerId = owner._id.toString();
 
       if (owner.blockedProducts) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUserBlocked,
           message: `AddNewProductControllerV2, user blocked`,
@@ -295,21 +295,21 @@ router.post(
       }
 
       if (!name && !isDraft) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeProductNoProductName,
           message: `AddNewProductControllerV2, no product name`,
         });
       }
       if (!type) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeProductNoType,
           message: `AddNewProductControllerV2, no product type`,
         });
       }
       if (Const.productTypes.indexOf(type) === -1 || type === Const.productTypeProduct) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidTypeParameter,
           message: `AddNewProductControllerV2, wrong type parameter`,
@@ -320,7 +320,7 @@ router.post(
         [Const.productTypeVideoStory, Const.productTypePodcast].indexOf(type) === -1 &&
         !isDraft
       ) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeProductNoProductDescription,
           message: `AddNewProductControllerV2, no description`,
@@ -355,14 +355,14 @@ router.post(
       }
 
       if (Const.productVisibilities.indexOf(visibility) === -1) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeWrongVisibilityParameter,
           message: `AddNewProductControllerV2, wrong visibility parameter`,
         });
       } else if (visibility === Const.productVisibilityTribes) {
         if (!tribeIds || tribeIds === "") {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeNoTribeIds,
             message: `AddNewProductControllerV2, no tribeIds parameter`,
@@ -376,7 +376,7 @@ router.post(
             requestUserId: ownerId,
           })) || {};
         if (code) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code,
             message: `AddNewProductControllerV2, ${message}`,
@@ -386,7 +386,7 @@ router.post(
         tribeIds = tribeIdsArray;
       } else if (visibility === Const.productVisibilityCommunity) {
         if (!communityIds || communityIds === "") {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeMembershipNotFound,
             message: `AddNewProductControllerV2, no communityIds parameter`,
@@ -400,7 +400,7 @@ router.post(
             communityIds: communityIdsArray,
           })) || {};
         if (code) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code,
             message: `AddNewProductControllerV2, ${message}`,
@@ -415,7 +415,7 @@ router.post(
         parentCategory;
       if (categoryId) {
         if (!Utils.isValidObjectId(categoryId)) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeProductInvalidCategoryId,
             message: `AddNewProductControllerV2, categoryId is not a valid id`,
@@ -424,7 +424,7 @@ router.post(
 
         category = await Category.findOne({ _id: categoryId }).lean();
         if (!category) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeProductCategoryNotFound,
             message: `AddNewProductControllerV2, category not found`,
@@ -434,7 +434,7 @@ router.post(
         if (
           !Product.checkProductCategoryGroup({ productType: type, categoryGroups: category.group })
         ) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeProductInvalidCategory,
             message: `AddNewProductControllerV2, invalid category`,
@@ -455,7 +455,7 @@ router.post(
       });
 
       if (err) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeAddingAudioForExpoFailed,
           message: `AddNewProductControllerV2, adding audio for expo failed`,
@@ -475,7 +475,7 @@ router.post(
       if (linkedProductId) {
         const linkedProduct = await Product.findOne({ _id: linkedProductId }).lean();
         if (!linkedProduct) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeLinkedProductNotFound,
             message: `AddNewProductControllerV2, linked product not found`,
@@ -617,7 +617,7 @@ router.post(
       sendApprovedProductBonuses({ product: productObj, owner: request.user });
       sendNewsletterToSubscribers({ product: productObj, owner: request.user });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "AddNewProductControllerV2",
         error,

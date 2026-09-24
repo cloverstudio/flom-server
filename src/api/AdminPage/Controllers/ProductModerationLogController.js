@@ -73,7 +73,7 @@ router.get("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (reque
 
     if (productId) {
       if (!Utils.isValidObjectId(productId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidProductId,
           message: `ProductModerationLogController, productId is not valid`,
@@ -81,7 +81,7 @@ router.get("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (reque
       }
       const product = await Product.findOne({ _id: productId }, { _id: 1 }).lean();
       if (!product) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeProductNotFound,
           message: `ProductModerationLogController, product not found`,
@@ -98,7 +98,7 @@ router.get("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (reque
 
     if (productType) {
       if (Const.productTypes.indexOf(productType) === -1) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidTypeParameter,
           message: `ProductModerationLogController, wrong productType parameter`,
@@ -125,7 +125,7 @@ router.get("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (reque
       pagination: { total, itemsPerPage },
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "ProductModerationLogController",
       error,

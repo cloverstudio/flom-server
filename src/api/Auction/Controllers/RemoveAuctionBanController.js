@@ -22,7 +22,7 @@ router.patch("/remove-ban", auth({ allowUser: true }), async function (request, 
     const responseData = {};
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "RemoveAuctionBanController",
       error,

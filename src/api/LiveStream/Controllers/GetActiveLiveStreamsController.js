@@ -59,7 +59,7 @@ router.get("/", async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetActiveLiveStreamsController",
       error,

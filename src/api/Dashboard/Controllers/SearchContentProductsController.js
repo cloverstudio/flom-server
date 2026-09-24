@@ -269,7 +269,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       hasNext,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "SearchContentProductsController",
       error,

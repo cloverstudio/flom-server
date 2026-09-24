@@ -316,7 +316,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       // satsMarketplace: satsMarketplace[0]?.sumAmount || 0,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetTotalEarnedController",
       error,

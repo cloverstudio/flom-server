@@ -150,7 +150,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     const res = await getInbox({ user, type });
 
     if (res.errCode) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: res.errCode,
         message: "InboxController, " + res.errMsg,
@@ -163,7 +163,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "InboxController",
       error,

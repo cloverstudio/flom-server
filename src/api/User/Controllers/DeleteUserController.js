@@ -53,7 +53,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     const userId = user._id.toString();
 
     if (!user) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSigninInvalidToken,
         message: "DeleteUserController, invalid user token",
@@ -61,7 +61,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (user?.isDeleted.value) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserAlreadyDeleted,
         message: "DeleteUserController, user already deleted",
@@ -71,7 +71,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     const orderCheck = await checkUsersOrders(userId);
 
     if (!orderCheck) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserHasOpenOrders,
         message: "DeleteUserController, user has open orders",
@@ -150,7 +150,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       });
 
       if (data && data?.code !== 1) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: data?.code,
           message:
@@ -303,7 +303,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed);
   } catch (e) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       message: "DeleteUserController",
       error: e,

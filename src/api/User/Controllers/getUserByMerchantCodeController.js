@@ -44,7 +44,7 @@ const { getMerchantsPhoneNumber, createNewUser } = require("#logics");
 
 router.get("/:code", auth({ allowUser: true }), async (request, response) => {
   if (!request.params.code) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.responsecodeNoMerchantCode,
       message: "getUserByMerchantCodeController, no merchant code provided",
@@ -80,7 +80,7 @@ router.get("/:code", auth({ allowUser: true }), async (request, response) => {
       return Base.successResponse(response, Const.responsecodeSucceed, {});
     }
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "getUserByMerchantCodeController",
       error,

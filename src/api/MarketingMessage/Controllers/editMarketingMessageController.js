@@ -47,7 +47,7 @@ router.post("/:id", auth({ allowUser: true }), async function (request, response
     const isValidReceivers = validateReceivers(receivers);
 
     if (marketingAction && !isValidAction) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidMarketingAction,
         message: `editMarketingMessageController, Invalid marketing action`,
@@ -55,7 +55,7 @@ router.post("/:id", auth({ allowUser: true }), async function (request, response
     }
 
     if (marketingAction == 2 && !product) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoMarketingProductId,
         message: `editMarketingMessageController, No marketing product ID`,
@@ -63,7 +63,7 @@ router.post("/:id", auth({ allowUser: true }), async function (request, response
     }
 
     if (receivers && !isValidReceivers) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNotValidToId,
         message: `editMarketingMessageController, Not valid receivers`,
@@ -122,7 +122,7 @@ router.post("/:id", auth({ allowUser: true }), async function (request, response
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "editMarketingMessageController, Edit marketing message",
       error,

@@ -32,7 +32,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const messageIds = messageId ? messageId.split(",").map((id) => id.trim()) : null;
     const user = request.user;
     if (!messageIds || messageIds.length === 0) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeDeliverMessageNoMessageId,
         message: `DeliverMessageController, no messageId`,
@@ -41,7 +41,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     const messages = await FlomMessage.find({ _id: { $in: messageIds } }).lean();
     if (messages.length === 0) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeDeliverMessageWrongMessageId,
         message: `DeliverMessageController, wrong messageId`,
@@ -103,7 +103,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "DeliverMessageController",
       error,

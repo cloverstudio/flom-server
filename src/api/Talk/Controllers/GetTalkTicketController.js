@@ -59,7 +59,7 @@ router.get(
       const { ticketId } = request.params;
 
       if (!ticketId) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoTalkTicketId,
           message: "GetTalkTicketController, GET single - no ticket id parameter",
@@ -69,7 +69,7 @@ router.get(
       const talkTicket = await TalkTicket.findOne({ _id: ticketId }).lean();
 
       if (!talkTicket) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeTalkTicketNotFound,
           message: "GetTalkTicketController, GET single - talk ticket not found",
@@ -81,7 +81,7 @@ router.get(
 
       Base.successResponse(response, Const.responsecodeSucceed, { ticket: talkTicket });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "GetTalkTicketController, GET single",
         error,
@@ -216,7 +216,7 @@ router.get("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (reque
 
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetTalkTicketController, GET",
       error,

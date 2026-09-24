@@ -121,7 +121,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     const itemsPerPage = +request.query.itemsPerPage || Const.newPagingRows;
 
     if (!Utils.isValidObjectId(userId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserIdNotValid,
         message: "UsersCommunityContent, userId not a valid Id",
@@ -133,7 +133,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
         _id: request.query.userId,
       }).lean();
       if (!user) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUserNotFound,
           message: "UsersCommunityContent, user not found",
@@ -141,7 +141,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       }
 
       if (user?.isDeleted.value) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUserDeleted,
           message: "UsersCommunityContent, user is deleted",
@@ -237,7 +237,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       itemsPerPage,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "UsersCommunityContent",
       error,

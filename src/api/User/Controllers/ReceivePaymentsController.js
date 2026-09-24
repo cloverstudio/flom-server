@@ -47,7 +47,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       return Base.successResponse(response, Const.responsecodeSucceed, { receivePayments: true });
     }
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "ReceivePaymentsController GET",
       error,
@@ -99,7 +99,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       return Base.successResponse(response, Const.responsecodeSucceed, { receivePayments: true });
     }
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "ReceivePaymentsController POST",
       error,

@@ -24,7 +24,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
   const mainCategoryId = request.body.mainCategoryId;
 
   if (!mainCategoryId) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.responsecodeNoMainCategoryId,
       message: "ListSubCategoryController, missing main category id",
@@ -43,7 +43,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, subCategories);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "ListSubCategoryController, Get list of sub categories",
       error,

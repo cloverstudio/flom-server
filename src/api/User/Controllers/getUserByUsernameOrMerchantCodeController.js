@@ -326,7 +326,7 @@ router.get("/:searchTerm", async (request, response) => {
     // console.log("api/v2/user/username-or-merchant-code called from IP:", IP);
 
     if (!request.params.searchTerm) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoMerchantCode,
         message: "getUserByUsernameOrMerchantCodeController, no searchTerm provided",
@@ -350,7 +350,7 @@ router.get("/:searchTerm", async (request, response) => {
       return Base.successResponse(response, Const.responsecodeSucceed, {});
     }
     if (user?.isDeleted.value) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserDeleted,
         message: "getUserByUsernameOrMerchantCodeController, user is deleted",
@@ -364,7 +364,7 @@ router.get("/:searchTerm", async (request, response) => {
 
     return Base.successResponse(response, Const.responsecodeSucceed, user);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "getUserByUsernameOrMerchantCodeController",
       error,

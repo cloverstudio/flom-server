@@ -100,7 +100,7 @@ router.get("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (reque
     const searchQuery = { $and: [] };
 
     if (phoneNumber === "") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoPhoneNumber,
         message: `NewUserController - list, wrong phoneNumber parameter`,
@@ -117,7 +117,7 @@ router.get("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (reque
       searchQuery.$and.push({ phoneNumber: formattedPhoneNumber });
     }
     if (username === "") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoUsername,
         message: `NewUserController - list, wrong username parameter`,
@@ -141,7 +141,7 @@ router.get("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (reque
         });
       }
     } catch (error) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidTypeParameter,
         message: `NewUserController - list, invalid type parameter`,
@@ -154,7 +154,7 @@ router.get("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (reque
 
     if (deviceType) {
       if (!["web", "ios", "android", "unknown"].includes(deviceType)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidParameter,
           message: `NewUserController - list, invalid deviceType parameter`,
@@ -169,7 +169,7 @@ router.get("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (reque
 
     if (hasLoggedIn) {
       if (![1, 2, 3, 4].includes(hasLoggedIn)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidParameter,
           message: `NewUserController - list, invalid hasLoggedIn parameter`,
@@ -226,7 +226,7 @@ router.get("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (reque
 
     Base.successResponse(response, Const.responsecodeSucceed, { users: usersFormatted, total });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "NewUserController - list",
       error,
@@ -389,7 +389,7 @@ router.get(
       const { userId } = request.params;
 
       if (!Utils.isValidObjectId(userId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidUserId,
           message: `NewUserController - get user, invalid userId parameter`,
@@ -398,7 +398,7 @@ router.get(
 
       const user = await User.findOne({ _id: userId }).lean();
       if (!user) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUserNotFound,
           message: `NewUserController - get user, user with id ${userId} not found`,
@@ -427,7 +427,7 @@ router.get(
         mobileData: userDetails,
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "NewUserController - get user",
         error,

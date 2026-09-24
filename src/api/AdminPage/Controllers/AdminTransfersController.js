@@ -80,7 +80,7 @@ router.get(
 
       if (transferId) {
         if (!Utils.isValidObjectId(transferId)) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeTransferIdNotValid,
             message: `AdminTransferController - list, invalid transferId parameter`,
@@ -103,7 +103,7 @@ router.get(
 
       if (status !== null) {
         if (Const.transferStatuses.indexOf(status) === -1) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeTransferWrongStatus,
             message: `AdminTransferController - list, invalid status parameter`,
@@ -115,7 +115,7 @@ router.get(
 
       if (transferType !== null) {
         if (Const.transferTypes.indexOf(transferType) === -1) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeTransferTypeNotFound,
             message: `AdminTransferController - list, invalid transferType parameter`,
@@ -154,7 +154,7 @@ router.get(
         },
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "AdminTransferController - list",
         error,
@@ -273,7 +273,7 @@ router.get(
 
       if (transferId) {
         if (!Utils.isValidObjectId(transferId)) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeTransferIdNotValid,
             message: `AdminTransferController - get transfer, invalid transferId parameter`,
@@ -284,7 +284,7 @@ router.get(
       const transfer = await Transfer.findOne({ _id: transferId }).lean();
 
       if (!transfer) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeTransactionNotFound,
           message: `AdminTransferController - get transfer, transfer not found`,
@@ -304,7 +304,7 @@ router.get(
         transaction: responseData,
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "AdminTransferController - get transfer",
         error,

@@ -46,7 +46,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const vehicleMakeId = request.body.vehicleMakeId;
 
     if (vehicleMakeId === undefined) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoVehicleMakeId,
         message: "ListVehicleModelController, missing vehicle make id",
@@ -57,7 +57,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, models);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "ListVehicleModelController, Get list of vehicle models",
       error,

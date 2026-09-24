@@ -86,7 +86,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const user = request.user;
 
     if (!Array.isArray(userIds) || userIds.length === 0) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeAddUsersToRoomWrongUserId,
         message: "AddUsersToRoomController, wrong user id format",
@@ -95,7 +95,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     const room = await Room.findById(roomId).lean();
     if (!room) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeAddUsersToRoomWrongRoomId,
         message: "AddUsersToRoomController, wrong room id format",
@@ -103,7 +103,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (!room.admins.includes(user._id.toString()) && user._id.toString() !== room.owner) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeAddUsersToRoomUserIsNotAdmin,
         message: "AddUsersToRoomController, user is not admin",
@@ -127,7 +127,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed, { room: updatedRoom });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "AddUsersToRoomController",
       error,

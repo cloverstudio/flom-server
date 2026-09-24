@@ -54,7 +54,7 @@ router.get(
       const { countryCode } = request.params;
 
       if (!countryCode || (!countries[countryCode] && countryCode !== "default")) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidCountryCode,
           message:
@@ -65,7 +65,7 @@ router.get(
       const shell = await Models.LandingPageShell.findOne({ countryCode }).lean();
 
       if (!shell) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeLandingPageShellNotFound,
           message: `AdminLandingPageController - get landing page shell by country code, landing page shell for country code ${countryCode} not found`,
@@ -74,7 +74,7 @@ router.get(
 
       return Base.successResponse(response, Const.responsecodeSucceed, { landingPageShell: shell });
     } catch (error) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         message: "AdminLandingPageController - get landing page shell by country code",
         error,
@@ -126,7 +126,7 @@ router.get("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (reque
 
     return Base.successResponse(response, Const.responsecodeSucceed, { landingPageShells: shells });
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       message: "AdminLandingPageController - get landing page shell list",
       error,
@@ -189,7 +189,7 @@ router.post(
       const { entityName, termsOfService, privacyPolicy } = request.body;
 
       if (!countryCode || (!countries[countryCode] && countryCode !== "default")) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidCountryCode,
           message: "AdminLandingPageController - create landing page shell, invalid country code",
@@ -198,7 +198,7 @@ router.post(
 
       const exists = await Models.LandingPageShell.findOne({ countryCode }).lean();
       if (exists) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeLandingPageShellExists,
           message: `AdminLandingPageController - create landing page shell, landing page shell for country code ${countryCode} already exists`,
@@ -206,7 +206,7 @@ router.post(
       }
 
       if (!entityName || typeof entityName !== "string" || entityName.trim().length === 0) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidEntityName,
           message: `AdminLandingPageController - create landing page shell, invalid entity name parameter`,
@@ -218,7 +218,7 @@ router.post(
         typeof termsOfService !== "string" ||
         termsOfService.trim().length === 0
       ) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidTermsOfService,
           message: `AdminLandingPageController - create landing page shell, invalid terms of service parameter`,
@@ -230,7 +230,7 @@ router.post(
         typeof privacyPolicy !== "string" ||
         privacyPolicy.trim().length === 0
       ) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidPrivacyPolicy,
           message: `AdminLandingPageController - create landing page shell, invalid privacy policy parameter`,
@@ -248,7 +248,7 @@ router.post(
         landingPageShell: shell.toObject(),
       });
     } catch (error) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         message: "AdminLandingPageController - create landing page shell",
         error,
@@ -314,7 +314,7 @@ router.patch(
       const updateData = {};
 
       if (!countryCode || (!countries[countryCode] && countryCode !== "default")) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidCountryCode,
           message: "AdminLandingPageController - update landing page shell, invalid country code",
@@ -323,7 +323,7 @@ router.patch(
 
       if (entityName) {
         if (typeof entityName !== "string" || entityName.trim().length === 0) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidEntityName,
             message: `AdminLandingPageController - update landing page shell, invalid entity name parameter`,
@@ -334,7 +334,7 @@ router.patch(
 
       if (termsOfService) {
         if (typeof termsOfService !== "string" || termsOfService.trim().length === 0) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidTermsOfService,
             message: `AdminLandingPageController - update landing page shell, invalid terms of service parameter`,
@@ -345,7 +345,7 @@ router.patch(
 
       if (privacyPolicy) {
         if (typeof privacyPolicy !== "string" || privacyPolicy.trim().length === 0) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidPrivacyPolicy,
             message: `AdminLandingPageController - update landing page shell, invalid privacy policy parameter`,
@@ -361,7 +361,7 @@ router.patch(
       );
 
       if (!shell) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeLandingPageShellNotFound,
           message: `AdminLandingPageController - update landing page shell, landing page shell for country code ${countryCode} not found`,
@@ -370,7 +370,7 @@ router.patch(
 
       return Base.successResponse(response, Const.responsecodeSucceed, { landingPageShell: shell });
     } catch (error) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         message: "AdminLandingPageController - update landing page shell",
         error,
@@ -417,7 +417,7 @@ router.delete(
       const { countryCode } = request.params;
 
       if (!countryCode || (!countries[countryCode] && countryCode !== "default")) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidCountryCode,
           message: "AdminLandingPageController - delete landing page shell, invalid country code",
@@ -426,7 +426,7 @@ router.delete(
 
       const res = await Models.LandingPageShell.deleteOne({ countryCode });
       if (res.deletedCount === 0) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeLandingPageShellNotFound,
           message: `AdminLandingPageController - delete landing page shell, landing page shell for country code ${countryCode} not found`,
@@ -435,7 +435,7 @@ router.delete(
 
       return Base.successResponse(response, Const.responsecodeSucceed, {});
     } catch (error) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         message: "AdminLandingPageController - delete landing page shell",
         error,

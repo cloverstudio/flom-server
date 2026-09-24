@@ -116,7 +116,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (user.isCreator === false) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotCreator,
         message: `MembershipsController - create membership, user is not a creator`,
@@ -128,7 +128,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       deleted: false,
     }).lean();
     if (creatorMemberships.length >= Config.creatorMembershipsMaxCount) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeMembershipsMaxCountReached,
         message: `MembershipsController - create membership, max membership count reached`,
@@ -140,28 +140,28 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const order = +(data?.fields?.order || 0);
 
     if (!name || name === "") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoName,
         message: `MembershipsController - create membership, no name`,
       });
     }
     if (amount === 0 && !amount) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoAmount,
         message: `MembershipsController - create membership, no amount`,
       });
     }
     if (!description) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoDescription,
         message: `MembershipsController - create membership, no description`,
       });
     }
     if (!benefits || benefits === "") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoBenefits,
         message: `MembershipsController - create membership, no benefits`,
@@ -174,7 +174,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     for (let i = 0; i < parsedBenefits.length; i++) {
       const { type, enabled } = parsedBenefits[i];
       if (membershipBenefits[type] === undefined) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidBenefit,
           message: `MembershipsController - create membership, invalid benefits parameter`,
@@ -185,7 +185,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (creatorMemberships.find((membership) => membership.order === order) !== undefined) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeWrongOrderParameter,
         message: `MembershipsController - create membership, wrong order parameter`,
@@ -193,7 +193,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (image && image.type.split("/")[0] !== "image") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeMemebershipImageInvalid,
         message: `MembershipsController - bad image parameter`,
@@ -227,7 +227,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       membership: membershipObj,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "MembershipsController - create membership",
       error,
@@ -319,7 +319,7 @@ router.patch("/:membershipId", auth({ allowUser: true }), async function (reques
     const { membershipId } = request.params;
 
     if (!Utils.isValidObjectId(membershipId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidMembershipId,
         message: `MembershipsController - update membership, invalid membershipId`,
@@ -328,7 +328,7 @@ router.patch("/:membershipId", auth({ allowUser: true }), async function (reques
 
     const membership = await Membership.findOne({ _id: membershipId });
     if (!membership) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeMembershipNotFound,
         message: `MembershipsController - update membership, membership with ${membershipId} not found`,
@@ -336,7 +336,7 @@ router.patch("/:membershipId", auth({ allowUser: true }), async function (reques
     }
 
     if (membership.creatorId !== userId.toString()) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotMembershipCreator,
         message: `MembershipsController - update membership, user not the creator of the membership`,
@@ -382,7 +382,7 @@ router.patch("/:membershipId", auth({ allowUser: true }), async function (reques
       for (let i = 0; i < parsedBenefits.length; i++) {
         const { type, enabled } = parsedBenefits[i];
         if (membershipBenefits[type] === undefined) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidBenefit,
             message: `MembershipsController - update membership, invalid benefits parameter`,
@@ -402,7 +402,7 @@ router.patch("/:membershipId", auth({ allowUser: true }), async function (reques
       membership: membershipObj,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "MembershipsController - update membership",
       error,
@@ -446,7 +446,7 @@ router.delete("/:membershipId", auth({ allowUser: true }), async function (reque
     const { membershipId } = request.params;
 
     if (!Utils.isValidObjectId(membershipId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidMembershipId,
         message: `MembershipsController - delete membership, invalid membershipId`,
@@ -455,7 +455,7 @@ router.delete("/:membershipId", auth({ allowUser: true }), async function (reque
 
     const membership = await Membership.findOne({ _id: membershipId });
     if (!membership) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeMembershipNotFound,
         message: `MembershipsController - delete membership, membership with ${membershipId} not found`,
@@ -463,7 +463,7 @@ router.delete("/:membershipId", auth({ allowUser: true }), async function (reque
     }
 
     if (membership.creatorId !== userId.toString()) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotMembershipCreator,
         message: `MembershipsController - delete membership, user not the creator of the membership`,
@@ -477,7 +477,7 @@ router.delete("/:membershipId", auth({ allowUser: true }), async function (reque
       deleted: true,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "MembershipsController - delete membership",
       error,

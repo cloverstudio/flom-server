@@ -55,14 +55,14 @@ router.patch("/", auth({ allowUser: true }), async (request, response) => {
     const user = request.user;
 
     if (!merchantCode) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoMerchantCode,
         message: `UpdateUsersBankAccountController - merchant code missing`,
       });
     }
     if (!bankId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeMissingParameter,
         message: `UpdateUsersBankAccountController - missing bankId`,
@@ -70,7 +70,7 @@ router.patch("/", auth({ allowUser: true }), async (request, response) => {
       });
     }
     if (!bankAccountNumber) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeMissingParameter,
         message: `UpdateUsersBankAccountController - missing bank account number`,
@@ -80,7 +80,7 @@ router.patch("/", auth({ allowUser: true }), async (request, response) => {
 
     const bank = await Bank.findById(bankId).lean();
     if (!bank) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeBankDoesNotExist,
         message: `UpdateUsersBankAccountController - bank not found`,
@@ -101,7 +101,7 @@ router.patch("/", auth({ allowUser: true }), async (request, response) => {
     });
 
     if (!foundAccount) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidMerchantCode,
         message: `UpdateUsersBankAccountController - invalid merchant code, account not found`,
@@ -118,7 +118,7 @@ router.patch("/", auth({ allowUser: true }), async (request, response) => {
       updatedBankAccounts: updatedUser.bankAccounts,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "UpdateUsersBankAccountController",
       error,

@@ -36,7 +36,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     // check if product exist
     const product = await Product.findOne({ _id: productId, isDeleted: false });
     if (!product) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductNotFound,
         message: "DeleteProductController, product not found",
@@ -45,7 +45,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     // check owner
     if (product.ownerId != user._id.toString()) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserIsNotProductOwner,
         message: "DeleteProductController, user is not product owner",
@@ -53,7 +53,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (product.contentPurchaseHistory && product.contentPurchaseHistory.length > 0) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeAudioProductInUse,
         message: `DeleteProductController, audio product is in use by other users`,
@@ -61,14 +61,14 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (product?.mediaProcessingInfo?.status === "processing") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductMediaIsProcessing,
         message: "DeleteProductController, product media is processing",
       });
     }
     if (product?.mediaProcessingInfo?.status === "failed") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductMediaProcessingFailed,
         message: "DeleteProductController, product media processing failed",
@@ -126,7 +126,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     try {
       await product.save();
     } catch (error) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductDeleteError,
         message: "DeleteProductController, product delete error",
@@ -135,7 +135,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "DeleteProductController",
       error,

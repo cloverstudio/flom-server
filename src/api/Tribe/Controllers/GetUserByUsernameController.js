@@ -68,7 +68,7 @@ router.get("/find", auth({ allowUser: true }), async (request, response) => {
     const itemsPerPage = +request.query.itemsPerPage || Const.newPagingRows;
 
     if (!searchTerm.trim()) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         message: `GetUserByUsernameController, query search username cannot be empty`,
         code: Const.responsecodeTribeEmptySearchQuery,
@@ -97,7 +97,7 @@ router.get("/find", auth({ allowUser: true }), async (request, response) => {
       pagination: { itemsPerPage, page, total: userCount },
     });
   } catch (error) {
-    Base.newErrorResponse({ response, message: "GetUserByUsernameController", error });
+    Base.errorResponse({ response, message: "GetUserByUsernameController", error });
   }
 });
 

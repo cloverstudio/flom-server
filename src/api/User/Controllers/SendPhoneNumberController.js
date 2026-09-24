@@ -76,7 +76,7 @@ router.post("/", (request, response) => {
 
   //check for required values
   if (!phoneNumber) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.responsecodeNoPhoneNumber,
       message: "SendPhoneNumberController, no phoneNumber provided",
@@ -84,7 +84,7 @@ router.post("/", (request, response) => {
   }
 
   if (!activationCode) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.responsecodeNoActivationCode,
       message: "SendPhoneNumberController, no activationCode provided",
@@ -123,7 +123,7 @@ router.post("/", (request, response) => {
         jsonData["Pre-MerchantSelfRegistrationResponse"].ResponseDescription._text;
 
       if (responseDescription != "00") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.merchantDoesntExist,
           message: "SendPhoneNumberController, merchant does not exist",
@@ -156,7 +156,7 @@ router.post("/", (request, response) => {
         let user = findResult[0];
 
         if (!user) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeMerchantNotFound,
             message: "SendPhoneNumberController, merchant not found",
@@ -218,7 +218,7 @@ router.post("/", (request, response) => {
         }
       }
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "SendPhoneNumberController",
         error,

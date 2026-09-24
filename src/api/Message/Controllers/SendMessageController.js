@@ -96,7 +96,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         request.body.attributes.gifData.width = width;
       }
     } catch (error) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeFailedToSendMessage,
         message: `SendMessageController, error in getting gif dimensions`,
@@ -139,7 +139,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       }).lean();
 
       if (!businessMember && userID !== buyerId) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUserIsNotActiveBusinessMemberOrBuyer,
           message: `SendMessageController, user is not active business member or buyer`,
@@ -153,7 +153,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     try {
       result = await sendMessage(request.body);
     } catch (error) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeFailedToSendMessage,
         message: `SendMessageController, error on sending message`,
@@ -164,7 +164,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       message: result,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "SendMessageController",
       error,

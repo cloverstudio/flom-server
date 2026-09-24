@@ -156,7 +156,7 @@ router.post("/", async function (request, response) {
       const user = await User.findOne({ "token.token": accessToken }).lean();
 
       if (!user) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeSigninInvalidToken,
           message: "ListProductController, invalid access token",
@@ -254,7 +254,7 @@ router.post("/", async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, outgoingData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "ListProductController",
       error,

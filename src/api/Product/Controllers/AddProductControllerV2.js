@@ -218,7 +218,7 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
     let { fields, files } = await Utils.formParse(request);
 
     if (fields.productPrice || fields.maxPrice || fields.minPrice) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeAppVersionTooOld,
         message: `AddProductControllerV2, deprecated parameters, app too old`,
@@ -230,7 +230,7 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
 
     const user = request.user;
     if (user.blockedProducts) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserBlocked,
         message: `AddProductControllerV2, user blocked`,
@@ -308,7 +308,7 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
 
     if (checkBusiness) {
       if (!businessId || !Utils.isValidObjectId(businessId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidBusinessId,
           message: "AddProductControllerV2, invalid businessId",
@@ -318,7 +318,7 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
       const business = await Business.findById(businessId).lean();
 
       if (!business) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeBusinessNotFound,
           message: "AddProductControllerV2, business not found",
@@ -333,7 +333,7 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
 
       if (type === Const.productTypeService) {
         if (!place || !["seller", "customer", "both"].includes(place)) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidPlace,
             message: "AddProductControllerV2, add service - invalid place",
@@ -353,7 +353,7 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
           typeof timeUnit !== "string" ||
           !["default", "hour", "day"].includes(timeUnit)
         ) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidPriceTimeUnit,
             message: "AddProductControllerV2, invalid price time unit",
@@ -367,7 +367,7 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
 
     if (productCategoryId) {
       if (!Utils.isValidObjectId(productCategoryId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeProductInvalidCategoryId,
           message: `AddProductControllerV2, productCategoryId is not a valid id`,
@@ -376,7 +376,7 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
 
       category = await Category.findOne({ _id: productCategoryId }).lean();
       if (!category) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeCategoryNotFound,
           message: `AddProductControllerV2, category not found`,
@@ -386,7 +386,7 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
       if (
         !Product.checkProductCategoryGroup({ productType: type, categoryGroups: category.group })
       ) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeProductInvalidCategory,
           message: `AddProductControllerV2, invalid category`,
@@ -454,7 +454,7 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
     }
 
     if (!productName && !isDraft) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductNoProductName,
         message: "AddProductControllerV2, no product name",
@@ -462,7 +462,7 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
     }
 
     if (!productCategoryId && !productMainCategoryId && !isDraft) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductNoProductCategoryId,
         message: "AddProductControllerV2, no product category id",
@@ -470,7 +470,7 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
     }
 
     if (!productDescription && !isDraft) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductNoProductDescription,
         message: "AddProductControllerV2, no product description",
@@ -478,14 +478,14 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
     }
 
     if (priceValue === -1 && priceMinValue === -1 && priceMaxValue === -1 && !isDraft) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductNoProductPrice,
         message: "AddProductControllerV2, no product price",
       });
     }
     if (![5, 6].includes(type)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductInvalidType,
         message: "AddProductControllerV2, invalid product type",
@@ -493,14 +493,14 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
     }
 
     if (Const.productVisibilities.indexOf(visibility) === -1) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeWrongVisibilityParameter,
         message: "AddProductControllerV2, wrong visibility parameter",
       });
     } else if (visibility === Const.productVisibilityTribes) {
       if (!tribeIds || tribeIds === "") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoTribeIds,
           message: "AddProductControllerV2, no tribe ids",
@@ -515,7 +515,7 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
         })) || {};
 
       if (code) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code,
           message: `AddProductControllerV2, ${message}`,
@@ -525,7 +525,7 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
       product.tribeIds = tribeIdsArray;
     } else if (visibility === Const.productVisibilityCommunity) {
       if (!communityIds || communityIds === "") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeMembershipNotFound,
           message: `AddProductControllerV2, no communityIds parameter`,
@@ -539,7 +539,7 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
           communityIds: communityIdsArray,
         })) || {};
       if (code) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code,
           message: `AddProductControllerV2, ${message}`,
@@ -605,7 +605,7 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
           ? 0
           : +fields.engagementBudgetCredits;
       if (engagementBudgetCredits > user.creditBalance) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeCreditsEngagementBonusLargerThanCreditBalance,
           message: `AddProductControllerV2, engagement budget in credits larger than credits balance`,
@@ -669,13 +669,13 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
     sendNewsletterToSubscribers({ product: productObj, owner: request.user });
   } catch (error) {
     if (error.message === "Error while compressing video file") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeCompressingVideoFailed,
         message: "AddProductControllerV2, compressing video failed",
       });
     }
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "AddProductControllerV2",
       error,

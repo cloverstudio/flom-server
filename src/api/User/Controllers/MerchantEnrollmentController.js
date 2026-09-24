@@ -43,7 +43,7 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
 
     //check for required values
     if (!phoneNumber) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoPhoneNumber,
         message: "MerchantEnrollmentController, missing phoneNumber",
@@ -51,7 +51,7 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
     }
 
     if (!bank) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoFinancialInstitutionCode,
         message: "MerchantEnrollmentController, missing financialInstitutionCode",
@@ -59,7 +59,7 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
     }
 
     if (!merchantDOB) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoMerchantDOB,
         message: "MerchantEnrollmentController, missing merchantDOB",
@@ -166,7 +166,7 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
     if (responseCode !== "00") {
       const errorCode = Utils.getMCashErrorCode(responseCode);
 
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: errorCode,
         message:
@@ -195,7 +195,7 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
       merchantCode,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "MerchantEnrollmentController",
       error,

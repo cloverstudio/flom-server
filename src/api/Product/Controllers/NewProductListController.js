@@ -223,7 +223,7 @@ router.get("/", async function (request, response) {
       const message =
         code === Const.responsecodeSigninInvalidToken ? "Invalid token" : "Unauthorized";
       if (code) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code,
           message: `NewProductListController, ${message}`,
@@ -247,7 +247,7 @@ router.get("/", async function (request, response) {
       }
 
       if (tribeId && requestUserTribeIds.indexOf(tribeId) === -1) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeTribeUserNotMember,
           message: `NewProductListController, user not a member of the tribe`,
@@ -270,7 +270,7 @@ router.get("/", async function (request, response) {
       }
     } else if (username !== undefined) {
       if (username === "") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUsernameEmpty,
           message: `NewProductListController, username is empty`,
@@ -292,7 +292,7 @@ router.get("/", async function (request, response) {
     const businessId = request.query.businessId;
 
     if (businessId && !Utils.isValidObjectId(businessId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidBusinessId,
         message: `NewProductListController, invalid businessId parameter`,
@@ -300,7 +300,7 @@ router.get("/", async function (request, response) {
     }
 
     if (businessId && !["5", "6"].includes(type)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidTypeParameter,
         message: `NewProductListController, wrong type parameter`,
@@ -309,7 +309,7 @@ router.get("/", async function (request, response) {
 
     const typesArray = ["1", "2", "3", "4", "5", "6"];
     if (type !== undefined && typesArray.indexOf(type) === -1) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidTypeParameter,
         message: `NewProductListController, wrong type parameter`,
@@ -318,7 +318,7 @@ router.get("/", async function (request, response) {
 
     const moderationStatusArray = ["1", "2", "3", "4"];
     if (moderationStatus !== undefined && moderationStatusArray.indexOf(moderationStatus) === -1) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeWrongModerationStatusParameter,
         message: `NewProductListController, wrong moderationStatus parameter`,
@@ -327,14 +327,14 @@ router.get("/", async function (request, response) {
 
     if (lat && lon) {
       if (lat < -90 || lat > 90) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidLatParameter,
           message: `NewProductListController, invalid lat parameter`,
         });
       }
       if (lon < -180 || lon > 180) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidLonParameter,
           message: `NewProductListController, invalid lon parameter`,
@@ -347,7 +347,7 @@ router.get("/", async function (request, response) {
     }
     const sortByArray = ["created", "modified"];
     if (sortBy !== undefined && sortByArray.indexOf(sortBy) === -1) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeWrongSortByParameter,
         message: `NewProductListController, wrong sortBy parameter`,
@@ -356,7 +356,7 @@ router.get("/", async function (request, response) {
 
     const orderByArray = ["asc", "desc"];
     if (orderBy !== undefined && orderByArray.indexOf(orderBy) === -1) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeWrongOrderByParameter,
         message: `NewProductListController, wrong orderBy parameter`,
@@ -370,7 +370,7 @@ router.get("/", async function (request, response) {
         : { [sortBy]: orderBy === "asc" ? 1 : -1 };
 
     if (productName !== undefined && productName === "") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductNameEmpty,
         message: `NewProductListController, product name empty`,
@@ -474,7 +474,7 @@ router.get("/", async function (request, response) {
       hasNext,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "NewProductListController",
       error,

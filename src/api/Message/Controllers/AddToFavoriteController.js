@@ -35,7 +35,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const messageId = request.body.messageId;
 
     if (!messageId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeAddToFavoriteNoMessageId,
         message: `AddToFavoriteController, no messageId`,
@@ -45,7 +45,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const message = await FlomMessage.findById(messageId).lean();
 
     if (!message) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeAddToFavoriteInvalidMessageId,
         message: `AddToFavoriteController, invalid messageId`,
@@ -58,7 +58,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }).lean();
 
     if (existedFavorite) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeAddToFavoriteExistedMessageId,
         message: `AddToFavoriteController, existed messageId`,
@@ -76,7 +76,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       favorite: favorite.toObject(),
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "AddToFavoriteController",
       error,

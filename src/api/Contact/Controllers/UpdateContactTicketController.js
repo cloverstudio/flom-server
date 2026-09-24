@@ -62,7 +62,7 @@ router.patch(
       const { status } = request.body;
 
       if (!ticketId) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoContactTicketId,
           message: "UpdateContactTicketController, PATCH - no ticket id parameter",
@@ -70,14 +70,14 @@ router.patch(
       }
 
       if (!status) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoStatusParameter,
           message: "UpdateContactTicketController, PATCH - no status parameter",
         });
       }
       if ([1, 2, 3, 4].indexOf(status) === -1) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidStatusParameter,
           message: "UpdateContactTicketController, PATCH - invalid status parameter",
@@ -91,7 +91,7 @@ router.patch(
       ).lean();
 
       if (!contactTicket) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeContactTicketNotFound,
           message: "UpdateContactTicketController, PATCH - contact ticket not found",
@@ -105,7 +105,7 @@ router.patch(
         ticket: contactTicket,
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "UpdateContactTicketController, PATCH",
         error,

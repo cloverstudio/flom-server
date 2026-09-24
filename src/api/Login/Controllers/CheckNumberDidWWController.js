@@ -116,7 +116,7 @@ router.post("", async (request, response) => {
     const UUID = request.headers["UUID"] || request.headers["uuid"];
 
     if (!destinationPhoneNumber) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoPhoneNumber,
         type: Const.logTypeLogin,
@@ -125,7 +125,7 @@ router.post("", async (request, response) => {
     }
 
     if (!Utils.checkHashDidWW(hash, 40, destinationPhoneNumber)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeFailedHashCheck,
         type: Const.logTypeLogin,
@@ -139,7 +139,7 @@ router.post("", async (request, response) => {
     }).lean();
 
     if (!didWWNumber) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeDidWWPhoneNumberNotExistsOrNotRes,
         type: Const.logTypeLogin,
@@ -157,7 +157,7 @@ router.post("", async (request, response) => {
     let dataToSend = {};
 
     if (didWWNumberLogs.length > 1) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeDidWWPhoneNumberReservedMoreThanOnce,
         type: Const.logTypeLogin,
@@ -166,7 +166,7 @@ router.post("", async (request, response) => {
     }
 
     if (didWWNumberLogs.length !== 1) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeDidWWNoEntryFromCb,
         type: Const.logTypeLogin,
@@ -176,7 +176,7 @@ router.post("", async (request, response) => {
 
     let phoneNumber = didWWNumberLogs[0].sourcePhoneNumber;
     if (!phoneNumber.startsWith("+")) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidPhoneNumber,
         type: Const.logTypeLogin,
@@ -186,7 +186,7 @@ router.post("", async (request, response) => {
     phoneNumber = Utils.formatPhoneNumber({ phoneNumber });
 
     if (!phoneNumber || Const.flomAgentPhoneNumbers.includes(phoneNumber)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidPhoneNumber,
         type: Const.logTypeLogin,
@@ -195,7 +195,7 @@ router.post("", async (request, response) => {
     }
 
     if (phoneNumber.startsWith("+234803200") || phoneNumber.startsWith("+234810000")) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodePhoneNumberIsBlocked,
         type: Const.logTypeLogin,
@@ -205,7 +205,7 @@ router.post("", async (request, response) => {
 
     const bannedNumber = await BannedNumber.findOne({ phoneNumber }).lean();
     if (bannedNumber) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodePhoneNumberIsBlocked,
         type: Const.logTypeLogin,
@@ -219,7 +219,7 @@ router.post("", async (request, response) => {
       "isDeleted.value": false,
     });
     if (businessUser) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodePhoneNumberIsBusinessNumber,
         type: Const.logTypeLogin,
@@ -242,7 +242,7 @@ router.post("", async (request, response) => {
           existingUser.phoneNumberStatus === Const.phoneNumberValid
         )
       ) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeVPNDetected,
           type: Const.logTypeLogin,
@@ -254,7 +254,7 @@ router.post("", async (request, response) => {
     let user = await User.findOne({ phoneNumber, "isDeleted.value": false });
 
     if (user && user.isLoginForbidden) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodePhoneNumberIsBlocked,
         type: Const.logTypeLogin,
@@ -266,7 +266,7 @@ router.post("", async (request, response) => {
     if (user?.phoneNumberStatus === Const.phoneNumberValid) {
       allowed = true;
     } else if (user?.phoneNumberStatus === Const.phoneNumberInvalid) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodePhoneNumberIsBlocked,
         type: Const.logTypeLogin,
@@ -282,7 +282,7 @@ router.post("", async (request, response) => {
       } = await Logics.checkIfCarrierIsAllowed(phoneNumber);
 
       if (!checkAllowed) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: errorCode,
           type: Const.logTypeLogin,
@@ -416,7 +416,7 @@ router.post("", async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "CheckNumberDidWWController",
       error,

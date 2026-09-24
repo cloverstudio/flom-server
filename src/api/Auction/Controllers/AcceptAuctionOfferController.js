@@ -46,7 +46,7 @@ router.get("/:auctionId/accept", auth({ allowUser: true }), async function (requ
     const { auctionId } = request.params;
 
     if (!auctionId || !Utils.isValidObjectId(auctionId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidAuctionId,
         message: `AcceptAuctionOfferController, missing or invalid auctionId`,
@@ -56,7 +56,7 @@ router.get("/:auctionId/accept", auth({ allowUser: true }), async function (requ
     const auction = await Auction.findById(auctionId).lean();
 
     if (!auction) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeAuctionNotFound,
         message: `AcceptAuctionOfferController, auction not found for id ${auctionId}`,
@@ -64,7 +64,7 @@ router.get("/:auctionId/accept", auth({ allowUser: true }), async function (requ
     }
 
     if (auction.winningBid.user._id !== request.user._id.toString()) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message: `AcceptAuctionOfferController, user is not winning bidder for auction id ${auctionId}`,
@@ -72,7 +72,7 @@ router.get("/:auctionId/accept", auth({ allowUser: true }), async function (requ
     }
 
     if (auction.status !== Const.auctionStatus.FINISHED) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeAuctionAlreadyResolved,
         message: `AcceptAuctionOfferController, auction has already been resolved`,
@@ -82,7 +82,7 @@ router.get("/:auctionId/accept", auth({ allowUser: true }), async function (requ
     const order = await handlePayment({ auction, isFromAccept: true });
 
     if (!order) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeAuctionPaymentFailed,
         message: `AcceptAuctionOfferController, auction payment failed`,
@@ -120,7 +120,7 @@ router.get("/:auctionId/accept", auth({ allowUser: true }), async function (requ
     const responseData = { order };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "AcceptAuctionOfferController",
       error,

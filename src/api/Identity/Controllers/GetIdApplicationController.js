@@ -79,7 +79,7 @@ router.get(
       const { applicationId } = request.params;
 
       if (!Utils.isValidObjectId(applicationId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNotValidId,
           message: `GetIdApplicationController, applicationId is not a valid id`,
@@ -88,7 +88,7 @@ router.get(
 
       const idApplication = await IdApplication.findOne({ _id: applicationId }).lean();
       if (!idApplication) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeIdApplicationNotFound,
           message: `GetIdApplicationController, id application not found`,
@@ -99,7 +99,7 @@ router.get(
       const responseData = { idApplication };
       Base.successResponse(response, Const.responsecodeSucceed, responseData);
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "GetIdApplicationController",
         error,
@@ -217,7 +217,7 @@ router.get(
       const responseData = { idApplications, pagination: { total, itemsPerPage } };
       Base.successResponse(response, Const.responsecodeSucceed, responseData);
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "GetIdApplicationController, list",
         error,

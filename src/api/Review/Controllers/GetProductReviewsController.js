@@ -98,7 +98,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const skip = page > 0 ? (page - 1) * Const.pagingRows : 0;
 
     if (!product_id) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoProductId,
         message: "GetProductReviewsController, no product id provided",
@@ -107,7 +107,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     const product = await Product.findOne({ _id: product_id, isDeleted: false }).lean();
     if (!product) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductNotFound,
         message: "GetProductReviewsController, product not found",
@@ -192,7 +192,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetProductReviewsController",
       error,

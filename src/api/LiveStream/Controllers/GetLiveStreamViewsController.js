@@ -48,7 +48,7 @@ router.get("/:liveStreamId/views", auth({ allowUser: true }), async function (re
     const { user } = request;
 
     if (!Utils.isValidObjectId(liveStreamId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidObjectId,
         message: `GetLiveStreamViewsController, invalid liveStreamId: ${liveStreamId}`,
@@ -58,7 +58,7 @@ router.get("/:liveStreamId/views", auth({ allowUser: true }), async function (re
     const liveStream = await LiveStream.findById(liveStreamId, { comments: 0 }).lean();
 
     if (!liveStream) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeLiveStreamNotFound,
         message: "GetLiveStreamViewsController, live stream not found",
@@ -66,7 +66,7 @@ router.get("/:liveStreamId/views", auth({ allowUser: true }), async function (re
     }
 
     if (!(await isUserAllowed({ liveStream, userId: user._id.toString() }))) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message: "GetLiveStreamViewsController, user not allowed",
@@ -89,7 +89,7 @@ router.get("/:liveStreamId/views", auth({ allowUser: true }), async function (re
     const responseData = { views: err ? errorRes : res };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetLiveStreamViewsController",
       error,

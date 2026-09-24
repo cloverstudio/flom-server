@@ -17,7 +17,7 @@ router.get("/", async function (request, response) {
     const user = await User.findOne({ "deletedUserInfo.phoneNumber": "+" + phoneNumber }).lean();
 
     if (!user) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         message: "RevertUserController - deleted user not found in database",
         code: Const.responsecodeUserNotFound,
@@ -42,7 +42,7 @@ router.get("/", async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (e) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       message: "RevertUserController",
       error: e,

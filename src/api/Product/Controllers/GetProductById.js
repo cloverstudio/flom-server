@@ -127,7 +127,7 @@ router.post("/", async function (request, response) {
     let user;
 
     if (!productId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductNoProductId,
         message: "GetProductById, no product id provided",
@@ -135,7 +135,7 @@ router.post("/", async function (request, response) {
     }
 
     if (!Utils.isValidObjectId(productId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidProductId,
         message: "GetProductById, invalid productId",
@@ -147,7 +147,7 @@ router.post("/", async function (request, response) {
     let dataToSend = {};
 
     if (!product) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductNotFound,
         message: "GetProductById, product not found",
@@ -155,7 +155,7 @@ router.post("/", async function (request, response) {
     }
 
     if (!accessToken && product.appropriateForKids === false) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSensitiveContent,
         message: "GetProductById, sensitive content",
@@ -173,7 +173,7 @@ router.post("/", async function (request, response) {
         user = await User.findOne({ "token.token": accessToken }).lean();
 
         if (!user) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeSigninInvalidToken,
             message: "GetProductById, invalid access token",
@@ -191,7 +191,7 @@ router.post("/", async function (request, response) {
         });
 
         if (user.kidsMode === true && product.appropriateForKids === false) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeSensitiveContent,
             message: "GetProductById, sensitive content",
@@ -203,7 +203,7 @@ router.post("/", async function (request, response) {
           (product.moderation.status !== Const.moderationStatusApproved &&
             userId !== product.ownerId)
         ) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeRestrictedContent,
             message: "GetProductById, restricted content",
@@ -213,7 +213,7 @@ router.post("/", async function (request, response) {
           (product.moderation.status !== Const.moderationStatusApproved &&
             userId !== product.ownerId)
         ) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeRestrictedContent,
             message: "GetProductById, restricted content",
@@ -222,7 +222,7 @@ router.post("/", async function (request, response) {
       } else {
         const adminUser = await AdminPageUser.findOne({ "token.token": accessToken }).lean();
         if (!adminUser) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeSigninInvalidToken,
             message: "GetProductById, invalid access token",
@@ -233,7 +233,7 @@ router.post("/", async function (request, response) {
       product.visibility !== "public" ||
       product.moderation.status !== Const.moderationStatusApproved
     ) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeRestrictedContent,
         message: "GetProductById, restricted content",
@@ -335,13 +335,13 @@ router.post("/", async function (request, response) {
     }
   } catch (error) {
     if (error.name == "CastError") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductWrongProductIdFormat,
         message: "GetProductById, wrong product id format",
       });
     }
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetProductById",
       error,

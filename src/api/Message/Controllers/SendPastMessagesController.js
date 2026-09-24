@@ -57,7 +57,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const { messages } = request.body;
 
     if (!messages) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeMessagesMustBeDefined,
         message: `SendPastMessagesController, messages must be defined`,
@@ -65,7 +65,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (!Array.isArray(messages)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeMessagesMustBeArray,
         message: `SendPastMessagesController, messages must be an array`,
@@ -73,7 +73,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (messages.length === 0) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeMessagesMustContainAtLeastOneObject,
         message: `SendPastMessagesController, messages must contain at least one object`,
@@ -84,21 +84,21 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       const messageObj = messages[i];
       const { roomID, message, created } = messageObj;
       if (!roomID) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeAllMessagesObjectMustContainRoomID,
           message: `SendPastMessagesController, all messages object must contain roomID`,
         });
       }
       if (!message) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeAllMessagesObjectMustContainMessage,
           message: `SendPastMessagesController, all messages object must contain message`,
         });
       }
       if (!created) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeAllMessagesObjectMustContainCreated,
           message: `SendPastMessagesController, all messages object must contain created`,
@@ -119,7 +119,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed, { messages: sentMessages });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "SendPastMessagesController",
       error,

@@ -292,13 +292,13 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
   } catch (error) {
     if (error.name == "CastError") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductWrongProductIdFormat,
         message: "GetPaidProducts, wrong product id format",
       });
     }
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetPaidProducts",
       error,

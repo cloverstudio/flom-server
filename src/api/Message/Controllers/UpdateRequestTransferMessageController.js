@@ -54,7 +54,7 @@ router.get(
         Base.successResponse(response, Const.responsecodeSucceed, { isUpdated: false });
       }
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "UpdateRequestMessageController",
         error,

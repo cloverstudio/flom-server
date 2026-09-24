@@ -33,7 +33,7 @@ router.post("", async function (request, response) {
 
     form.parse(request, async function (err, fields, files) {
       if (!files.file) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeMessageFileUploadFailed,
           message: "MultipleFileUploadController, no file uploaded",
@@ -203,7 +203,7 @@ router.post("", async function (request, response) {
       }
     };
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "MultipleFileUploadController, Error uploading multiple files",
       error,

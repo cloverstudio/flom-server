@@ -48,7 +48,7 @@ router.patch(
     try {
       const userId = request.params.userId;
       if (!userId || !Utils.isValidObjectId(userId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUserIdNotValid,
           message: "UpdateUserDetailsController, invalid userId: " + userId,
@@ -61,7 +61,7 @@ router.patch(
 
       if (userName) {
         if (userName.length < 3) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeUsernameTooShort,
             message: "UpdateUserDetailsController, username too short: " + userName,
@@ -70,7 +70,7 @@ router.patch(
 
         const regexTerminalCode = /[^0-9]/g;
         if (!userName.match(regexTerminalCode)) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeUsernameInvalidCharsUsed,
             message: "UpdateUserDetailsController, invalid chars: " + userName,
@@ -81,7 +81,7 @@ router.patch(
         const result = await User.findOne({ userName: userNameRegex }).lean();
 
         if (result) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeUsernameNotAvailable,
             message: "UpdateUserDetailsController, username taken: " + userName,
@@ -106,7 +106,7 @@ router.patch(
       });
 
       if (!user) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUserNotFound,
           message: "UpdateUserDetailsController, user not found: " + userId,
@@ -115,7 +115,7 @@ router.patch(
 
       Base.successResponse(response, Const.responsecodeSucceed);
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "UpdateUserDetailsController",
         error,

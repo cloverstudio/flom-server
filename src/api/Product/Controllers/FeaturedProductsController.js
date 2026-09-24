@@ -112,7 +112,7 @@ router.post(
       //const featuredProductsDefaultQuantity = 12;
 
       /*if (countryCode === undefined) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeNoCountryCodeParameter,
             message: `FeaturedUserProductsController - no countryCode parameter`,
@@ -120,7 +120,7 @@ router.post(
         }
 
         if (!countries[countryCode] && countryCode !== "default") {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidCountryCode,
             message: `FeaturedUserProductsController - invalid countryCode parameter`,
@@ -130,7 +130,7 @@ router.post(
       const product = await Product.findOne({ _id: productId, isDeleted: false }).lean();
 
       if (!product) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeProductNotFound,
           message: `FeaturedProductsController, product not found`,
@@ -138,7 +138,7 @@ router.post(
       }
 
       /*if (product.featured?.isFeatured) {   
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeProductAlreadyFeatured,
             message: `FeaturedProductsController, product already featured`,
@@ -166,7 +166,7 @@ router.post(
         product: updatedProduct,
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "FeaturedProductsController",
         error,
@@ -278,7 +278,7 @@ router.delete(
       const product = await Product.findOne({ _id: productId }).lean();
 
       if (!product) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeProductNotFound,
           message: `FeaturedProductsController, product not found`,
@@ -286,7 +286,7 @@ router.delete(
       }
 
       if (!product.featured?.isFeatured) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeProductIsNotFeatured,
           message: `FeaturedProductsController, product is not featured`,
@@ -307,7 +307,7 @@ router.delete(
         product: featuredProduct,
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "FeaturedProductsController",
         error,

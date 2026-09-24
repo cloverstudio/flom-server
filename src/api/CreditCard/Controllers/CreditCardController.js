@@ -46,7 +46,7 @@ router.post("/country", auth({ allowUser: true }), async (request, response) => 
     let { binNumber } = request.body;
 
     if (!binNumber) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoCardNumber,
         type: Const.logTypeCreditCard,
@@ -54,7 +54,7 @@ router.post("/country", auth({ allowUser: true }), async (request, response) => 
       });
     }
     if (binNumber.length < 9) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeBuyCardNumberLength,
         type: Const.logTypeCreditCard,
@@ -67,7 +67,7 @@ router.post("/country", auth({ allowUser: true }), async (request, response) => 
 
     Base.successResponse(response, Const.responsecodeSucceed, { countryCode });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "CreditCardController, get credit card country code",
       error,

@@ -47,7 +47,7 @@ router.delete(
       const { supportTicketId } = request.query;
 
       if (!supportTicketId || !Utils.isValidObjectId(supportTicketId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeSupportTicketIdNotValid,
           message: "RemoveCommentController, id missing",
@@ -57,7 +57,7 @@ router.delete(
       const supportTicket = await SupportTicket.findById(supportTicketId).lean();
 
       if (!supportTicket) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeSupportTicketNotFound,
           message: "RemoveCommentController, support ticket not found",
@@ -65,7 +65,7 @@ router.delete(
       }
 
       if (supportTicket.type !== "content_comment") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidTypeParameter,
           message: "RemoveCommentController, wrong support ticket type",
@@ -82,7 +82,7 @@ router.delete(
         );
 
         if (!review) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeReviewNotFound,
             message: "RemoveCommentController, review not found",
@@ -96,7 +96,7 @@ router.delete(
         );
 
         if (!liveStream) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeLiveStreamNotFound,
             message: "RemoveCommentController, live stream not found",
@@ -106,7 +106,7 @@ router.delete(
 
       Base.successResponse(response, Const.responsecodeSucceed);
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "RemoveCommentController",
         error,

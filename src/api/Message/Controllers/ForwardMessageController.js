@@ -59,7 +59,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const messageId = request.body.messageId;
 
     if (!roomId || roomId == "") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeForwardMessageInvalidChatId,
         message: `ForwardMessageController, Invalid chatId`,
@@ -67,7 +67,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (!messageId || messageId == "") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeForwardMessageInvalidMessageId,
         message: `ForwardMessageController, Invalid messageId`,
@@ -76,7 +76,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     const message = await FlomMessage.findById(messageId).lean();
     if (!message) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeForwardMessageInvalidMessageId,
         message: `ForwardMessageController, Invalid messageId`,
@@ -97,7 +97,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed, { message: result });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "ForwardMessageController",
       error,

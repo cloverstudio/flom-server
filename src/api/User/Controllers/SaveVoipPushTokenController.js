@@ -40,7 +40,7 @@ const { updateUsersPushToken } = require("#logics");
 router.post("", auth({ allowUser: true }), async function (request, response) {
   try {
     if (!request.body.pushToken) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSavePushTokenWrongToken,
         message: "SaveVoipPushTokenController, no pushToken provided",
@@ -89,7 +89,7 @@ router.post("", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed, { user });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "SaveVoipPushTokenController",
       error,

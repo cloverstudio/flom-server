@@ -76,7 +76,7 @@ router.patch(
   async (request, response) => {
     try {
       if (request.headers["content-type"].indexOf("multipart") === -1) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInputNotMultipart,
           message: `EditEmojiSetController - input is not multipart form data`,
@@ -86,7 +86,7 @@ router.patch(
       const emojiSetId = request.params.id;
 
       if (!emojiSetId) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoEmojiSetId,
           message: "EditEmojiSetController - no emoji set id",
@@ -96,7 +96,7 @@ router.patch(
       var emojiSet = await EmojiSet.findOne({ _id: emojiSetId }).lean();
 
       if (!emojiSet) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNotValidEmojiSetId,
           message: "EditEmojiSetController - not valid emoji set id",
@@ -122,7 +122,7 @@ router.patch(
 
       if (isDeprecated && emojiSet.isDeprecated !== Boolean(Number(isDeprecated))) {
         if (Boolean(Number(isDeprecated)) === false && emojiSet.isDeprecated === true) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeCantRevertToNotDeprecated,
             message: `EditEmojiSetController - can not revert to not deprecated`,
@@ -135,7 +135,7 @@ router.patch(
 
       if (fileKeys.length) {
         if (!fileKeys.includes("image") || fileKeys.length !== 1) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeImageFileInputError,
             message: `EditEmojiSetController - problem with file input on emoji set creation`,
@@ -146,7 +146,7 @@ router.patch(
         const fileMimeType = image.type;
 
         if (fileMimeType.indexOf("image") === -1) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeOnlyImageFilesAllowed,
             message: `EditEmojiSetController - only image files allowed`,
@@ -155,7 +155,7 @@ router.patch(
 
         const { fileData, code } = await Utils.handleImageFile(image, "emojis", "webp");
         if (code === 123) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeExtensionNotAllowed,
             message: `EditEmojiSetController - image extension not allowed`,
@@ -187,7 +187,7 @@ router.patch(
         updatedEmojiSet: resultObject,
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "EditEmojiSetController",
         error,

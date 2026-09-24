@@ -87,7 +87,7 @@ router.get(
       const timestamp = +request.query.timestamp || 0;
 
       if (!emojiSetId) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoEmojiSetId,
           message: "GetEmojisController - no emoji set id",
@@ -174,7 +174,7 @@ router.get(
       }
 
       if (!emojiSet.length) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNotValidEmojiSetId,
           message: "EditEmojiSetController - not valid emoji set id",
@@ -219,7 +219,7 @@ router.get(
         hasNext,
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "GetEmojisController",
         error,

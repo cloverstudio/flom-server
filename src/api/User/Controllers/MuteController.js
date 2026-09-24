@@ -25,7 +25,7 @@ const { User } = require("#models");
 router.post("/", auth({ allowUser: true }), async function (request, response) {
   try {
     if (!request.body.action) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeMuteWrongParam,
         message: "MuteController, no action provided",
@@ -33,7 +33,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (!request.body.target) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeMuteWrongParam,
         message: "MuteController, no target provided",
@@ -50,7 +50,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     } else if (action == Const.muteActionMute) {
       currentMuteList = Array.from(new Set([...currentMuteList, ...target]));
     } else {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeMuteWrongParam,
         message: "MuteController, wrong action provided",
@@ -61,7 +61,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "MuteController",
       error,

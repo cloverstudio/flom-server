@@ -66,7 +66,7 @@ router.get("/list", auth({ allowUser: true }), async function (request, response
     const responseData = { bankAccounts: nigerianBankAccounts };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "UsersBankAccountsController, GET list",
       error,
@@ -126,7 +126,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const { bankId, accountNumber, title } = request.body;
 
     if (!bankId || !Utils.isValidObjectId(bankId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidBankId,
         message: "UsersBankAccountsController, POST - invalid bank id",
@@ -138,7 +138,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       typeof accountNumber !== "string" ||
       !isValidAccountNumber(accountNumber)
     ) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidAccountNumber,
         message: "UsersBankAccountsController, POST - invalid account number",
@@ -146,7 +146,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (!title || typeof title !== "string") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidAccountTitle,
         message: "UsersBankAccountsController, POST - invalid account title",
@@ -156,7 +156,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const bank = await Bank.findById(bankId).lean();
 
     if (!bank) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeBankDoesNotExist,
         message: "UsersBankAccountsController, POST - bank not found",
@@ -171,7 +171,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (accExists) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeBankAccountAlreadyExists,
         message: "UsersBankAccountsController, POST - account already exists",
@@ -179,7 +179,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (titleExists) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeAccountTitleAlreadyExists,
         message: "UsersBankAccountsController, POST - account title already exists",
@@ -194,7 +194,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     });
 
     if (errorCode) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeBankAccountValidationFailed,
         message: "UsersBankAccountsController, POST - account failed validation",
@@ -226,7 +226,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const responseData = { bankAccount };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "UsersBankAccountsController, POST",
       error,
@@ -281,7 +281,7 @@ router.patch("/:accountId", auth({ allowUser: true }), async function (request, 
     const { title } = request.body;
 
     if (!title || typeof title !== "string") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidAccountTitle,
         message: "UsersBankAccountsController, PATCH - invalid account title",
@@ -297,7 +297,7 @@ router.patch("/:accountId", auth({ allowUser: true }), async function (request, 
     }
 
     if (!account) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeBankAccountNotFound,
         message: "UsersBankAccountsController, PATCH - account not found",
@@ -305,7 +305,7 @@ router.patch("/:accountId", auth({ allowUser: true }), async function (request, 
     }
 
     if (titleExists) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeAccountTitleAlreadyExists,
         message: "UsersBankAccountsController, PATCH - account title already exists",
@@ -323,7 +323,7 @@ router.patch("/:accountId", auth({ allowUser: true }), async function (request, 
     const responseData = { bankAccount: account };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "UsersBankAccountsController, PATCH",
       error,
@@ -381,7 +381,7 @@ router.delete("/:accountId", auth({ allowUser: true }), async function (request,
     }
 
     if (!account) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeBankAccountNotFound,
         message: "UsersBankAccountsController, DELETE - account not found",
@@ -405,7 +405,7 @@ router.delete("/:accountId", auth({ allowUser: true }), async function (request,
     const responseData = { bankAccounts: updatedUser.nigerianBankAccounts };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "UsersBankAccountsController, DELETE",
       error,

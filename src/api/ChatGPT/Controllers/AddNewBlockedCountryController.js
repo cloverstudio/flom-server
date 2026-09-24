@@ -59,7 +59,7 @@ router.post(
       const countryCode = request.body.countryCode;
 
       if (countryCode === undefined) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoCountryCodeParameter,
           message: `AddNewBlockedCountryController - no countryCode parameter`,
@@ -67,7 +67,7 @@ router.post(
       }
 
       if (!countries[countryCode]) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidCountryCode,
           message: `AddNewBlockedCountryController - invalid countryCode parameter`,
@@ -84,7 +84,7 @@ router.post(
         blockedCountriesList: allBlockedCountries,
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "AddNewBlockedCountryController",
         error,

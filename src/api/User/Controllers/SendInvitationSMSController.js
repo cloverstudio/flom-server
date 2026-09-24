@@ -45,7 +45,7 @@ router.get("/", async (request, response) => {
       `<page><div>Kindly check your message for link to Download Flom. Thank you!</div></page>`,
     );
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "SendInvitationSMSController, get",
       error,
@@ -78,7 +78,7 @@ router.post("/", async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "SendInvitationSMSController, post",
       error,

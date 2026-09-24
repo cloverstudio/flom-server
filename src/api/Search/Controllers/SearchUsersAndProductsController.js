@@ -158,7 +158,7 @@ router.get("/", async (request, response) => {
     }
     /*
       if (!productType) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeProductNoType,
           message: `UserAndProductController, no product type`,
@@ -166,7 +166,7 @@ router.get("/", async (request, response) => {
       }
       
       if (Const.productTypes.indexOf(productType) === -1) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidTypeParameter,
           message: `UserAndProductController, wrong type parameter`,
@@ -174,14 +174,14 @@ router.get("/", async (request, response) => {
       }
       */
     if ((!lat && lat !== 0) || lat < -90 || lat > 90) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidLatParameter,
         message: `UserAndProductController, invalid lat parameter`,
       });
     }
     if ((!lon && lon !== 0) || lon < -180 || lon > 180) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidLonParameter,
         message: `UserAndProductController, invalid lon parameter`,
@@ -409,7 +409,7 @@ router.get("/", async (request, response) => {
       users,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "UserAndProductController",
       error,

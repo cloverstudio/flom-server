@@ -75,7 +75,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       sentGift: 1,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "AddFeedbackController, Error adding feedback",
       error,

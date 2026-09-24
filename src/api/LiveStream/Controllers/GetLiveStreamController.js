@@ -207,7 +207,7 @@ router.get("/list", auth({ allowUser: true }), async function (request, response
     const responseData = { liveStreams, paginationData };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetLiveStreamController, GET list",
       error,
@@ -428,7 +428,7 @@ router.get("/recommended", auth({ allowUser: true }), async function (request, r
     const responseData = { liveStreams, recommId: newRecommId };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetLiveStreamController, GET recommended",
       error,
@@ -597,7 +597,7 @@ router.get("/streamid/:streamId", auth({ allowUser: true }), async function (req
     ).lean();
 
     if (!liveStream || blocked.includes(liveStream.userId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeLiveStreamNotFound,
         message: "GetLiveStreamController, GET by streamid - live stream not found",
@@ -605,7 +605,7 @@ router.get("/streamid/:streamId", auth({ allowUser: true }), async function (req
     }
 
     if (!(await isUserAllowed({ liveStream, userId: user._id.toString() }))) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message: "GetLiveStreamController, GET by streamid - user not allowed",
@@ -628,7 +628,7 @@ router.get("/streamid/:streamId", auth({ allowUser: true }), async function (req
       logger.error("GetLiveStreamController, GET by streamid, recombee error: ", error);
     }
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetLiveStreamController, GET by streamid",
       error,
@@ -793,7 +793,7 @@ router.get("/:id", auth({ allowUser: true }), async function (request, response)
     const age = !user?.dateOfBirth ? 1 : Utils.yearsFromBirthDate(user.dateOfBirth);
 
     if (!Utils.isValidObjectId(id)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidLiveStreamId,
         message: `GetLiveStreamController, GET by id - invalid liveStreamId: ${id}`,
@@ -806,7 +806,7 @@ router.get("/:id", auth({ allowUser: true }), async function (request, response)
     ).lean();
 
     if (!liveStream || blocked.includes(liveStream.userId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeLiveStreamNotFound,
         message: "GetLiveStreamController, GET by id - live stream not found",
@@ -814,7 +814,7 @@ router.get("/:id", auth({ allowUser: true }), async function (request, response)
     }
 
     if (!(await isUserAllowed({ liveStream, userId: user._id.toString() }))) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message: "GetLiveStreamController, GET by id - user not allowed",
@@ -837,7 +837,7 @@ router.get("/:id", auth({ allowUser: true }), async function (request, response)
       logger.error("GetLiveStreamController, GET by id, recombee error: ", error);
     }
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetLiveStreamController, GET by id",
       error,

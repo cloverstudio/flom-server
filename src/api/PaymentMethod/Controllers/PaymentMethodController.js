@@ -74,7 +74,7 @@ router.get("/auctions", auth({ allowUser: true }), async function (request, resp
 
     Base.successResponse(response, Const.responsecodeSucceed, { auctionPaymentMethods });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "PaymentMethodController, get auction payment methods",
       error,
@@ -114,7 +114,7 @@ router.patch("/auctions/deselect", auth({ allowUser: true }), async function (re
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "PaymentMethodController, deselect auction payment method",
       error,
@@ -158,7 +158,7 @@ router.patch("/auctions", auth({ allowUser: true }), async function (request, re
   try {
     const { methodType } = request.body;
     if (!methodType || !Object.values(Const.auctionPaymentMethodType).includes(methodType)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidPaymentMethod,
         message: "invalid payment method type",
@@ -167,7 +167,7 @@ router.patch("/auctions", auth({ allowUser: true }), async function (request, re
     }
 
     if (request.user.auctionPaymentMethodLocked) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodePaymentMethodLockedForUser,
         message: "User's auction payment method is locked",
@@ -179,7 +179,7 @@ router.patch("/auctions", auth({ allowUser: true }), async function (request, re
         request.user.countryCode === "NG") ||
       (methodType === Const.auctionPaymentMethodType.TRANSFER && request.user.countryCode !== "NG")
     ) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodePaymentMethodNotAvailableForCountry,
         message: "Payment method type not available for user's country",
@@ -191,7 +191,7 @@ router.patch("/auctions", auth({ allowUser: true }), async function (request, re
       methodType === Const.auctionPaymentMethodType.CREDIT_CARD &&
       !request.user.paymentProfileId
     ) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodePaymentMethodNotFound,
         message: "User has no credit card added to payment profile",
@@ -202,7 +202,7 @@ router.patch("/auctions", auth({ allowUser: true }), async function (request, re
       methodType === Const.auctionPaymentMethodType.GLOBAL_BALANCE &&
       request.user.satsBalance <= 0
     ) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodePaymentMethodNotFound,
         message: "User has no global balance",
@@ -213,7 +213,7 @@ router.patch("/auctions", auth({ allowUser: true }), async function (request, re
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "PaymentMethodController, update auction payment method",
       error,
@@ -305,7 +305,7 @@ router.get("/", async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, { paymentMethods });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "PaymentMethodController",
       error,

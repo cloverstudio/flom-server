@@ -59,7 +59,7 @@ const { BalanceEmoji } = require("#models");
 router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (request, response) => {
   try {
     if (request.headers["content-type"].indexOf("multipart") === -1) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInputNotMultipart,
         message: `CreateBalanceEmojiController - input is not multipart form data`,
@@ -75,14 +75,14 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
     const limit = +fields.limit;
 
     if (fields.limit === undefined) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoLowerLimit,
         message: `CreateBalanceEmojiController - no limit`,
       });
     }
     if (!Number.isInteger(limit) || limit < 0 || isNaN(limit)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeLowerLimitNotANumber,
         message: `CreateBalanceEmojiController - limit is not a positive integer`,
@@ -92,7 +92,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
     const fileKeys = Object.keys(files);
 
     if (!fileKeys.includes("emoji") || fileKeys.length !== 1) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeImageFileInputError,
         message: `CreateBalanceEmojiController - something went wrong with emoji image file input`,
@@ -103,7 +103,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
     const fileMimeType = file.type;
 
     if (fileMimeType.indexOf("image") === -1) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeOnlyImageFilesAllowed,
         message: `CreateBalanceEmojiController - only image files allowed`,
@@ -112,7 +112,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
 
     const { fileData, code } = await Utils.handleImageFile(file, "balance-emojis");
     if (code === 123) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeExtensionNotAllowed,
         message: `CreateBalanceEmojiController - image extension not allowed`,
@@ -131,7 +131,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
       balanceEmoji: resultObject,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "CreateBalanceEmojiController",
       error,

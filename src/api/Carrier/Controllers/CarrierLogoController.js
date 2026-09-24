@@ -44,7 +44,7 @@ router.get("/:carrierName", async function (request, response) {
       return response.sendStatus(404);
     }
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "CarrierLogoController, Get carrier logo",
       error,

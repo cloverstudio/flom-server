@@ -137,7 +137,7 @@ router.get("/:roomId/:page", auth({ allowUser: true }), async function (request,
 
     if (chatType != Const.chatTypeBusiness) {
       if (!roomId || !Utils.isValidObjectId(roomId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeRoomDetailInvalidRoomId,
           message: "RoomUsersController, invalid room id",
@@ -145,7 +145,7 @@ router.get("/:roomId/:page", auth({ allowUser: true }), async function (request,
       }
       const room = await Room.findById(roomId).lean();
       if (!room) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoRoomFound,
           message: "RoomUsersController, room not found",
@@ -191,7 +191,7 @@ router.get("/:roomId/:page", auth({ allowUser: true }), async function (request,
 
     Base.successResponse(response, Const.responsecodeSucceed, { count: roomUsers.length, list });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "RoomUsersController",
       error,

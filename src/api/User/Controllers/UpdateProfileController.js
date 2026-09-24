@@ -336,7 +336,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         });
 
         if (!merchantCodeFound) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeNoMerchantCode,
             message: "UpdateProfileController, no merchant code",
@@ -361,7 +361,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         try {
           category = await Category.findOne({ _id: categoryBusinessId }).lean();
         } catch (error) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeCategoryNotFound,
             message: "UpdateProfileController, category not found 1",
@@ -369,7 +369,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         }
 
         if (!category) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeCategoryNotFound,
             message: "UpdateProfileController, category not found 2",
@@ -394,7 +394,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       const coordinates = location.split(",").map((c) => Number(c));
 
       if (coordinates.length !== 2) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeMerchantLocationWrongFormat,
           message: "UpdateProfileController, merchant location wrong format",
@@ -440,7 +440,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     if (userName && user.userName !== userName) {
       if (userName.length < 3) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUsernameTooShort,
           message: "UpdateProfileController, username too short",
@@ -455,7 +455,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         userName.startsWith("Deleted_") ||
         userName.startsWith("deleted_")
       ) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUsernameInvalidCharsUsed,
           message: "UpdateProfileController, username invalid chars used",
@@ -468,7 +468,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       }).lean();
 
       if (result) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUsernameNotAvailable,
           message: "UpdateProfileController, username not available",
@@ -484,7 +484,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         });
 
         if (invalidChars.length > 0) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeUsernameInvalidCharsUsed,
             message: "UpdateProfileController, username invalid chars used",
@@ -500,7 +500,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       lightningUserName = lightningUserName.toLowerCase();
 
       if (user.hasChangedLnUserName) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeLnUserNameAlreadyChangedOnce,
           message: "UpdateProfileController, LN username already changed once",
@@ -508,7 +508,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       }
 
       if (lightningUserName.length > 12) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeLnUserNameTooLong,
           message: "UpdateProfileController, LN username too long",
@@ -517,14 +517,14 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
       const regexTerminalCode = /[^0-9]/g;
       if (!lightningUserName.match(regexTerminalCode)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidLnUserName,
           message: "UpdateProfileController, invalid LN username",
         });
       }
       if (/[^a-z0-9\-_+.]/g.test(lightningUserName)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidLnUserName,
           message: "UpdateProfileController, invalid LN username",
@@ -537,7 +537,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         $or: [{ lightningUserName: lnRegex }, { userName: lnRegex }],
       }).lean();
       if (result) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeLnUserNameNotAvailable,
           message: "UpdateProfileController, LN username not available",
@@ -590,7 +590,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       const { data, err } = await Utils.sendRequest(options);
 
       if (err) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidStateCode,
           message: "UpdateProfileController, invalid state code",
@@ -605,7 +605,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       });
 
       if (!hasStateCode) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidStateCode,
           message: "UpdateProfileController, invalid state code",
@@ -622,7 +622,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       const { data, err } = await Utils.sendRequest(options);
 
       if (err) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidStateCodeOrZipCode,
           message: "UpdateProfileController, invalid state code or zip code",
@@ -632,7 +632,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       res = data;
 
       if (res.combined_use_rate === 0) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidStateCodeOrZipCode,
           message: "UpdateProfileController, invalid state code or zip code",
@@ -678,7 +678,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
           if (fileMimeType.indexOf("image") !== -1) {
             user.cover.banner = await handleImageFile(file);
           } else {
-            return Base.newErrorResponse({
+            return Base.errorResponse({
               response,
               code: Const.responsecodeFileTypeNotSupported,
               message: `UpdateProfileController, image, invalid file with mime type: ${fileMimeType}`,
@@ -697,7 +697,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
               user.cover.audio = await handleAudioFile(file);
             }
           } else {
-            return Base.newErrorResponse({
+            return Base.errorResponse({
               response,
               code: Const.responsecodeFileTypeNotSupported,
               message: `UpdateProfileController, audio, invalid file with mime type: ${fileMimeType}`,
@@ -708,7 +708,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
           if (fileMimeType.indexOf("video") !== -1) {
             user.cover.video = await handleVideoFile(file);
           } else {
-            return Base.newErrorResponse({
+            return Base.errorResponse({
               response,
               code: Const.responsecodeFileTypeNotSupported,
               message: `UpdateProfileController, video, invalid file with mime type: ${fileMimeType}`,
@@ -754,7 +754,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
         await fsp.rename(destPathTmp + ".png", destPathTmp);
       } else {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           message: "UpdateProfileController",
           error: new Error("Invalid file type for thumbnail"),
@@ -824,7 +824,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     if (slug && user.slug !== slug) {
       if (user.oldSlug) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeSlugAlreadyChanged,
           message: "UpdateProfileController, slug already changed",
@@ -833,7 +833,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
       const regex = /^[a-z0-9_-]+$/;
       if (slug.length < 3 || slug.length > 30 || !regex.test(slug)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeSlugInvalid,
           message: "UpdateProfileController, invalid slug",
@@ -841,7 +841,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       }
 
       if (await User.exists({ $or: [{ slug }, { oldSlug: slug }] })) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeSlugNotAvailable,
           message: "UpdateProfileController, slug not available",
@@ -860,7 +860,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, { user });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "UpdateProfileController",
       error,

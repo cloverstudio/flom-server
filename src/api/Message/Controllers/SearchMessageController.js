@@ -236,7 +236,7 @@ router.get("/:keyword/:page", auth({ allowUser: true }), async function (request
 
     return Base.successResponse(response, Const.responsecodeSucceed, { messages, count });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "SearchMessageController",
       error,

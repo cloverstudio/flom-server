@@ -70,7 +70,7 @@ router.post(
   async (request, response) => {
     try {
       if (request.headers["content-type"].indexOf("multipart") === -1) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInputNotMultipart,
           message: `CreateEmojiSetController - input is not multipart form data`,
@@ -89,7 +89,7 @@ router.post(
       console.log("fields ", fields);
 
       if (name === undefined) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoEmojiSetNameParameter,
           message: `CreateEmojiSetController - no emoji set name parameter`,
@@ -97,7 +97,7 @@ router.post(
       }
 
       if (isDefault === undefined) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoIsDefaultParameter,
           message: `CreateEmojiSetController - no isDefault emoji set parameter`,
@@ -107,7 +107,7 @@ router.post(
       const fileKeys = Object.keys(files);
 
       if (!fileKeys.includes("image") || fileKeys.length !== 1) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeImageFileInputError,
           message: `CreateEmojiSetController - problem with file input on emoji set creation`,
@@ -118,7 +118,7 @@ router.post(
       const fileMimeType = image.type;
 
       if (fileMimeType.indexOf("image") === -1) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeOnlyImageFilesAllowed,
           message: `CreateEmojiSetController - only image files allowed`,
@@ -127,7 +127,7 @@ router.post(
 
       const { fileData, code } = await Utils.handleImageFile(image, "emojis", "webp");
       if (code === 123) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeExtensionNotAllowed,
           message: `CreateEmojiSetController - image extension not allowed`,
@@ -149,7 +149,7 @@ router.post(
         emojiSet: resultObject,
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "CreateEmojiSetController",
         error,

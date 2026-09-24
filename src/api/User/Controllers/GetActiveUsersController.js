@@ -37,7 +37,7 @@ router.get("/total", async function (request, response) {
     const token = request.headers["access-token"];
 
     if (token !== Config.guestToken) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSigninInvalidToken,
         message: "GetActiveUsersTotalController, invalid token",
@@ -51,7 +51,7 @@ router.get("/total", async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, { activeUsersTotal });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetActiveUsersTotalController",
       error,
@@ -119,7 +119,7 @@ router.get("/", async function (request, response) {
     const token = request.headers["access-token"];
 
     if (token !== Config.guestToken) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSigninInvalidToken,
         message: "GetActiveUsersController, invalid token",
@@ -162,7 +162,7 @@ router.get("/", async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, { activeUsers, hasNext });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetActiveUsersController",
       error,

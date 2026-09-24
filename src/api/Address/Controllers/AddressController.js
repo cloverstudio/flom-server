@@ -60,7 +60,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
   try {
     let { address, countryCode } = request.query;
     if (!address) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoAddress,
         message: `AddressController, no address`,
@@ -70,7 +70,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       return Base.successResponse(response, Const.responsecodeSucceed, { suggestions: [] });
     }
     if (!countryCode) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNoCountryCode,
         message: `AddressController, no countryCode`,
@@ -164,7 +164,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, { suggestions });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "AddressController",
       error,

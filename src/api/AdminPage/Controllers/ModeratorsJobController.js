@@ -130,7 +130,7 @@ router.get("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (reque
 
     Base.successResponse(response, Const.responsecodeSucceed, { moderatorsJobs: jobsFormatted });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "ModeratorsJobController",
       error,

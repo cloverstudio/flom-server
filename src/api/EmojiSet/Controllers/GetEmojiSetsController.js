@@ -163,7 +163,7 @@ router.get(
 
       Base.successResponse(response, Const.responsecodeSucceed, { listOfEmojiSets });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "GetEmojiSetsController",
         error,

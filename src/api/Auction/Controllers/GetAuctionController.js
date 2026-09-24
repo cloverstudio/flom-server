@@ -64,7 +64,7 @@ router.get("/active-on-live-stream", auth({ allowUser: true }), async function (
     const { liveStreamId } = request.query;
 
     if (!liveStreamId || !Utils.isValidObjectId(liveStreamId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidLiveStreamId,
         message: `GetAuctionController, Get active auction for live stream, missing or invalid livestream id`,
@@ -73,7 +73,7 @@ router.get("/active-on-live-stream", auth({ allowUser: true }), async function (
 
     const liveStream = await LiveStream.findById(liveStreamId).lean();
     if (!liveStream) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeLiveStreamNotFound,
         message: `GetAuctionController, Get active auction for live stream, live stream not found`,
@@ -85,7 +85,7 @@ router.get("/active-on-live-stream", auth({ allowUser: true }), async function (
     const responseData = { activeAuction };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetAuctionController, Get active auction for live stream",
       error,
@@ -149,7 +149,7 @@ router.get("/:auctionId", auth({ allowUser: true }), async function (request, re
     const { auctionId } = request.params;
 
     if (!auctionId || !Utils.isValidObjectId(auctionId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidAuctionId,
         message: `GetAuctionController, Get auction, missing or invalid auctionId`,
@@ -158,7 +158,7 @@ router.get("/:auctionId", auth({ allowUser: true }), async function (request, re
 
     const auction = await Auction.findById(auctionId).lean();
     if (!auction) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeAuctionNotFound,
         message: `GetAuctionController, Get auction, auction not found`,
@@ -168,7 +168,7 @@ router.get("/:auctionId", auth({ allowUser: true }), async function (request, re
     const responseData = { auction };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetAuctionController, Get auction",
       error,

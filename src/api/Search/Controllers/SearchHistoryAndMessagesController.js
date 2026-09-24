@@ -251,7 +251,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       },
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "SearchHistoryAndMessagesController",
       error,

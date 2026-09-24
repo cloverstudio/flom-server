@@ -51,7 +51,7 @@ router.post("/", async (request, response) => {
       userIds === undefined ||
       userIds.length === 0
     ) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserIdsMustBeDefined,
         message: "UsersOnlineStatusController, no userIds provided",
@@ -63,7 +63,7 @@ router.post("/", async (request, response) => {
     }
 
     if (userIds.length === 0) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserIdsMustBeDefined,
         message: "UsersOnlineStatusController, userIds empty array",
@@ -74,7 +74,7 @@ router.post("/", async (request, response) => {
 
     return Base.successResponse(response, Const.responsecodeSucceed, onlineStatus);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "UsersOnlineStatusController",
       error,

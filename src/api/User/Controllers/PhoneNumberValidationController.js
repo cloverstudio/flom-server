@@ -56,7 +56,7 @@ router.post("/", async (request, response) => {
     let isWebClient = request.body.isWebClient || false;
 
     if (!phoneNumber) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoPhoneNumber,
         message: "PhoneNumberValidationController, no phoneNumber provided",
@@ -64,7 +64,7 @@ router.post("/", async (request, response) => {
     }
 
     if (!activationCode) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoActivationCode,
         message: "PhoneNumberValidationController, no activationCode provided",
@@ -72,7 +72,7 @@ router.post("/", async (request, response) => {
     }
 
     if (Const.flomAgentPhoneNumbers.includes(phoneNumber)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidPhoneNumber,
         type: Const.logTypeLogin,
@@ -83,7 +83,7 @@ router.post("/", async (request, response) => {
     let user = await User.findOne({ phoneNumber: phoneNumber }).lean();
 
     if (!user) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSigninUserNotFound,
         message: "PhoneNumberValidationController, user not found",
@@ -91,7 +91,7 @@ router.post("/", async (request, response) => {
     }
 
     if (user?.isDeleted.value) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserDeleted,
         message: "PhoneNumberValidationController, user deleted",
@@ -106,7 +106,7 @@ router.post("/", async (request, response) => {
         typeof activationCode,
       );
 
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSignupInvalidActivationCode,
         message: "PhoneNumberValidationController, invalid activation code",
@@ -266,7 +266,7 @@ router.post("/", async (request, response) => {
     // response.cookie("userId", user._id, Config.cookieConfig);
     return Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "PhoneNumberValidationController",
       error,

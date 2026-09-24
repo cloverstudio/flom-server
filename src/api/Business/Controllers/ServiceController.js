@@ -91,7 +91,7 @@ router.get("/:businessId/services", auth({ allowUser: true }), async function (r
     const { businessId } = request.params;
 
     if (!businessId || !Utils.isValidObjectId(businessId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidBusinessId,
         message: "ServiceController, get service list - invalid businessId",
@@ -106,7 +106,7 @@ router.get("/:businessId/services", auth({ allowUser: true }), async function (r
 
     Base.successResponse(response, Const.responsecodeSucceed, { services });
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "ServiceController, get service",
@@ -176,7 +176,7 @@ router.get("/services/suggested", auth({ allowUser: true }), async function (req
       .filter((id) => id.length > 0);
 
     if (tagIds.length === 0) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidTag,
         message: "ServiceController, get suggested services - invalid tagId",
@@ -225,7 +225,7 @@ router.get("/services/suggested", auth({ allowUser: true }), async function (req
 
     Base.successResponse(response, Const.responsecodeSucceed, { suggestedServices });
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "ServiceController, get suggested services",
@@ -316,7 +316,7 @@ router.get("/services/:serviceId", auth({ allowUser: true }), async function (re
     const { serviceId } = request.params;
 
     if (!serviceId || !Utils.isValidObjectId(serviceId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidServiceId,
         message: "ServiceController, get service - invalid serviceId",
@@ -326,7 +326,7 @@ router.get("/services/:serviceId", auth({ allowUser: true }), async function (re
     const service = await Product.findById(serviceId).lean();
 
     if (!service || service.isDeleted) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeServiceNotFound,
         message: "ServiceController, get service - service not found",
@@ -335,7 +335,7 @@ router.get("/services/:serviceId", auth({ allowUser: true }), async function (re
 
     Base.successResponse(response, Const.responsecodeSucceed, { service });
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "ServiceController, get service",
@@ -456,7 +456,7 @@ router.post(
       } = request.body;
 
       if (!businessId || !Utils.isValidObjectId(businessId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidBusinessId,
           message: "ServiceController, add service - invalid businessId",
@@ -466,7 +466,7 @@ router.post(
       const business = await Business.findById(businessId).lean();
 
       if (!business) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeBusinessNotFound,
           message: "ServiceController, add service - business not found",
@@ -480,7 +480,7 @@ router.post(
       });
 
       if (!allowed) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUserNotAllowed,
           message: "ServiceController, add service - user is not allowed to add a service",
@@ -504,7 +504,7 @@ router.post(
       };
 
       if (!name || typeof name !== "string" || name.length < 3 || name.length > 100) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidName,
           message: "ServiceController, add service - invalid name",
@@ -514,7 +514,7 @@ router.post(
 
       if (description) {
         if (typeof description !== "string") {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidDescription,
             message: "ServiceController, add service - invalid description",
@@ -525,7 +525,7 @@ router.post(
       }
 
       if (!place || !["seller", "customer", "both"].includes(place)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidPlace,
           message: "ServiceController, add service - invalid place",
@@ -535,28 +535,28 @@ router.post(
 
       if (op) {
         if (!op.countryCode || !countries[op.countryCode]) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidCountryCode,
             message: "ServiceController, add service - invalid originalPrice countryCode",
           });
         }
         if (!op.currency || !countries[op.countryCode].currency.includes(op.currency)) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidCurrency,
             message: "ServiceController, add service - invalid originalPrice currency",
           });
         }
         if (!op.value || typeof op.value !== "number" || op.value < 0) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidValueParameter,
             message: "ServiceController, add service - invalid originalPrice value",
           });
         }
         if (op.timeUnit && !["default", "hour", "day"].includes(op.timeUnit)) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidPriceTimeUnit,
             message: "ServiceController, add service - invalid originalPrice time unit",
@@ -588,7 +588,7 @@ router.post(
 
       Base.successResponse(response, Const.responsecodeSucceed, { service: service.toObject() });
     } catch (error) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.httpCodeServerError,
         message: "ServiceController, add service",
@@ -703,7 +703,7 @@ router.patch(
       const { name, description, originalPrice: op = null, businessId, place } = request.body;
 
       if (!serviceId || !Utils.isValidObjectId(serviceId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidServiceId,
           message: "ServiceController, update service - invalid serviceId",
@@ -713,7 +713,7 @@ router.patch(
       const service = await Product.findById(serviceId).lean();
 
       if (!service) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeServiceNotFound,
           message: "ServiceController, update service - service not found",
@@ -727,7 +727,7 @@ router.patch(
       });
 
       if (!allowed) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUserNotAllowed,
           message: "ServiceController, update service - user is not allowed to update the service",
@@ -743,7 +743,7 @@ router.patch(
 
       if (businessId) {
         if (!Utils.isValidObjectId(businessId)) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidBusinessId,
             message: "ServiceController, update service - invalid businessId",
@@ -753,7 +753,7 @@ router.patch(
         const business = await Business.findById(businessId).lean();
 
         if (!business) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeBusinessNotFound,
             message: "ServiceController, update service - business not found",
@@ -769,7 +769,7 @@ router.patch(
 
       if (name) {
         if (typeof name !== "string" || name.length < 3 || name.length > 100) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidName,
             message: "ServiceController, update service - invalid name",
@@ -781,7 +781,7 @@ router.patch(
 
       if (description) {
         if (typeof description !== "string") {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidDescription,
             message: "ServiceController, update service - invalid description",
@@ -793,7 +793,7 @@ router.patch(
 
       if (place) {
         if (!["seller", "customer", "both"].includes(place)) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidPlace,
             message: "ServiceController, update service - invalid place",
@@ -805,28 +805,28 @@ router.patch(
 
       if (op) {
         if (!op.countryCode || !countries[op.countryCode]) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidCountryCode,
             message: "ServiceController, update service - invalid originalPrice countryCode",
           });
         }
         if (!op.currency || !countries[op.countryCode].currency.includes(op.currency)) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidCurrency,
             message: "ServiceController, update service - invalid originalPrice currency",
           });
         }
         if (!op.value || typeof op.value !== "number" || op.value < 0) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidValueParameter,
             message: "ServiceController, update service - invalid originalPrice value",
           });
         }
         if (op.timeUnit && !["default", "hour", "day"].includes(op.timeUnit)) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidPriceTimeUnit,
             message: "ServiceController, update service - invalid originalPrice time unit",
@@ -851,7 +851,7 @@ router.patch(
 
       Base.successResponse(response, Const.responsecodeSucceed, { service: updatedService });
     } catch (error) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.httpCodeServerError,
         message: "ServiceController, update service",
@@ -898,7 +898,7 @@ router.delete(
       const { serviceId } = request.params;
 
       if (!serviceId || !Utils.isValidObjectId(serviceId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidServiceId,
           message: "ServiceController, delete service - invalid serviceId",
@@ -908,7 +908,7 @@ router.delete(
       const service = await Product.findById(serviceId).lean();
 
       if (!service) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeServiceNotFound,
           message: "ServiceController, delete service - service not found",
@@ -922,7 +922,7 @@ router.delete(
       });
 
       if (!allowed) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUserNotAllowed,
           message: "ServiceController, delete service - user is not allowed to delete the service",
@@ -933,7 +933,7 @@ router.delete(
 
       Base.successResponse(response, Const.responsecodeSucceed, {});
     } catch (error) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.httpCodeServerError,
         message: "ServiceController, delete service",

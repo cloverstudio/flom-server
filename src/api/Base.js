@@ -36,7 +36,7 @@ function successResponse(response, code, data) {
   }
 }
 
-function newErrorResponse({ response, code, type, message, error, data, param, param2 }) {
+function errorResponse({ response, code, type, message, error, data, param, param2 }) {
   const request = response.req;
   const deviceType = request.headers["device-type"];
 
@@ -121,5 +121,5 @@ async function createUnexpectedError({ message, reference, error, request }) {
 
 module.exports = {
   successResponse,
-  newErrorResponse,
+  errorResponse,
 };

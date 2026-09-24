@@ -128,7 +128,7 @@ router.get("/:groupId/:page", auth({ allowUser: true }), async function (request
     const page = request.params.page - 1;
 
     if (!groupId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeGroupDetailInvalidGroupId,
         message: "GroupUsersController, missing group id",
@@ -138,7 +138,7 @@ router.get("/:groupId/:page", auth({ allowUser: true }), async function (request
     const groupFindResult = await Group.findById(groupId).lean();
 
     if (!groupFindResult) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeGroupDetailInvalidGroupId,
         message: "GroupUsersController, invalid group id",
@@ -169,7 +169,7 @@ router.get("/:groupId/:page", auth({ allowUser: true }), async function (request
       list: result.list,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GroupUsersController",
       error,

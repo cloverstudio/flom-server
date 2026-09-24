@@ -47,14 +47,14 @@ router.patch(
       const { internationalUser } = request.body;
       const userId = request.params.userId;
       if (!userId) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoUserId,
           message: `SetInternationalUserFlagController, no userId parameter`,
         });
       }
       if (internationalUser !== true && internationalUser !== false) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidInternationalUserParameter,
           message: `SetInternationalUserFlagController, invalid internationalUser parameter`,
@@ -62,7 +62,7 @@ router.patch(
       }
 
       if (!Utils.isValidObjectId(userId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidUserId,
           message: `SetInternationalUserFlagController, invalid userId parameter`,
@@ -71,7 +71,7 @@ router.patch(
 
       const user = await User.findOne({ _id: userId });
       if (!user) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUserNotFound,
           message: `SetInternationalUserFlagController, user with id ${userId} not found`,
@@ -83,7 +83,7 @@ router.patch(
 
       Base.successResponse(response, Const.responsecodeSucceed);
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "SetInternationalUserFlagController",
         error,

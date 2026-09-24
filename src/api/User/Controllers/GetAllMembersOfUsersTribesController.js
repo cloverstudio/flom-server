@@ -451,7 +451,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetAllMembersOfUsersTribesController",
       error,

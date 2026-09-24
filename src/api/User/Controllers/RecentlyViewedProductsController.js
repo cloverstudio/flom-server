@@ -195,7 +195,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, { products });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "RecentlyViewedProductsController, get",
       error,
@@ -243,14 +243,14 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const { user } = request;
 
     if (!productId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoProductId,
         message: "RecentlyViewedProductsController, add, no productId provided",
       });
     }
     if (!Utils.isValidObjectId(productId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductWrongProductIdFormat,
         message: "RecentlyViewedProductsController, add, wrong productId format",
@@ -261,7 +261,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       { _id: 1 },
     ).lean();
     if (!product) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductNotFound,
         message: "RecentlyViewedProductsController, add, product not found",
@@ -286,7 +286,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, { productAdded: true });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "RecentlyViewedProductsController, add",
       error,

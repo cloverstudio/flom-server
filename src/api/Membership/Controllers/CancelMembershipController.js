@@ -59,7 +59,7 @@ router.post("/:membershipId", auth({ allowUser: true }), async function (request
     const { membershipId } = request.params;
 
     if (!Utils.isValidObjectId(membershipId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidMembershipId,
         message: `CancelMembershipController, invalid membershipId`,
@@ -71,7 +71,7 @@ router.post("/:membershipId", auth({ allowUser: true }), async function (request
       { _id: 1, name: 1, creatorId: 1, recurringPaymentType: 1 },
     ).lean();
     if (!membership) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeMembershipNotFound,
         message: `CancelMembershipController, membership with ${membershipId} not found`,
@@ -88,7 +88,7 @@ router.post("/:membershipId", auth({ allowUser: true }), async function (request
       (membership) => membership.id === membershipId && membership.expirationDate === -1,
     );
     if (index === -1) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotMember,
         message: `CancelMembershipController, user not member of the membership with ${membershipId} id`,
@@ -102,7 +102,7 @@ router.post("/:membershipId", auth({ allowUser: true }), async function (request
       $or: [{ "membership.currentId": membershipId }, { "membership.newId": membershipId }],
     }).lean();
     if (!recurringPayment) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoActiveRecurringPayment,
         message: `CancelMembershipController, no active recurring payment`,
@@ -120,7 +120,7 @@ router.post("/:membershipId", auth({ allowUser: true }), async function (request
     });
 
     if (err) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeCallPaymentServiceError,
         message: "CancelMembershipController, call payment service API",
@@ -131,7 +131,7 @@ router.post("/:membershipId", auth({ allowUser: true }), async function (request
     const data = apiResponse;
 
     if (data?.code !== 1) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: data.code,
         message: data.message || `CancelMembershipController, cancel membership recurring payment`,
@@ -182,7 +182,7 @@ router.post("/:membershipId", auth({ allowUser: true }), async function (request
       completed: true,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "CancelMembershipController",
       error,

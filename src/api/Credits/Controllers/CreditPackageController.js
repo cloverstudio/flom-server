@@ -62,7 +62,7 @@ router.get("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (reque
       creditPackages: creditPackagesWithPricesForWeb,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "CreditPackageController, GET",
       error,
@@ -120,7 +120,7 @@ router.patch(
       const { values } = request.body;
 
       if (!packageId) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoPackageId,
           message: "CreditPackageController, PATCH - no id parameter",
@@ -139,7 +139,7 @@ router.patch(
         creditPackage: updatedPackage.toObject(),
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "CreditPackageController, PATCH",
         error,
@@ -247,7 +247,7 @@ router.get("/packages", auth({ allowUser: true, allowAdmin: true }), async (requ
       creditPackages: creditPackegesWithPricesForWeb,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "CreditPackageController, GET packages for web",
       error,

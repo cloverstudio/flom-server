@@ -54,7 +54,7 @@ router.post("/verify", async (request, response) => {
     if (token) {
       user = await AdminPageUser.findOne({ "emailVerification.token": token });
       if (!user) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUserNotFound,
           type: Const.logTypeAdminPage,
@@ -66,7 +66,7 @@ router.post("/verify", async (request, response) => {
 
       const { code: errorCode, message } = validateAndGetUserResult;
       if (errorCode) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: errorCode,
           type: Const.logTypeAdminPage,
@@ -76,7 +76,7 @@ router.post("/verify", async (request, response) => {
       user = validateAndGetUserResult.user;
 
       if (!code) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoCode,
           type: Const.logTypeAdminPage,
@@ -94,7 +94,7 @@ router.post("/verify", async (request, response) => {
       (token && token !== user.emailVerification.token) ||
       Date.now() - user.emailVerification.emailOut > Config.expireTimeForEmail
     ) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidCode,
         type: Const.logTypeAdminPage,
@@ -110,7 +110,7 @@ router.post("/verify", async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "EmailVerificationController - verify code",
       type: Const.logTypeAdminPage,
@@ -159,7 +159,7 @@ router.post("/resend", async (request, response) => {
 
     const { code, message, user } = await validateAndGetUser(userId);
     if (code) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code,
         type: Const.logTypeAdminPage,
@@ -184,7 +184,7 @@ router.post("/resend", async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "EmailVerificationController - resend",
       type: Const.logTypeAdminPage,

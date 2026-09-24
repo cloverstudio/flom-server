@@ -80,7 +80,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
 
     for (const key in vars) {
       if (request.body[key] !== undefined && typeof request.body[key] !== vars[key]) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidCountryCode,
           message: `CustomerActivationController, POST - invalid parameter: ${key}`,
@@ -96,7 +96,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
 
     Base.successResponse(response, Const.responsecodeSucceed, { updatedValues });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "CustomerActivationController, POST",
       error,
@@ -168,7 +168,7 @@ router.get("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (reque
 
     Base.successResponse(response, Const.responsecodeSucceed, { customerActivationData });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "CustomerActivationController, GET",
       error,
@@ -212,7 +212,7 @@ router.get(
 
       Base.successResponse(response, Const.responsecodeSucceed);
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "CustomerActivationController, reset total",
         error,

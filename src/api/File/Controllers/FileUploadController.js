@@ -27,7 +27,7 @@ router.post("", async function (request, response) {
     form.multiples = true;
 
     if (!fs.existsSync(Config.uploadPath)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeMessageFileUploadFailed,
         message: "FileUploadController, upload dir doesnt exist",
@@ -40,7 +40,7 @@ router.post("", async function (request, response) {
     });
 
     if (Object.keys(files).length === 0) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeMessageFileUploadFailed,
         message: "FileUploadController, no file uploaded",
@@ -50,7 +50,7 @@ router.post("", async function (request, response) {
     const file = files[Object.keys(files)[0]];
 
     if (!file) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeMessageFileUploadFailed,
         message: "FileUploadController, file not found after parsing",
@@ -134,7 +134,7 @@ router.post("", async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed, responseJson);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "FileUploadController, Error uploading file",
       error,

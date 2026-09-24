@@ -56,7 +56,7 @@ router.get("/", async function (request, response) {
       tags: listOfTagsForResponse,
     });
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       message: "GetTagsController",
       error,

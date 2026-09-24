@@ -221,7 +221,7 @@ router.get("/:userId", async function (request, response) {
   try {
     const { userId } = request.params;
     if (!userId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserDetailInvalidUserId,
         message: "UserDetailController, no userId provided",
@@ -229,7 +229,7 @@ router.get("/:userId", async function (request, response) {
     }
 
     if (!Utils.isValidObjectId(userId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserDetailInvalidUserId,
         message: "UserDetailController, invalid userId",
@@ -250,14 +250,14 @@ router.get("/:userId", async function (request, response) {
       }*/
 
     if (!user) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotFound,
         message: "UserDetailController, user not found",
       });
     }
     if (user?.isDeleted.value) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserDeleted,
         message: "UserDetailController, user is deleted",
@@ -429,7 +429,7 @@ router.get("/:userId", async function (request, response) {
       groupCallBaseUrl: Config.groupCallBaseUrl,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "UserDetailController",
       error,

@@ -36,7 +36,7 @@ router.get("/", async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed, { oneTimeToken });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "PresendController",
       error,

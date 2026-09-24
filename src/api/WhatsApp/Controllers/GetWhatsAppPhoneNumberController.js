@@ -61,7 +61,7 @@ router.get("/", async function (request, response) {
         "isDeleted.value": false,
       });
       if (businessUser) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeBusinessNumberAlreadyExists,
           message: `GetWhatsAppPhoneNumber, ${businessPhoneNumber} is existing business phone number, cannot register as business number`,
@@ -73,7 +73,7 @@ router.get("/", async function (request, response) {
         hasLoggedIn: { $ne: Const.userShadowUser },
       }).lean();
       if (existingUser) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeBusinessNumberIsUserNumber,
           message: `GetWhatsAppPhoneNumber, ${businessPhoneNumber} is existing user's phone number, cannot register as business number`,
@@ -83,7 +83,7 @@ router.get("/", async function (request, response) {
       const token = request.headers["access-token"];
 
       if (!token) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeSigninInvalidToken,
           message: "GetWhatsAppPhoneNumber, invalid token",
@@ -93,7 +93,7 @@ router.get("/", async function (request, response) {
       const user = await User.findOne({ "token.token": token }).lean();
 
       if (!user) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUserNotFound,
           message: "GetWhatsAppPhoneNumber, user not found",
@@ -101,7 +101,7 @@ router.get("/", async function (request, response) {
       }
 
       if (user.whatsApp?.businessConnected) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeBusinessNumberAlreadyConnected,
           message: "GetWhatsAppPhoneNumber, business already connected for this user",
@@ -117,7 +117,7 @@ router.get("/", async function (request, response) {
       phoneNumber: Config.whatsAppPhoneNumber || "",
     });
   } catch (error) {
-    return Base.newErrorResponse({ response, message: "GetWhatsAppPhoneNumber", error });
+    return Base.errorResponse({ response, message: "GetWhatsAppPhoneNumber", error });
   }
 });
 

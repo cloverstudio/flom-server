@@ -38,7 +38,7 @@ router.delete("/:auctionId", auth({ allowUser: true }), async function (request,
     const { auctionId } = request.params;
 
     if (!auctionId || !Utils.isValidObjectId(auctionId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidAuctionId,
         message: `DeleteAuctionController, missing or invalid auctionId`,
@@ -50,7 +50,7 @@ router.delete("/:auctionId", auth({ allowUser: true }), async function (request,
     const responseData = {};
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "DeleteAuctionController",
       error,

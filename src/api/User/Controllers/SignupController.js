@@ -41,7 +41,7 @@ router.post("/sendSms", async (request, response) => {
     const activationCode = `${Utils.generateRandomNumber(6)}`;
 
     if (!organizationId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSignupNoOrganizationId,
         message: "SignupController sendSms, no organizationId provided",
@@ -51,7 +51,7 @@ router.post("/sendSms", async (request, response) => {
     const organization = await Organization.findOne({ organizationId: organizationId }).lean();
 
     if (!organization) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSigninWrongOrganizationId,
         message: "SignupController sendSms, organization not found",
@@ -64,7 +64,7 @@ router.post("/sendSms", async (request, response) => {
     }).lean();
 
     if (user && user.isDeleted.value) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserDeleted,
         message: "SignupController sendSms, user is deleted",
@@ -107,7 +107,7 @@ router.post("/sendSms", async (request, response) => {
       );
     }
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "SignupController sendSms",
       error,
@@ -140,7 +140,7 @@ router.post("/verifyFlomAgent", async (request, response) => {
     const userId = request.body.userId;
 
     if (!flomSupportAgentId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoFlomAgentId,
         message: "SignupController verifyFlomAgent, no flomSupportAgentId provided",
@@ -148,7 +148,7 @@ router.post("/verifyFlomAgent", async (request, response) => {
     }
 
     if (!userId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoUserId,
         message: "SignupController verifyFlomAgent, no userId provided",
@@ -158,7 +158,7 @@ router.post("/verifyFlomAgent", async (request, response) => {
     const users = await User.find({ _id: { $in: [flomSupportAgentId, userId] } }).lean();
 
     if (users.length !== 2) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeFlomAgentNotVerified,
         message: "SignupController verifyFlomAgent, flom agent not verified",
@@ -188,7 +188,7 @@ router.post("/verifyFlomAgent", async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed, { verified });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "SignupController, verifyFlomAgent",
       error,
@@ -255,14 +255,14 @@ router.post("/verify", async (request, response) => {
     const user = await User.findOne(query);
 
     if (!user) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSignupInvalidActivationCode,
         message: "SignupController verify, invalid activation code",
       });
     }
     if (user.isDeleted.value) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserDeleted,
         message: "SignupController verify, user is deleted",
@@ -273,7 +273,7 @@ router.post("/verify", async (request, response) => {
     const UUIDSaved = uuidAry.find((uuidObj) => uuidObj.UUID === UUID);
 
     if (!isWeb && UUIDSaved && UUIDSaved.blocked) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeDeviceRejected,
         message: "SignupController verify, device rejected",
@@ -289,7 +289,7 @@ router.post("/verify", async (request, response) => {
       const lastLoginedDevice = sortedUUIDs[0];
 
       if (!isWeb && UUID && lastLoginedDevice && lastLoginedDevice.UUID !== UUID) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUserBlocked,
           message: "SignupController verify, user blocked",
@@ -398,7 +398,7 @@ router.post("/verify", async (request, response) => {
       organization,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "SignupController, verify",
       error,
@@ -466,14 +466,14 @@ router.post("/finish", auth({ allowUser: true }), async (request, response) => {
     const secret = fields.secret;
 
     if (!name) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSignupInvalidUserName,
         message: "SignupController finish, invalid user name",
       });
     }
     if (!password) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSignupInvalidPassword,
         message: "SignupController finish, invalid password",
@@ -499,7 +499,7 @@ router.post("/finish", auth({ allowUser: true }), async (request, response) => {
         secret === Config.signinBackDoorSecret
       )
     ) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSigninWrongSecret,
         message: "SignupController finish, wrong secret",
@@ -576,7 +576,7 @@ router.post("/finish", auth({ allowUser: true }), async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed, { user: user.toObject() });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "SignupController, finish",
       error,

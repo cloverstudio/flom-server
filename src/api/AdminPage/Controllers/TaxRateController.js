@@ -96,7 +96,7 @@ router.get(
         taxRate: taxRate ?? {},
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "TaxRateController, GET",
         error,
@@ -227,7 +227,7 @@ router.get("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (reque
 
     Base.successResponse(response, Const.responsecodeSucceed, { taxRates });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "TaxRateController, GET LIST",
       error,
@@ -284,7 +284,7 @@ router.patch(
       const user = request.user;
 
       if (!countries[countryCode]) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidCountryCode,
           message: `TaxRateController, PATCH REMOVE - invalid countryCode parameter`,
@@ -292,7 +292,7 @@ router.patch(
       }
 
       if (countryCode === "CA" && !stateCode) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeMissingParameter,
           message: `TaxRateController, PATCH REMOVE - no stateCode parameter`,
@@ -305,7 +305,7 @@ router.patch(
 
       const exists = await TaxRate.findOne(query).lean();
       if (!exists) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeTaxRateDoesNotExist,
           message: `TaxRateController, PATCH REMOVE - tax rate with given country code does not exist`,
@@ -331,7 +331,7 @@ router.patch(
         updatedTaxRates: await getAllRates(),
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "TaxRateController, PATCH REMOVE",
         error,
@@ -399,7 +399,7 @@ router.patch(
       const user = request.user;
 
       if (!countries[countryCode]) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidCountryCode,
           message: `TaxRateController, PATCH - invalid countryCode parameter`,
@@ -407,7 +407,7 @@ router.patch(
       }
 
       if (countryCode === "CA" && !stateCode) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeMissingParameter,
           message: `TaxRateController, PATCH - no stateCode parameter`,
@@ -416,7 +416,7 @@ router.patch(
       }
 
       if (!rate) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeMissingParameter,
           message: `TaxRateController, PATCH - no rate parameter`,
@@ -425,7 +425,7 @@ router.patch(
       }
 
       if (typeof rate !== "number" || rate > 1 || rate < 0) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidParameter,
           message: `TaxRateController, PATCH - invalid rate parameter`,
@@ -439,7 +439,7 @@ router.patch(
       const exists = await TaxRate.findOne(query).lean();
 
       if (!exists) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeTaxRateDoesNotExist,
           message: `TaxRateController, PATCH - tax rate does not exist`,
@@ -464,7 +464,7 @@ router.patch(
         updatedTaxRates: await getAllRates(),
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "TaxRateController, PATCH",
         error,

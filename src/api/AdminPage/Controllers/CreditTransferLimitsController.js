@@ -58,7 +58,7 @@ router.get(
         creditTransferLimit: creditTransferLimit ?? {},
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "CreditTransferLimitsController, GET",
         error,
@@ -142,7 +142,7 @@ router.get("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (reque
       creditTransferLimits: creditTransferLimits ?? [],
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "CreditTransferLimitsController, GET",
       error,
@@ -207,7 +207,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
     const params = checkParams(request.body);
 
     if (params.errorCode) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: params.errorCode,
         message: `CreditTransferLimitsController, POST - ${params.errorMessage}`,
@@ -219,7 +219,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
       countryCode: params.countryCode,
     }).lean();
     if (alreadyExists) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeCreditTransferLimitAlreadyExists,
         message: `CreditTransferLimitsController, POST - credit transfer limit with given country code already exists`,
@@ -232,7 +232,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
       creditTransferLimit: creditTransferLimit.toObject(),
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "CreditTransferLimitsController, POST",
       error,
@@ -300,7 +300,7 @@ router.patch(
       );
 
       if (params.errorCode) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: params.errorCode,
           message: `CreditTransferLimitsController, PATCH - ${params.errorMessage}`,
@@ -311,7 +311,7 @@ router.patch(
       const exists = await CreditTransferLimit.findOne({ countryCode }).lean();
 
       if (!exists) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeCreditTransferLimitDoesNotExist,
           message: `CreditTransferLimitsController, PATCH - credit transfer limit with given country code does not exist`,
@@ -338,7 +338,7 @@ router.patch(
         updatedCreditTransferLimit,
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "CreditTransferLimitsController, PATCH",
         error,
@@ -392,7 +392,7 @@ router.delete(
 
       const exists = await CreditTransferLimit.findOne({ countryCode }).lean();
       if (!exists) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeCreditTransferLimitDoesNotExist,
           message: `CreditTransferLimitsController, DELETE - credit transfer limit with given country code does not exist`,
@@ -415,7 +415,7 @@ router.delete(
         deletedCreditTransferLimit: deletedCreditTransferLimit.toObject(),
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "CreditTransferLimitsController, DELETE",
         error,

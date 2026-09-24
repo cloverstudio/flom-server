@@ -25,7 +25,7 @@ router.get("/", async function (request, response) {
 
     return;
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "WhatsAppCallbackController, cb verify",
       error,

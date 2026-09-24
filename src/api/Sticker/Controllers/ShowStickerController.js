@@ -15,7 +15,7 @@ const fs = require("fs");
 
 router.get("/", function (request, response) {
   if (!request.headers("Referer")) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       message: "ShowStickerController, no sticker, no referer header present",
       error: new Error("No referer header present"),
@@ -29,7 +29,7 @@ router.get("/", function (request, response) {
 
 router.get("/:fileID", function (request, response) {
   if (!request.headers("Referer")) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       message: "ShowStickerController, fileId, no referer header present",
       error: new Error("No referer header present"),

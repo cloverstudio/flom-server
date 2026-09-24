@@ -111,7 +111,7 @@ router.post("/", async function (request, response) {
     const skip = page > 0 ? (page - 1) * Const.pagingRows : 0;
 
     if (!ownerId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductNoOwnerId,
         message: "SearchMerchantProductsController, no owner id provided",
@@ -132,7 +132,7 @@ router.post("/", async function (request, response) {
     }
 
     if (!ownerFromDb) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotFound,
         message: "SearchMerchantProductsController, user not found",
@@ -140,7 +140,7 @@ router.post("/", async function (request, response) {
     }
 
     if (ownerFromDb.isDeleted.value) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserDeleted,
         message: "SearchMerchantProductsController, user deleted",
@@ -160,7 +160,7 @@ router.post("/", async function (request, response) {
       if (accessToken) {
         const user = await User.findOne({ "token.token": accessToken }).lean();
         if (!user) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeSigninInvalidToken,
             message: "SearchMerchantProductsController, invalid token",
@@ -264,7 +264,7 @@ router.post("/", async function (request, response) {
       if (accessToken) {
         const user = await User.findOne({ "token.token": accessToken }).lean();
         if (!user) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeSigninInvalidToken,
             message: "SearchMerchantProductsController, invalid token",
@@ -438,7 +438,7 @@ router.post("/", async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "SearchMerchantProductsController",
       error,

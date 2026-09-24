@@ -44,7 +44,7 @@ router.patch("/update-email", auth({ allowUser: true }), async (request, respons
 
     const alreadyExists = await User.findOne({ email: emailAddress }).lean();
     if (alreadyExists) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeEmailAlreadyExists,
         message: `UserEmailController, update email - email address already taken`,
@@ -60,7 +60,7 @@ router.patch("/update-email", auth({ allowUser: true }), async (request, respons
 
     Base.successResponse(response, Const.responsecodeSucceed, { success });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "UserEmailController, update email",
       error,
@@ -100,7 +100,7 @@ router.get("/email-code", auth({ allowUser: true }), async (request, response) =
 
     const alreadyExists = await User.find({ email: user.email }).lean();
     if (alreadyExists.length > 1) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeEmailAlreadyExists,
         message: `UserEmailController, send code - user with same email address exists`,
@@ -124,7 +124,7 @@ router.get("/email-code", auth({ allowUser: true }), async (request, response) =
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "UserEmailController, send code",
       error,
@@ -167,7 +167,7 @@ router.get("/verify-email", auth({ allowUser: true }), async (request, response)
     const code = request.query.code;
 
     if (user.emailActivation.timestamp < Date.now - 1000 * 60 * 60 * 24) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeActivationCodeExpired,
         message: `UserEmailController, verify email - code expired`,
@@ -175,7 +175,7 @@ router.get("/verify-email", auth({ allowUser: true }), async (request, response)
     }
 
     if (user.emailActivation.code !== code) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeActivationCodeInvalid,
         message: `UserEmailController, verify email - invalid code`,
@@ -186,7 +186,7 @@ router.get("/verify-email", auth({ allowUser: true }), async (request, response)
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "UserEmailController, verify email",
       error,

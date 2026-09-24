@@ -131,7 +131,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       request.user.typeAcc !== Const.userTypeMerchant &&
       request.user.flow.typeAcc !== Const.userTypeMerchant
     ) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeMerchantNotFound,
         message: "ListMerchantProductController, user is not a merchant",
@@ -277,7 +277,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     //console.log(dataToSend);
     Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "ListMerchantProductController",
       error,

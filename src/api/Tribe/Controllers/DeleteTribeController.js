@@ -43,7 +43,7 @@ router.delete("/:tribeId", auth({ allowUser: true }), async (request, response) 
   try {
     const tribeId = request.params.tribeId;
     if (!Utils.isValidObjectId(tribeId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeTribeBadId,
         message: `DeleteTribeController, bad tribe id`,
@@ -52,7 +52,7 @@ router.delete("/:tribeId", auth({ allowUser: true }), async (request, response) 
 
     const tribe = await Tribe.findById(tribeId);
     if (!tribe) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeTribeNotFound,
         message: `DeleteTribeController, no tribe found`,
@@ -60,7 +60,7 @@ router.delete("/:tribeId", auth({ allowUser: true }), async (request, response) 
     }
 
     if (tribe.ownerId !== request.user._id.toString()) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeTribeOwnerOnlyDelete,
         message: `DeleteTribeController, only owner can delete tribe`,
@@ -78,7 +78,7 @@ router.delete("/:tribeId", auth({ allowUser: true }), async (request, response) 
 
     Base.successResponse(response, Const.responsecodeSucceed, { deleted: true });
   } catch (error) {
-    Base.newErrorResponse({ response, message: "DeleteTribeController", error });
+    Base.errorResponse({ response, message: "DeleteTribeController", error });
   }
 });
 

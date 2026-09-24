@@ -91,7 +91,7 @@ router.get("/:liveStreamId/viewers", auth({ allowUser: true }), async function (
     const size = !s ? Const.newPagingRows : +s;
 
     if (!Utils.isValidObjectId(liveStreamId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidObjectId,
         message: `GetLiveStreamViewersController, invalid liveStreamId: ${liveStreamId}`,
@@ -101,7 +101,7 @@ router.get("/:liveStreamId/viewers", auth({ allowUser: true }), async function (
     const liveStream = await LiveStream.findById(liveStreamId, { comments: 0 }).lean();
 
     if (!liveStream) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeLiveStreamNotFound,
         message: "GetLiveStreamViewersController, live stream not found",
@@ -109,7 +109,7 @@ router.get("/:liveStreamId/viewers", auth({ allowUser: true }), async function (
     }
 
     if (!(await isUserAllowed({ liveStream, userId: user._id.toString() }))) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message: "GetLiveStreamViewersController, user not allowed",
@@ -134,7 +134,7 @@ router.get("/:liveStreamId/viewers", auth({ allowUser: true }), async function (
     const responseData = { viewers: paginatedViewers, paginationData };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetLiveStreamViewersController",
       error,

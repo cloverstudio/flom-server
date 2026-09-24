@@ -98,7 +98,7 @@ router.get(
         for (let i = 0; i < requestTypesArray.length; i++) {
           const type = +requestTypesArray[i];
           if (Const.productTypes.indexOf(type) === -1) {
-            return Base.newErrorResponse({
+            return Base.errorResponse({
               response,
               code: Const.responsecodeInvalidTypeParameter,
               message: `FeaturedUserProductsController - list, invalid type parameter`,
@@ -158,7 +158,7 @@ router.get(
 
       Base.successResponse(response, Const.responsecodeSucceed, { featuredUsers });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "FeaturedUserProductsController - list",
         error,
@@ -239,14 +239,14 @@ router.patch("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (req
     let productType = +request.body.productType;
 
     if (!userId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoUserId,
         message: `FeaturedUserProductsController - update, no userId parameter`,
       });
     }
     if (!Utils.isValidObjectId(userId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidUserId,
         message: `FeaturedUserProductsController - update, invalid userId parameter`,
@@ -254,7 +254,7 @@ router.patch("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (req
     }
 
     /*if (countryCode === undefined) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeNoCountryCodeParameter,
             message: `FeaturedUserProductsController - no countryCode parameter`,
@@ -262,7 +262,7 @@ router.patch("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (req
         }
 
         if (!countries[countryCode] && countryCode !== "default") {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidCountryCode,
             message: `FeaturedUserProductsController - invalid countryCode parameter`,
@@ -271,7 +271,7 @@ router.patch("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (req
 
     const user = await User.findOne({ _id: userId });
     if (!user) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotFound,
         message: `FeaturedUserProductsController - update, user with id ${userId} not found`,
@@ -279,14 +279,14 @@ router.patch("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (req
     }
 
     if (!action) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoAction,
         message: `FeaturedUserProductsController - update, no action parameter`,
       });
     }
     if (action !== "add" && action !== "remove") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidAction,
         message: `FeaturedUserProductsController - update, invalid action parameter`,
@@ -295,14 +295,14 @@ router.patch("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (req
 
     if (!productType) {
       productType = user.featured?.types;
-      /*return Base.newErrorResponse({
+      /*return Base.errorResponse({
             response,
             code: Const.responsecodeProductNoType,
             message: `FeaturedUserProductsController - update, no productType parameter`,
           });*/
     }
     if (Const.productTypes.indexOf(productType) === -1) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidTypeParameter,
         message: `FeaturedUserProductsController - update, invalid productType parameter`,
@@ -348,7 +348,7 @@ router.patch("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (req
       },
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "FeaturedUserProductsController - update",
       error,
@@ -424,7 +424,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
     const { userId, countryCode } = request.body;
     let productTypes = request.body.productTypes;
     if (!userId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
 
         code: Const.responsecodeNoUserId,
@@ -432,7 +432,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
       });
     }
     if (!Utils.isValidObjectId(userId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidUserId,
         message: `FeaturedUserProductsController - update(post), invalid userId parameter`,
@@ -440,7 +440,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
     }
 
     /*if (countryCode === undefined) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeNoCountryCodeParameter,
             message: `FeaturedUserProductsController - no countryCode parameter`,
@@ -448,7 +448,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
         }
 
         if (!countries[countryCode] && countryCode !== "default") {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidCountryCode,
             message: `FeaturedUserProductsController - invalid countryCode parameter`,
@@ -457,7 +457,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
 
     const user = await User.findOne({ _id: userId });
     if (!user) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotFound,
         message: `FeaturedUserProductsController - update(post), user with id ${userId} not found`,
@@ -467,7 +467,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
     if (!productTypes) {
       productTypes = user.featured.types;
       /*
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeProductNoType,
             message: `FeaturedUserProductsController - update(post), no productTypes parameter`,
@@ -477,7 +477,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
 
     /*
         if (productTypes.length < 5) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidTypeParameter,
             message: `FeaturedUserProductsController - update(post), productType parameter must have 5 elements]`,
@@ -487,7 +487,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
 
     productTypes.forEach((type) => {
       if (Const.productTypes.indexOf(type) === -1) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidTypeParameter,
           message: `FeaturedUserProductsController - update(post), invalid productType parameter`,
@@ -521,7 +521,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
       },
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "FeaturedUserProductsController - update(post)",
       error,

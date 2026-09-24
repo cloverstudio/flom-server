@@ -80,7 +80,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
   const phoneNumber = request.body.phoneNumber;
 
   if (!phoneNumber) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.responsecodeNoPhoneNumber,
       message: "GetUserByPhoneController, no phoneNumber provided",
@@ -88,7 +88,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
   }
 
   if (!phoneNumber.startsWith("+")) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.responsecodeWrongPhoneNumberFormat,
       message: "GetUserByPhoneController, wrong phoneNumber format",
@@ -104,7 +104,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     });
 
     if (!user) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodePhoneNumberNotFound,
         message: "GetUserByPhoneController, phoneNumber not found",
@@ -126,7 +126,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed, result);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetUserByPhoneController",
       error,

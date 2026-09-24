@@ -63,7 +63,7 @@ router.patch(
       }).lean();
 
       if (!order) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeOrderNotFound,
           message: "UpdateOrderController, order not found: " + orderId,
@@ -85,7 +85,7 @@ router.patch(
         fields.data ? {} : JSON.parse(fields.data);
 
       if (!action || !actions.includes(action)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidAction,
           message: "UpdateOrderController, invalid or missing action",
@@ -125,7 +125,7 @@ router.patch(
       });
 
       if (err) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: err,
           message: "UpdateOrderController, " + errMsg,
@@ -135,7 +135,7 @@ router.patch(
       //const responseData = { updatedOrder };
       Base.successResponse(response, Const.responsecodeSucceed, {});
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "UpdateOrderController",
         error,

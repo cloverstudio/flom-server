@@ -76,7 +76,7 @@ router.get(
         : Const.MessageLoadDirection.append;
 
       if (!roomId || roomId.includes("null")) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeMessageListInvalidParam,
           message: `MessageListController, invalid roomId parameter`,
@@ -96,7 +96,7 @@ router.get(
         }).lean();
 
         if (!businessMember && userID !== buyerId) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeUserIsNotActiveBusinessMemberOrBuyer,
             message: `MessageListController, user is not active business member or buyer`,
@@ -114,7 +114,7 @@ router.get(
 
       return Base.successResponse(response, Const.responsecodeSucceed, { messages });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "MessageListController",
         error,

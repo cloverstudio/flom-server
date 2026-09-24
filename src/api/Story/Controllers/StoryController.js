@@ -306,7 +306,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       hasNext: page * limit < total ? true : false,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "StoryController",
       error,

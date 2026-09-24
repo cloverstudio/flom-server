@@ -41,7 +41,7 @@ router.get(
 
       response.sendStatus(404);
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "GetIdPhotoController - get id photo",
         error,

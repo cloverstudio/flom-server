@@ -23,7 +23,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
   const typeId = request.body.typeId;
 
   if (typeId === undefined) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.responsecodeNoTypeId,
       message: "ListTypeFieldsController, missing type id",
@@ -61,7 +61,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, result);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "ListTypeFieldsController, Get list of type fields",
       error,

@@ -40,7 +40,7 @@ router.get("/:liveStreamId", auth({ allowUser: true }), async function (request,
     const { liveStreamId } = request.params;
 
     if (!liveStreamId || !Utils.isValidObjectId(liveStreamId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidLiveStreamId,
         message: "RejectCohostInvitationController, invalid liveStreamId",
@@ -53,7 +53,7 @@ router.get("/:liveStreamId", auth({ allowUser: true }), async function (request,
     const liveStream = await LiveStream.findById(liveStreamId).lean();
 
     if (!liveStream) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeLiveStreamNotFound,
         message: "RejectCohostInvitationController, live stream not found",
@@ -84,7 +84,7 @@ router.get("/:liveStreamId", auth({ allowUser: true }), async function (request,
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "RejectCohostInvitationController",
       error,

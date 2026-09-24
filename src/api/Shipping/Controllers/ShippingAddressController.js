@@ -51,7 +51,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const { err, msg, invalidParam, params } = checkAddRequest(request.body, addresses);
 
     if (err) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: err,
         message: "ShippingAddressController, add - " + msg,
@@ -71,7 +71,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "ShippingAddressController, add",
       error,
@@ -123,7 +123,7 @@ router.delete("/:addressId", auth({ allowUser: true }), async function (request,
     });
 
     if (filtered.length === addresses.length) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeAddressNotFound,
         message: "ShippingAddressController, remove - addressId not found in user's addresses",
@@ -138,7 +138,7 @@ router.delete("/:addressId", auth({ allowUser: true }), async function (request,
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "ShippingAddressController, remove",
       error,
@@ -192,7 +192,7 @@ router.patch("/:addressId", auth({ allowUser: true }), async function (request, 
     let addresses = user.shippingAddresses || [];
 
     if (!addresses.find((addr) => addr._id.toString() === addressId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeAddressNotFound,
         message: "ShippingAddressController, update - addressId not found in user's addresses",
@@ -202,7 +202,7 @@ router.patch("/:addressId", auth({ allowUser: true }), async function (request, 
     const { err, msg, invalidParam, params } = checkUpdateRequest(request.body);
 
     if (err) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: err,
         message: "ShippingAddressController, update - " + msg,
@@ -224,7 +224,7 @@ router.patch("/:addressId", auth({ allowUser: true }), async function (request, 
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "ShippingAddressController, update",
       error,

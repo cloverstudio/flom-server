@@ -52,7 +52,7 @@ router.post("/end", auth({ allowUser: true }), async function (request, response
     const liveStreamId = idFromRequestBody || idFromQueryString;
 
     if (!liveStreamId || !Utils.isValidObjectId(liveStreamId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidLiveStreamId,
         message: `EndLiveStreamController, invalid liveStreamId: ${liveStreamId}`,
@@ -62,7 +62,7 @@ router.post("/end", auth({ allowUser: true }), async function (request, response
     const liveStream = await LiveStream.findOne({ _id: liveStreamId }, { comments: 0 }).lean();
 
     if (!liveStream) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeLiveStreamNotFound,
         message: "EndLiveStreamController, live stream not found",
@@ -70,7 +70,7 @@ router.post("/end", auth({ allowUser: true }), async function (request, response
     }
 
     if (liveStream.userId !== userId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message: "EndLiveStreamController, user not stream owner",
@@ -78,7 +78,7 @@ router.post("/end", auth({ allowUser: true }), async function (request, response
     }
 
     if (liveStream.endTimeStamp) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeLiveStreamAlreadyEnded,
         message: "EndLiveStreamController, live stream already ended",
@@ -141,7 +141,7 @@ router.post("/end", auth({ allowUser: true }), async function (request, response
       logger.error("EndLiveStreamController, messages", error);
     }
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "EndLiveStreamController",
       error,

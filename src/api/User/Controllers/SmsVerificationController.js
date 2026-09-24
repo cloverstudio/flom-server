@@ -45,7 +45,7 @@ router.post("/", async (request, response) => {
 
     const phoneNumber = Utils.formatPhoneNumber({ phoneNumber: rawPhoneNumber.trim() });
     if (!phoneNumber || Const.flomAgentPhoneNumbers.includes(phoneNumber)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidPhoneNumber,
         type: Const.logTypeLogin,
@@ -55,7 +55,7 @@ router.post("/", async (request, response) => {
 
     const bannedNumber = await BannedNumber.findOne({ phoneNumber }).lean();
     if (bannedNumber) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodePhoneNumberIsBlocked,
         type: Const.logTypeLogin,
@@ -69,7 +69,7 @@ router.post("/", async (request, response) => {
       "isDeleted.value": false,
     });
     if (businessUser) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodePhoneNumberIsBusinessNumber,
         type: Const.logTypeLogin,
@@ -83,7 +83,7 @@ router.post("/", async (request, response) => {
       Date.now() < temporaryBan.created + temporaryBan.duration &&
       Config.environment === "production"
     ) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodePhoneNumberIsTemporarilyBanned,
         type: Const.logTypeLogin,
@@ -114,7 +114,7 @@ router.post("/", async (request, response) => {
     // user flood check
     const userFloodRes = await detectUserFlooding({ phoneNumber });
     if (userFloodRes.flood && Config.environment === "production") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodePhoneNumberIsTemporarilyBanned,
         type: Const.logTypeLogin,
@@ -129,7 +129,7 @@ router.post("/", async (request, response) => {
 
     const ipAddressObj = await Logics.getCountryFromIpAddress({ IP });
     if (!ipAddressObj) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeIPCheckError,
         type: Const.logTypeLogin,
@@ -147,7 +147,7 @@ router.post("/", async (request, response) => {
           existingUser.phoneNumberStatus === Const.phoneNumberValid
         )
       ) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeVPNDetected,
           type: Const.logTypeLogin,
@@ -163,7 +163,7 @@ router.post("/", async (request, response) => {
 
     const deviceType = isWebClient === true ? "web" : request.headers["device-type"];
     if (!deviceType && !Const.fakeTestingPhoneNumbers.includes(phoneNumber)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidDeviceType,
         type: Const.logTypeLogin,
@@ -173,7 +173,7 @@ router.post("/", async (request, response) => {
 
     if (!isWebClient && !Const.fakeTestingPhoneNumbers.includes(phoneNumber)) {
       if (!Utils.checkHash(hash)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeFailedHashCheck,
           type: Const.logTypeLogin,
@@ -200,7 +200,7 @@ router.post("/", async (request, response) => {
           CountryWideBan.getDuration(countryBan.occurences) * 60 * 1000;
 
         if (diff < banDurationInMilliseconds) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeCountryTemporarilyBanned,
             type: Const.logTypeLogin,
@@ -211,7 +211,7 @@ router.post("/", async (request, response) => {
         */
 
     if (phoneNumber.startsWith("+234803200") || phoneNumber.startsWith("+234810000")) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodePhoneNumberIsBlocked,
         type: Const.logTypeLogin,
@@ -222,7 +222,7 @@ router.post("/", async (request, response) => {
     const existingUser = await User.findOne({ phoneNumber, "isDeleted.value": false }).lean();
 
     if (existingUser && existingUser.isLoginForbidden) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodePhoneNumberIsBlocked,
         type: Const.logTypeLogin,
@@ -234,7 +234,7 @@ router.post("/", async (request, response) => {
     if (existingUser?.phoneNumberStatus === Const.phoneNumberValid) {
       allowed = true;
     } else if (existingUser?.phoneNumberStatus === Const.phoneNumberInvalid) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodePhoneNumberIsBlocked,
         type: Const.logTypeLogin,
@@ -252,7 +252,7 @@ router.post("/", async (request, response) => {
       } = await Logics.checkIfCarrierIsAllowed(phoneNumber);
 
       if (!checkAllowed) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: errorCode,
           type: Const.logTypeLogin,
@@ -271,7 +271,7 @@ router.post("/", async (request, response) => {
       if (!isWebClient) {
         sendActivationCode(phoneNumber, activationCode, attempt);
       } else if (!reCaptcha) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoReCaptchaParameter,
           type: Const.logTypeLogin,
@@ -280,7 +280,7 @@ router.post("/", async (request, response) => {
       } else {
         const reCaptchaResult = await Utils.checkReCaptcha(reCaptcha, Config.newReCaptchaSecret);
         if (!reCaptchaResult) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeReCaptchaFailed,
             type: Const.logTypeLogin,
@@ -384,7 +384,7 @@ router.post("/", async (request, response) => {
     logger.error(`Error in SMS Verification for ${request.body.phoneNumber}: `, error);
 
     if (error.message === "Missing phoneNumber!") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoPhoneNumber,
         message: "SmsVerificationController, no phoneNumber provided",
@@ -392,14 +392,14 @@ router.post("/", async (request, response) => {
     }
 
     if (error.message === "Wrong phoneNumber format!") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeWrongPhoneNumberFormat,
         message: "SmsVerificationController, wrong phoneNumber format",
       });
     }
 
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "SmsVerificationController",
       error,

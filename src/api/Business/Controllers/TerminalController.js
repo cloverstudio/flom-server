@@ -46,7 +46,7 @@ router.post("/signin", auth({ allowUser: true }), async function (request, respo
     const { terminalId } = request.body;
 
     if (!terminalId || !Utils.isValidObjectId(terminalId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidTerminalId,
         message: "TerminalController, sign in - invalid terminalId",
@@ -56,7 +56,7 @@ router.post("/signin", auth({ allowUser: true }), async function (request, respo
     const terminal = await Terminal.findById(terminalId).lean();
 
     if (!terminal) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeTerminalNotFound,
         message: "TerminalController, sign in, terminal not found",
@@ -69,7 +69,7 @@ router.post("/signin", auth({ allowUser: true }), async function (request, respo
     }).lean();
 
     if (ref) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeTerminalAlreadyInUse,
         message: "TerminalController, sign in, terminal is already in use",
@@ -81,7 +81,7 @@ router.post("/signin", auth({ allowUser: true }), async function (request, respo
     const allowed = members.some((m) => m.userId.toString() === userId && m.status === "active");
 
     if (!allowed) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message: "TerminalController, sign in - user is not allowed to sign in to the terminal",
@@ -100,7 +100,7 @@ router.post("/signin", auth({ allowUser: true }), async function (request, respo
 
     return Base.successResponse(response, Const.responsecodeSucceed, {});
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "TerminalController, sign in",
@@ -146,7 +146,7 @@ router.post("/signout", auth({ allowUser: true }), async function (request, resp
     const { terminalId } = request.body;
 
     if (!terminalId || !Utils.isValidObjectId(terminalId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidTerminalId,
         message: "TerminalController, sign out - invalid terminalId",
@@ -156,7 +156,7 @@ router.post("/signout", auth({ allowUser: true }), async function (request, resp
     const terminal = await Terminal.findById(terminalId).lean();
 
     if (!terminal) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeTerminalNotFound,
         message: "TerminalController, sign out, terminal not found",
@@ -191,7 +191,7 @@ router.post("/signout", auth({ allowUser: true }), async function (request, resp
     const ref = refs && refs.length > 0 ? refs[0] : null;
 
     if (!ref || ref.userId !== user._id.toString()) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotActiveOnTerminal,
         message:
@@ -205,7 +205,7 @@ router.post("/signout", auth({ allowUser: true }), async function (request, resp
 
     return Base.successResponse(response, Const.responsecodeSucceed, {});
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "TerminalController, sign out",
@@ -263,7 +263,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const { outletId } = request.body;
 
     if (!outletId || !Utils.isValidObjectId(outletId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidOutletId,
         message: "TerminalController, create terminal - invalid outletId",
@@ -273,7 +273,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const outlet = await Outlet.findById(outletId).lean();
 
     if (!outlet) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeOutletNotFound,
         message: "TerminalController, create terminal - outlet not found",
@@ -287,7 +287,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     });
 
     if (!allowed) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message: "TerminalController, create terminal - user is not allowed to create a terminal",
@@ -317,7 +317,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, { terminal: terminal.toObject() });
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "TerminalController, create terminal",
@@ -380,7 +380,7 @@ router.get("/:terminalId", auth({ allowUser: true }), async function (request, r
     const { terminalId } = request.params;
 
     if (!terminalId || !Utils.isValidObjectId(terminalId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidTerminalId,
         message: "TerminalController, get terminal - invalid terminalId",
@@ -390,7 +390,7 @@ router.get("/:terminalId", auth({ allowUser: true }), async function (request, r
     const terminal = await Terminal.findById(terminalId).lean();
 
     if (!terminal) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeTerminalNotFound,
         message: "TerminalController, get terminal - terminal not found",
@@ -404,7 +404,7 @@ router.get("/:terminalId", auth({ allowUser: true }), async function (request, r
     );
 
     if (!allowed) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message: "TerminalController, get terminal - user is not allowed to get terminal",
@@ -443,7 +443,7 @@ router.get("/:terminalId", auth({ allowUser: true }), async function (request, r
 
     Base.successResponse(response, Const.responsecodeSucceed, { terminal });
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "TerminalController, get terminal",
@@ -486,7 +486,7 @@ router.delete("/:terminalId", auth({ allowUser: true }), async function (request
     const { terminalId } = request.params;
 
     if (!terminalId || !Utils.isValidObjectId(terminalId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidTerminalId,
         message: "TerminalController, delete terminal - invalid terminalId",
@@ -496,7 +496,7 @@ router.delete("/:terminalId", auth({ allowUser: true }), async function (request
     const terminal = await Terminal.findById(terminalId).lean();
 
     if (!terminal) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeTerminalNotFound,
         message: "TerminalController, delete terminal - terminal not found",
@@ -511,7 +511,7 @@ router.delete("/:terminalId", auth({ allowUser: true }), async function (request
     );
 
     if (!allowed) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message: "TerminalController, delete terminal - user is not allowed to delete terminal",
@@ -522,7 +522,7 @@ router.delete("/:terminalId", auth({ allowUser: true }), async function (request
 
     Base.successResponse(response, Const.responsecodeSucceed, { terminal });
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "TerminalController, delete terminal",

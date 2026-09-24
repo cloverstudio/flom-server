@@ -49,7 +49,7 @@ router.get("/:auctionId/reject", auth({ allowUser: true }), async function (requ
     const { auctionId } = request.params;
 
     if (!auctionId || !Utils.isValidObjectId(auctionId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidAuctionId,
         message: `RejectAuctionOfferController, missing or invalid auctionId`,
@@ -59,7 +59,7 @@ router.get("/:auctionId/reject", auth({ allowUser: true }), async function (requ
     const auction = await Auction.findById(auctionId).lean();
 
     if (!auction) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeAuctionNotFound,
         message: `RejectAuctionOfferController, auction not found for id ${auctionId}`,
@@ -67,7 +67,7 @@ router.get("/:auctionId/reject", auth({ allowUser: true }), async function (requ
     }
 
     if (auction.winningBid.user._id !== request.user._id.toString()) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message: `RejectAuctionOfferController, user is not winning bidder for auction id ${auctionId}`,
@@ -75,7 +75,7 @@ router.get("/:auctionId/reject", auth({ allowUser: true }), async function (requ
     }
 
     if (auction.status !== Const.auctionStatus.FINISHED) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeAuctionAlreadyResolved,
         message: `RejectAuctionOfferController, auction has already been resolved`,
@@ -94,7 +94,7 @@ router.get("/:auctionId/reject", auth({ allowUser: true }), async function (requ
       const { rates = null } = await ConversionRate.getRates();
 
       if (!rates) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUnknownError,
           message: `RejectAuctionOfferController, failed to get conversion rates`,
@@ -156,7 +156,7 @@ router.get("/:auctionId/reject", auth({ allowUser: true }), async function (requ
 
     return Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "RejectAuctionOfferController",
       error,
