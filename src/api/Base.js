@@ -40,7 +40,7 @@ function successResponse(response, code, data) {
 
 function errorResponse({ response, code, type, message, error, data, param, param2 }) {
   const request = response.req;
-  const deviceType = request.headers["device-type"];
+  const deviceType = request.headers["device-type"] || "unknown";
 
   const reference = createReference();
 
@@ -86,7 +86,7 @@ function errorResponse({ response, code, type, message, error, data, param, para
 
 async function createUnexpectedError({ message, reference, error, request }) {
   try {
-    const deviceType = request.headers["device-type"];
+    const deviceType = request.headers["device-type"] || "unknown";
     const i = Config.instance || "0";
 
     const info = {
@@ -131,7 +131,7 @@ function createReference() {
     refExists = true;
 
   while (refExists) {
-    ref = Utils.generateRandomString(8, "limited");
+    ref = Utils.getRandomString(8, "limited");
     refExists = refArray.includes(ref);
     refArray.push(ref);
   }
