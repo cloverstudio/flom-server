@@ -57,7 +57,7 @@ module.exports = Object.freeze({
 
   LandingPageShell: require("./LandingPageShell"),
   LiveStream: require("./LiveStream"),
-  LocationRequestCache: require("./LocationRequestCache"),
+  LocationIQCache: require("./LocationIQCache"),
   LoginAttempt: require("./LoginAttempt"),
 
   MainCategory: require("./MainCategory"),

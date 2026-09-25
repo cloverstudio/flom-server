@@ -2,11 +2,9 @@
 
 const router = require("express").Router();
 const Base = require("../../Base");
-const { Const, Config } = require("#config");
-const { logger } = require("#infra");
-const Utils = require("#utils");
+const { Const } = require("#config");
 const { auth } = require("#middleware");
-const { LocationRequestCache } = require("#models");
+const { LocationIQ } = require("#services");
 
 /**
  * @api {get} /api/v2/address/autocomplete Address autocomplete
@@ -77,61 +75,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       });
     }
 
-    const apiRequest = {
-      method: "GET",
-      url: Config.locationIqUrl + "/v1/autocomplete",
-      query: {
-        key: Config.locationIqKey,
-        q: address,
-        countrycodes: countryCode.toLowerCase(),
-        limit: 10,
-        dedupe: 1,
-        normalizeaddress: 1,
-        format: "json",
-        layers: "address,street",
-      },
-      headers: {
-        Accept: "application/json",
-      },
-    };
-
-    const queryString = apiRequest.query
-      ? Object.entries(apiRequest.query)
-          .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
-          .filter((i) => !i.startsWith("key="))
-          .join("&")
-      : "";
-    const url = apiRequest.url + "?" + queryString;
-    let data = [];
-
-    const cache = await LocationRequestCache.findOne({
-      url,
-      modified: { $gt: Date.now() - 4 * 60 * 60 * 1000 },
-    }).lean();
-
-    if (cache) {
-      if (!cache.success) {
-        logger.error("AddressController error: cache found but marked as unsuccessful", cache);
-        return Base.successResponse(response, Const.responsecodeSucceed, { suggestions: [] });
-      }
-
-      data = cache.dataArray;
-    } else {
-      const { err, data: d } = await Utils.sendRequest(apiRequest);
-
-      data = d;
-
-      await LocationRequestCache.updateOne(
-        { url },
-        { url, dataArray: d, modified: Date.now(), success: !err },
-        { upsert: true },
-      );
-
-      if (err) {
-        logger.error("AddressController error: " + err);
-        return Base.successResponse(response, Const.responsecodeSucceed, { suggestions: [] });
-      }
-    }
+    const data = (await LocationIQ.autocomplete({ address, countryCode })) || [];
 
     const suggestions = data.map((d) => {
       const a = d.address;
@@ -171,40 +115,5 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     });
   }
 });
-
-/*
-[
-    {
-        "place_id": "322410501966",
-        "osm_id": "3761799952",
-        "osm_type": "node",
-        "licence": "https://locationiq.com/attribution",
-        "lat": "43.5155981",
-        "lon": "16.4312198",
-        "boundingbox": [
-            "43.5155481",
-            "43.5156481",
-            "16.4311698",
-            "16.4312698"
-        ],
-        "class": "place",
-        "type": "house",
-        "display_name": "14, Jobova, Poljud, Split, Split-Dalmatia County, 21000, Croatia",
-        "display_place": "Jobova",
-        "display_address": "14, Poljud, Split, Split-Dalmatia County, 21000, Croatia",
-        "address": {
-            "name": "Jobova",
-            "house_number": "14",
-            "road": "Jobova",
-            "neighbourhood": "Poljud",
-            "city": "Split",
-            "county": "Split-Dalmatia County",
-            "postcode": "21000",
-            "country": "Croatia",
-            "country_code": "hr"
-        }
-    }
-]
-*/
 
 module.exports = router;

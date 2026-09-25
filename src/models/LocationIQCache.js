@@ -8,13 +8,11 @@ const mongoose = require("mongoose");
 const schema = new mongoose.Schema(
   {
     url: String,
-    dataObject: {},
-    dataArray: [],
-    success: Boolean,
+    data: mongoose.Schema.Types.Mixed,
     created: { type: Number, default: Date.now, index: true },
     modified: { type: Number, default: Date.now, index: true },
   },
   { timestamps: true },
 );
 
-module.exports = db.db1.model("LocationRequestCache", schema, "location_request_cache");
+module.exports = db.db1.model("LocationIQCache", schema, "location_iq_cache");
