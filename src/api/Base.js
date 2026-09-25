@@ -54,12 +54,7 @@ function errorResponse({ response, code, type, message, error, data, param, para
   const loc = new Localizer(lang);
 
   if (code !== Const.responsecodeNoActiveLiveStreamFoundForUser) {
-    if (reference)
-      logger.error(
-        `Code: ${code} | Message: Unexpected error | ${deviceType} | Ref: ${reference}`,
-        error,
-      );
-    else if (!error)
+    if (!error)
       logger.error(`Code: ${code} | Message: ${message} | ${deviceType} | Ref: ${reference}`);
     else
       logger.error(
