@@ -1,6 +1,6 @@
 "use strict";
 
-const router = require("express").Router();
+const router = require("express").Router({ mergeParams: true });
 const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const } = require("#config");
@@ -43,15 +43,9 @@ router.get("/", async function (request, response) {
 
     const product = await Product.findByIdAndUpdate(
       productId,
-      {
-        $inc: {
-          numberOfViews: 1,
-        },
-      },
-      {
-        new: true,
-      },
-    ).lean();
+      { $inc: { numberOfViews: 1 } },
+      { new: true, lean: true },
+    );
 
     Base.successResponse(response, Const.responsecodeSucceed);
 
