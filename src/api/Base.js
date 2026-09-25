@@ -120,7 +120,7 @@ function createReference() {
     refArray = [];
   }
 
-  const i = Config.instance || "0";
+  const i = Config.serverNumber;
 
   let ref,
     refExists = true;
