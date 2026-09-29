@@ -46,13 +46,16 @@ async function createBusiness({ owner, info }) {
     });
     businessMember = await businessMember.toObject();
 
-    const user = await User.findById(
-      owner._id.toString(),
-      { _id: 1, name: 1, userName: 1, phoneNumber: 1, avatar: 1, created: 1 },
-      { lean: true },
-    );
+    const user = await User.findById(owner._id.toString(), { lean: true });
 
-    businessMember.user = user;
+    businessMember.user = {
+      _id: user._id.toString(),
+      name: user.name,
+      userName: user.userName,
+      phoneNumber: user.phoneNumber,
+      avatar: user.avatar,
+      created: user.created,
+    };
 
     businessObj.members = [businessMember];
 
@@ -84,10 +87,10 @@ async function createBusiness({ owner, info }) {
       location,
       address,
     });
-    outlet = await outlet.toObject();
+    outlet = outlet.toObject();
     businessObj.outlets = [outlet];
 
-    let paymentAddress = await createTerminalPaymentAddress(owner);
+    let paymentAddress = await createTerminalPaymentAddress(user);
 
     let terminal = await Terminal.create({
       businessId: business._id.toString(),
@@ -96,7 +99,7 @@ async function createBusiness({ owner, info }) {
       subChainId: subChain._id.toString(),
       paymentAddress,
     });
-    terminal = await terminal.toObject();
+    terminal = terminal.toObject();
     businessObj.outlets[0].terminals = [terminal];
 
     await TerminalOperatorReference.create({
@@ -116,9 +119,12 @@ async function createBusiness({ owner, info }) {
 }
 
 async function createTerminalPaymentAddress(owner) {
-  const country = countries[owner.countryCode];
+  const countryCode =
+    owner.countryCode || Utils.getCountryCodeFromPhoneNumber({ phoneNumber: owner.phoneNumber });
+  const country = countries[countryCode];
+
   if (!country) {
-    throw new Error(`Country not found for code: ${owner.countryCode}`);
+    throw new Error(`Country not found for code: ${countryCode}`);
   }
 
   let paymentAddress = owner.whatsApp?.businessPhoneNumber;
