@@ -32,103 +32,74 @@ router.get("/errortest", async (request, response) => {
 router.get("/product-business", async (request, response) => {
   try {
     const products = await Product.find({ type: { $in: [5, 6] } }).lean();
-    const businesses = await Business.find({}).sort({ created: 1 }).lean();
-    const businessOwnerToBusinessMap = {};
-    const businessMap = {};
-    businesses.forEach((business) => {
-      const ownerId = business.owner?._id || business.ownerId;
 
-      if (!businessOwnerToBusinessMap[ownerId]) {
-        business._id = business._id.toString();
+    console.log(`Total products fetched: ${products.length}`);
 
-        businessOwnerToBusinessMap[ownerId] = business;
-      }
-
-      businessMap[business._id.toString()] = business;
-    });
+    const owners = await User.find({
+      _id: { $in: Array.from(new Set(products.filter((p) => !!p.ownerId).map((p) => p.ownerId))) },
+    }).lean();
+    const ownersMap = {};
+    for (const owner of owners) {
+      owner._id = owner._id.toString();
+      ownersMap[owner._id.toString()] = owner;
+    }
 
     const bulkWriteOps = [];
 
     for (const p of products) {
-      if (p.businessId || p.business?._id) {
-        const b = businessMap[p.businessId || p.business?._id];
+      console.log(`Processing product ${p._id}`);
 
-        console.log(`Updating product ${p._id} with existing businessId ${b._id}`);
+      const ownerId = p.ownerId;
+      const owner = ownersMap[ownerId];
 
-        bulkWriteOps.push({
-          updateOne: {
-            filter: { _id: p._id },
-            update: {
-              $set: { business: { _id: b._id.toString(), name: b.name, avatar: b.avatar } },
-              $unset: { businessId: 1 },
-            },
-          },
-        });
-
+      if (!owner) {
+        console.log(`Owner not found for product ${p._id} with ownerId ${ownerId}`);
         continue;
       }
 
-      const b = businessOwnerToBusinessMap[p.ownerId];
+      const ownersBusinesses = await Business.find({ "owner._id": ownerId })
+        .sort({ created: 1 })
+        .lean();
 
-      if (b) {
-        console.log(`Updating product ${p._id} with existing businessId ${b._id}`);
+      let firstBusiness = ownersBusinesses[0] || null;
+      console.log(
+        `First business for owner ${ownerId}: ${firstBusiness ? firstBusiness._id : "none"}`,
+      );
 
-        bulkWriteOps.push({
-          updateOne: {
-            filter: { _id: p._id },
-            update: {
-              $set: { business: { _id: b._id.toString(), name: b.name, avatar: b.avatar } },
+      if (!firstBusiness && owner) {
+        console.log(
+          `Creating new business for owner ${owner.userName} with phone number ${owner.phoneNumber}`,
+        );
+
+        const info = {};
+        info.market =
+          owner.countryCode ||
+          Utils.getCountryCodeFromPhoneNumber({ phoneNumber: owner.phoneNumber });
+        info.name = `${owner.userName}'s Business`;
+        info.description = `Business owned by ${owner.userName}`;
+
+        firstBusiness = await Logics.createBusiness({ owner, info });
+      }
+
+      bulkWriteOps.push({
+        updateOne: {
+          filter: { _id: p._id },
+          update: {
+            $set: {
+              business: {
+                _id: firstBusiness._id.toString(),
+                name: firstBusiness.name,
+                avatar: firstBusiness.avatar,
+              },
             },
           },
-        });
-      } else {
-        const owner = await User.findById(p.ownerId).lean();
+        },
+      });
 
-        if (owner) {
-          console.log(
-            `Updating product ${p._id} with owner's new business, owner userName: ${owner.userName}`,
-          );
-
-          const info = {};
-          info.market =
-            owner.countryCode ||
-            Utils.getCountryCodeFromPhoneNumber({ phoneNumber: owner.phoneNumber });
-          info.name = `${owner.userName}'s Business`;
-          info.description = `Business owned by ${owner.userName}`;
-
-          const business = await Logics.createBusiness({ owner, info });
-
-          if (business && business._id) {
-            console.log(
-              `Created new business for product ${
-                p._id
-              } with businessId ${business._id.toString()}`,
-            );
-
-            business._id = business._id.toString();
-            businessOwnerToBusinessMap[p.ownerId] = business;
-
-            bulkWriteOps.push({
-              updateOne: {
-                filter: { _id: p._id },
-                update: {
-                  $set: {
-                    business: {
-                      _id: business._id.toString(),
-                      name: business.name,
-                      avatar: business.avatar,
-                    },
-                  },
-                },
-              },
-            });
-          }
-        } else {
-          console.log(`!!! Owner not found for product ${p._id} with ownerId ${p.ownerId}`);
-        }
-      }
+      await Utils.sleep(200);
     }
 
+    console.log(`Total bulk write operations: ${bulkWriteOps.length}`);
     if (bulkWriteOps.length > 0) {
       await Product.bulkWrite(bulkWriteOps);
     }
