@@ -47,10 +47,10 @@ function setLogLevel(level) {
 
 function printMessage({ msg = "", data = "", err = null, level, COLOR = "" }) {
   try {
-    /* const env = Config.environment;
-    if (env !== "development" && level === "debug") return; */
+    const env = Config.environment;
+    if (env !== "development" && level === "debug") return;
 
-    if (levels[level] > logLevel) return;
+    // if (levels[level] > logLevel) return;
 
     const reset = !COLOR ? "" : RESET;
     msg = !err ? msg : `${msg}\n${err.stack}`;
