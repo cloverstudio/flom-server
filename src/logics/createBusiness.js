@@ -44,17 +44,17 @@ async function createBusiness({ owner, info }) {
       role: "owner",
       status: "active",
     });
-    businessMember = await businessMember.toObject();
+    businessMember = businessMember.toObject();
 
     const user = await User.findById(owner._id.toString(), { lean: true });
 
     businessMember.user = {
-      _id: user._id.toString(),
-      name: user.name,
-      userName: user.userName,
-      phoneNumber: user.phoneNumber,
-      avatar: user.avatar,
-      created: user.created,
+      _id: owner._id.toString(),
+      name: owner.name,
+      userName: owner.userName,
+      phoneNumber: owner.phoneNumber,
+      avatar: owner.avatar,
+      created: owner.created,
     };
 
     businessObj.members = [businessMember];
