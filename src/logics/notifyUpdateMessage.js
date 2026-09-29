@@ -20,6 +20,9 @@ async function notifyUpdateMessage(message) {
       socketApi.emitToRoom(message.roomID, "updatemessages", [message]);
     } else if (chatType == Const.chatTypeRoom) {
       socketApi.emitToRoom(message.roomID, "updatemessages", [message]);
+    } else if (chatType == Const.chatTypeBusiness) {
+      const businessRoom = Const.chatTypeBusiness + "-" + roomIDSplitted[1];
+      socketApi.emitToRoom(businessRoom, "updatemessages", [message]);
     } else if (chatType == Const.chatTypePrivate) {
       const splitAry = message.roomID.split("-");
 
@@ -27,9 +30,6 @@ async function notifyUpdateMessage(message) {
 
       const user1 = splitAry[1];
       const user2 = splitAry[2];
-
-      let toUserId = null;
-      let fromUserId = null;
 
       if (user1 == message.userID) {
         toUserId = user2;
@@ -43,13 +43,13 @@ async function notifyUpdateMessage(message) {
       socketApi.emitToRoom(toUserId, "updatemessages", [message]);
     }
 
+    if (message.type != Const.messageTypeOffer) return;
+
     const fromUser = await User.findById(fromUserId).lean();
     const toUser = await User.findById(toUserId).lean();
 
     const unreadCount =
       message.type == Const.messageTypeOffer ? null : await totalUnreadCount(fromUserId);
-
-    if (message.type != Const.messageTypeOffer) return;
 
     const tokenAndBadgeCount = [];
     let badgeCount = 0;

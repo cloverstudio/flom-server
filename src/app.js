@@ -139,6 +139,20 @@ app.use(function (request, response, next) {
       }
     }
   }
+
+  const deviceType = request.headers["device-type"];
+  const androidVersionCode = !request.headers["android-version-code"]
+    ? 0
+    : +request.headers["android-version-code"].toString();
+  const iosVersionCode = !request.headers["ios-version-code"]
+    ? 0
+    : +request.headers["ios-version-code"].toString();
+  if (deviceType) {
+    request.deviceType = deviceType.toLowerCase();
+  }
+  request.androidVersion = androidVersionCode;
+  request.iosVersion = iosVersionCode;
+
   next();
 });
 

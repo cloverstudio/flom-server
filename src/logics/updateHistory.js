@@ -2,7 +2,7 @@
 
 const { logger } = require("#infra");
 const { Const } = require("#config");
-const { User, Room, Group, History } = require("#models");
+const { User, Room, Group, History, Business } = require("#models");
 
 function isFile(messageType) {
   return (
@@ -45,6 +45,12 @@ async function resetUnreadCount(obj) {
     // room chat
     if (roomType == Const.chatTypeRoom || roomType == Const.chatTypeBroadcastAdmin) {
       if (roomIdSplitted.length != 2) return;
+      chatId = roomIdSplitted[1];
+    }
+
+    // business chat
+    if (roomType == Const.chatTypeBusiness) {
+      if (roomIdSplitted.length != 3) return;
       chatId = roomIdSplitted[1];
     }
 
@@ -132,9 +138,72 @@ async function updateByMessage(obj) {
       await updateByRoomChat(fromUserId, roomId, obj);
     }
 
+    // business chat
+    if (roomType == Const.chatTypeBusiness) {
+      if (roomIdSplitted.length != 3) return;
+
+      const businessId = roomIdSplitted[1];
+      const fromUserId = userId;
+
+      await updateByBusinessChat(fromUserId, businessId, obj);
+    }
+
     return;
   } catch (error) {
     logger.error("updateByMessage error: ", error);
+    return;
+  }
+}
+
+async function updateByBusinessChat(fromUserId, businessId, rawMessageObj) {
+  try {
+    const message = {
+      messageId: rawMessageObj._id.toString(),
+      message: rawMessageObj.message,
+      created: rawMessageObj.created,
+      type: rawMessageObj.type,
+      sentTo: rawMessageObj.sentTo,
+    };
+
+    if (isFile(rawMessageObj.type)) {
+      message.mimeType = rawMessageObj.file.file.mimeType;
+      message.size = rawMessageObj.file.file.size;
+
+      if (rawMessageObj.file.file.duration) message.duration = rawMessageObj.file.file.duration;
+    }
+
+    const business = await Business.findById(businessId).lean();
+
+    if (!business || !business.users || !business.users.length) {
+      logger.error(
+        "updateByBusinessChat error: Business not found or has no users: " + business.users,
+      );
+      return;
+    }
+
+    const fromUser = await User.findById(fromUserId, User.getDefaultResponseFields()).lean();
+
+    const userId = fromUserId;
+    let msg = message.message;
+    if (msg) msg = msg.substr(0, 30);
+    else msg = "";
+
+    const historyData = {
+      userId: userId,
+      chatId: businessId,
+      chatType: Const.chatTypeBusiness,
+      lastUpdate: Date.now(),
+      isUnread: 1,
+      lastUpdateUser: fromUser,
+      lastMessage: message,
+      keyword: business.name + ", " + msg,
+    };
+
+    await updateData(historyData, rawMessageObj);
+
+    return;
+  } catch (error) {
+    logger.error("updateByBusinessChat error: ", error);
     return;
   }
 }

@@ -23,6 +23,8 @@ const schema = new mongoose.Schema(
       singleValue: { type: Number, default: -1 },
       unlimitedValue: { type: Number, default: -1 },
       exclusiveValue: { type: Number, default: -1 },
+      timeUnit: String,
+      onRequest: { type: Boolean, default: false },
     },
     priceType: Number, // 1 - fixed, 2 - range, 3 - bid
     created: { type: Number, default: Date.now },
@@ -194,6 +196,10 @@ const schema = new mongoose.Schema(
     slug: String,
     oldSlugs: [String],
     businessId: String,
+    place: String, // seller, customer, both
+    businessTagId: String,
+    suggestedServiceId: String,
+    business: { _id: String, name: String },
   },
   { timestamps: true },
 );
@@ -257,6 +263,10 @@ class ExtendedProduct extends Product {
 
   static checkProductCategoryGroup({ productType, categoryGroups }) {
     if (categoryGroups.includes(Const.categoryGroupAll)) {
+      return true;
+    }
+
+    if (productType === Const.productTypeService) {
       return true;
     }
 

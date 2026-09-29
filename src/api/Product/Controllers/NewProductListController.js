@@ -9,11 +9,11 @@ const { Product, Category, User, Tribe, AdminPageUser, FlomTag, LiveStream } = r
 const countryIso = require("country-iso");
 
 /**
- * @api {get} /api/v2/products New Product List API
+ * @api {get} /api/v2/products New Product or Service List API
  * @apiVersion 2.0.8
- * @apiName New Product List API
+ * @apiName New Product or Service List API
  * @apiGroup WebAPI Products
- * @apiDescription New API that can be used to fetch the list of all products. Default sorting order is from oldest to newest.
+ * @apiDescription New API that can be used to fetch the list of all products or services. Default sorting order is from oldest to newest.
  * Users on Admin page need at least Moderator role to access this API. If this API not called from admin page then the results will be additionally
  * filtered so only products that are approved and their owners are not blocked will be returned. API won't return user own products.
  * API will return products that are public and those of the tribes you are part of.
@@ -25,7 +25,7 @@ const countryIso = require("country-iso");
  * @apiParam (Query string) {String}   [username] Username of the owner of the product
  * @apiParam (Query string) {String}   [userId] userId of the owner of the product. If present then ignores username query
  * @apiParam (Query string) {String}   [tribeId] tribeId of the products that have tribe visibility. Request user has to be part of the tribe
- * @apiParam (Query string) {String}   [type] product type (1 - video, 2 - video story, 3 - podcast, 4 - text story, 5 - product)
+ * @apiParam (Query string) {String}   [type] product type (1 - video, 2 - video story, 3 - podcast, 4 - text story, 5 - product, 6 - service)
  * @apiParam (Query string) {String}   [moderationStatus] Moderation status of the product (1 - pending, 2 - rejected, 3 - approved, 4 - approval needed)
  * @apiParam (Query string) {String}   [countryCode] Country code of the product (e.g. "US", "NG")
  * @apiParam (Query string) {String}   [lat] Location latitude (between -90 and 90)
@@ -288,7 +288,7 @@ router.get("/", async function (request, response) {
       userId = user._id.toString();
     }
 
-    const typesArray = ["1", "2", "3", "4", "5"];
+    const typesArray = ["1", "2", "3", "4", "5", "6"];
     if (type !== undefined && typesArray.indexOf(type) === -1) {
       return Base.newErrorResponse({
         response,

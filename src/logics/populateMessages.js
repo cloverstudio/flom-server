@@ -1,7 +1,7 @@
 const { logger } = require("#infra");
 const { Const } = require("#config");
 const Utils = require("#utils");
-const { User, Room, Group } = require("#models");
+const { User, Room, Group, Business } = require("#models");
 
 async function populateMessage(messageList, callerUser) {
   try {
@@ -12,6 +12,7 @@ async function populateMessage(messageList, callerUser) {
     const userIds = new Set();
     const groupIds = new Set();
     const roomIds = new Set();
+    const businessIds = new Set();
 
     messageList.forEach((m) => {
       if (Utils.isValidObjectId(m.userID)) userIds.add(m.userID);
@@ -39,12 +40,15 @@ async function populateMessage(messageList, callerUser) {
           if (Utils.isValidObjectId(temp[1])) userIds.add(temp[1]);
           if (Utils.isValidObjectId(temp[2])) userIds.add(temp[2]);
         }
+      } else if (temp[0] == Const.chatTypeBusiness) {
+        if (Utils.isValidObjectId(temp[1])) businessIds.add(temp[1]);
       }
     });
 
     const users = await User.find({ _id: { $in: Array.from(userIds) } }).lean();
     const groups = await Group.find({ _id: { $in: Array.from(groupIds) } }).lean();
     const rooms = await Room.find({ _id: { $in: Array.from(roomIds) } }).lean();
+    const businesses = await Business.find({ _id: { $in: Array.from(businessIds) } }).lean();
 
     const newMessageList = messageList.map((m) => {
       m.user = users.find((user) => user._id.toString() == m.userID);
@@ -75,6 +79,11 @@ async function populateMessage(messageList, callerUser) {
 
       if (roomType == Const.chatTypeRoom || roomType == Const.chatTypeBroadcastAdmin) {
         m.room = rooms.find((r) => r._id.toString() == Utils.getObjectIdFromRoomID(m.roomID));
+      }
+      if (roomType == Const.chatTypeBusiness) {
+        const businessId = m.roomID.split("-")[1];
+
+        m.business = businesses.find((b) => b._id.toString() == businessId);
       }
 
       return m;

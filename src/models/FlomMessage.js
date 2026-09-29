@@ -41,6 +41,14 @@ const schema = new mongoose.Schema(
     isAdminMessage: { type: Boolean, default: false },
     wamId: String,
     wamStatus: String,
+    buttons: [
+      {
+        _id: false,
+        type: { type: String },
+        text: String,
+        target: String,
+      },
+    ],
   },
   { timestamps: true },
 );

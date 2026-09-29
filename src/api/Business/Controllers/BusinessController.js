@@ -328,9 +328,10 @@ router.get("/:businessId", auth({ allowUser: true }), async function (request, r
     }
 
     const services = await Product.find({
-      businessId,
+      "business._id": businessId,
       isDeleted: false,
       type: Const.productTypeService,
+      "moderation.status": Const.moderationStatusApproved,
     }).lean();
 
     business.services = services;

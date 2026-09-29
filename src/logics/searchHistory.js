@@ -1,7 +1,7 @@
 const { logger } = require("#infra");
 const { Const } = require("#config");
 const Utils = require("#utils");
-const { User, History, Group, Room } = require("#models");
+const { User, History, Group, Room, Business } = require("#models");
 
 const totalUnreadCount = require("./totalUnreadCount");
 const getUsersOnlineStatus = require("./getUsersOnlineStatus");
@@ -91,6 +91,25 @@ async function searchHistory(lastUpdate, page, keyword, baseUser, pagingRows) {
     });
     result.list = result.list.filter(
       (h) => h.room !== undefined || h.chatType != Const.chatTypeRoom,
+    );
+
+    const businessIds = histories
+      .filter((h) => h.chatType == Const.chatTypeBusiness)
+      .map((h) => h.chatId);
+
+    const businesses = await Business.find({ _id: { $in: businessIds } }, null, { lean: true });
+    const businessMap = {};
+    businesses.forEach((b) => {
+      businessMap[b._id.toString()] = b;
+    });
+
+    result.list.forEach((history) => {
+      if (history.chatType == Const.chatTypeBusiness) {
+        history.business = businessMap[history.chatId];
+      }
+    });
+    result.list = result.list.filter(
+      (h) => h.business !== undefined || h.chatType != Const.chatTypeBusiness,
     );
 
     let userIdsFromGroup = [];

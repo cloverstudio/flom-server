@@ -230,7 +230,7 @@ async function getNotifications({ userId, userPhoneNumber }) {
     userPhoneNumber,
   });
 
-  const marketplaceTransferNotifications = await getMarketplaceTransferNotifications({
+  const marketplaceTransferNotifications = await getMarketplaceOrServiceTransferNotifications({
     userId,
     userPhoneNumber,
   });
@@ -463,9 +463,9 @@ async function getTransferNotifications({ userId, userPhoneNumber }) {
   return transferNotificationList;
 }
 
-async function getMarketplaceTransferNotifications({ userId, userPhoneNumber }) {
+async function getMarketplaceOrServiceTransferNotifications({ userId, userPhoneNumber }) {
   const transfers = await Transfer.find({
-    transferType: Const.transferTypeMarketplace,
+    transferType: { $in: [Const.transferTypeMarketplace, Const.transferTypeService] },
     $or: [
       { senderId: userId, status: { $ne: Const.transferPrepayment } },
       {
@@ -480,7 +480,10 @@ async function getMarketplaceTransferNotifications({ userId, userPhoneNumber }) 
     transferNotificationList = transfers.map((transfer) => {
       const { status, transferType, created, senderId } = transfer;
       const notificationData = {
-        notificationType: Const.notificationTypeMarketplaceTransfer,
+        notificationType:
+          transferType === Const.transferTypeMarketplace
+            ? Const.notificationTypeMarketplaceTransfer
+            : Const.notificationTypeServiceTransfer,
         referenceId: transfer._id.toString(),
         created,
         status,
@@ -505,11 +508,14 @@ async function getMarketplaceTransferNotifications({ userId, userPhoneNumber }) 
         notificationData.from = transfer.senderPhoneNumber;
       }
 
-      if (transferType === Const.transferTypeMarketplace) {
+      notificationData.text = transfer.basket
+        .map((item) => item.quantity + " x " + item.name)
+        .join(",");
+      /* if (transferType === Const.transferTypeMarketplace) {
         notificationData.text = transfer.basket
           .map((item) => item.quantity + " x " + item.name)
           .join(",");
-      }
+      } */
       notificationData.title = title;
 
       return notificationData;
