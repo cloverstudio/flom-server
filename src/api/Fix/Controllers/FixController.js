@@ -31,7 +31,7 @@ router.get("/errortest", async (request, response) => {
 
 router.get("/product-business", async (request, response) => {
   try {
-    const products = await Product.find({}).lean();
+    const products = await Product.find({ type: { $in: [5, 6] } }).lean();
     const businesses = await Business.find({}).sort({ created: 1 }).lean();
     const businessOwnerToBusinessMap = {};
     const businessMap = {};
@@ -55,23 +55,25 @@ router.get("/product-business", async (request, response) => {
       if (p.businessId || p.business?._id) {
         const b = businessMap[p.businessId || p.business?._id];
 
-        console.log(`Updating product ${p._id} with businessId ${b._id}`);
+        console.log(`Updating product ${p._id} with existing businessId ${b._id}`);
 
         bulkWriteOps.push({
           updateOne: {
             filter: { _id: p._id },
             update: {
               $set: { business: { _id: b._id.toString(), name: b.name, avatar: b.avatar } },
+              $unset: { businessId: 1 },
             },
           },
         });
+
         continue;
       }
 
       const b = businessOwnerToBusinessMap[p.ownerId];
 
       if (b) {
-        console.log(`Updating product ${p._id} with businessId ${b._id}`);
+        console.log(`Updating product ${p._id} with existing businessId ${b._id}`);
 
         bulkWriteOps.push({
           updateOne: {
@@ -117,6 +119,8 @@ router.get("/product-business", async (request, response) => {
                 },
               },
             });
+
+            businessOwnerToBusinessMap[owner._id.toString()] = business;
           }
         }
       }
