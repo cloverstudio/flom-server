@@ -82,7 +82,7 @@ function errorResponse({ response, code, type, message, error, data, param, para
 async function createUnexpectedError({ message, reference, error, request }) {
   try {
     const deviceType = request.headers["device-type"] || "unknown";
-    const i = Config.instance || "0";
+    const i = Config.serverNumber;
 
     const info = {
       origin: "main_app_" + i,
