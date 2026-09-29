@@ -87,6 +87,8 @@ router.get("/product-business", async (request, response) => {
         const owner = await User.findById(p.ownerId).lean();
 
         if (owner) {
+          console.log(`Updating product ${p._id} with owner's new business`);
+
           const info = {};
           info.market =
             owner.countryCode ||
@@ -97,13 +99,14 @@ router.get("/product-business", async (request, response) => {
           const business = await Logics.createBusiness({ owner, info });
 
           if (business && business._id) {
-            businessOwnerToBusinessMap[p.ownerId] = {
-              _id: business._id.toString(),
-              name: business.name,
-              avatar: business.avatar,
-            };
+            console.log(
+              `Created new business for product ${
+                p._id
+              } with businessId ${business._id.toString()}`,
+            );
 
-            console.log(`Updating product ${p._id} with businessId ${business._id.toString()}`);
+            business._id = business._id.toString();
+            businessOwnerToBusinessMap[p.ownerId] = business;
 
             bulkWriteOps.push({
               updateOne: {
@@ -119,9 +122,9 @@ router.get("/product-business", async (request, response) => {
                 },
               },
             });
-
-            businessOwnerToBusinessMap[owner._id.toString()] = business;
           }
+        } else {
+          console.log(`!!! Owner not found for product ${p._id} with ownerId ${p.ownerId}`);
         }
       }
     }
