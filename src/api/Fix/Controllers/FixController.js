@@ -52,8 +52,8 @@ router.get("/product-business", async (request, response) => {
     const bulkWriteOps = [];
 
     for (const p of products) {
-      if (p.businessId || p.business._id) {
-        const b = businessMap[p.businessId || p.business._id];
+      if (p.businessId || p.business?._id) {
+        const b = businessMap[p.businessId || p.business?._id];
 
         console.log(`Updating product ${p._id} with businessId ${b._id}`);
 
