@@ -46,8 +46,6 @@ async function createBusiness({ owner, info }) {
     });
     businessMember = businessMember.toObject();
 
-    const user = await User.findById(owner._id.toString(), { lean: true });
-
     businessMember.user = {
       _id: owner._id.toString(),
       name: owner.name,
@@ -90,7 +88,7 @@ async function createBusiness({ owner, info }) {
     outlet = outlet.toObject();
     businessObj.outlets = [outlet];
 
-    let paymentAddress = await createTerminalPaymentAddress(user);
+    let paymentAddress = await createTerminalPaymentAddress(owner);
 
     let terminal = await Terminal.create({
       businessId: business._id.toString(),
@@ -119,6 +117,10 @@ async function createBusiness({ owner, info }) {
 }
 
 async function createTerminalPaymentAddress(owner) {
+  console.log(
+    `Creating terminal payment address for owner: ${owner.userName} with phone number: ${owner.phoneNumber}`,
+  );
+
   const countryCode =
     owner.countryCode || Utils.getCountryCodeFromPhoneNumber({ phoneNumber: owner.phoneNumber });
   const country = countries[countryCode];

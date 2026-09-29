@@ -36,14 +36,12 @@ router.get("/product-business", async (request, response) => {
     const businessOwnerToBusinessMap = {};
     const businessMap = {};
     businesses.forEach((business) => {
-      const ownerId = business.owner._id || business.ownerId;
+      const ownerId = business.owner?._id || business.ownerId;
 
       if (!businessOwnerToBusinessMap[ownerId]) {
-        businessOwnerToBusinessMap[ownerId] = {
-          _id: business._id.toString(),
-          name: business.name,
-          avatar: business.avatar,
-        };
+        business._id = business._id.toString();
+
+        businessOwnerToBusinessMap[ownerId] = business;
       }
 
       businessMap[business._id.toString()] = business;
@@ -87,7 +85,9 @@ router.get("/product-business", async (request, response) => {
         const owner = await User.findById(p.ownerId).lean();
 
         if (owner) {
-          console.log(`Updating product ${p._id} with owner's new business`);
+          console.log(
+            `Updating product ${p._id} with owner's new business, owner userName: ${owner.userName}`,
+          );
 
           const info = {};
           info.market =
