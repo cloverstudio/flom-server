@@ -209,8 +209,8 @@ router.post("/", auth({ allowUser: true }), autoApproveProduct, async function (
     // TODO: remove guards?
     let checkBusiness = false;
     if (
-      (request.iosVersion && request.iosVersion >= 678) ||
-      (request.androidVersion && request.androidVersion >= 140090)
+      (request.iosVersion && request.iosVersion >= 684) ||
+      (request.androidVersion && request.androidVersion >= 150000)
     ) {
       checkBusiness = true;
     }
