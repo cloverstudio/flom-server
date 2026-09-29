@@ -59,7 +59,7 @@ router.get(
       const query = {};
 
       if (provider && !["ppn", "qrios"].includes(provider)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidProvider,
           message: "ThirdPartyProductsController, operator list - invalid provider",
@@ -70,7 +70,7 @@ router.get(
       }
 
       if (countryCode && !countries[countryCode]) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidCountryCode,
           message: "ThirdPartyProductsController, operator list - invalid country code",
@@ -81,7 +81,7 @@ router.get(
       }
 
       if (type && !["top-up", "data", "gift-card", "bill-payment"].includes(type)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidTypeParameter,
           message: "ThirdPartyProductsController, operator list - invalid type",
@@ -99,7 +99,7 @@ router.get(
 
       Base.successResponse(response, Const.responsecodeSucceed, responseData);
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "ThirdPartyProductsController, operator list",
         error,
@@ -177,7 +177,7 @@ router.get(
       const query = {};
 
       if (provider && !["ppn", "qrios", "all"].includes(provider)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidProvider,
           message: "ThirdPartyProductsController, list - invalid provider",
@@ -185,7 +185,7 @@ router.get(
       }
 
       if (countryCode && !countries[countryCode] && countryCode !== "all") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidCountryCode,
           message: "ThirdPartyProductsController, list - invalid country code",
@@ -193,7 +193,7 @@ router.get(
       }
 
       if (type && !["top-up", "data", "gift-card", "bill-payment", "all"].includes(type)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidTypeParameter,
           message: "ThirdPartyProductsController, list - invalid type",
@@ -233,7 +233,7 @@ router.get(
 
       Base.successResponse(response, Const.responsecodeSucceed, responseData);
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "ThirdPartyProductsController, list",
         error,
@@ -316,7 +316,7 @@ router.get(
 
       Base.successResponse(response, Const.responsecodeSucceed, responseData);
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "ThirdPartyProductsController, blocked list",
         error,
@@ -374,7 +374,7 @@ router.post(
 
       if (productIds) {
         if (!Array.isArray(productIds)) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidIdsArray,
             message: "ThirdPartyProductsController, block - invalid productIds array",
@@ -387,7 +387,7 @@ router.post(
           const product = await ThirdPartyProduct.findById(id).lean();
 
           if (!product) {
-            return Base.newErrorResponse({
+            return Base.errorResponse({
               response,
               code: Const.responsecodeProductNotFound,
               message: `ThirdPartyProductsController, block - product with id ${id} not found`,
@@ -397,7 +397,7 @@ router.post(
           const block = await BlockedThirdPartyProduct.findOne({ productId: id }).lean();
 
           if (block) {
-            return Base.newErrorResponse({
+            return Base.errorResponse({
               response,
               code: Const.responsecodeBlockAlreadyExists,
               message: `ThirdPartyProductsController, block - block for productId ${id} already exists`,
@@ -421,28 +421,28 @@ router.post(
       }
 
       if (!provider || !["ppn", "qrios"].includes(provider)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidProvider,
           message: "ThirdPartyProductsController, block - invalid provider",
         });
       }
       if (!countryCode || (!countries[countryCode] && countryCode !== "all")) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidCountryCode,
           message: "ThirdPartyProductsController, block - invalid country code",
         });
       }
       if (!type || !["top-up", "data", "gift-card", "bill-payment", "all"].includes(type)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidTypeParameter,
           message: "ThirdPartyProductsController, block - invalid type",
         });
       }
       if (!operator) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidOperator,
           message: "ThirdPartyProductsController, block - invalid operator",
@@ -457,7 +457,7 @@ router.post(
       }).lean();
 
       if (exists) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeBlockAlreadyExists,
           message: `ThirdPartyProductsController, block - block for ${JSON.stringify({
@@ -473,7 +473,7 @@ router.post(
 
       Base.successResponse(response, Const.responsecodeSucceed);
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "ThirdPartyProductsController, block",
         error,
@@ -518,7 +518,7 @@ router.delete(
       const { blockId } = request.params;
 
       if (!blockId || !Utils.isValidObjectId(blockId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidId,
           message: "ThirdPartyProductsController, unblock - invalid blockId",
@@ -528,7 +528,7 @@ router.delete(
       const block = await BlockedThirdPartyProduct.findById(blockId).lean();
 
       if (!block) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeBlockNotFound,
           message: "ThirdPartyProductsController, unblock - block not found",
@@ -539,7 +539,7 @@ router.delete(
 
       Base.successResponse(response, Const.responsecodeSucceed);
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "ThirdPartyProductsController, unblock",
         error,

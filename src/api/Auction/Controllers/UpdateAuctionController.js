@@ -77,7 +77,7 @@ router.patch("/:auctionId", auth({ allowUser: true }), async function (request, 
     const { auctionId } = request.params;
 
     if (!auctionId || !Utils.isValidObjectId(auctionId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidAuctionId,
         message: `UpdateAuctionController, Update auction, missing or invalid auctionId`,
@@ -86,7 +86,7 @@ router.patch("/:auctionId", auth({ allowUser: true }), async function (request, 
 
     const auction = await Auction.findById(auctionId).lean();
     if (!auction) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeAuctionNotFound,
         message: `UpdateAuctionController, Update auction, auction not found`,
@@ -94,7 +94,7 @@ router.patch("/:auctionId", auth({ allowUser: true }), async function (request, 
     }
 
     if (auction.sellerId !== user._id.toString()) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message: `UpdateAuctionController, Update auction, user not allowed to update this auction`,
@@ -108,7 +108,7 @@ router.patch("/:auctionId", auth({ allowUser: true }), async function (request, 
     } = await checkParams(request.body, auction);
 
     if (paramsErrorCode) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: paramsErrorCode,
         message: `UpdateAuctionController, Update auction, ${paramsErrorMsg}`,
@@ -132,7 +132,7 @@ router.patch("/:auctionId", auth({ allowUser: true }), async function (request, 
       "auctions",
     );
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "UpdateAuctionController, Update auction",
       error,

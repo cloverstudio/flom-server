@@ -3,11 +3,12 @@
 const router = require("express").Router();
 const Base = require("../../Base");
 const { logger } = require("#infra");
-const { Const, Config } = require("#config");
+const { Const } = require("#config");
 const { auth } = require("#middleware");
-const { Business, BusinessMember, User, Notification, FlomMessage } = require("#models");
+const { Business, BusinessMember, History } = require("#models");
 const Utils = require("#utils");
 const Logics = require("#logics");
+const { socketApi } = require("#sockets");
 
 /**
  * @api {post} /api/v2/businesses/assistants/actions  Perform action on assistant flom_v1
@@ -51,7 +52,7 @@ router.post("/assistants/actions", auth({ allowUser: true }), async function (re
     const { businessId, action, role, targetId } = request.body;
 
     if (!["remove", "deactivate", "activate", "change_role"].includes(action)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidAction,
         message: "AssistantController, invalid action",
@@ -59,7 +60,7 @@ router.post("/assistants/actions", auth({ allowUser: true }), async function (re
     }
 
     if (!businessId || !Utils.isValidObjectId(businessId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidBusinessId,
         message: "AssistantController, invalid businessId",
@@ -69,7 +70,7 @@ router.post("/assistants/actions", auth({ allowUser: true }), async function (re
     const business = await Business.findById(businessId).lean();
 
     if (!business) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeBusinessNotFound,
         message: "AssistantController, business not found",
@@ -77,7 +78,7 @@ router.post("/assistants/actions", auth({ allowUser: true }), async function (re
     }
 
     if (action === "change_role" && !["helper", "manager"].includes(role)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeWrongRole,
         message: "AssistantController, invalid role",
@@ -85,7 +86,7 @@ router.post("/assistants/actions", auth({ allowUser: true }), async function (re
     }
 
     if (user._id.toString() !== business.owner._id) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message:
@@ -96,7 +97,7 @@ router.post("/assistants/actions", auth({ allowUser: true }), async function (re
     const existingAssistant = await BusinessMember.findOne({ businessId, userId: targetId }).lean();
 
     if (!existingAssistant) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidAction,
         message:
@@ -105,7 +106,7 @@ router.post("/assistants/actions", auth({ allowUser: true }), async function (re
     }
 
     if (existingAssistant.role === "owner") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message: "AssistantController, invalid action, target user is the owner of the business",
@@ -122,9 +123,39 @@ router.post("/assistants/actions", auth({ allowUser: true }), async function (re
       await BusinessMember.updateOne({ businessId, userId: targetId }, { role });
     }
 
-    return Base.successResponse(response, Const.responsecodeSucceed, {});
+    Base.successResponse(response, Const.responsecodeSucceed, {});
+
+    try {
+      if (action === "remove" || action === "deactivate") {
+        const businessHistories = await History.find({
+          chatType: Const.chatTypeBusiness,
+          chatId: { $regex: `^${businessId}-` },
+        }).lean();
+
+        const businessRoomIds = Array.from(new Set(businessHistories.map((b) => "6-" + b.chatId)));
+
+        for (const id of businessRoomIds) {
+          await socketApi.leave(targetId, id);
+        }
+      }
+
+      if (action === "activate") {
+        const businessHistories = await History.find({
+          chatType: Const.chatTypeBusiness,
+          chatId: { $regex: `^${businessId}-` },
+        }).lean();
+
+        const businessRoomIds = Array.from(new Set(businessHistories.map((b) => "6-" + b.chatId)));
+
+        for (const id of businessRoomIds) {
+          await socketApi.join(targetId, id);
+        }
+      }
+    } catch (error) {
+      logger.error("AssistantController, socket operation error: ", error);
+    }
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "AssistantController, update assistant",

@@ -59,7 +59,7 @@ router.get("", async (request, response) => {
           CountryWideBan.getDuration(countryBan.occurences) * 60 * 1000;
 
         if (diff < banDurationInMilliseconds) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeCountryTemporarilyBanned,
             type: Const.logTypeLogin,
@@ -98,13 +98,12 @@ router.get("", async (request, response) => {
       reservedAt: freeNumber ? Math.floor(modified / 1000) : undefined,
       tempToken: freeNumber ? Utils.getRandomString() : undefined,
     });
-  } catch (e) {
-    return Base.errorResponse(
+  } catch (error) {
+    Base.errorResponse({
       response,
-      Const.httpCodeServerError,
-      "GetFreeDidWWNumberController",
-      e,
-    );
+      message: "GetFreeDidWWNumberController",
+      error,
+    });
   }
 });
 

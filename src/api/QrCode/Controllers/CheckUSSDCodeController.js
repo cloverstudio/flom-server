@@ -160,12 +160,11 @@ router.post("/", async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
   } catch (error) {
-    return Base.errorResponse(
+    Base.errorResponse({
       response,
-      Const.httpCodeServerError,
-      "CheckUSSDCodeController",
+      message: "CheckUSSDCodeController",
       error,
-    );
+    });
   }
 });
 

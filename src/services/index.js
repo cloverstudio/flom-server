@@ -16,4 +16,8 @@ module.exports = {
   get authorizeNet() {
     return require("./authorize-net");
   },
+
+  get LocationIQ() {
+    return require("./location-iq");
+  },
 };

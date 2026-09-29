@@ -43,7 +43,7 @@ router.get("/:logoFileName", async function (request, response) {
 
     response.sendStatus(404);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetPaymentMethodLogoController",
       error,

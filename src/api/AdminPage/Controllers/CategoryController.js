@@ -57,7 +57,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
     let group = [];
 
     if (!name) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoName,
         message: `CategoryController - create category, no name parameter`,
@@ -67,7 +67,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
     let parent;
     if (parentId !== "-1") {
       if (!Utils.isValidObjectId(parentId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidObjectId,
           message: `CategoryController - create category, invalid parent id`,
@@ -76,7 +76,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
 
       parent = await Category.findOne({ _id: parentId }).lean();
       if (!parent) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeParentNotFound,
           message: `CategoryController - create category, parent not found`,
@@ -85,14 +85,14 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
     }
 
     if (!request.body.group) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoGroup,
         message: `CategoryController - create category, no group parameter`,
       });
     } else {
       if (!Array.isArray(request.body.group)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidGroup,
           message: `CategoryController - create category, invalid groups parameter`,
@@ -104,7 +104,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
         .filter((group) => Const.categoryGroups.indexOf(group) !== -1);
 
       if (request.body.group.length !== group.length) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidGroup,
           message: `CategoryController - create category, invalid groups parameter`,
@@ -124,7 +124,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
 
     if (parent && parent.group !== Const.categoryGroupAll) {
       if (!checkGroup({ parentGroup: parent.group, childGroup: group })) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeGroupNotAllowed,
           message: `CategoryController - create category, group not allowed`,
@@ -141,7 +141,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
 
     Base.successResponse(response, Const.responsecodeSucceed, { category: categoryData });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "CategoryController - create category",
       error,
@@ -198,7 +198,7 @@ router.patch(
       const { name } = request.body;
 
       if (!Utils.isValidObjectId(categoryId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidObjectId,
           message: `CategoryController - update category, invalid category id`,
@@ -207,7 +207,7 @@ router.patch(
 
       const category = await Category.findOne({ _id: categoryId });
       if (!category) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeCategoryNotFound,
           message: `CategoryController - update category, category not found`,
@@ -220,7 +220,7 @@ router.patch(
 
       if (request.body.group) {
         if (!Array.isArray(request.body.group)) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidGroup,
             message: `CategoryController - update category, invalid groups parameter`,
@@ -232,7 +232,7 @@ router.patch(
           .filter((group) => Const.categoryGroups.indexOf(group) !== -1);
 
         if (request.body.group.length !== groups.length) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidGroup,
             message: `CategoryController - update category, invalid groups parameter`,
@@ -251,7 +251,7 @@ router.patch(
         category: categoryObj,
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "CategoryController - update category",
         error,
@@ -305,7 +305,7 @@ router.delete(
         deleted: true,
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "CategoryController - delete category",
         error,

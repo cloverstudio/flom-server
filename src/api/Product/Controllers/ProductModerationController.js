@@ -174,7 +174,7 @@ router.patch(
       const adminUsername = request.user.username;
 
       if (!Utils.isValidObjectId(productId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidProductId,
           message: `ProductModerationController, productId is not valid`,
@@ -183,7 +183,7 @@ router.patch(
 
       const product = await Product.findOne({ _id: productId, isDeleted: false });
       if (!product) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeProductNotFound,
           message: `ProductModerationController, product not found`,
@@ -194,7 +194,7 @@ router.patch(
         product.moderation.status === Const.moderationStatusApprovalNeeded &&
         request.user.role < Const.Role.APPROVER
       ) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUnauthorized,
           type: Const.logTypeAdminPage,
@@ -204,7 +204,7 @@ router.patch(
 
       const moderationStatusArray = [1, 2, 3, 4];
       if (moderationStatusArray.indexOf(moderationStatus) === -1) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeWrongModerationStatusParameter,
           message: `ProductModerationController, wrong or no moderationStatus parameter`,
@@ -265,7 +265,7 @@ router.patch(
       sendApprovedProductBonuses({ product: productObj, owner });
       sendNewsletterToSubscribers({ product: productObj, owner });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "ProductModerationController",
         error,

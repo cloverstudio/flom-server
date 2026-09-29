@@ -69,7 +69,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       savedUserPaymentMethods,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "UserSavedPaymentMethodsController list methods",
       error,
@@ -141,7 +141,7 @@ router.get("/:paymentMethodId", auth({ allowUser: true }), async function (reque
             savedUserPaymentMethod,
           });
         }
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeSavedPaymentMethodNotFound,
           message: "UserSavedPaymentMethod, savedPaymentMethod not found",
@@ -149,13 +149,13 @@ router.get("/:paymentMethodId", auth({ allowUser: true }), async function (reque
       }
     }
 
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       code: Const.responsecodeNoSavedPaymentMethods,
       message: "UserSavedPaymentMethod, no savedPaymentMethods",
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "UserSavedPaymentMethodsController get method",
       error,
@@ -243,7 +243,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       zip,
     });
     if (responseCode !== 1) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: responseCode,
         message: "UserSavedPaymentMethod, validateCreditCardData",
@@ -264,7 +264,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     if (Config.environment !== "development") {
       if (countryFromIP.isVPN) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeVPN,
           message: "UserSavedPaymentMethod, VPN",
@@ -272,7 +272,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       }
 
       if (countryCode && countryCode !== countryFromPhoneNumber) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responseCodeCountryDoesNotMatchPhoneCountry,
           message:
@@ -311,7 +311,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
           user.paymentProfileId = responseData.paymentProfileId;
           await user.save();
         } else {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeFailedCreatingPaymentProfile,
             message: "UserSavedPaymentMethod, creating payment profile failed",
@@ -319,7 +319,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         }
       }
     } catch (error) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeFailedCreatingPaymentProfile,
         message: "UserSavedPaymentMethod, Add payment method error",
@@ -334,7 +334,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       savedUserPaymentMethod,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "UserSavedPaymentMethodsController add new payment method",
       error,
@@ -420,13 +420,13 @@ router.delete("/:paymentMethodId", auth({ allowUser: true }), async function (re
             });
           } catch (error) {
             if (error.code === "E00105") {
-              return Base.newErrorResponse({
+              return Base.errorResponse({
                 response,
                 code: Const.responsecodeCantDeleteBecauseRecurringPayment,
                 message: "UserSavedPaymentMethod, payment method in use for recurring payment",
               });
             }
-            return Base.newErrorResponse({
+            return Base.errorResponse({
               response,
               code: Const.responsecodeFailedDeletingPaymentProfile,
               message: "UserSavedPaymentMethod, authorize.net delete saved payment method",
@@ -434,7 +434,7 @@ router.delete("/:paymentMethodId", auth({ allowUser: true }), async function (re
           }
         }
 
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeSavedPaymentMethodNotFound,
           message: "UserSavedPaymentMethod, savedPaymentMethod not found",
@@ -442,13 +442,13 @@ router.delete("/:paymentMethodId", auth({ allowUser: true }), async function (re
       }
     }
 
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       code: Const.responsecodeNoSavedPaymentMethods,
       message: "UserSavedPaymentMethod, no savedPaymentMethod",
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "UserSavedPaymentMethodsController delete saved payment method",
       error,

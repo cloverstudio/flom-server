@@ -103,7 +103,7 @@ router.get("/:outletId", auth({ allowUser: true }), async function (request, res
     const { outletId } = request.params;
 
     if (!outletId || !Utils.isValidObjectId(outletId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidOutletId,
         message: "OutletController, get outlet - invalid outletId",
@@ -113,7 +113,7 @@ router.get("/:outletId", auth({ allowUser: true }), async function (request, res
     const outlet = await Outlet.findById(outletId).lean();
 
     if (!outlet) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeOutletNotFound,
         message: "OutletController, get outlet - outlet not found",
@@ -127,7 +127,7 @@ router.get("/:outletId", auth({ allowUser: true }), async function (request, res
     });
 
     if (!allowed) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message: "OutletController, get outlet - user is not allowed to get the outlet",
@@ -139,7 +139,7 @@ router.get("/:outletId", auth({ allowUser: true }), async function (request, res
 
     Base.successResponse(response, Const.responsecodeSucceed, { outlet });
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "OutletController, create outlet",
@@ -299,7 +299,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     } = request.body;
 
     if (!businessId || !Utils.isValidObjectId(businessId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidBusinessId,
         message: "OutletController, create outlet - invalid businessId",
@@ -309,7 +309,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const business = await Business.findById(businessId).lean();
 
     if (!business) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeBusinessNotFound,
         message: "OutletController, create outlet - business not found",
@@ -323,7 +323,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     });
 
     if (!allowed) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message: "OutletController, create outlet - user is not allowed to create an outlet",
@@ -333,7 +333,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const info = { schedule: { weekly: {} } };
 
     if (!name || typeof name !== "string" || name.length < 3 || name.length > 100) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidName,
         message: "OutletController, create outlet - invalid name",
@@ -343,7 +343,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     if (workingHours) {
       if (!Array.isArray(workingHours)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidOutletWorkingHours,
           message: "OutletController, create outlet - workingHours must be an array",
@@ -353,7 +353,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       for (const item of workingHours) {
         const day = item.day;
         if (typeof day !== "number" || day < 0 || day > 6) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidOutletWorkingHours,
             message: "OutletController, create outlet - invalid workingHours day",
@@ -362,7 +362,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
         const periods = item.periods;
         if (periods && !Array.isArray(periods)) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidOutletWorkingHours,
             message: "OutletController, create outlet - invalid workingHours periods",
@@ -371,7 +371,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
         const enabled = item.enabled;
         if (typeof enabled !== "boolean") {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidOutletWorkingHours,
             message: "OutletController, create outlet - invalid workingHours enabled",
@@ -391,7 +391,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     if (exceptions) {
       if (!Array.isArray(exceptions)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidOutletScheduleException,
           message: "OutletController, create outlet - exceptions must be an array",
@@ -404,21 +404,21 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
           typeof exception.date !== "string" ||
           !/^\d{4}-\d{2}-\d{2}$/.test(exception.date)
         ) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidOutletScheduleException,
             message: "OutletController, create outlet - invalid schedule exception date",
           });
         }
         if (typeof exception.enabled !== "boolean") {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidOutletScheduleException,
             message: "OutletController, create outlet - invalid schedule exception enabled",
           });
         }
         if (exception.periods && !Array.isArray(exception.periods)) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidOutletScheduleException,
             message: "OutletController, create outlet - invalid schedule exception periods",
@@ -440,7 +440,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       const lon = parseFloat(longitude);
 
       if (isNaN(lat) || lat < -90 || lat > 90) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidLocation,
           message: "OutletController, create outlet - invalid latitude",
@@ -448,7 +448,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       }
 
       if (isNaN(lon) || lon < -180 || lon > 180) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidLocation,
           message: "OutletController, create outlet - invalid longitude",
@@ -473,7 +473,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, { outlet: outlet.toObject() });
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "OutletController, create outlet",
@@ -621,7 +621,7 @@ router.patch("/:outletId", auth({ allowUser: true }), async function (request, r
       request.body;
 
     if (!outletId || !Utils.isValidObjectId(outletId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidOutletId,
         message: "OutletController, update outlet - invalid outletId",
@@ -631,7 +631,7 @@ router.patch("/:outletId", auth({ allowUser: true }), async function (request, r
     const outlet = await Outlet.findById(outletId).lean();
 
     if (!outlet) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeOutletNotFound,
         message: "OutletController, update outlet - outlet not found",
@@ -645,7 +645,7 @@ router.patch("/:outletId", auth({ allowUser: true }), async function (request, r
     });
 
     if (!allowedProfile && (name || address || latitude || longitude)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message:
@@ -660,7 +660,7 @@ router.patch("/:outletId", auth({ allowUser: true }), async function (request, r
     });
 
     if (!allowedHours && (workingHours || scheduleDescription || exceptions)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message: "OutletController, update outlet - user is not allowed to update the outlet hours",
@@ -671,7 +671,7 @@ router.patch("/:outletId", auth({ allowUser: true }), async function (request, r
 
     if (name) {
       if (typeof name !== "string" || name.length < 3 || name.length > 100) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidName,
           message: "OutletController, update outlet - invalid name",
@@ -682,7 +682,7 @@ router.patch("/:outletId", auth({ allowUser: true }), async function (request, r
 
     if (workingHours) {
       if (!Array.isArray(workingHours)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidOutletWorkingHours,
           message: "OutletController, update outlet - workingHours must be an array",
@@ -693,7 +693,7 @@ router.patch("/:outletId", auth({ allowUser: true }), async function (request, r
       for (const item of workingHours) {
         const day = item.day;
         if (typeof day !== "number" || day < 0 || day > 6) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidOutletWorkingHours,
             message: "OutletController, update outlet - invalid workingHours day",
@@ -702,7 +702,7 @@ router.patch("/:outletId", auth({ allowUser: true }), async function (request, r
 
         const periods = item.periods;
         if (periods && !Array.isArray(periods)) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidOutletWorkingHours,
             message: "OutletController, update outlet - invalid workingHours periods",
@@ -711,7 +711,7 @@ router.patch("/:outletId", auth({ allowUser: true }), async function (request, r
 
         const enabled = item.enabled;
         if (typeof enabled !== "boolean") {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidOutletWorkingHours,
             message: "OutletController, update outlet - invalid workingHours enabled",
@@ -729,7 +729,7 @@ router.patch("/:outletId", auth({ allowUser: true }), async function (request, r
 
     if (exceptions) {
       if (!Array.isArray(exceptions)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidOutletScheduleException,
           message: "OutletController, update outlet - exceptions must be an array",
@@ -742,21 +742,21 @@ router.patch("/:outletId", auth({ allowUser: true }), async function (request, r
           typeof exception.date !== "string" ||
           !/^\d{4}-\d{2}-\d{2}$/.test(exception.date)
         ) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidOutletScheduleException,
             message: "OutletController, update outlet - invalid schedule exception date",
           });
         }
         if (typeof exception.enabled !== "boolean") {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidOutletScheduleException,
             message: "OutletController, update outlet - invalid schedule exception enabled",
           });
         }
         if (exception.periods && !Array.isArray(exception.periods)) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidOutletScheduleException,
             message: "OutletController, update outlet - invalid schedule exception periods",
@@ -776,7 +776,7 @@ router.patch("/:outletId", auth({ allowUser: true }), async function (request, r
       const lon = parseFloat(longitude);
 
       if (isNaN(lat) || lat < -90 || lat > 90) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidOutletLocation,
           message: "OutletController, update outlet - invalid latitude",
@@ -784,7 +784,7 @@ router.patch("/:outletId", auth({ allowUser: true }), async function (request, r
       }
 
       if (isNaN(lon) || lon < -180 || lon > 180) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidOutletLocation,
           message: "OutletController, update outlet - invalid longitude",
@@ -803,7 +803,7 @@ router.patch("/:outletId", auth({ allowUser: true }), async function (request, r
 
     Base.successResponse(response, Const.responsecodeSucceed, { outlet: updatedOutlet });
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "OutletController, update outlet",

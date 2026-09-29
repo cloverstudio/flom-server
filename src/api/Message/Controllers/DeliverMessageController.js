@@ -32,12 +32,20 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const messageIds = messageId ? messageId.split(",").map((id) => id.trim()) : null;
     const user = request.user;
     if (!messageIds || messageIds.length === 0) {
-      return Base.successResponse(response, Const.responsecodeDeliverMessageNoMessageId);
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeDeliverMessageNoMessageId,
+        message: `DeliverMessageController, no messageId`,
+      });
     }
 
     const messages = await FlomMessage.find({ _id: { $in: messageIds } }).lean();
     if (messages.length === 0) {
-      return Base.successResponse(response, Const.responsecodeDeliverMessageWrongMessageId);
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeDeliverMessageWrongMessageId,
+        message: `DeliverMessageController, wrong messageId`,
+      });
     }
 
     const undeliveredMessages = messages.filter(
@@ -76,11 +84,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       if (chatType === Const.chatTypeGroup || chatType === Const.chatTypeRoom) {
         socketApi.emitToRoom(roomId, "updatemessages", filterMessages);
       } else if (chatType === Const.chatTypeBusiness) {
-        const tempArr = roomId.split("-");
-        const businessRoom = tempArr[0] + "-" + tempArr[1];
-        const otherUserId = tempArr[2];
-
-        socketApi.emitToRoom(businessRoom, "updatemessages", filterMessages);
+        socketApi.emitToRoom(roomId, "updatemessages", filterMessages);
       } else if (chatType === Const.chatTypePrivate) {
         const splitAry = roomId.split("-");
         if (splitAry.length < 2) return;
@@ -99,12 +103,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    return Base.errorResponse(
+    Base.errorResponse({
       response,
-      Const.httpCodeServerError,
-      "DeliverMessageController",
+      message: "DeliverMessageController",
       error,
-    );
+    });
   }
 });
 

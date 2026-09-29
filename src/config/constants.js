@@ -138,6 +138,7 @@ Constants.messageTypeLiveStreamCohostInvitation = 17;
 Constants.messageTypeAuctionOffer = 18;
 Constants.messageTypeWhatsAppFollowup = 22;
 Constants.messageTypeBusinessAssistantInvite = 23;
+Constants.messageTypeOrder = 24;
 
 Constants.pushTypeNewMessage = 1;
 Constants.pushTypeCall = 2;

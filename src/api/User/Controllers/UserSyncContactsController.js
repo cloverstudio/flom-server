@@ -195,8 +195,11 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
       users: flomUsers,
     });
   } catch (error) {
-    logger.error("UserSyncContactsController", error);
-    return Base.errorResponse(response, Const.httpCodeServerError);
+    Base.errorResponse({
+      response,
+      message: "UserSyncContactsController",
+      error,
+    });
   }
 });
 

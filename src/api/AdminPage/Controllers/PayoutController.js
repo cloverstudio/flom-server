@@ -118,7 +118,7 @@ router.get(
       const query = {};
       if (status) {
         if (Const.payoutStatuses.indexOf(status) === -1) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidStatusParameter,
             message: `AdminPayoutController, GET List - invalid status parameter`,
@@ -186,7 +186,7 @@ router.get(
         pagination,
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "AdminPayoutController, GET List",
         error,
@@ -289,7 +289,7 @@ router.get(
 
       Base.successResponse(response, Const.responsecodeSucceed, { payout: payoutData });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "AdminPayoutController, GET",
         error,
@@ -337,7 +337,7 @@ router.patch(
       const status = request.body.status;
 
       if (Const.payoutStatuses.indexOf(status) === -1) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidStatusParameter,
           message: `AdminPayoutController, PATCH - invalid status parameter`,
@@ -347,7 +347,7 @@ router.patch(
       const payout = await Payout.findById(payoutId).lean();
 
       if (!payout) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodePayoutNotFound,
           message: `AdminPayoutController, PATCH - payout not found`,
@@ -355,7 +355,7 @@ router.patch(
       }
 
       if (status === payout.status) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNewStatusSameAsOldStatus,
           message: `AdminPayoutController, PATCH - new status is is same as old status`,
@@ -447,7 +447,7 @@ router.patch(
         console.log(`AdminPayoutController, PATCH - ${JSON.stringify(error)}`);
       }
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "AdminPayoutController, PATCH",
         error,

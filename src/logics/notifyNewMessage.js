@@ -1,7 +1,7 @@
 const { logger, encryptionManager } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { User, Room, Group, Business } = require("#models");
+const { User, Room, Group, Business, BusinessMember } = require("#models");
 const socketApi = require("../sockets/socket-api");
 
 const sendPush = require("./sendPush");
@@ -113,16 +113,16 @@ async function notifyNewMessage(obj, originalRequestData) {
       // send to user who got message
       socketApi.emitToRoom(toUser, "newmessage", messageCloned);
     } else if (chatType == Const.chatTypeBusiness) {
-      const roomIdParts = messageCloned.roomID.split("-");
-      const businessRoom = Const.chatTypeBusiness + "-" + roomIdParts[1];
-      const otherUserId = roomIdParts[2];
+      const roomId = messageCloned.roomID;
 
-      const usersWhoMutedRoom = await User.find({ muted: businessRoom }, { token: 0 }).lean();
+      const usersWhoMutedRoom = await User.find({ muted: roomId }, { token: 0 }).lean();
 
       messageCloned.business = result.business;
       messageCloned.mutedUsersGroupRoom = usersWhoMutedRoom.map((user) => user._id.toString());
 
-      socketApi.emitToRoom(businessRoom, "newmessage", messageCloned);
+      console.log("Emitting new message to business room:", roomId);
+
+      socketApi.emitToRoom(roomId, "newmessage", messageCloned);
     }
 
     if (chatType == Const.chatTypeBroadcastAdmin) {
@@ -193,9 +193,25 @@ async function notifyNewMessage(obj, originalRequestData) {
       }
 
       result.pushMessage = msg;
+    } else if (chatType == Const.chatTypeBusiness) {
+      if (result.sender) {
+        msg = result.sender.name + " posted new message to " + obj.business.name;
+      } else {
+        msg = "New message to " + obj.business.name;
+      }
+
+      const businessId = obj.business._id.toString();
+      const members = await BusinessMember.find({ businessId, status: "active" }).lean();
+      const toSend = members.map((m) => m.userId);
+      toSend.push(roomIDSplitted[2]);
+
+      result.users = await User.find(
+        { _id: { $in: toSend.filter((id) => id != obj.userID) } },
+        { token: 0 },
+      ).lean();
     }
 
-    result.offlineUsers = result.users;
+    result.offlineUsers = result.users || [];
 
     const tokenAndBadgeCount = [];
     for (const user of result.offlineUsers) {
@@ -208,6 +224,8 @@ async function notifyNewMessage(obj, originalRequestData) {
 
       if (chatType == Const.chatTypeGroup) {
         targetId = obj.group._id.toString();
+      } else if (chatType == Const.chatTypeBusiness) {
+        targetId = obj.roomID;
       } else if (isRoomOrBroadcast) {
         targetId = obj.room._id.toString();
       } else {
@@ -386,6 +404,14 @@ async function notifyNewMessage(obj, originalRequestData) {
     }
     payload.undeliveredCount = originalRequestData.undeliveredCount;
     payload.isHighPriority = true;
+
+    if (obj.business) {
+      payload.business = {
+        _id: obj.business._id.toString(),
+        name: obj.business.name,
+      };
+    }
+
     sendPush(tokenAndBadgeCount, payload, Config.useVoipPush);
 
     return result;

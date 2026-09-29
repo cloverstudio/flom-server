@@ -183,7 +183,7 @@ router.get("/", async function (request, response) {
       user = await User.findOne({ "token.token": accessToken }).lean();
 
       if (!user) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidToken,
           message: `GetRecommendedProductsController, invalid token`,
@@ -220,7 +220,7 @@ router.get("/", async function (request, response) {
 
     const typesArray = ["1", "2", "3", "4", "5"];
     if (type !== undefined && typesArray.indexOf(type) === -1) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidTypeParameter,
         message: `GetRecommendedProductsController, wrong type parameter`,
@@ -229,14 +229,14 @@ router.get("/", async function (request, response) {
 
     if (lat && lon) {
       if (lat < -90 || lat > 90) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidLatParameter,
           message: `GetRecommendedProductsController, invalid lat parameter`,
         });
       }
       if (lon < -180 || lon > 180) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidLonParameter,
           message: `GetRecommendedProductsController, invalid lon parameter`,
@@ -322,7 +322,7 @@ router.get("/", async function (request, response) {
       recommId: newRecommId,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetRecommendedProductsController",
       error,

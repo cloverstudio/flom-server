@@ -68,7 +68,7 @@ router.post("/", async (request, response) => {
     const socialMedia = fields.socialMedia ? JSON.parse(fields.socialMedia) : [];
 
     if (!reCaptcha) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoReCaptchaParameter,
         type: Const.logTypeAdminPage,
@@ -78,7 +78,7 @@ router.post("/", async (request, response) => {
 
     const reCaptchaResult = await Utils.checkReCaptcha(reCaptcha);
     if (!reCaptchaResult) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeReCaptchaFailed,
         type: Const.logTypeAdminPage,
@@ -87,7 +87,7 @@ router.post("/", async (request, response) => {
     }
 
     if (!username) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoUsername,
         type: Const.logTypeAdminPage,
@@ -99,7 +99,7 @@ router.post("/", async (request, response) => {
     const usernameCharacters = username.split("");
     for (let i = 0; i < usernameCharacters.length; i++) {
       if (!regex.test(usernameCharacters[i])) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeWrongUsername,
           type: Const.logTypeAdminPage,
@@ -114,7 +114,7 @@ router.post("/", async (request, response) => {
         user.emailVerification.verified ||
         user.created + Config.usernameProtectionPeriod > Date.now()
       ) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeProfileUsernameTaken,
           type: Const.logTypeAdminPage,
@@ -124,7 +124,7 @@ router.post("/", async (request, response) => {
     }
 
     if (!password) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoPassword,
         type: Const.logTypeAdminPage,
@@ -133,7 +133,7 @@ router.post("/", async (request, response) => {
     }
     const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
     if (!passwordRegex.test(password)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidPassword,
         type: Const.logTypeAdminPage,
@@ -141,7 +141,7 @@ router.post("/", async (request, response) => {
       });
     }
     if (!email) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoEmail,
         type: Const.logTypeAdminPage,
@@ -149,7 +149,7 @@ router.post("/", async (request, response) => {
       });
     }
     if (!firstName) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoFirstName,
         type: Const.logTypeAdminPage,
@@ -157,7 +157,7 @@ router.post("/", async (request, response) => {
       });
     }
     if (!lastName) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoLastName,
         type: Const.logTypeAdminPage,
@@ -165,7 +165,7 @@ router.post("/", async (request, response) => {
       });
     }
     if (!phoneNumber) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoPhoneNumber,
         type: Const.logTypeAdminPage,
@@ -173,7 +173,7 @@ router.post("/", async (request, response) => {
       });
     }
     if (!address) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoAddress,
         type: Const.logTypeAdminPage,
@@ -211,7 +211,7 @@ router.post("/", async (request, response) => {
       userId: newUser._id.toString(),
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "AdminPage - RegistrationController",
       type: Const.logTypeAdminPage,

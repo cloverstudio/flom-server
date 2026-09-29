@@ -3,6 +3,7 @@
 const router = require("express").Router();
 const Base = require("../../Base");
 const { Const } = require("#config");
+const { BusinessMember } = require("#models");
 const { auth } = require("#middleware");
 const { messageList } = require("#logics");
 
@@ -75,7 +76,32 @@ router.get(
         : Const.MessageLoadDirection.append;
 
       if (!roomId || roomId.includes("null")) {
-        return Base.successResponse(response, Const.responsecodeMessageListInvalidParam);
+        return Base.errorResponse({
+          response,
+          code: Const.responsecodeMessageListInvalidParam,
+          message: `MessageListController, invalid roomId parameter`,
+        });
+      }
+
+      const arr = roomId.split("-");
+
+      if (arr[0] == Const.chatTypeBusiness) {
+        const businessId = arr[1];
+        const buyerId = arr[2];
+
+        const businessMember = await BusinessMember.findOne({
+          businessId,
+          userId: userID,
+          status: "active",
+        }).lean();
+
+        if (!businessMember && userID !== buyerId) {
+          return Base.errorResponse({
+            response,
+            code: Const.responsecodeUserIsNotActiveBusinessMemberOrBuyer,
+            message: `MessageListController, user is not active business member or buyer`,
+          });
+        }
       }
 
       const messages = await messageList({
@@ -88,12 +114,11 @@ router.get(
 
       return Base.successResponse(response, Const.responsecodeSucceed, { messages });
     } catch (error) {
-      return Base.errorResponse(
+      Base.errorResponse({
         response,
-        Const.httpCodeServerError,
-        "MessageListController",
+        message: "MessageListController",
         error,
-      );
+      });
     }
   },
 );

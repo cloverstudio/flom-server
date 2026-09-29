@@ -4,6 +4,7 @@ const possible = {
   alphanumeric: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
   numeric: "0123456789",
   alpha: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+  limited: "ABCDEFGHJKMNPQRSTUVWXYZ23456789",
 };
 
 function getRandomString(length, type = "alphanumeric") {

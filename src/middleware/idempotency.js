@@ -14,7 +14,7 @@ async function idempotency(req, res, next) {
   const key = req.header("Idempotency-Key");
 
   if (!key) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response: res,
       code: Const.responsecodeIdempotencyKeyRequired,
       message: "Idempotency-Key header is required",
@@ -54,7 +54,7 @@ async function idempotency(req, res, next) {
       }
 
       if (existing.requestHash !== requestHash) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response: res,
           code: Const.responsecodeIdempotencyKeyMismatch,
           message: "Idempotency-Key was already used with a different request body",
@@ -62,7 +62,7 @@ async function idempotency(req, res, next) {
       }
 
       if (existing.status === "processing") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response: res,
           code: Const.responsecodeOriginalRequestStillProcessing,
           message: "Original request with this Idempotency-Key is still processing",

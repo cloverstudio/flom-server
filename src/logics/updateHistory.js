@@ -2,7 +2,7 @@
 
 const { logger } = require("#infra");
 const { Const } = require("#config");
-const { User, Room, Group, History, Business } = require("#models");
+const { User, Room, Group, History, Business, BusinessMember } = require("#models");
 
 function isFile(messageType) {
   return (
@@ -51,7 +51,7 @@ async function resetUnreadCount(obj) {
     // business chat
     if (roomType == Const.chatTypeBusiness) {
       if (roomIdSplitted.length != 3) return;
-      chatId = roomIdSplitted[1];
+      chatId = roomIdSplitted[1] + "-" + roomIdSplitted[2];
     }
 
     await History.updateOne(
@@ -142,10 +142,9 @@ async function updateByMessage(obj) {
     if (roomType == Const.chatTypeBusiness) {
       if (roomIdSplitted.length != 3) return;
 
-      const businessId = roomIdSplitted[1];
       const fromUserId = userId;
 
-      await updateByBusinessChat(fromUserId, businessId, obj);
+      await updateByBusinessChat(fromUserId, roomIdSplitted, obj);
     }
 
     return;
@@ -155,8 +154,12 @@ async function updateByMessage(obj) {
   }
 }
 
-async function updateByBusinessChat(fromUserId, businessId, rawMessageObj) {
+async function updateByBusinessChat(fromUserId, roomIdSplitted, rawMessageObj) {
   try {
+    const businessId = roomIdSplitted[1];
+    const chatId = roomIdSplitted[1] + "-" + roomIdSplitted[2];
+    const buyerId = roomIdSplitted[2];
+
     const message = {
       messageId: rawMessageObj._id.toString(),
       message: rawMessageObj.message,
@@ -174,32 +177,34 @@ async function updateByBusinessChat(fromUserId, businessId, rawMessageObj) {
 
     const business = await Business.findById(businessId).lean();
 
-    if (!business || !business.users || !business.users.length) {
-      logger.error(
-        "updateByBusinessChat error: Business not found or has no users: " + business.users,
-      );
+    if (!business) {
+      logger.error("updateByBusinessChat error: Business not found: " + businessId);
       return;
     }
 
     const fromUser = await User.findById(fromUserId, User.getDefaultResponseFields()).lean();
 
-    const userId = fromUserId;
     let msg = message.message;
     if (msg) msg = msg.substr(0, 30);
     else msg = "";
 
-    const historyData = {
-      userId: userId,
-      chatId: businessId,
-      chatType: Const.chatTypeBusiness,
-      lastUpdate: Date.now(),
-      isUnread: 1,
-      lastUpdateUser: fromUser,
-      lastMessage: message,
-      keyword: business.name + ", " + msg,
-    };
+    const members = await BusinessMember.find({ businessId, status: "active" }).lean();
+    const userIds = Array.from(new Set([buyerId, ...members.map((m) => m.userId)]));
 
-    await updateData(historyData, rawMessageObj);
+    for (const id of userIds) {
+      const historyData = {
+        userId: id,
+        chatId: chatId,
+        chatType: Const.chatTypeBusiness,
+        lastUpdate: Date.now(),
+        isUnread: 1,
+        lastUpdateUser: fromUser,
+        lastMessage: message,
+        keyword: business.name + ", " + msg,
+      };
+
+      await updateData(historyData, rawMessageObj);
+    }
 
     return;
   } catch (error) {

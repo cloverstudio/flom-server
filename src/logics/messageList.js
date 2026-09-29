@@ -120,11 +120,7 @@ async function messageList({ userID, roomId, lastMessageId, direction, encrypt }
 
         socketApi.emitToRoom(toUser, "updatemessages", messagesToNotify);
       } else if (chatType === Const.chatTypeBusiness) {
-        const tempArr = roomID.split("-");
-        const businessRoom = Const.chatTypeBusiness + "-" + tempArr[1];
-        const otherUserId = tempArr[2];
-
-        socketApi.emitToRoom(businessRoom, "updatemessages", messagesToNotify);
+        socketApi.emitToRoom(roomID, "updatemessages", messagesToNotify);
       }
     }
 

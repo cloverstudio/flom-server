@@ -182,7 +182,7 @@ router.get("/:merchantCode", auth({ allowUser: true }), async (request, response
     const numberReqExp = RegExp("^[0-9]*$");
 
     if (!numberReqExp.test(merchantCode) || merchantCode.length !== 8) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidMerchantCode,
         message: `newGetUserByMerchantCodeController, invalid merchantCode`,
@@ -192,7 +192,7 @@ router.get("/:merchantCode", auth({ allowUser: true }), async (request, response
     const user = await User.findOne({ "bankAccounts.merchantCode": merchantCode }).lean();
 
     if (!user) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotFound,
         message: `newGetUserByMerchantCodeController, no user found`,
@@ -206,7 +206,7 @@ router.get("/:merchantCode", auth({ allowUser: true }), async (request, response
       user,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "newGetUserByMerchantCodeController",
       error,

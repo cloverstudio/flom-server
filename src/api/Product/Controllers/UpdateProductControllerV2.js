@@ -225,7 +225,7 @@ router.patch(
       const isAdmin = request.isAdmin;
 
       if (!Utils.isValidObjectId(productId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidProductId,
           message: `UpdateProductControllerV2, productId is not valid`,
@@ -234,7 +234,7 @@ router.patch(
 
       let product = await Product.findOne({ _id: productId, isDeleted: false });
       if (!product) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeProductNotFound,
           message: `UpdateProductControllerV2, product not found`,
@@ -242,7 +242,7 @@ router.patch(
       }
 
       if (product.ownerId !== requestUserId && !isAdmin) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUserIsNotProductOwner,
           message: `UpdateProductControllerV2, user not the owner`,
@@ -250,7 +250,7 @@ router.patch(
       }
 
       if (product.type === 5) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeCanNotUpdateProduct,
           message: `UpdateProductControllerV2, can't update products with type 5`,
@@ -260,7 +260,7 @@ router.patch(
       const purchaseHistory = product.contentPurchaseHistory || [];
       for (let i = 0; i < purchaseHistory.length; i++) {
         if (purchaseHistory[i].purchaseType === Const.contentPurchaseTypeExclusive) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeCannotUpdateExclusiveProduct,
             message: `UpdateProductControllerV2, cannot update exclusive product`,
@@ -322,7 +322,7 @@ router.patch(
         } else {
           const linkedProduct = await Product.findOne({ _id: linkedProductId }).lean();
           if (!linkedProduct) {
-            return Base.newErrorResponse({
+            return Base.errorResponse({
               response,
               code: Const.responsecodeLinkedProductNotFound,
               message: `UpdateProductControllerV2, linked product not found`,
@@ -365,7 +365,7 @@ router.patch(
       let category, parentCategory;
       if (categoryId && categoryId !== product.categoryId) {
         if (!Utils.isValidObjectId(categoryId)) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeProductInvalidCategoryId,
             message: `UpdateProductControllerV2, categoryId is not a valid id`,
@@ -374,7 +374,7 @@ router.patch(
 
         category = await Category.findOne({ _id: categoryId }).lean();
         if (!category) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeProductCategoryNotFound,
             message: `UpdateProductControllerV2, category not found`,
@@ -387,7 +387,7 @@ router.patch(
             categoryGroups: category.group,
           })
         ) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeProductInvalidCategory,
             message: `UpdateProductControllerV2, invalid category`,
@@ -413,7 +413,7 @@ router.patch(
       });
 
       if (err) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeAddingAudioForExpoFailed,
           message: `UpdateProductControllerV2, adding audio for expo failed`,
@@ -433,7 +433,7 @@ router.patch(
           (communityIds && communityIds !== product.communityIds))
       ) {
         if (Const.productVisibilities.indexOf(visibility) === -1) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeWrongVisibilityParameter,
             message: `UpdateProductControllerV2, wrong visibility parameter`,
@@ -443,7 +443,7 @@ router.patch(
 
         if (visibility === Const.productVisibilityTribes) {
           if (!tribeIds || tribeIds === "") {
-            return Base.newErrorResponse({
+            return Base.errorResponse({
               response,
               code: Const.responsecodeNoTribeIds,
               message: `UpdateProductControllerV2, no tribeIds parameter`,
@@ -457,7 +457,7 @@ router.patch(
               requestUserId,
             })) || {};
           if (code) {
-            return Base.newErrorResponse({
+            return Base.errorResponse({
               response,
               code,
               message: `UpdateProductControllerV2, ${message}`,
@@ -470,7 +470,7 @@ router.patch(
         }
         if (visibility === Const.productVisibilityCommunity) {
           if (!communityIds || communityIds === "") {
-            return Base.newErrorResponse({
+            return Base.errorResponse({
               response,
               code: Const.responsecodeMembershipNotFound,
               message: `UpdateProductControllerV2, no communityIds parameter`,
@@ -484,7 +484,7 @@ router.patch(
               communityIds: communityIdsArray,
             })) || {};
           if (code) {
-            return Base.newErrorResponse({
+            return Base.errorResponse({
               response,
               code,
               message: `UpdateProductControllerV2, ${message}`,
@@ -515,7 +515,7 @@ router.patch(
       if (publish && product.moderation.status === Const.moderationStatusDraft) {
         const { code, message } = checkDraftProduct(product) || {};
         if (code) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code,
             message: `UpdateProductControllerV2, ${message}`,
@@ -597,7 +597,7 @@ router.patch(
         product: productObj,
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "UpdateProductControllerV2",
         error,

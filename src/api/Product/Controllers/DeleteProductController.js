@@ -35,14 +35,25 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     // check if product exist
     const product = await Product.findOne({ _id: productId, isDeleted: false });
-    if (!product) return Base.successResponse(response, Const.responsecodeProductNotFound);
+    if (!product) {
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeProductNotFound,
+        message: "DeleteProductController, product not found",
+      });
+    }
 
     // check owner
-    if (product.ownerId != user._id.toString())
-      return Base.successResponse(response, Const.responsecodeUserIsNotProductOwner);
+    if (product.ownerId != user._id.toString()) {
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeUserIsNotProductOwner,
+        message: "DeleteProductController, user is not product owner",
+      });
+    }
 
     if (product.contentPurchaseHistory && product.contentPurchaseHistory.length > 0) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeAudioProductInUse,
         message: `DeleteProductController, audio product is in use by other users`,
@@ -50,14 +61,14 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (product?.mediaProcessingInfo?.status === "processing") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductMediaIsProcessing,
         message: "DeleteProductController, product media is processing",
       });
     }
     if (product?.mediaProcessingInfo?.status === "failed") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductMediaProcessingFailed,
         message: "DeleteProductController, product media processing failed",
@@ -115,14 +126,20 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     try {
       await product.save();
     } catch (error) {
-      logger.error("DeleteProductController, product save error", error);
-      return Base.successResponse(response, Const.responsecodeProductDeleteError);
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeProductDeleteError,
+        message: "DeleteProductController, product delete error",
+      });
     }
 
     Base.successResponse(response, Const.responsecodeSucceed);
-  } catch (e) {
-    Base.errorResponse(response, Const.httpCodeServerError, "DeleteProductController", e);
-    return;
+  } catch (error) {
+    Base.errorResponse({
+      response,
+      message: "DeleteProductController",
+      error,
+    });
   }
 });
 

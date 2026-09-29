@@ -133,7 +133,7 @@ router.post(
         updatedFlomAgent: !updatedFlomAgent ? {} : updatedFlomAgent.toObject(),
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "UpdateFlomAgentsBalanceController",
         error,

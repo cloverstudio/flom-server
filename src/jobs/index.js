@@ -7,6 +7,7 @@ const updateWhatsAppPrices = require("./updateWhatsAppPrices");
 const expireBusinessInvites = require("./expireBusinessInvites");
 const sendBusinessInviteNotifications = require("./sendBusinessInviteNotifications");
 const removeExpiredIdempotencyRecords = require("./removeExpiredIdempotencyRecords");
+const cleanUnexpectedErrors = require("./cleanUnexpectedErrors");
 
 module.exports = {
   // sendTestPush,
@@ -18,4 +19,5 @@ module.exports = {
   expireBusinessInvites,
   sendBusinessInviteNotifications,
   removeExpiredIdempotencyRecords,
+  cleanUnexpectedErrors,
 };

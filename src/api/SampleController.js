@@ -41,7 +41,7 @@ const { User } = require("#models");
  */
 
 // basic method router, replace METHOD with get, post, put, patch, delete
-// please always use newErrorResponse for errors
+// please always use errorResponse for errors
 // if you must use successResponse for errors then add a log explaining the error:
 //            logger.error("SampleController, METHOD, sample error message");
 
@@ -58,7 +58,7 @@ router.method(
     try {
       const failure = true;
       if (failure) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.SAMPLE_ERROR_CODE,
           message: "SampleController, METHOD - failure",
@@ -68,7 +68,7 @@ router.method(
       const responseData = {};
       Base.successResponse(response, Const.responsecodeSucceed, responseData);
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "SampleController, METHOD",
         error,

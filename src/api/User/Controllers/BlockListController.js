@@ -28,7 +28,7 @@ router.get("/", auth({ allowUser: true }), async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed, { list: blockedUsers });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "BlockListController",
       error,

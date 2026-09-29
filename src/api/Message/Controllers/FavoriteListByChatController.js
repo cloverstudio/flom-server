@@ -42,12 +42,11 @@ router.get("/:chatId/:page", auth({ allowUser: true }), async function (request,
       count: favorites.length,
     });
   } catch (error) {
-    return Base.errorResponse(
+    Base.errorResponse({
       response,
-      Const.httpCodeServerError,
-      "FavoriteListByChatController",
+      message: "FavoriteListByChatController",
       error,
-    );
+    });
   }
 });
 

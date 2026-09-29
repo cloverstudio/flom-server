@@ -119,7 +119,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       });
 
     if (code) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code,
         message: `MarketingNotificationsController - add notification, ${message}`,
@@ -175,7 +175,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     await User.updateMany({ _id: { $in: userIds } }, { $inc: { "notifications.unreadCount": 1 } });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "MarketingNotificationsController - add new notification",
       error,
@@ -229,7 +229,7 @@ router.get(
       const { marketingNotificationId } = request.params;
 
       if (!Utils.isValidObjectId(marketingNotificationId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidObjectId,
           message: `MarketingNotificationsController - get notification, marketingNotificationId is not valid`,
@@ -250,7 +250,7 @@ router.get(
       ).lean();
 
       if (!marketingNotification) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeMarketingNotificationNotFound,
           message: `MarketingNotificationsController - get notification, notification not found`,
@@ -264,7 +264,7 @@ router.get(
 
       Base.successResponse(response, Const.responsecodeSucceed, { marketingNotification });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "MarketingNotificationsController - get notification",
         error,
@@ -353,7 +353,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       hasNext: page * Const.newPagingRows < total,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "MarketingNotificationsController - notification list",
       error,

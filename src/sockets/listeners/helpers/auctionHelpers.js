@@ -5,7 +5,7 @@ const { logger, redis } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
 const Logics = require("#logics");
-const { User, Transfer, Order, Auction, ConversionRate } = require("#models");
+const { User, Transfer, Order, Auction, ConversionRate, Product } = require("#models");
 const { authorizeNet } = require("#services");
 
 let conversionRates = { rates: null, lastUpdated: 0 };
@@ -70,7 +70,11 @@ async function handlePayment({ auction, isFromAccept = false }) {
     const base = DateTime.now();
     const expirationDate = base.plus({ minutes: Const.orderExpirationTime }).toUTC().toMillis();
 
+    const productId = auction.product._id;
+    const product = await Product.findById(productId).lean();
+
     const order = await Order.create({
+      business: product.business,
       seller: {
         _id: receiver._id.toString(),
         name: receiver.name,
@@ -303,6 +307,26 @@ async function sendNotifications({ order, sender, receiver, localAmountSender })
     isMuted: false,
     orderId: order._id.toString(),
   });
+
+  const seller = receiver;
+  const buyer = sender;
+  const roomId = `${Const.chatTypeBusiness}-${order.businessId}-${buyer._id.toString()}`;
+
+  const orderInfo = JSON.parse(JSON.stringify(order));
+  delete orderInfo.shipping;
+  delete orderInfo.events;
+
+  const params = {
+    isRecursiveCall: false,
+    type: Const.messageTypeOrder,
+    userID: seller._id.toString(),
+    roomID: roomId,
+    message: "",
+    created: Date.now(),
+    attributes: { orderInfo },
+  };
+
+  await Logics.sendMessage(params);
 
   if (sender.email) {
     const shippingDestination = !order.shipping.destination

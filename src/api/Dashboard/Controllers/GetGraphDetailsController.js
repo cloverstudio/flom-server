@@ -106,7 +106,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     const ONE_YEAR = 31556926000;
 
     if (!startDate) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoStartDate,
         message: "GetGraphDetailsController, no start date parameter",
@@ -114,7 +114,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (!endDate) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoEndDate,
         message: "GetGraphDetailsController, no end date parameter",
@@ -451,7 +451,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       other: otherJSON,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetGraphDetailsController",
       error,

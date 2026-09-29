@@ -53,7 +53,7 @@ router.patch(
       const { accepted } = request.body;
 
       if (!Utils.isValidObjectId(tribeId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeTribeBadId,
           message: `ReviewInvitationController, bad tribe id`,
@@ -62,7 +62,7 @@ router.patch(
 
       const tribe = await Tribe.findById(tribeId);
       if (!tribe) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeTribeNotFound,
           message: `ReviewInvitationController, no tribe found`,
@@ -71,7 +71,7 @@ router.patch(
 
       const invitation = tribe.members.invited.find((member) => member.id === requestUserId);
       if (!invitation) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeTribeNoInvitationPending,
           message: `ReviewInvitationController, no invitation pending`,
@@ -81,7 +81,7 @@ router.patch(
       const userStatus = accepted === "1";
       if (userStatus) {
         if (tribe.members.accepted.length === Const.tribeMaxSize) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeTribeFull,
             message: `ReviewInvitationController, tribe full`,
@@ -93,7 +93,7 @@ router.patch(
           tribe.members.accepted.filter((member) => member.role === Const.tribeMemberRoleCoOwner)
             .length >= Const.tribeMaxCoOwners
         ) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeTribeMaxCoOwnerCountReached,
             message: `ReviewInvitationController, maximum co-owners count reached`,
@@ -114,7 +114,7 @@ router.patch(
 
       Base.successResponse(response, Const.responsecodeSucceed, { userStatus });
     } catch (error) {
-      Base.newErrorResponse({ response, message: "ReviewInvitationController", error });
+      Base.errorResponse({ response, message: "ReviewInvitationController", error });
     }
   },
 );

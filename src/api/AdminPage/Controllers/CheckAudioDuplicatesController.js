@@ -62,7 +62,7 @@ router.get(
       const audioId = request.params.audioId;
 
       if (!audioId) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeAudioIdMissing,
           message: "CheckAudioDuplicatesController, audio id missing",
@@ -72,7 +72,7 @@ router.get(
       const audio = await Product.findById(audioId).lean();
 
       if (!audio) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeAudioNotFound,
           message: "CheckAudioDuplicatesController, audio not found",
@@ -82,7 +82,7 @@ router.get(
       const audioFileName = audio.file[0]?.file?.nameOnServer;
 
       if (!audioFileName) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoAudioFile,
           message: "CheckAudioDuplicatesController, audio does not contain file",
@@ -150,7 +150,7 @@ router.get(
 
       Base.successResponse(response, Const.responsecodeSucceed, { similarAudios });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "CheckAudioDuplicatesController",
         error,

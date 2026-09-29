@@ -65,7 +65,7 @@ router.get("/groups", auth({ allowUser: true }), async function (request, respon
 
     return Base.successResponse(response, Const.responsecodeSucceed, { groups });
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "BusinessTagsController",
@@ -236,7 +236,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed, { tags });
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "BusinessTagsController",

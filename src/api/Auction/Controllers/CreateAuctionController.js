@@ -89,7 +89,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const { auctions = null, liveStreamId } = request.body;
 
     if (!auctions || !Array.isArray(auctions) || auctions.length === 0) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidParameter,
         message: `CreateAuctionController, Create auction, missing auctions array`,
@@ -97,7 +97,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (!liveStreamId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidLiveStreamId,
         message: `CreateAuctionController, Create auction, missing livestream id`,
@@ -106,7 +106,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     const liveStream = await LiveStream.findById(liveStreamId).lean();
     if (!liveStream || !liveStream.isActive) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeLiveStreamNotFound,
         message: `CreateAuctionController, Create auction, live stream not found or inactive`,
@@ -114,7 +114,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (liveStream.userId !== user._id.toString()) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message: `CreateAuctionController, Create auction, streamer is not request user`,
@@ -141,7 +141,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       } = await checkParams({ ...auctionData, user, liveStream });
 
       if (paramsErrorCode) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: paramsErrorCode,
           message: `CreateAuctionController, Create auction, ${paramsErrorMsg}`,
@@ -205,7 +205,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     sendPushNotifications({ liveStream, user });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "CreateAuctionController, Create auction",
       error,

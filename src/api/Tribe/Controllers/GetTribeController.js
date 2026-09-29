@@ -126,7 +126,7 @@ router.get(
 
       const tribeId = request.params.tribeId;
       if (!Utils.isValidObjectId(tribeId))
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           message: `GetTribeController, bad tribe id`,
           code: Const.responsecodeTribeBadId,
@@ -134,7 +134,7 @@ router.get(
 
       const tribe = await Tribe.findById(tribeId).lean();
       if (!tribe)
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           message: `GetTribeController, no tribe found`,
           code: Const.responsecodeTribeNotFound,
@@ -202,7 +202,7 @@ router.get(
           formattedTribe = formatTribeForOthers(tribe, Const.tribeUserStatus.invited);
         } else {
           if (tribe.isHidden === true) {
-            return Base.newErrorResponse({
+            return Base.errorResponse({
               response,
               message: `GetTribeController, no tribe found, tribe is hidden`,
               code: Const.responsecodeTribeNotFound,
@@ -228,7 +228,7 @@ router.get(
 
       Base.successResponse(response, Const.responsecodeSucceed, { tribe: formattedTribe });
     } catch (error) {
-      Base.newErrorResponse({ response, message: "GetTribeController", error });
+      Base.errorResponse({ response, message: "GetTribeController", error });
     }
   },
 );

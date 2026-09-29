@@ -64,7 +64,7 @@ router.patch(
       const { status } = request.body;
 
       if (!ticketId) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoTalkTicketId,
           message: "UpdateTalkTicketController, PATCH - no ticket id parameter",
@@ -72,14 +72,14 @@ router.patch(
       }
 
       if (!status) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoStatusParameter,
           message: "UpdateTalkTicketController, PATCH - no status parameter",
         });
       }
       if ([1, 2, 3, 4].indexOf(status) === -1) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidStatusParameter,
           message: "UpdateTalkTicketController, PATCH - invalid status parameter",
@@ -93,7 +93,7 @@ router.patch(
       ).lean();
 
       if (!talkTicket) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeTalkTicketNotFound,
           message: "UpdateTalkTicketController, PATCH - talk ticket not found",
@@ -107,7 +107,7 @@ router.patch(
         ticket: talkTicket,
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "UpdateTalkTicketController, PATCH",
         error,

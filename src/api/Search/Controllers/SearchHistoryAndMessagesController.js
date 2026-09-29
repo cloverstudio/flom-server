@@ -251,12 +251,11 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       },
     });
   } catch (error) {
-    return Base.errorResponse(
+    Base.errorResponse({
       response,
-      Const.httpCodeServerError,
-      "SearchHistoryAndMessagesController",
+      message: "SearchHistoryAndMessagesController",
       error,
-    );
+    });
   }
 });
 

@@ -2,9 +2,10 @@
 
 const router = require("express").Router();
 const Base = require("../../Base");
+const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const { auth } = require("#middleware");
-const { WhatsAppUserMapping } = require("#models");
+const { WhatsAppUserMapping, BusinessMember } = require("#models");
 const { sendMessage } = require("#logics");
 const { createOfferMessage } = require("../helpers");
 const mediaHandler = require("#media");
@@ -95,7 +96,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         request.body.attributes.gifData.width = width;
       }
     } catch (error) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeFailedToSendMessage,
         message: `SendMessageController, error in getting gif dimensions`,
@@ -105,6 +106,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const { userID, roomID } = request.body;
 
     const arr = roomID.split("-");
+
     if (arr[0] == Const.chatTypePrivate) {
       let s, r;
       if (arr[1] == userID) {
@@ -126,13 +128,32 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       }
     }
 
-    console.log("SendMessageController param:" + JSON.stringify(request.body));
+    if (arr[0] == Const.chatTypeBusiness) {
+      const businessId = arr[1];
+      const buyerId = arr[2];
+
+      const businessMember = await BusinessMember.findOne({
+        businessId,
+        userId: userID,
+        status: "active",
+      }).lean();
+
+      if (!businessMember && userID !== buyerId) {
+        return Base.errorResponse({
+          response,
+          code: Const.responsecodeUserIsNotActiveBusinessMemberOrBuyer,
+          message: `SendMessageController, user is not active business member or buyer`,
+        });
+      }
+    }
+
+    logger.debug("SendMessageController param:" + JSON.stringify(request.body));
 
     let result;
     try {
       result = await sendMessage(request.body);
     } catch (error) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeFailedToSendMessage,
         message: `SendMessageController, error on sending message`,
@@ -143,7 +164,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       message: result,
     });
   } catch (error) {
-    return Base.errorResponse(response, Const.httpCodeServerError, "SendMessageController", error);
+    Base.errorResponse({
+      response,
+      message: "SendMessageController",
+      error,
+    });
   }
 });
 

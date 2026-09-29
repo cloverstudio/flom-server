@@ -19,13 +19,21 @@ router.get("/:messageid", auth({ allowUser: true }), async function (request, re
     const messageId = request.params.messageid;
 
     if (!Utils.isValidObjectId(messageId)) {
-      return Base.successResponse(response, Const.responsecodeForwardMessageInvalidChatId);
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeForwardMessageInvalidMessageId,
+        message: `SeenByController, invalid messageId`,
+      });
     }
 
     const message = await FlomMessage.findById(messageId).lean();
 
     if (!message) {
-      return Base.successResponse(response, Const.responsecodeForwardMessageInvalidChatId);
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeForwardMessageInvalidMessageId,
+        message: `SeenByController, invalid messageId, message not found`,
+      });
     }
 
     const seenByUserIds = message.seenBy
@@ -100,7 +108,11 @@ router.get("/:messageid", auth({ allowUser: true }), async function (request, re
       deliveredTo: deliveredToAry,
     });
   } catch (error) {
-    return Base.errorResponse(response, Const.httpCodeServerError, "SeenByController", error);
+    Base.errorResponse({
+      response,
+      message: "SeenByController",
+      error,
+    });
   }
 });
 

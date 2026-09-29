@@ -58,7 +58,7 @@ router.patch(
   async (request, response) => {
     try {
       if (request.headers["content-type"].indexOf("multipart") === -1) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInputNotMultipart,
           message: `EditEmojiInSetController - input is not multipart form data`,
@@ -69,7 +69,7 @@ router.patch(
       const emojiId = request.params.emojiId;
 
       if (!emojiSetId) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoEmojiSetId,
           message: "EditEmojiInSetController - no emoji set id",
@@ -77,7 +77,7 @@ router.patch(
       }
 
       if (!emojiId) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoEmojiId,
           message: "EditEmojiInSetController - no emoji id",
@@ -87,7 +87,7 @@ router.patch(
       let emojiSet = await EmojiSet.findOne({ _id: emojiSetId }).lean();
 
       if (!emojiSet) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNotValidEmojiSetId,
           message: "EditEmojiInSetController - not valid emoji set id",
@@ -102,7 +102,7 @@ router.patch(
       ).lean();
 
       if (!emojiInSet.items[0]) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeEmojiNotFound,
           message: "EditEmojiInSetController - not valid emoji id",
@@ -126,7 +126,7 @@ router.patch(
 
       if (isDeprecated && emojiInSet.items[0].isDeprecated !== Boolean(Number(isDeprecated))) {
         if (Boolean(Number(isDeprecated)) === false && emojiInSet.items[0].isDeprecated === true) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeCantRevertToNotDeprecated,
             message: `EditEmojiInSetController - can not revert to not deprecated`,
@@ -148,7 +148,7 @@ router.patch(
           const fileMimeType = file.type;
 
           if (fileMimeType.indexOf("image") === -1) {
-            return Base.newErrorResponse({
+            return Base.errorResponse({
               response,
               code: Const.responsecodeOnlyImageFilesAllowed,
               message: `EditEmojiInSetController - only image files allowed`,
@@ -157,7 +157,7 @@ router.patch(
 
           const { fileData, code } = await Utils.handleImageFile(file, "emojis");
           if (code === 123) {
-            return Base.newErrorResponse({
+            return Base.errorResponse({
               response,
               code: Const.responsecodeExtensionNotAllowed,
               message: `EditEmojiInSetController - image extension not allowed`,
@@ -226,7 +226,7 @@ router.patch(
 
       Base.successResponse(response, Const.responsecodeSucceed);
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "EditEmojiInSetController",
         error,

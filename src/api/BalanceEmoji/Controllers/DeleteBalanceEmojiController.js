@@ -58,7 +58,7 @@ router.delete(
       const emojiId = request.params.id;
 
       if (!emojiId) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoEmojiId,
           message: "DeleteBalanceEmojiController - no emoji ID",
@@ -68,7 +68,7 @@ router.delete(
       const balanceEmoji = await BalanceEmoji.findById(emojiId).lean();
 
       if (!balanceEmoji) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeEmojiNotFound,
           message: "DeleteBalanceEmojiController - no emoji found with given ID",
@@ -78,7 +78,7 @@ router.delete(
       const result = await BalanceEmoji.findByIdAndDelete(emojiId);
 
       if (!result) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeDeleteEmojiProblem,
           message: "DeleteBalanceEmojiController - there was a problem with deleting the emoji",
@@ -95,7 +95,7 @@ router.delete(
         deletedBalanceEmoji: result.toObject(),
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "DeleteBalanceEmojiController",
         error,

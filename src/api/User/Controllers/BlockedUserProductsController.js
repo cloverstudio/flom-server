@@ -79,14 +79,14 @@ router.patch(
     try {
       const { userId, action } = request.body;
       if (!userId) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoUserId,
           message: `BlockedUserProductsController, no userId parameter`,
         });
       }
       if (!Utils.isValidObjectId(userId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidUserId,
           message: `BlockedUserProductsController, invalid userId parameter`,
@@ -95,7 +95,7 @@ router.patch(
 
       const user = await User.findOne({ _id: userId });
       if (!user) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUserNotFound,
           message: `BlockedUserProductsController, user with id ${userId} not found`,
@@ -103,14 +103,14 @@ router.patch(
       }
 
       if (!action) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoAction,
           message: `BlockedUserProductsController, no action parameter`,
         });
       }
       if (action !== "block" && action !== "unblock") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidAction,
           message: `BlockedUserProductsController, invalid action parameter`,
@@ -140,7 +140,7 @@ router.patch(
         },
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "BlockedUserProductsController",
         error,

@@ -64,7 +64,7 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "BlockUserController",
       error,

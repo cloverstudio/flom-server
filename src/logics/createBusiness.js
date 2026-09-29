@@ -34,7 +34,7 @@ async function createBusiness({ owner, info }) {
       ...info,
     });
 
-    const businessObj = await business.toObject();
+    const businessObj = business.toObject();
 
     await User.updateOne({ _id: owner._id.toString() }, { hasBusiness: true });
 

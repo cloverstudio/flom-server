@@ -79,7 +79,7 @@ router.get("/", auth({ allowUser: true }), async (request, response) => {
     const itemsPerPage = +request.query.itemsPerPage || Const.newPagingRows;
 
     if (!otherPartyPhoneNumbers) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoPhoneNumber,
         message: "UserTransfers, no phoneNumber query",
@@ -107,7 +107,7 @@ router.get("/", auth({ allowUser: true }), async (request, response) => {
     }
 
     if (formattedOtherPartyPhoneNumbers.length === 0) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoPhoneNumber,
         message: "UserTransfers, no phoneNumbers after formatting",
@@ -224,7 +224,7 @@ router.get("/", auth({ allowUser: true }), async (request, response) => {
       hasNext: page * itemsPerPage < total,
     });
   } catch (error) {
-    Base.newErrorResponse({ response, message: "UserTransfersController", error });
+    Base.errorResponse({ response, message: "UserTransfersController", error });
   }
 });
 

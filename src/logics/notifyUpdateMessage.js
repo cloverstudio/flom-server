@@ -21,8 +21,7 @@ async function notifyUpdateMessage(message) {
     } else if (chatType == Const.chatTypeRoom) {
       socketApi.emitToRoom(message.roomID, "updatemessages", [message]);
     } else if (chatType == Const.chatTypeBusiness) {
-      const businessRoom = Const.chatTypeBusiness + "-" + roomIDSplitted[1];
-      socketApi.emitToRoom(businessRoom, "updatemessages", [message]);
+      socketApi.emitToRoom(message.roomID, "updatemessages", [message]);
     } else if (chatType == Const.chatTypePrivate) {
       const splitAry = message.roomID.split("-");
 

@@ -57,7 +57,7 @@ router.get(
       const { ticketId } = request.params;
 
       if (!ticketId) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoContactTicketId,
           message: "GetContactTicketController, GET single - no ticket id parameter",
@@ -67,7 +67,7 @@ router.get(
       const contactTicket = await ContactTicket.findOne({ _id: ticketId }).lean();
 
       if (!contactTicket) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeContactTicketNotFound,
           message: "GetContactTicketController, GET single - contact ticket not found",
@@ -79,7 +79,7 @@ router.get(
 
       Base.successResponse(response, Const.responsecodeSucceed, { ticket: contactTicket });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "GetContactTicketController, GET single",
         error,
@@ -211,7 +211,7 @@ router.get("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (reque
 
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetContactTicketController, GET",
       error,

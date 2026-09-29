@@ -93,7 +93,7 @@ router.get("/search", async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed, { flomojis: flomojisWithLinks });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "SearchFlomojiController, GET",
       error,

@@ -93,7 +93,7 @@ router.post("/:newMembershipId", auth({ allowUser: true }), async function (requ
     const userIP = request.headers["x-forwarded-for"] || request.socket.remoteAddress;
 
     if (!Utils.isValidObjectId(newMembershipId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidMembershipId,
         message: `UpdateMembershipController, invalid newMembershipId`,
@@ -102,7 +102,7 @@ router.post("/:newMembershipId", auth({ allowUser: true }), async function (requ
 
     const newMembership = await Membership.findOne({ _id: newMembershipId }).lean();
     if (!newMembership) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeMembershipNotFound,
         message: `UpdateMembershipController, membership with ${newMembershipId} not found`,
@@ -119,7 +119,7 @@ router.post("/:newMembershipId", auth({ allowUser: true }), async function (requ
       (membership) => membership.id === newMembershipId,
     );
     if (activeNewMembership && activeNewMembership.expirationDate === -1) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserAlreadyMember,
         message: `UpdateMembershipController, user already a member of the membership with ${newMembershipId} id`,
@@ -134,7 +134,7 @@ router.post("/:newMembershipId", auth({ allowUser: true }), async function (requ
     }).lean();
 
     if (sameCreatorMemberships.length === 0) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidMembershipToUpgradeTo,
         message: `UpdateMembershipController, invalid membership to update to`,
@@ -172,7 +172,7 @@ router.post("/:newMembershipId", auth({ allowUser: true }), async function (requ
       $or: [{ "membership.currentId": oldMembershipId }, { "membership.newId": oldMembershipId }],
     }).lean();
     if (!recurringPayment) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoActiveRecurringPayment,
         message: `UpdateMembershipController, no active recurring payment`,
@@ -205,7 +205,7 @@ router.post("/:newMembershipId", auth({ allowUser: true }), async function (requ
     });
 
     if (err) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeCallPaymentServiceError,
         message: "UpdateMembershipController, call payment service API",
@@ -216,7 +216,7 @@ router.post("/:newMembershipId", auth({ allowUser: true }), async function (requ
     const data = apiResponse;
 
     if (data?.code !== 1) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: data.code,
         message: data.message || `UpdateMembershipController, update membership recurring payment`,
@@ -284,7 +284,7 @@ router.post("/:newMembershipId", auth({ allowUser: true }), async function (requ
       completed: true,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "UpdateMembershipController",
       error,

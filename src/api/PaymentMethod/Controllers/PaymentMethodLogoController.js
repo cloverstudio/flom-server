@@ -43,7 +43,7 @@ router.get("/:type", async function (request, response) {
 
     response.sendStatus(404);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "PaymentMethodLogoController",
       error,

@@ -38,7 +38,7 @@ async function checkIfBonusAlreadyReceived({
       };
 
       const transfer = await Transfer.findOne(query);
-      return !!transfer;
+      return { check: !!transfer };
     } else if (oneTimeBonuses.includes(bonusType)) {
       const query = {
         receiverPhoneNumber: phoneNumber,
@@ -51,7 +51,7 @@ async function checkIfBonusAlreadyReceived({
       };
 
       const transfer = await Transfer.findOne(query);
-      return !!transfer;
+      return { check: !!transfer };
     } else if (dailyLimitBonuses.includes(bonusType)) {
       const query = {
         receiverPhoneNumber: phoneNumber,
@@ -61,7 +61,7 @@ async function checkIfBonusAlreadyReceived({
         ...(!!liveStreamId && { liveStreamId }),
       };
       const transfer = await Transfer.findOne(query);
-      if (!!transfer) return true;
+      if (!!transfer) return { check: true };
 
       const today = new Date();
       today.setUTCHours(0, 0, 0, 0);
@@ -112,13 +112,14 @@ async function checkIfBonusAlreadyReceived({
         bonusPaymentMethod === "credits"
           ? Const.bonusDailyLimitMapCredits[bonusType]
           : Const.bonusDailyLimitMapSats[bonusType];
-      return sum >= limit;
+      return { check: sum >= limit };
     }
 
-    throw new Error(`invalid bonus type: ${bonusType}`);
+    logger.warn(`invalid bonus type: ${bonusType}`);
+    return { error: true };
   } catch (error) {
-    logger.error("checkIfBonusAlreadyReceived", error);
-    throw new Error(`checkIfBonusAlreadyReceived error`);
+    logger.error("checkIfBonusAlreadyReceived: ", error.stack);
+    return { error: true };
   }
 }
 

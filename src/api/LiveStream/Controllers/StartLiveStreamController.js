@@ -47,7 +47,7 @@ router.post("/start", auth({ allowUser: true }), async function (request, respon
     const { liveStreamId } = request.body;
 
     if (!liveStreamId || !Utils.isValidObjectId(liveStreamId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidLiveStreamId,
         message: `StartLiveStreamController, invalid liveStreamId: ${liveStreamId}`,
@@ -57,7 +57,7 @@ router.post("/start", auth({ allowUser: true }), async function (request, respon
     const liveStream = await LiveStream.findOne({ _id: liveStreamId }, { comments: 0 }).lean();
 
     if (!liveStream) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeLiveStreamNotFound,
         message: `StartLiveStreamController, live stream not found: ${liveStreamId}`,
@@ -65,7 +65,7 @@ router.post("/start", auth({ allowUser: true }), async function (request, respon
     }
 
     if (liveStream.userId !== userId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message: `StartLiveStreamController, user not stream owner: ${userId}`,
@@ -73,7 +73,7 @@ router.post("/start", auth({ allowUser: true }), async function (request, respon
     }
 
     if (liveStream.startTimeStamp) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeLiveStreamAlreadyStarted,
         message: `StartLiveStreamController, live stream already started: ${liveStreamId}`,
@@ -184,7 +184,7 @@ router.post("/start", auth({ allowUser: true }), async function (request, respon
       logger.error("StartLiveStreamController, messages", error);
     }
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "StartLiveStreamController",
       error,

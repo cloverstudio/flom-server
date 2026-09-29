@@ -76,13 +76,19 @@ router.post("/", (request, response) => {
 
   //check for required values
   if (!phoneNumber) {
-    console.log("Missing phoneNumber!");
-    return Base.successResponse(response, Const.responsecodeNoPhoneNumber);
+    return Base.errorResponse({
+      response,
+      code: Const.responsecodeNoPhoneNumber,
+      message: "SendPhoneNumberController, no phoneNumber provided",
+    });
   }
 
   if (!activationCode) {
-    console.log("Missing activationCode!");
-    return Base.successResponse(response, Const.responsecodeNoActivationCode);
+    return Base.errorResponse({
+      response,
+      code: Const.responsecodeNoActivationCode,
+      message: "SendPhoneNumberController, no activationCode provided",
+    });
   }
 
   const requestbody =
@@ -117,8 +123,11 @@ router.post("/", (request, response) => {
         jsonData["Pre-MerchantSelfRegistrationResponse"].ResponseDescription._text;
 
       if (responseDescription != "00") {
-        console.log("Merch does not exist!");
-        return Base.successResponse(response, Const.merchantDoesntExist);
+        return Base.errorResponse({
+          response,
+          code: Const.merchantDoesntExist,
+          message: "SendPhoneNumberController, merchant does not exist",
+        });
       } else {
         const financials =
           jsonData["Pre-MerchantSelfRegistrationResponse"].FinancialInstitutions
@@ -147,8 +156,11 @@ router.post("/", (request, response) => {
         let user = findResult[0];
 
         if (!user) {
-          console.log("Merchant not found!");
-          return Base.successResponse(response, Const.responsecodeMerchantNotFound);
+          return Base.errorResponse({
+            response,
+            code: Const.responsecodeMerchantNotFound,
+            message: "SendPhoneNumberController, merchant not found",
+          });
         }
 
         if (user.activationCode === activationCode) {
@@ -200,15 +212,21 @@ router.post("/", (request, response) => {
             tkn: tokenToSend,
           };
 
-          Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
+          return Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
         } else {
-          Base.successResponse(response, Const.responsecodeSignupInvalidActivationCode);
+          return Base.errorResponse({
+            response,
+            code: Const.responsecodeSignupInvalidActivationCode,
+            message: "SendPhoneNumberController, invalid activation code",
+          });
         }
       }
-    } catch (e) {
-      console.log("Error: ", e);
-      Base.errorResponse(response, Const.httpCodeServerError);
-      return;
+    } catch (error) {
+      Base.errorResponse({
+        response,
+        message: "SendPhoneNumberController",
+        error,
+      });
     }
   })();
 });

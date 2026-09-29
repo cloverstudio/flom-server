@@ -32,7 +32,6 @@ module.exports = Object.freeze({
   generateRandomNumber: require("./generateRandomNumber"),
   generateThumbnailFromImage: require("./generateThumbnailFromImage"),
 
-  getAddressFromCoordinates: require("./getAddressFromCoordinates"),
   getAllBankAccountsWithMsisdn: require("./getAllBankAccountsWithMsisdn"),
   getCountryCodeFromPhoneNumber: require("./getCountryCodeFromPhoneNumber"),
   getCurrencyFromCountryCode: require("./getCurrencyFromCountryCode"),

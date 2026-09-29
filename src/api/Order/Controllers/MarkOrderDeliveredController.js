@@ -52,7 +52,7 @@ router.patch(
       }).lean();
 
       if (!order) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeOrderNotFound,
           message: "MarkOrderDeliveredController, order not found: " + orderId,
@@ -62,7 +62,7 @@ router.patch(
       const relation = order.seller._id.toString() === userId ? "seller" : "buyer";
 
       if (relation === "seller") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUserNotAllowed,
           message: "MarkOrderDeliveredController, seller cannot confirm delivery",
@@ -94,7 +94,7 @@ router.patch(
       const responseData = { order: updatedOrder };
       Base.successResponse(response, Const.responsecodeSucceed, responseData);
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "MarkOrderDeliveredController",
         error,

@@ -62,7 +62,7 @@ router.post(
       const { phoneNumbers: phoneNumbersFile } = files;
 
       if (!phoneNumbersFile) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoPhoneNumbersFile,
           message: `CalculateSMSPriceController - no phonenumbers file`,
@@ -72,7 +72,7 @@ router.post(
       const tmp = phoneNumbersFile.name.split(".");
       const extension = tmp[tmp.length - 1];
       if (extension !== "txt" && extension !== "csv") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeFileTypeNotSupported,
           message: `CalculateSMSPriceController - file type not supported - only txt & csv`,
@@ -83,7 +83,7 @@ router.post(
       const dataArray = data.split(",");
 
       if (dataArray.length === 0) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeFileInvalidStructure,
           message: `CalculateSMSPriceController - phonenumbers file invalid structure`,
@@ -138,7 +138,7 @@ router.post(
             `CalculateSMSPriceController, invalid SMS price for ${countryCode}: ` +
               JSON.stringify(price),
           );
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidSMSPrice,
             message:
@@ -152,7 +152,7 @@ router.post(
 
       Base.successResponse(response, Const.responsecodeSucceed, { totalPrice: total });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "CalculateSMSPriceController",
         error,

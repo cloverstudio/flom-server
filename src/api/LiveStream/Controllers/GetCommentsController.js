@@ -75,7 +75,7 @@ router.get(
       const blocked = user.blocked || [];
 
       if (!Utils.isValidObjectId(liveStreamId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidLiveStreamId,
           message: `GetCommentsController - invalid liveStreamId: ${liveStreamId}`,
@@ -85,7 +85,7 @@ router.get(
       const liveStream = await LiveStream.findById(liveStreamId).lean();
 
       if (!liveStream) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeLiveStreamNotFound,
           message: "GetCommentsController - live stream not found",
@@ -93,7 +93,7 @@ router.get(
       }
 
       if (!(await isUserAllowed({ liveStream, userId: user._id.toString() }))) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUserNotAllowed,
           message: "GetCommentsController - user not allowed",
@@ -130,7 +130,7 @@ router.get(
       };
       Base.successResponse(response, Const.responsecodeSucceed, responseData);
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "GetCommentsController",
         error,

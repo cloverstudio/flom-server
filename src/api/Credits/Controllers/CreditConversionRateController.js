@@ -50,7 +50,7 @@ router.get(
         creditConversionRate: creditConversionRate ?? {},
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "CreditConversionRateController, GET",
         error,
@@ -100,7 +100,7 @@ router.get("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (reque
       creditConversionRates: creditConversionRates ?? [],
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "CreditConversionRateController, GET",
       error,
@@ -153,7 +153,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
     const { errorCode, errorMessage, countryCode, value } = checkParams(request.body);
 
     if (errorCode) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: errorCode,
         message: `CreditConversionRateController, POST - ${errorMessage}`,
@@ -162,7 +162,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
 
     const alreadyExists = await CreditConversionRate.findOne({ countryCode }).lean();
     if (alreadyExists) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeCreditConversionRateAlreadyExists,
         message: `CreditConversionRateController, POST - credit conversion rate with given country code already exists`,
@@ -175,7 +175,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
       creditConversionRate: creditConversionRate.toObject(),
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "CreditConversionRateController, POST",
       error,
@@ -233,7 +233,7 @@ router.patch(
       const user = request.user;
 
       if (errorCode) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: errorCode,
           message: `CreditConversionRateController, PATCH - ${errorMessage}`,
@@ -242,7 +242,7 @@ router.patch(
 
       const exists = await CreditConversionRate.findOne({ countryCode }).lean();
       if (!exists) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeCreditConversionRateDoesNotExist,
           message: `CreditConversionRateController, PATCH - credit conversion rate with given country code does not exist`,
@@ -267,7 +267,7 @@ router.patch(
         updatedCreditConversionRate: updatedCreditConversionRate.toObject(),
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "CreditConversionRateController, PATCH",
         error,
@@ -320,7 +320,7 @@ router.delete(
       const user = request.user;
 
       if (!countryCode) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoCountryCodeParameter,
           message: `CreditConversionRateController, DELETE - no countryCode parameter`,
@@ -329,7 +329,7 @@ router.delete(
 
       const exists = await CreditConversionRate.findOne({ countryCode }).lean();
       if (!exists) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeCreditConversionRateDoesNotExist,
           message: `CreditConversionRateController, DELETE - credit conversion rate with given country code does not exist`,
@@ -352,7 +352,7 @@ router.delete(
         deletedCreditConversionRate: deletedCreditConversionRate.toObject(),
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "CreditConversionRateController, DELETE",
         error,

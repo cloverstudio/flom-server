@@ -95,7 +95,7 @@ router.get("/list", auth({ allowUser: true }), async function (request, response
     }
 
     if (!phoneNumbers || !phoneNumbers.length) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoPhoneNumber,
         message: `CarrierController - list, no phoneNumber`,
@@ -134,7 +134,7 @@ router.get("/list", auth({ allowUser: true }), async function (request, response
     }
 
     if (!formattedPhoneNumbers.length) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidPhoneNumber,
         message: `CarrierController - list, invalid phoneNumber`,
@@ -194,7 +194,7 @@ router.get("/list", auth({ allowUser: true }), async function (request, response
 
     Base.successResponse(response, Const.responsecodeSucceed, { carriers });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "CarrierController - list",
       error,

@@ -49,7 +49,7 @@ router.post(
       const customerActivationData = await Logics.getCustomerActivationData();
 
       if (customerActivationData.totalSpending > customerActivationData.totalSpendingCap) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeTotalSpendingHigherThanSpendingCap,
           message: `SendSMSController - total amount spent higher than spending cap`,
@@ -65,7 +65,7 @@ router.post(
       const { phoneNumbers: phoneNumbersFile } = files;
 
       if (!message) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoMessageParameter,
           message: `SendSMSController - no message parameter`,
@@ -73,7 +73,7 @@ router.post(
       }
 
       if (!phoneNumbersFile) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoPhoneNumbersFile,
           message: `SendSMSController - no phonenumbers file`,
@@ -83,7 +83,7 @@ router.post(
       const tmp = phoneNumbersFile.name.split(".");
       const extension = tmp[tmp.length - 1];
       if (extension !== "txt" && extension !== "csv") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeFileTypeNotSupported,
           message: `SendSMSController - file type not supported - only txt & csv`,
@@ -95,7 +95,7 @@ router.post(
       console.log("dataArray: " + dataArray);
 
       if (dataArray.length === 0) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeFileInvalidStructure,
           message: `SendSMSController - phonenumbers file invalid structure`,
@@ -132,7 +132,7 @@ router.post(
       console.log("send sms, phoneumbers: " + phoneNumbers.length);
 
       if (phoneNumbers.length === 0) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoValidPhoneNumbersInFile,
           message: `SendSMSController - no valid phonenumbers in file`,
@@ -149,7 +149,7 @@ router.post(
 
       Base.successResponse(response, Const.responsecodeSucceed);
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "SendSMSController",
         error,

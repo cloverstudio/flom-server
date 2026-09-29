@@ -79,7 +79,7 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
     const image = data?.files?.image;
 
     if (typeof name !== "string" || name.trim().length === 0) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeTribeInvalidName,
         message: `CreateTribeController, bad name parameter`,
@@ -87,7 +87,7 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
     }
 
     if (typeof description !== "string" || description.trim().length === 0) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeTribeInvalidDescription,
         message: `CreateTribeController, bad description parameter`,
@@ -101,7 +101,7 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
         requestUserId,
       })) || {};
     if (code) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code,
         message: `CreateTribeController, ${message}`,
@@ -109,7 +109,7 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
     }
 
     if (image && image.type.split("/")[0] !== "image") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeTribeImageInvalid,
         message: `CreateTribeController, bad image parameter`,
@@ -155,7 +155,7 @@ router.post("/", auth({ allowUser: true }), async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed, { tribe: formatNewTribe(tribe) });
   } catch (error) {
-    Base.newErrorResponse({ response, message: "CreateTribeController", error });
+    Base.errorResponse({ response, message: "CreateTribeController", error });
   }
 });
 

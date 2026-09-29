@@ -136,7 +136,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         (!request.user.bankAccounts ||
           !request.user.bankAccounts.some((account) => account.merchantCode))
       ) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUnverifiedUserNotAllowedToUploadFiles,
           message: `NewReviewController - add review, unverified user not allowed to upload files in review`,
@@ -145,7 +145,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (!productId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoProductId,
         message: `NewReviewController - add review, no product id`,
@@ -153,7 +153,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (!Utils.isValidObjectId(productId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidProductId,
         message: `NewReviewController - add review, productId is not valid`,
@@ -162,7 +162,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     const product = await Product.findOne({ _id: productId, isDeleted: false });
     if (!product) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductNotFound,
         message: `NewReviewController - add review, product not found`,
@@ -178,7 +178,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         allowPublicComments: product.allowPublicComments,
       }))
     ) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeTransactionNotFound,
         message: `NewReviewController - add review, transaction/transfer not found`,
@@ -186,7 +186,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
     if (product.type === Const.productTypeProduct) {
       if (!rate) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoProductRate,
           message: `NewReviewController - add review, no rate`,
@@ -199,7 +199,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         isDeleted: false,
       });
       if (reviewExists) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeAlreadyReviewed,
           message: `NewReviewController - add review, review already exists`,
@@ -247,7 +247,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
           try {
             fileData = await handleVideoFile(file);
           } catch (error) {
-            return Base.newErrorResponse({
+            return Base.errorResponse({
               response,
               code: Const.responsecodeErrorWithVideoFile,
               message: `NewReviewController - add review, error with video file`,
@@ -316,7 +316,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       logger.error("NewReviewController, add review, recombee", error);
     }
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "NewReviewController - add review",
       error,
@@ -434,7 +434,7 @@ router.patch("/:reviewId", auth({ allowUser: true }), async function (request, r
     let isModified = false;
 
     if (!Utils.isValidObjectId(reviewId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidReviewId,
         message: `NewReviewController - update review, reviewId is not valid`,
@@ -443,7 +443,7 @@ router.patch("/:reviewId", auth({ allowUser: true }), async function (request, r
 
     const review = await Review.findOne({ _id: reviewId, isDeleted: false });
     if (!review) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeReviewNotFound,
         message: `NewReviewController - update review, review not found`,
@@ -455,7 +455,7 @@ router.patch("/:reviewId", auth({ allowUser: true }), async function (request, r
       review.type === Const.reviewTypeBless ||
       review.type === Const.reviewTypeSpray
     ) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeReviewEditForbidden,
         message: `NewReviewController - update review, edit forbidden`,
@@ -465,7 +465,7 @@ router.patch("/:reviewId", auth({ allowUser: true }), async function (request, r
     if (rate && rate >= 1 && rate <= 5 && review.rate && rate !== review.rate) {
       const product = await Product.findOne({ _id: review.product_id, isDeleted: false });
       if (!product) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeProductNotFound,
           message: `NewReviewController - update review, product not found`,
@@ -535,7 +535,7 @@ router.patch("/:reviewId", auth({ allowUser: true }), async function (request, r
           try {
             fileData = await handleVideoFile(file);
           } catch (error) {
-            return Base.newErrorResponse({
+            return Base.errorResponse({
               response,
               code: Const.responsecodeErrorWithVideoFile,
               message: `NewReviewController - update review, error with video file`,
@@ -570,7 +570,7 @@ router.patch("/:reviewId", auth({ allowUser: true }), async function (request, r
       review: reviewObj,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "NewReviewController - update review",
       error,

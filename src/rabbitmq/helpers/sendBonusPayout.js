@@ -9,13 +9,13 @@ const getCustomerActivationData = require("./getCustomerActivationData");
 async function sendBonusPayout({ userId, bonusType, productId, conversionRatesToday }) {
   try {
     if (!userId) {
-      logger.error(`sendBonusPayout, userId missing`);
+      logger.warn(`sendBonusPayout, userId missing`);
       return;
     }
 
     const user = await User.findById(userId).lean();
     if (!user) {
-      logger.error(`sendBonusPayout, user not found`);
+      logger.warn(`sendBonusPayout, user not found`);
       return;
     }
 
@@ -32,7 +32,8 @@ async function sendBonusPayout({ userId, bonusType, productId, conversionRatesTo
     } = customerActivationData;
 
     if (!sendPayoutBonus) {
-      throw new Error("sendBonusPayout, payout bonus disabled");
+      logger.warn("sendBonusPayout, payout bonus disabled");
+      return;
     }
 
     let amount = null;
@@ -57,7 +58,7 @@ async function sendBonusPayout({ userId, bonusType, productId, conversionRatesTo
     }
 
     if (!amount) {
-      logger.error(
+      logger.warn(
         `sendBonusPayout, ${bonusType} approval amount not set in customer activation admin panel`,
       );
       return;
@@ -134,7 +135,7 @@ async function sendBonusPayout({ userId, bonusType, productId, conversionRatesTo
       const sum = Utils.roundNumber(transferSum + payoutSum + amount, 2);
 
       if (sum > maxProductBonusPayoutAmount) {
-        logger.error("Bonus consumer, maximum payout for products reached");
+        logger.warn("Bonus consumer, maximum payout for products reached");
         return;
       }
     }
@@ -266,7 +267,8 @@ async function sendSatsBonus({
 
 async function sendPayoutRequest({ payoutRequest, token = null }) {
   if (!token) {
-    logger.error(`sendBonusPayout, user ${payoutRequest.receiverPhoneNumber} does not have token`);
+    logger.warn(`sendBonusPayout, user ${payoutRequest.receiverPhoneNumber} does not have token`);
+    return;
   }
 
   await Utils.sendRequest({

@@ -57,6 +57,7 @@ module.exports = Object.freeze({
 
   LandingPageShell: require("./LandingPageShell"),
   LiveStream: require("./LiveStream"),
+  LocationIQCache: require("./LocationIQCache"),
   LoginAttempt: require("./LoginAttempt"),
 
   MainCategory: require("./MainCategory"),
@@ -116,6 +117,7 @@ module.exports = Object.freeze({
   Tribe: require("./Tribe"),
   Type: require("./Type"),
 
+  UnexpectedError: require("./UnexpectedError"),
   User: require("./User"),
   UserCategoryInteraction: require("./UserCategoryInteraction"),
   UserTagInteraction: require("./UserTagInteraction"),

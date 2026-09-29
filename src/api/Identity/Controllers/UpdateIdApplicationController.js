@@ -88,7 +88,7 @@ router.patch(
       const approvalComment = request.body.approvalComment || "";
 
       if (!Utils.isValidObjectId(applicationId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNotValidId,
           message: `UpdateIdApplicationController, applicationId is not a valid id`,
@@ -97,7 +97,7 @@ router.patch(
 
       const idApplication = await IdApplication.findOne({ _id: applicationId });
       if (!idApplication) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeIdApplicationNotFound,
           message: `UpdateIdApplicationController, id application not found`,
@@ -105,7 +105,7 @@ router.patch(
       }
 
       if ([2, 3].indexOf(approvalStatus) === -1) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidApprovalStatus,
           message: `UpdateIdApplicationController, invalid approvalStatus`,
@@ -159,7 +159,7 @@ router.patch(
 
       await handleBusiness({ owner: user, idApplication: idApplicationObj });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "UpdateIdApplicationController",
         error,

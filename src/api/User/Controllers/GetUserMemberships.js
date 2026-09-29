@@ -143,7 +143,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       memberships,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "JoinMembershipController",
       error,

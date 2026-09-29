@@ -223,7 +223,11 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     const { user } = request;
 
     if (user?.isDeleted.value) {
-      return Base.successResponse(response, Const.responsecodeUserDeleted);
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeUserDeleted,
+        message: `GetUserDetailsByTokenController, user deleted`,
+      });
     }
 
     let appVersion = await AppVersion.findOne({});
@@ -246,7 +250,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       groupCallBaseUrl: Config.groupCallBaseUrl,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetUserDetailsByTokenController",
       error,

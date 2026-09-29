@@ -51,4 +51,9 @@ module.exports = Object.freeze({
 
   createBusiness: require("./createBusiness"),
   checkBusinessPermissions: require("./checkBusinessPermissions"),
+
+  addUserCategoryInteraction: require("./addUserCategoryInteraction"),
+  addUserTagInteraction: require("./addUserTagInteraction"),
+
+  getAddressFromCoordinates: require("./getAddressFromCoordinates"),
 });
