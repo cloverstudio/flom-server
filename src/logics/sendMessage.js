@@ -46,14 +46,14 @@ async function sendMessage(param) {
       param.message = encryptionManager.decryptText(param.message);
     }
 
-    if (param.attributes) {
+    /* if (param.attributes) {
       const a = param.attributes;
       const mentionedUsers = a.usersInMessageParent?.usersInMessage || [];
 
       for (const item of mentionedUsers) {
         delete item.userModel;
       }
-    }
+    } */
 
     const user = await User.findById(userID).lean();
     if (!user) {
