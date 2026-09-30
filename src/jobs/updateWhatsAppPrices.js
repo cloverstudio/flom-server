@@ -8,15 +8,15 @@ const whatsAppPricingUrl =
 const definition = `Market,Currency,Marketing,Utility,Authentication,"Authentication-\nInternational",Service`;
 const NorthAmerica = "Canada,United States";
 const Africa =
-  "Algeria,Angola,Benin,Botswana,Burkina Faso,Burundi,Cameroon,Chad,Republic of the Congo,Eritrea,Ethiopia,Gabon,Gambia,Ghana,Guinea-Bissau,Ivory Coast,Kenya,Lesotho,Liberia,Libya,Madagascar,Malawi,Mali,Mauritania,Morocco,Mozambique,Namibia,Niger,Rwanda,Senegal,Sierra Leone,Somalia,South Sudan,Sudan,Swaziland,Tanzania,Togo,Tunisia,Uganda,Zambia,Zimbabwe";
+  "Algeria,Angola,Benin,Botswana,Burkina Faso,Burundi,Cameroon,Chad,Republic of the Congo,Eritrea,Ethiopia,Gabon,Gambia,Ghana,Guinea-Bissau,Ivory Coast,Kenya,Lesotho,Liberia,Libya,Madagascar,Malawi,Mali,Mauritania,Mozambique,Namibia,Niger,Rwanda,Senegal,Sierra Leone,Somalia,South Sudan,Sudan,Swaziland,Tanzania,Togo,Tunisia,Uganda,Zambia,Zimbabwe";
 const AsiaPacific =
-  "Afghanistan,Australia,Bangladesh,Cambodia,China,Hong Kong,Japan,Laos,Mongolia,Nepal,New Zealand,Papua New Guinea,Philippines,Singapore,Sri Lanka,Taiwan,Tajikistan,Thailand,Turkmenistan,Uzbekistan,Vietnam";
+  "Afghanistan,Australia,Cambodia,China,Hong Kong,Japan,Laos,Mongolia,New Zealand,Papua New Guinea,Philippines,Singapore,Taiwan,Tajikistan,Thailand,Turkmenistan,Uzbekistan,Vietnam";
 const CentralAndEasternEurope =
-  "Albania,Armenia,Azerbaijan,Belarus,Bulgaria,Croatia,Czech Republic,Georgia,Greece,Hungary,Latvia,Lithuania,Moldova,North Macedonia,Poland,Romania,Serbia,Slovakia,Slovenia,Ukraine";
+  "Albania,Armenia,Azerbaijan,Belarus,Bulgaria,Croatia,Czech Republic,Georgia,Greece,Hungary,Latvia,Lithuania,Moldova,North Macedonia,Poland,Romania,Serbia,Slovakia,Slovenia";
 const WesternEurope = "Austria,Belgium,Denmark,Finland,Ireland,Norway,Portugal,Sweden,Switzerland";
 const LatinAmerica =
   "Bolivia,Costa Rica,Dominican Republic,Ecuador,El Salvador,Guatemala,Haiti,Honduras,Jamaica,Nicaragua,Panama,Paraguay,Puerto Rico,Uruguay,Venezuela";
-const MiddleEast = "Bahrain,Iraq,Jordan,Kuwait,Lebanon,Oman,Qatar,Yemen";
+const MiddleEast = "Bahrain,Jordan,Lebanon,Qatar,Yemen";
 
 async function updateWhatsAppPrices() {
   try {
@@ -204,9 +204,9 @@ async function parseCsv(csv) {
             currency,
             marketing,
             utility,
-            // authentication,
-            // authenticationInternational,
-            // service,
+            authentication,
+            authenticationInternational,
+            service,
           ] = elArr;
 
           let waCountries = null;
@@ -257,6 +257,9 @@ async function parseCsv(csv) {
               currency,
               marketing: +marketing,
               utility: +utility,
+              authentication: +authentication,
+              authenticationInternational: +authenticationInternational,
+              service: +service,
             });
           }
         }
