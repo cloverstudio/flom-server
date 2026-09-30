@@ -4,7 +4,7 @@ const router = require("express").Router();
 const Base = require("../../Base");
 const { Const, Config } = require("#config");
 const { auth } = require("#middleware");
-const { Business } = require("#models");
+const { Business, Product } = require("#models");
 const Utils = require("#utils");
 const sharp = require("sharp");
 const path = require("path");
@@ -147,6 +147,8 @@ router.post("/:businessId/avatar", auth({ allowUser: true }), async function (re
         console.error("Error deleting old avatar files:", error);
       }
     }
+
+    await Product.updateMany({ "business._id": businessId }, { "business.avatar": formatted });
 
     return Base.successResponse(response, Const.responsecodeSucceed, { avatar: formatted });
   } catch (error) {
