@@ -8,7 +8,7 @@ module.exports = {
     schedule.scheduleJob("* * * * *", jobs.stopDeadLiveStreams);
     schedule.scheduleJob("1 3 * * *", jobs.syncRecombee);
     schedule.scheduleJob("1 1 * * 0", jobs.viewsCleanup);
-    schedule.scheduleJob("1 4 * * *", jobs.updateWhatsAppPrices);
+    schedule.scheduleJob("15 4 * * *", jobs.updateWhatsAppPrices);
     schedule.scheduleJob("10 */2 * * *", jobs.expireBusinessInvites);
     schedule.scheduleJob("35 * * * *", jobs.sendBusinessInviteNotifications);
     schedule.scheduleJob("1 6 */2 * *", jobs.removeExpiredIdempotencyRecords);
