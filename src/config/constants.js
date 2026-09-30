@@ -172,6 +172,7 @@ Constants.pushTypeAuctionWin = 910;
 Constants.pushTypeBusiness = 920;
 Constants.pushTypeBusinessAssistantInvite = 921;
 Constants.pushTypeLowGlobalBalance = 100;
+Constants.pushTypeNewActivity = 101;
 
 Constants.muteActionMute = "mute";
 Constants.muteActionUnmute = "unmute";
