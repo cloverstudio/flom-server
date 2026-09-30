@@ -1,4 +1,5 @@
 const { logger } = require("#infra");
+const { Const } = require("#config");
 const Utils = require("#utils");
 
 async function sendPush(tokenAndBadgeCount, payload, isVoip) {
@@ -9,6 +10,22 @@ async function sendPush(tokenAndBadgeCount, payload, isVoip) {
 
       if (!pushToken) {
         continue;
+      }
+
+      const payloadSize = Buffer.byteLength(JSON.stringify(payload), "utf8");
+
+      if (payloadSize > 3750) {
+        payload = {
+          pushType: Const.pushTypeNewActivity,
+          message: {
+            created: Date.now(),
+            id: "",
+            message: "Check for new activity. Tap to view.",
+            messageiOs: "Check for new activity. Tap to view.",
+            type: 1,
+            title: "New activity.",
+          },
+        };
       }
 
       try {
