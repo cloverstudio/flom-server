@@ -20,8 +20,8 @@ async function sendPush(tokenAndBadgeCount, payload, isVoip) {
           message: {
             created: Date.now(),
             id: "",
-            message: "Check for new activity. Tap to view.",
-            messageiOs: "Check for new activity. Tap to view.",
+            message: "Check for new activity. Tap to open.",
+            messageiOs: "Check for new activity. Tap to open.",
             type: 1,
             title: "New activity.",
           },
