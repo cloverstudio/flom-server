@@ -43,7 +43,7 @@ class LocationIQ {
 
       const urlToSearch = apiRequest.url + "?" + queryString;
 
-      return await this.fetchData({ apiRequest, urlWithoutKey: urlToSearch });
+      return await this.fetchData({ apiRequest, urlWithoutKey: urlToSearch, api: "autocomplete" });
     } catch (error) {
       logger.error("LocationIQService, autocomplete:", error);
       return null;
@@ -66,7 +66,7 @@ class LocationIQ {
         },
       };
 
-      return await this.fetchData({ apiRequest, urlWithoutKey: apiRequest.url });
+      return await this.fetchData({ apiRequest, urlWithoutKey: apiRequest.url, api: "directions" });
     } catch (error) {
       logger.error("LocationIQService, directions:", error);
       return null;
@@ -80,19 +80,19 @@ class LocationIQ {
         return null;
       }
 
-      const urlWithoutKey = `${this.baseUrl}/v1/address?lat=${lat}&lon=${lon}&format=json&normalizeaddress=1`;
+      const urlWithoutKey = `${this.baseUrl}/v1/reverse?lat=${lat}&lon=${lon}&format=json&normalizeaddress=1`;
       const url = urlWithoutKey + `&key=${this.apiKey}`;
 
       const apiRequest = { method: "GET", url };
 
-      return await this.fetchData({ apiRequest, urlWithoutKey });
+      return await this.fetchData({ apiRequest, urlWithoutKey, api: "address" });
     } catch (error) {
       logger.error("LocationIQService, address:", error);
       return null;
     }
   }
 
-  async fetchData({ apiRequest, urlWithoutKey }) {
+  async fetchData({ apiRequest, urlWithoutKey, api }) {
     try {
       let data;
 
@@ -107,7 +107,7 @@ class LocationIQ {
         const { data: d } = await Utils.sendRequest(apiRequest);
 
         if (!d) {
-          logger.error("LocationIQService, fetchData: no response");
+          logger.error(`LocationIQService, fetchData (${api}): no response`);
           return null;
         }
 
@@ -122,7 +122,7 @@ class LocationIQ {
 
       return data;
     } catch (error) {
-      logger.error("LocationIQService, fetchData:", error);
+      logger.error(`LocationIQService, fetchData (${api}):`, error);
       return null;
     }
   }
