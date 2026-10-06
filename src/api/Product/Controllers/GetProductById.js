@@ -240,11 +240,14 @@ router.post("/", async function (request, response) {
       });
     }
 
-    const category = await Category.findOne({ _id: product.categoryId }).lean();
+    let parentCategory, category;
 
-    let parentCategory;
-    if (product.parentCategoryId !== "-1") {
-      parentCategory = await Category.findOne({ _id: product.parentCategoryId }).lean();
+    if (product.categoryId) {
+      category = await Category.findOne({ _id: product.categoryId }).lean();
+
+      if (product.parentCategoryId !== "-1") {
+        parentCategory = await Category.findOne({ _id: product.parentCategoryId }).lean();
+      }
     }
 
     const owner = await User.findOne({ _id: product.ownerId }, Const.userSelectQuery).lean();
