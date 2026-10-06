@@ -71,6 +71,7 @@
         "web-push": "^3.3.0",
         "webrtcsupport": "^2.2.0",
         "wildemitter": "^1.2.0",
+        "xlsx": "^0.18.5",
         "xml-js": "^1.6.7"
     },
     "devDependencies": {
