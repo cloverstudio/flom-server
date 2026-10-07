@@ -63,7 +63,6 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     await FlomMessage.updateMany(
       { _id: { $in: undeliveredMessages.map((message) => message._id) } },
       { $push: { deliveredTo: deliveredToRow } },
-      { multi: true },
     );
 
     messages.forEach((message) => {
