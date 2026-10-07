@@ -77,6 +77,8 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const res = await FlomMessage.populateMessages(undeliveredMessages);
     const roomIds = [...new Set(res.map((message) => message.roomID))];
 
+    console.log("Deliver API Room IDs:", roomIds);
+
     roomIds.forEach((roomId) => {
       const chatType = roomId.split("-")[0];
       const filterMessages = res.filter((message) => message.roomID === roomId);
@@ -84,6 +86,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       if (chatType === Const.chatTypeGroup || chatType === Const.chatTypeRoom) {
         socketApi.emitToRoom(roomId, "updatemessages", filterMessages);
       } else if (chatType === Const.chatTypeBusiness) {
+        console.log("Deliver API Business Room ID:", roomId);
         socketApi.emitToRoom(roomId, "updatemessages", filterMessages);
       } else if (chatType === Const.chatTypePrivate) {
         const splitAry = roomId.split("-");
