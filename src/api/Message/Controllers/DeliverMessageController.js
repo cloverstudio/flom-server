@@ -87,6 +87,13 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       const chatType = roomId.split("-")[0];
       const filterMessages = res.filter((message) => message.roomID === roomId);
 
+      console.log(
+        "filterMessages for roomId",
+        roomId,
+        ":",
+        JSON.stringify(filterMessages, null, 2),
+      );
+
       if (chatType === Const.chatTypeGroup || chatType === Const.chatTypeRoom) {
         socketApi.emitToRoom(roomId, "updatemessages", filterMessages);
       } else if (chatType === Const.chatTypeBusiness) {
