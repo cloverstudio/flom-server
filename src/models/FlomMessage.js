@@ -176,10 +176,12 @@ schema.statics.populateMessages = async function (messages) {
     oldIds = Array.from(new Set(oldIds));
 
     if (ids.length == 0 && oldIds.length == 0) {
+      console.log("Mark 1: No ids found in messages");
       return messages;
     }
 
     if (oldIds.length == 0) {
+      console.log("Mark 2: No old ids found in messages");
       return [];
     }
 
