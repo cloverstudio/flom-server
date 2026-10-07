@@ -99,7 +99,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       } else if (chatType === Const.chatTypeBusiness) {
         socketApi.emitToRoom(roomId, "updatemessages", filterMessages);
       } else if (chatType === Const.chatTypePrivate) {
+        console.log("entered private chat if");
+
         const splitAry = roomId.split("-");
+
+        console.log("splitAry", splitAry);
         if (splitAry.length < 2) return;
 
         let fromUser = splitAry[1];
@@ -108,6 +112,8 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         if (fromUser !== user._id.toString()) {
           [fromUser, toUser] = [toUser, fromUser];
         }
+
+        console.log("fromUser", fromUser, "toUser", toUser);
 
         socketApi.emitToRoom(toUser, "updatemessages", filterMessages);
         socketApi.emitToRoom(fromUser, "updatemessages", filterMessages);
