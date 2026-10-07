@@ -42,7 +42,7 @@ router.get("/", auth({ allowUser: true }), async (request, response) => {
     const encodedUrl = request.query.encodedUrl;
 
     if (!encodedUrl) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoEncodedUrl,
         message: `GetUserByLightningUrlEncodedController, missing encodedUrl`,
@@ -55,7 +55,7 @@ router.get("/", auth({ allowUser: true }), async (request, response) => {
     }).lean();
 
     if (!resultUser) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotFound,
         message: `GetUserByLightningUrlEncodedController, user not found`,
@@ -67,7 +67,7 @@ router.get("/", auth({ allowUser: true }), async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed, { user: resultUser });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetUserByLightningUrlEncodedController, verify email",
       error,

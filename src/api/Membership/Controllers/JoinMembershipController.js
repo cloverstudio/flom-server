@@ -62,7 +62,7 @@ router.post("/:membershipId", auth({ allowUser: true }), async function (request
     const { membershipId } = request.params;
 
     if (!Utils.isValidObjectId(membershipId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidMembershipId,
         message: `JoinMembershipController, invalid membershipId`,
@@ -74,7 +74,7 @@ router.post("/:membershipId", auth({ allowUser: true }), async function (request
       { _id: 1, name: 1, creatorId: 1, recurringPaymentType: 1 },
     ).lean();
     if (!membership) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeMembershipNotFound,
         message: `JoinMembershipController, membership with ${membershipId} not found`,
@@ -92,7 +92,7 @@ router.post("/:membershipId", auth({ allowUser: true }), async function (request
     const index = userMemberships.findIndex((membership) => membership.id === membershipId);
     const alreadyMember = userMemberships[index];
     if (alreadyMember?.expirationDate === -1) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserAlreadyMember,
         message: `JoinMembershipController, user already a members of the membership`,
@@ -116,7 +116,7 @@ router.post("/:membershipId", auth({ allowUser: true }), async function (request
       memberOfAnotherMembership[0].expirationDate === -1 &&
       memberOfAnotherMembership[0].startDate < Date.now()
     ) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserAlreadyCreatorsMember,
         message: `JoinMembershipController, user already a members of the creators membership`,
@@ -131,7 +131,7 @@ router.post("/:membershipId", auth({ allowUser: true }), async function (request
     }).lean();
 
     if (!recurringPayment) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoActiveRecurringPayment,
         message: `JoinMembershipController, no active recurring payment`,
@@ -176,7 +176,7 @@ router.post("/:membershipId", auth({ allowUser: true }), async function (request
       completed: true,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "JoinMembershipController",
       error,

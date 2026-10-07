@@ -29,6 +29,7 @@ const schema = new mongoose.Schema(
     lastActive: { type: Number, default: Date.now, index: true },
     market: String,
     tagIds: [String],
+    staffed: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

@@ -1,15 +1,8 @@
-const { Const } = require("#config");
+const { Const, Config } = require("#config");
 const { logger } = require("#infra");
 const Utils = require("#utils");
 const { Localizer } = require("#services");
-
-function errorResponse(response, httpCode, message, error) {
-  if (message && error) {
-    logger.error(message, error);
-  }
-  response.status(httpCode);
-  response.send("");
-}
+const { UnexpectedError } = require("#models");
 
 //if code != Const.responsecodeSucceed -> data param will be used for localizer to send dynamic parameter to error message
 //in code == Const.responsecodeSucceed -> data param will be used regularly to send data back to client
@@ -18,7 +11,9 @@ function successResponse(response, code, data) {
   response.set("connection", "Keep-alive");
 
   if (code != Const.responsecodeSucceed) {
-    logger.error(`Error code: ${code}`);
+    const reference = createReference();
+
+    logger.error(`ERROR CODE: ${code} | REFERENCE: ${reference}`);
 
     const { lang } = response;
     delete response.lang;
@@ -29,7 +24,7 @@ function successResponse(response, code, data) {
 
     response.json({
       code,
-      errorMessage: loc.e(code, data),
+      errorMessage: loc.e(code, data) + ` (Ref: ${reference})`,
       time: Date.now(),
     });
   } else {
@@ -43,11 +38,15 @@ function successResponse(response, code, data) {
   }
 }
 
-function newErrorResponse({ response, code, type, message, error, data, param, param2 }) {
+function errorResponse({ response, code, type, message, error, data, param, param2 }) {
+  const request = response.req;
+  const deviceType = request.headers["device-type"] || "unknown";
+
+  const reference = createReference();
+
   if (!code) {
-    logger.error(message, error);
-    response.status(Const.httpCodeServerError);
-    return response.send("");
+    code = Const.responsecodeUnexpectedError;
+    createUnexpectedError({ message, reference, error, request });
   }
 
   const { lang } = response;
@@ -55,8 +54,13 @@ function newErrorResponse({ response, code, type, message, error, data, param, p
   const loc = new Localizer(lang);
 
   if (code !== Const.responsecodeNoActiveLiveStreamFoundForUser) {
-    if (!error) logger.error(`Error code: ${code} | Error message: ${message}`);
-    else logger.error(`Error code: ${code} | Error message: ${message}`, error);
+    if (!error)
+      logger.error(`Code: ${code} | Message: ${message} | ${deviceType} | Ref: ${reference}`);
+    else
+      logger.error(
+        `Code: ${code} | Message: ${message} | ${deviceType} | Ref: ${reference}`,
+        error,
+      );
   }
 
   response.status(Const.httpCodeSucceed);
@@ -64,7 +68,7 @@ function newErrorResponse({ response, code, type, message, error, data, param, p
 
   const responseData = {
     code,
-    errorMessage: loc.e(code, param, param2),
+    errorMessage: loc.e(code, param, param2) + ` (Ref: ${reference})`,
     time: Date.now(),
   };
 
@@ -75,8 +79,62 @@ function newErrorResponse({ response, code, type, message, error, data, param, p
   response.json(responseData);
 }
 
+async function createUnexpectedError({ message, reference, error, request }) {
+  try {
+    const deviceType = request.headers["device-type"] || "unknown";
+    const i = Config.serverNumber;
+
+    const info = {
+      origin: "main_app_" + i,
+      reference,
+      deviceType,
+      error: { name: error.name, message: error.message, stack: error.stack },
+      api: message,
+      request: {
+        method: request.method,
+        path: request.path,
+        body: request.body,
+        params: request.params,
+        query: request.query,
+      },
+    };
+
+    if (request.user) {
+      info.user = {
+        _id: request.user._id.toString(),
+        userName: request.user.userName,
+        phoneNumber: request.user.phoneNumber,
+      };
+    }
+
+    await UnexpectedError.create(info);
+  } catch (err) {
+    logger.error("Failed to create unexpected error record: ", err);
+  }
+}
+
+let refArray = [];
+
+function createReference() {
+  if (refArray.length > 1000) {
+    refArray = [];
+  }
+
+  const i = Config.serverNumber;
+
+  let ref,
+    refExists = true;
+
+  while (refExists) {
+    ref = Utils.getRandomString(8, "limited");
+    refExists = refArray.includes(ref);
+    refArray.push(ref);
+  }
+
+  return `M${i}-${ref}`;
+}
+
 module.exports = {
-  errorResponse,
   successResponse,
-  newErrorResponse,
+  errorResponse,
 };

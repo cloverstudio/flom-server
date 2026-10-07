@@ -55,7 +55,11 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed, { rooms });
   } catch (error) {
-    return Base.errorResponse(response, Const.httpCodeServerError, "RoomList", error);
+    Base.errorResponse({
+      response,
+      message: "RoomListController",
+      error,
+    });
   }
 });
 

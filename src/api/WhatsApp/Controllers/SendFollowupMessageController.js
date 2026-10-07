@@ -47,7 +47,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const { chatId, productId } = request.body;
 
     if (!chatId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeChatIdNotFound,
         message: "SendFollowupMessageController, chatId missing",
@@ -58,7 +58,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     const chatType = temp[0];
     if (chatType != "1") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeChatIdNotFound,
         message: "SendFollowupMessageController, invalid chatId, wrong type: " + chatType,
@@ -69,7 +69,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const userId2 = temp[2];
 
     if (!userId1 || !userId2) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeChatIdNotFound,
         message:
@@ -85,7 +85,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const receiver = await User.findById(receiverId).lean();
 
     if (!receiver) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotFound,
         message: "SendFollowupMessageController, receiver not found: " + receiverId,
@@ -93,7 +93,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (!productId || !Utils.isValidObjectId(productId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidProductId,
         message: "SendFollowupMessageController, invalid productId: " + productId,
@@ -103,7 +103,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const product = await Product.findById(productId).lean();
 
     if (!product) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductNotFound,
         message: "SendFollowupMessageController, product not found: " + productId,
@@ -119,7 +119,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     });
 
     if (!wamIds.length) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSendingWhatsAppMessageFailed,
         message:
@@ -148,7 +148,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed, {});
   } catch (error) {
-    return Base.newErrorResponse({ response, message: "SendFollowupMessageController", error });
+    return Base.errorResponse({ response, message: "SendFollowupMessageController", error });
   }
 });
 

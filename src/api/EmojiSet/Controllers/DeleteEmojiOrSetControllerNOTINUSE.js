@@ -49,7 +49,7 @@ router.delete(
       const emojiId = request.params.emojiId;
 
       if (!emojiSetId) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoEmojiSetId,
           message: "DeleteEmojiOrSetController - no emoji set id",
@@ -59,7 +59,7 @@ router.delete(
       const emojiSet = await EmojiSet.findOne({ _id: emojiSetId }).lean();
 
       if (!emojiSet) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNotValidEmojiSetId,
           message: "DeleteEmojiOrSetController - not valid emoji set id",
@@ -75,7 +75,7 @@ router.delete(
         ).lean();
 
         if (!emojiInSet.items[0]) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeEmojiNotFound,
             message: "DeleteEmojiOrSetController - not valid emoji id",
@@ -95,7 +95,7 @@ router.delete(
       }
 
       if (!result.ok) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeDeleteEmojiProblem,
           message:
@@ -122,7 +122,7 @@ router.delete(
 
       Base.successResponse(response, Const.responsecodeSucceed);
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "DeleteEmojiOrSetController",
         error,

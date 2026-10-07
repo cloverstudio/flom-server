@@ -60,7 +60,7 @@ router.get("/", async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, { code });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "CreateQrCodeStringController",
       error,

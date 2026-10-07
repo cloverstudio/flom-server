@@ -54,7 +54,7 @@ router.get("/:notificationId", auth({ allowUser: true }), async function (reques
     const requestUserId = request.user._id.toString();
 
     if (!Utils.isValidObjectId(notificationId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoNotificationId,
         message: `GetNotificationController, invalid notification id`,
@@ -66,7 +66,7 @@ router.get("/:notificationId", auth({ allowUser: true }), async function (reques
       receiverIds: requestUserId,
     }).lean();
     if (!notification) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidNotificationId,
         message: `GetNotificationController, notification not found`,
@@ -75,7 +75,7 @@ router.get("/:notificationId", auth({ allowUser: true }), async function (reques
 
     Base.successResponse(response, Const.responsecodeSucceed, { notification });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetNotificationController",
       error,

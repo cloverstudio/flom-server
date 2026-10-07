@@ -62,7 +62,7 @@ router.post("/", async (request, response) => {
     const { reCaptcha, username, password } = request.body;
 
     if (!reCaptcha) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoReCaptchaParameter,
         type: Const.logTypeAdminPage,
@@ -72,7 +72,7 @@ router.post("/", async (request, response) => {
 
     const reCaptchaResult = await Utils.checkReCaptcha(reCaptcha);
     if (!reCaptchaResult) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeReCaptchaFailed,
         type: Const.logTypeAdminPage,
@@ -81,7 +81,7 @@ router.post("/", async (request, response) => {
     }
 
     if (!username) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoUsername,
         type: Const.logTypeAdminPage,
@@ -89,7 +89,7 @@ router.post("/", async (request, response) => {
       });
     }
     if (!password) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoPassword,
         type: Const.logTypeAdminPage,
@@ -99,7 +99,7 @@ router.post("/", async (request, response) => {
 
     const user = await AdminPageUser.findOne({ username });
     if (!user) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeWrongUsername,
         type: Const.logTypeAdminPage,
@@ -109,7 +109,7 @@ router.post("/", async (request, response) => {
 
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!isPasswordCorrect) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeWrongPassword,
         type: Const.logTypeAdminPage,
@@ -118,7 +118,7 @@ router.post("/", async (request, response) => {
     }
 
     if (!user.emailVerification.verified) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeEmailNotVerified,
         type: Const.logTypeAdminPage,
@@ -132,7 +132,7 @@ router.post("/", async (request, response) => {
       try {
         await sendTwoFactorAuthSMS({ user });
       } catch (error) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeErrorWhenSendingCode,
           type: Const.logTypeAdminPage,
@@ -145,7 +145,7 @@ router.post("/", async (request, response) => {
       user.twoFactorAuth.tokenGeneratedAt = Date.now();
 
       await user.save();
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNeedTwoFactorAuth,
         data: {
@@ -170,7 +170,7 @@ router.post("/", async (request, response) => {
       role: user.role,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "AdminPage - LoginController",
       type: Const.logTypeAdminPage,
@@ -217,7 +217,7 @@ router.post("/2fa/resend", async (request, response) => {
     const { tempToken, username } = request.body;
 
     if (!username) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoUsername,
         type: Const.logTypeAdminPage,
@@ -227,7 +227,7 @@ router.post("/2fa/resend", async (request, response) => {
 
     const user = await AdminPageUser.findOne({ username });
     if (!user) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeWrongUsername,
         type: Const.logTypeAdminPage,
@@ -236,7 +236,7 @@ router.post("/2fa/resend", async (request, response) => {
     }
 
     if (!tempToken) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoTempToken,
         type: Const.logTypeAdminPage,
@@ -247,7 +247,7 @@ router.post("/2fa/resend", async (request, response) => {
       tempToken !== user.twoFactorAuth.tempToken ||
       Date.now() > user.twoFactorAuth.tokenGeneratedAt + Const.adminTempTokenValidInterval
     ) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidOrExpiredTempToken,
         type: Const.logTypeAdminPage,
@@ -256,7 +256,7 @@ router.post("/2fa/resend", async (request, response) => {
     }
 
     if (user.twoFactorAuth.smsTry >= 3) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeTooManySMSRetries,
         type: Const.logTypeAdminPage,
@@ -267,7 +267,7 @@ router.post("/2fa/resend", async (request, response) => {
     try {
       await sendTwoFactorAuthSMS({ user });
     } catch (error) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeErrorWhenSendingCode,
         type: Const.logTypeAdminPage,
@@ -278,7 +278,7 @@ router.post("/2fa/resend", async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed, { smsSent: true });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "AdminPage - LoginController 2FA resend",
       type: Const.logTypeAdminPage,
@@ -328,7 +328,7 @@ router.post("/2fa", async (request, response) => {
     const { tempToken, username, code } = request.body;
 
     if (!username) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoUsername,
         type: Const.logTypeAdminPage,
@@ -338,7 +338,7 @@ router.post("/2fa", async (request, response) => {
 
     const user = await AdminPageUser.findOne({ username });
     if (!user) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeWrongUsername,
         type: Const.logTypeAdminPage,
@@ -347,7 +347,7 @@ router.post("/2fa", async (request, response) => {
     }
 
     if (!tempToken) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoTempToken,
         type: Const.logTypeAdminPage,
@@ -358,7 +358,7 @@ router.post("/2fa", async (request, response) => {
       tempToken !== user.twoFactorAuth.tempToken ||
       Date.now() > user.twoFactorAuth.tokenGeneratedAt + Const.adminTempTokenValidInterval
     ) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidOrExpiredTempToken,
         type: Const.logTypeAdminPage,
@@ -367,7 +367,7 @@ router.post("/2fa", async (request, response) => {
     }
 
     if (!code) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoCode,
         type: Const.logTypeAdminPage,
@@ -378,7 +378,7 @@ router.post("/2fa", async (request, response) => {
       code !== user.twoFactorAuth.smsCode ||
       Date.now() - 1000 > user.twoFactorAuth.smsOut + Const.adminSmsCodeValidInterval
     ) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidCode,
         type: Const.logTypeAdminPage,
@@ -401,7 +401,7 @@ router.post("/2fa", async (request, response) => {
       role: user.role,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "AdminPage - LoginController 2FA",
       type: Const.logTypeAdminPage,

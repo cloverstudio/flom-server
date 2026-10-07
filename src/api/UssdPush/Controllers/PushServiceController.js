@@ -48,7 +48,7 @@ router.get("/", (request, response) => {
         response.send("<page><div>test</div></page>");
     }
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "PushServiceController",
       error,

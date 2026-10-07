@@ -142,7 +142,7 @@ router.get("/:userId", auth({ allowUser: true }), async function (request, respo
     const { userId } = request.params;
 
     if (!userId || !Utils.isValidObjectId(userId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidUserId,
         message: "GetUsersActiveLiveStreamController, invalid user id",
@@ -154,7 +154,7 @@ router.get("/:userId", auth({ allowUser: true }), async function (request, respo
       .lean();
 
     if (!liveStreams || liveStreams.length === 0) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoActiveLiveStreamFoundForUser,
         message: "GetUsersActiveLiveStreamController, active live stream not found for user",
@@ -167,7 +167,7 @@ router.get("/:userId", auth({ allowUser: true }), async function (request, respo
     const responseData = { liveStream };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetUsersActiveLiveStreamController",
       error,

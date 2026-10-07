@@ -29,7 +29,11 @@ router.get("/:contactId", auth({ allowUser: true }), async (request, response) =
     const contactId = request.params.contactId;
 
     if (!contactId) {
-      return Base.successResponse(response, Const.responsecodeWrongUserContactId);
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeWrongUserContactId,
+        message: `UserDeleteContactController, wrong user contact id provided 1`,
+      });
     }
 
     const contact = await UserContact.findOne({
@@ -38,7 +42,11 @@ router.get("/:contactId", auth({ allowUser: true }), async (request, response) =
     });
 
     if (!contact) {
-      return Base.successResponse(response, Const.responsecodeWrongUserContactId);
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeWrongUserContactId,
+        message: `UserDeleteContactController, wrong user contact id provided 2`,
+      });
     }
 
     await UserContact.deleteMany({
@@ -46,14 +54,13 @@ router.get("/:contactId", auth({ allowUser: true }), async (request, response) =
       contactId: contactId,
     });
 
-    return Base.successResponse(response, Const.responsecodeSucceed);
+    Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.successResponse(
+    Base.errorResponse({
       response,
-      Const.responsecodeUnknownError,
-      "UserDeleteContactController",
+      message: `UserDeleteContactController`,
       error,
-    );
+    });
   }
 });
 

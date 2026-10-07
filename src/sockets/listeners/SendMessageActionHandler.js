@@ -1,7 +1,7 @@
 const { Const } = require("#config");
 const { logger } = require("#infra");
 const { sendMessage } = require("#logics");
-const { WhatsAppUserMapping } = require("#models");
+const { WhatsAppUserMapping, BusinessMember } = require("#models");
 
 module.exports = function (socketApi, socket) {
   /**
@@ -57,6 +57,7 @@ module.exports = function (socketApi, socket) {
       }
 
       const arr = param.roomID.split("-");
+
       if (arr[0] == Const.chatTypePrivate) {
         let s, r;
         if (arr[1] == param.userID) {
@@ -75,6 +76,27 @@ module.exports = function (socketApi, socket) {
 
         if (whatsAppMapping) {
           param.wa = true;
+        }
+      }
+
+      if (arr[0] == Const.chatTypeBusiness) {
+        const businessId = arr[1];
+        const buyerId = arr[2];
+
+        const businessMember = await BusinessMember.findOne({
+          businessId,
+          userId: param.userID,
+          status: "active",
+        }).lean();
+
+        if (!businessMember && param.userID !== buyerId) {
+          console.error(
+            "user is not active business member or buyer - " +
+              Const.responsecodeUserIsNotActiveBusinessMemberOrBuyer,
+          );
+          return socket.emit("socketerror", {
+            code: Const.responsecodeUserIsNotActiveBusinessMemberOrBuyer,
+          });
         }
       }
 

@@ -77,7 +77,7 @@ router.get(
         inviteMessages: sortedMessages,
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "InviteMessageController, GET",
         error,
@@ -165,7 +165,7 @@ router.post(
       );
 
       if (errorCode)
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: errorCode,
           message: `InviteMessageController, POST - ${errorMessage}`,
@@ -173,7 +173,7 @@ router.post(
 
       const exists = await InviteMessage.findOne({ countryCode }).lean();
       if (exists) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInviteMessageAlreadyExists,
           message: `InviteMessageController, POST - Invite message with that countrycode already exists`,
@@ -183,7 +183,7 @@ router.post(
       const inviteMessage = await InviteMessage.create({ countryCode, message });
 
       if (!inviteMessage) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeCreateInviteMessageFailed,
           message: "InviteMessageController, POST - create new invite message failed",
@@ -197,7 +197,7 @@ router.post(
         inviteMessages: sortedMessages,
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "InviteMessageController, POST",
         error,
@@ -284,7 +284,7 @@ router.patch(
       );
 
       if (errorCode)
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: errorCode,
           message: `InviteMessageController, PATCH - ${errorMessage}`,
@@ -301,13 +301,13 @@ router.patch(
           inviteMessages: sortedMessages,
         });
       } else
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUpdateInviteMessageFailed,
           message: "InviteMessageController, PATCH - update failed",
         });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "InviteMessageController, PATCH",
         error,
@@ -385,7 +385,7 @@ router.delete(
       const countryCode = request.params.countryCode;
 
       if (!countryCode) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoCountryCodeParameter,
           message: `InviteMessageController, DELETE - no country code`,
@@ -393,7 +393,7 @@ router.delete(
       }
 
       if (!countries[countryCode]) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidCountryCode,
           message: `InviteMessageController, DELETE - invalid country code`,
@@ -410,13 +410,13 @@ router.delete(
           inviteMessages: sortedMessages,
         });
       } else
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeDeleteInviteMessageFailed,
           message: "InviteMessageController, DELETE - delete failed",
         });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "InviteMessageController, DELETE",
         error,

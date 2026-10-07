@@ -9,28 +9,21 @@ const { auth } = require("#middleware");
 const { User, Order, ConversionRate, History } = require("#models");
 
 /**
- * @api {get} /api/v2/inbox/cockpit/to-reply Get latest chat to reply flom_v1
+ * @api {get} /api/v2/inbox/cockpit/to-reply Get latest business chats to reply flom_v1
  * @apiVersion 2.0.34
- * @apiName Get latest chat to reply
+ * @apiName Get latest business chats to reply
  * @apiGroup WebAPI Inbox
- * @apiDescription API for retrieving the latest chat that the user needs to reply to. Response is userIds of the chats that the user needs to reply to, in descending order of last update time.
+ * @apiDescription API for retrieving the latest business chats that the user needs to reply to. Response is roomIds of the chats that the user needs to reply to, in descending order of last update time.
  *
  * @apiHeader {String} access-token Users unique access-token.
  *
  * @apiSuccessExample {json} Success Response
  * {
  *     "code": 1,
- *     "time": 1781864567986,
+ *     "time": 1789465909136,
  *     "data": {
- *         "users": [
- *             {
- *                 "userId": "63e0d656a62453346de15e37",
- *                 "created": 1675679318902
- *             },
- *             {
- *                 "userId": "63dccc42bcc5921af87df5ce",
- *                 "created": 1675414594155
- *             }
+ *         "roomIds": [
+ *             "6-6a8fe7c1b95aff94f1357d28-63dcc7f3bcc5921af87df5c2"
  *         ]
  *     }
  * }
@@ -55,51 +48,37 @@ router.get("/to-reply", auth({ allowUser: true }), async function (request, resp
       Const.orderStatus.DELIVERED,
     ];
 
-    const sellerOrders = await Order.find(
-      {
-        "seller._id": userId,
-        status: { $nin: inactiveOrderStates },
-      },
-      { _id: 1, status: 1, price: 1, buyer: 1 },
-    ).lean();
+    const sellerOrders = await Order.find({
+      "seller._id": userId,
+      status: { $nin: inactiveOrderStates },
+    })
+      .sort({ created: -1 })
+      .lean();
 
     if (!sellerOrders || sellerOrders.length === 0) {
       return Base.successResponse(response, Const.responsecodeSucceed, { userIds: [] });
     }
 
-    const uniqueBuyerIds = Array.from(new Set(sellerOrders.map((order) => order.buyer._id)));
+    const chatIds = Array.from(
+      new Set(sellerOrders.map((order) => order.businessId + "-" + order.buyer._id)),
+    );
+
     const historiesToReply = await History.find({
+      chatType: Const.chatTypeBusiness,
       userId,
-      chatId: { $in: uniqueBuyerIds },
+      chatId: { $in: chatIds },
       "lastUpdateUser._id": { $ne: user._id },
     })
       .sort({ lastUpdate: -1 })
       .lean();
 
-    const otherUserIds = historiesToReply.map((history) => history.chatId);
-    const otherUsers = await User.find(
-      { _id: { $in: otherUserIds } },
-      { _id: 1, created: 1 },
-    ).lean();
-    const otherUserIdToCreated = {};
-    otherUsers.forEach((otherUser) => {
-      otherUserIdToCreated[otherUser._id.toString()] = otherUser.created;
-    });
-
-    historiesToReply.forEach((history) => {
-      history.otherUserCreated = otherUserIdToCreated[history.chatId.toString()] || 0;
-    });
-
     const responseData = {
-      users: historiesToReply.map((history) => ({
-        userId: history.chatId,
-        created: history.otherUserCreated,
-      })),
+      roomIds: historiesToReply.map((history) => `${Const.chatTypeBusiness}-${history.chatId}`),
     };
 
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "CockpitController, get last chat to reply",
       error,
@@ -151,13 +130,12 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       Const.orderStatus.DELIVERED,
     ];
 
-    const sellerOrders = await Order.find(
-      {
-        "seller._id": userId,
-        status: { $nin: inactiveOrderStates },
-      },
-      { _id: 1, status: 1, price: 1, buyer: 1 },
-    ).lean();
+    const sellerOrders = await Order.find({
+      "seller._id": userId,
+      status: { $nin: inactiveOrderStates },
+    })
+      .sort({ created: -1 })
+      .lean();
 
     if (!sellerOrders || sellerOrders.length === 0) {
       return Base.successResponse(response, Const.responsecodeSucceed, { showCockpit: false });
@@ -196,6 +174,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
         order.status === Const.orderStatus.PAYMENT_COMPLETED &&
         !existingBuyerIds.includes(order.buyer._id);
       if (shouldInclude) {
+        order.chatId = order.businessId + "-" + order.buyer._id;
         existingBuyerIds.push(order.buyer._id);
       }
       return shouldInclude;
@@ -203,11 +182,22 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
 
     responseData.send = paymentCompletedOrders.length;
 
-    const uniqueBuyerIds = Array.from(new Set(sellerOrders.map((order) => order.buyer._id)));
+    /* const uniqueBuyerIds = Array.from(new Set(sellerOrders.map((order) => order.buyer._id)));
     const historiesToReply = await History.find(
       {
         userId,
         chatId: { $in: uniqueBuyerIds },
+        "lastUpdateUser._id": { $ne: user._id },
+      },
+      { _id: 1 },
+    ).lean(); */
+
+    const chatIds = Array.from(new Set(sellerOrders.map((order) => order.chatId)));
+    const historiesToReply = await History.find(
+      {
+        chatType: Const.chatTypeBusiness,
+        userId,
+        chatId: { $in: chatIds },
         "lastUpdateUser._id": { $ne: user._id },
       },
       { _id: 1 },
@@ -217,7 +207,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "CockpitController, get cockpit",
       error,

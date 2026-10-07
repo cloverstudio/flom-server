@@ -145,7 +145,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     const messageIds = typeof messageId === "string" ? [messageId] : messageId;
 
     if (!messageIds || messageIds.length === 0) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoMessageIds,
         message: "GetMessagesController, no message ids",
@@ -176,7 +176,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     const responseData = { messages: filteredMessages };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetMessagesController",
       error,

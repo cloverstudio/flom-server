@@ -15,8 +15,11 @@ router.get("/", async function (request, response) {
     });
 
     if (err) {
-      logger.error("GetInfoController - app store", err);
-      return Base.successResponse(response, Const.responsecodeAppNotfound);
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeAppNotfound,
+        message: `GetInfoController, ios, app not found 1`,
+      });
     }
 
     let icon = getInfo.results[0].artworkUrl100;
@@ -25,7 +28,11 @@ router.get("/", async function (request, response) {
     let name = getInfo.results[0].trackName;
 
     if (!icon || !developer) {
-      return Base.successResponse(response, Const.responsecodeAppNotfound);
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeAppNotfound,
+        message: `GetInfoController, ios, app not found 2`,
+      });
     }
 
     let dataToSend = {
@@ -35,9 +42,13 @@ router.get("/", async function (request, response) {
       name,
     };
 
-    return Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
+    Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
   } catch (error) {
-    logger.error("GetInfoController - app store", error);
+    Base.errorResponse({
+      response,
+      message: `GetInfoController, ios`,
+      error,
+    });
   }
 });
 
@@ -57,9 +68,13 @@ router.get("/android", async function (request, response) {
       name,
     };
 
-    return Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
+    Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
   } catch (error) {
-    logger.error("GetInfoController - gplay", error);
+    Base.errorResponse({
+      response,
+      message: `GetInfoController, android`,
+      error,
+    });
   }
 });
 

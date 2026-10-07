@@ -50,7 +50,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "LikeLiveStreamController - GET",
       error,
@@ -95,7 +95,7 @@ router.post("/add", auth({ allowUser: true }), async function (request, response
     const { user } = request;
 
     if (!liveStreamId || !Utils.isValidObjectId(liveStreamId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidLiveStreamId,
         message: `LikeLiveStreamController, Like - invalid liveStreamId: ${liveStreamId}`,
@@ -105,7 +105,7 @@ router.post("/add", auth({ allowUser: true }), async function (request, response
     const liveStream = await LiveStream.findOne({ _id: liveStreamId }, { comments: 0 }).lean();
 
     if (!liveStream) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeLiveStreamNotFound,
         message: `LikeLiveStreamController, Like - live stream not found: ${liveStreamId}`,
@@ -115,7 +115,7 @@ router.post("/add", auth({ allowUser: true }), async function (request, response
     const { likedLiveStreams = [], _id } = user;
 
     if (likedLiveStreams.includes(liveStreamId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeLiveStreamAlreadyLiked,
         message: `LikeLiveStreamController, Like - live stream already liked: ${liveStreamId}`,
@@ -141,7 +141,7 @@ router.post("/add", auth({ allowUser: true }), async function (request, response
       logger.error("LikeLiveStreamController - Like, recombee error: ", error);
     }
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "LikeLiveStreamController - Like",
       error,
@@ -185,7 +185,7 @@ router.post("/remove", auth({ allowUser: true }), async function (request, respo
     const { user } = request;
 
     if (!liveStreamId || !Utils.isValidObjectId(liveStreamId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidLiveStreamId,
         message: `LikeLiveStreamController, Unlike - invalid liveStreamId: ${liveStreamId}`,
@@ -195,7 +195,7 @@ router.post("/remove", auth({ allowUser: true }), async function (request, respo
     const liveStream = await LiveStream.findOne({ _id: liveStreamId }, { comments: 0 }).lean();
 
     if (!liveStream) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeLiveStreamNotFound,
         message: `LikeLiveStreamController, Unlike - live stream not found: ${liveStreamId}`,
@@ -205,7 +205,7 @@ router.post("/remove", auth({ allowUser: true }), async function (request, respo
     const { likedLiveStreams = [], _id } = user;
 
     if (!likedLiveStreams.includes(liveStreamId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeLiveStreamAlreadyLiked,
         message: `LikeLiveStreamController, Unlike - live stream not liked: ${liveStreamId}`,
@@ -226,7 +226,7 @@ router.post("/remove", auth({ allowUser: true }), async function (request, respo
       logger.error("LikeLiveStreamController - Unlike, recombee error: ", error);
     }
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "LikeLiveStreamController - Unlike",
       error,

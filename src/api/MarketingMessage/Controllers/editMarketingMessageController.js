@@ -47,15 +47,27 @@ router.post("/:id", auth({ allowUser: true }), async function (request, response
     const isValidReceivers = validateReceivers(receivers);
 
     if (marketingAction && !isValidAction) {
-      return Base.successResponse(response, Const.responsecodeInvalidMarketingAction);
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeInvalidMarketingAction,
+        message: `editMarketingMessageController, Invalid marketing action`,
+      });
     }
 
     if (marketingAction == 2 && !product) {
-      return Base.successResponse(response, Const.responsecodeNoMarketingProductId);
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeNoMarketingProductId,
+        message: `editMarketingMessageController, No marketing product ID`,
+      });
     }
 
     if (receivers && !isValidReceivers) {
-      return Base.successResponse(response, Const.responsecodeNotValidToId);
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeNotValidToId,
+        message: `editMarketingMessageController, Not valid receivers`,
+      });
     }
 
     await MarketingMessage.findByIdAndUpdate(messageId, {
@@ -107,10 +119,14 @@ router.post("/:id", auth({ allowUser: true }), async function (request, response
 
       return true;
     }
+
     Base.successResponse(response, Const.responsecodeSucceed);
-  } catch (e) {
-    Base.errorResponse(response, Const.httpCodeServerError, "editMarketingMessageController", e);
-    return;
+  } catch (error) {
+    Base.errorResponse({
+      response,
+      message: "editMarketingMessageController, Edit marketing message",
+      error,
+    });
   }
 });
 

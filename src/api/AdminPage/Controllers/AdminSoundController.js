@@ -76,7 +76,7 @@ router.get(
 
       const sound = await Sound.findById(soundId).lean();
       if (!sound) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeSoundNotFound,
           message: `AdminSoundController, GET - sound with given id not found`,
@@ -87,7 +87,7 @@ router.get(
 
       Base.successResponse(response, Const.responsecodeSucceed, { sound });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "AdminSoundController, GET by id",
         error,
@@ -175,14 +175,14 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
     const { title, artist } = fields;
 
     if (!title) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoSoundTitle,
         message: `AdminSoundController, POST - no sound title`,
       });
     }
     if (!artist) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoSoundArtist,
         message: `AdminSoundController, POST - no sound artist`,
@@ -193,7 +193,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
     const thumbnail = files["thumbnail"];
 
     if (!audio) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoAudioFile,
         message: `AdminSoundController, POST - no audio file sent`,
@@ -206,7 +206,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
       allowedExtensions: "mp3",
     });
     if (codeAudio) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeAudioExtensionNotAllowed,
         message: `AdminSoundController, POST - audio extension not allowed`,
@@ -217,7 +217,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
     if (thumbnail) {
       const { code: codeThumb, fileData } = await Utils.handleImageFile(thumbnail, "sounds");
       if (codeThumb === "123") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeExtensionNotAllowed,
           message: `AdminSoundController, POST - image extension not allowed`,
@@ -243,7 +243,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
 
     Base.successResponse(response, Const.responsecodeSucceed, { sound: result });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "AdminSoundController, POST",
       error,
@@ -332,7 +332,7 @@ router.patch(
 
       const oldSound = await Sound.findById(soundId).lean();
       if (!oldSound) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeSoundNotFound,
           message: `AdminSoundController, PATCH - sound with given id not found`,
@@ -363,7 +363,7 @@ router.patch(
           allowedExtensions: "mp3",
         });
         if (codeAudio) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeAudioExtensionNotAllowed,
             message: `AdminSoundController, PATCH - audio extension not allowed`,
@@ -377,7 +377,7 @@ router.patch(
       if (thumbnail) {
         const { code: codeThumb, fileData } = await Utils.handleImageFile(thumbnail, "sounds");
         if (codeThumb === "123") {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeExtensionNotAllowed,
             message: `AdminSoundController, PATCH - image extension not allowed`,
@@ -404,7 +404,7 @@ router.patch(
         updatedSound: result,
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "AdminSoundController, PATCH",
         error,
@@ -477,7 +477,7 @@ router.delete(
       const { id: soundId } = request.params;
 
       if (!soundId) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoSoundId,
           message: "AdminSoundController, DELETE - no sound id",
@@ -486,7 +486,7 @@ router.delete(
 
       const sound = await Sound.findById(soundId).lean();
       if (!sound) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeSoundNotFound,
           message: `AdminSoundController, DELETE - sound with given id not found`,
@@ -501,7 +501,7 @@ router.delete(
         deletedSound: result.toObject(),
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "AdminSoundController, DELETE",
         error,

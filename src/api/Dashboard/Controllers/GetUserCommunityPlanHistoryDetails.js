@@ -102,7 +102,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     const page = +request.query.page || 1;
 
     if (!userId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoUserId,
         message: "GetUserCommunityPlanHistoryDetails, no userId parameter",
@@ -112,7 +112,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     const userFromMembership = await User.find({ _id: userId }).lean();
 
     if (!userFromMembership) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserIdNotValid,
         message: "GetUserCommunityPlanHistoryDetails, invalid userId parameter",
@@ -122,7 +122,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     const memberships = await Membership.find({ _id: { $in: membershipIds } }).lean();
 
     if (memberships.length !== membershipIds.length) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeMembershipNotFound,
         message: "GetUserCommunityPlanHistoryDetails, invalid membershipIds parameter",
@@ -153,7 +153,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       hasNext,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetUserCommunityPlanHistoryDetails",
       error,

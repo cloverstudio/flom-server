@@ -103,7 +103,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }).lean();
 
     if (idApplicationTest) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeApplicationAlreadyExists,
         message: `CreateIdApplicationController, pending or approved application with userId already exists`,
@@ -111,21 +111,21 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (!firstName || typeof firstName !== "string") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoFirstName,
         message: `CreateIdApplicationController, no first name`,
       });
     }
     if (!lastName || typeof lastName !== "string") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoLastName,
         message: `CreateIdApplicationController, no last name`,
       });
     }
     if (!dateOfBirth || typeof dateOfBirth !== "number") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoDateOfBirth,
         message: `CreateIdApplicationController, no dateOfBirth`,
@@ -146,7 +146,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const fileKeys = Object.keys(files);
 
     if (fileKeys.length < 2 || fileKeys.length > 3) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidFilesCount,
         message: `CreateIdApplicationController, invalid files count`,
@@ -158,7 +158,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         files[fileKeys[0]].type.indexOf("image") === -1 ||
         files[fileKeys[1]].type.indexOf("image") === -1
       ) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidFileType,
           message: `CreateIdApplicationController, invalid file type`,
@@ -170,7 +170,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         files[fileKeys[1]].type.indexOf("image") === -1 ||
         files[fileKeys[2]].type.indexOf("image") === -1
       ) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidFileType,
           message: `CreateIdApplicationController, invalid file type`,
@@ -206,7 +206,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const responseData = { idApplication: idApplicationObj };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "CreateIdApplicationController",
       error,

@@ -68,7 +68,7 @@ router.get(
       const responseData = { smsData: smsData ?? {} };
       Base.successResponse(response, Const.responsecodeSucceed, responseData);
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "SmsDataController, GET",
         error,
@@ -251,7 +251,7 @@ router.get(
       };
       Base.successResponse(response, Const.responsecodeSucceed, responseData);
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "SmsDataController, GET list",
         error,

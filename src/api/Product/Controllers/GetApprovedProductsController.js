@@ -37,7 +37,7 @@ router.get("/total", async function (request, response) {
     const token = request.headers["access-token"];
 
     if (token !== Config.guestToken) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSigninInvalidToken,
         message: "GetApprovedProductsTotalController, invalid token",
@@ -53,7 +53,7 @@ router.get("/total", async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, { approvedProductsTotal });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetApprovedProductsTotalController",
       error,
@@ -125,7 +125,7 @@ router.get("/", async function (request, response) {
     const token = request.headers["access-token"];
 
     if (token !== Config.guestToken) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSigninInvalidToken,
         message: "GetApprovedProductsController, invalid token",
@@ -177,7 +177,7 @@ router.get("/", async function (request, response) {
       hasNext,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetApprovedProductsController",
       error,

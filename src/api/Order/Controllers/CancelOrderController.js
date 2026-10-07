@@ -60,7 +60,7 @@ router.patch(
       const order = await Order.findOne({ _id: orderId }).lean();
 
       if (!order) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeOrderNotFound,
           message: "CancelOrderController, order not found: " + orderId,
@@ -68,7 +68,7 @@ router.patch(
       }
 
       if (order.status !== Const.orderStatus.CANCELLATION_REQUESTED) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidOrderStatus,
           message:
@@ -114,7 +114,7 @@ router.patch(
       const responseData = { order: updatedOrder };
       Base.successResponse(response, Const.responsecodeSucceed, responseData);
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "CancelOrderController",
         error,

@@ -121,10 +121,10 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     const itemsPerPage = +request.query.itemsPerPage || Const.newPagingRows;
 
     if (!Utils.isValidObjectId(userId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserIdNotValid,
-        message: "UsersCommunityContent error, userId not a valid Id",
+        message: "UsersCommunityContent, userId not a valid Id",
       });
     }
 
@@ -133,11 +133,19 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
         _id: request.query.userId,
       }).lean();
       if (!user) {
-        return Base.successResponse(response, Const.responsecodeUserNotFound);
+        return Base.errorResponse({
+          response,
+          code: Const.responsecodeUserNotFound,
+          message: "UsersCommunityContent, user not found",
+        });
       }
 
       if (user?.isDeleted.value) {
-        return Base.successResponse(response, Const.responsecodeUserDeleted);
+        return Base.errorResponse({
+          response,
+          code: Const.responsecodeUserDeleted,
+          message: "UsersCommunityContent, user is deleted",
+        });
       }
     }
 
@@ -229,8 +237,11 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       itemsPerPage,
     });
   } catch (error) {
-    console.log("UsersCommunityContent error, ", error);
-    return Base.errorResponse(response, Const.httpCodeServerError);
+    Base.errorResponse({
+      response,
+      message: "UsersCommunityContent",
+      error,
+    });
   }
 });
 

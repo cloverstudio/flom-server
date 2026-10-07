@@ -88,7 +88,7 @@ router.patch(
   async (request, response) => {
     try {
       if (request.headers["content-type"].indexOf("multipart") === -1) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInputNotMultipart,
           message: `EditFlomojiController, PATCH - input is not multipart form data`,
@@ -98,7 +98,7 @@ router.patch(
       const flomojiId = request.params.flomojiId;
 
       if (!flomojiId) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoFlomojiId,
           message: `EditFlomojiController, PATCH - no flomoji ID`,
@@ -115,7 +115,7 @@ router.patch(
       const position = +(fields.position || 0);
 
       if (amount && (!Number.isInteger(amount) || amount < 0 || isNaN(amount))) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeAmountNotANumber,
           message: `EditFlomojiController, PATCH - amount is not a positive integer`,
@@ -125,14 +125,14 @@ router.patch(
         creditsAmount &&
         (!Number.isInteger(creditsAmount) || creditsAmount < 0 || isNaN(creditsAmount))
       ) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeCreditsAmountNotANumber,
           message: `EditFlomojiController, PATCH - credits amount is not a positive integer`,
         });
       }
       if (position && (!Number.isInteger(position) || position < 0 || isNaN(position))) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodePositionNotANumber,
           message: `EditFlomojiController, PATCH - position is not a positive integer`,
@@ -143,7 +143,7 @@ router.patch(
 
       const flomoji = await BlessPacket.findOne({ _id: flomojiId }).lean();
       if (!flomoji) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeFlomojiNotFound,
           message: "EditFlomojiController, PATCH - no flomoji found with given ID",
@@ -166,7 +166,7 @@ router.patch(
           const fileMimeType = file.type;
 
           if (fileMimeType.indexOf("image") === -1) {
-            return Base.newErrorResponse({
+            return Base.errorResponse({
               response,
               code: Const.responsecodeOnlyImageFilesAllowed,
               message: `EditFlomojiController, PATCH - only image files allowed`,
@@ -175,7 +175,7 @@ router.patch(
 
           const { fileData, code } = await Utils.handleImageFile(file, "flomojis");
           if (code === 123) {
-            return Base.newErrorResponse({
+            return Base.errorResponse({
               response,
               code: Const.responsecodeExtensionNotAllowed,
               message: `EditFlomojiController, PATCH - image extension not allowed`,
@@ -238,7 +238,7 @@ router.patch(
         updatedFlomoji: resultWithLinks,
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "EditFlomojiController, PATCH flomoji",
         error,

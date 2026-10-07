@@ -207,8 +207,8 @@ router.patch(
       // TODO: remove guards?
       let checkBusiness = false;
       if (
-        (request.iosVersion && request.iosVersion >= 678) ||
-        (request.androidVersion && request.androidVersion >= 140090)
+        (request.iosVersion && request.iosVersion >= 684) ||
+        (request.androidVersion && request.androidVersion >= 150000)
       ) {
         checkBusiness = true;
       }
@@ -225,7 +225,11 @@ router.patch(
       const productId = fields.productId;
 
       if (!productId || !Utils.isValidObjectId(productId)) {
-        return Base.successResponse(response, Const.responsecodeProductNotFound);
+        return Base.errorResponse({
+          response,
+          code: Const.responsecodeProductNotFound,
+          message: "EditProductControllerV2, product not found",
+        });
       }
 
       const fileOrderString = fields.fileOrder;
@@ -239,7 +243,7 @@ router.patch(
       if (fileOrderString && filesToDeleteString) {
         for (const fileId of filesToDeleteArray) {
           if (fileOrderArray.includes(fileId)) {
-            return Base.newErrorResponse({
+            return Base.errorResponse({
               response,
               code: Const.responsecodeFileToDeleteInFileOrderString,
               message:
@@ -256,12 +260,21 @@ router.patch(
       });
 
       if (!product) {
-        return Base.successResponse(response, Const.responsecodeProductNotFound);
+        return Base.errorResponse({
+          response,
+          code: Const.responsecodeProductNotFound,
+          message: "EditProductControllerV2, product not found",
+        });
       }
 
       // check if user is owner
-      if (product.ownerId != requestUserId && !isAdmin)
-        return Base.successResponse(response, Const.responsecodeNotProductOwner);
+      if (product.ownerId != requestUserId && !isAdmin) {
+        return Base.errorResponse({
+          response,
+          code: Const.responsecodeNotProductOwner,
+          message: "EditProductControllerV2, user is not product owner",
+        });
+      }
 
       // check if price has countrycode & currency
       const conversionRates = await ConversionRate.getRates();
@@ -289,14 +302,14 @@ router.patch(
 
       if (filesToDeleteString) {
         if (product?.mediaProcessingInfo?.status === "processing") {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeProductMediaIsProcessing,
             message: "EditProductControllerV2, product media is processing",
           });
         }
         if (product?.mediaProcessingInfo?.status === "failed") {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeProductMediaProcessingFailed,
             message: "EditProductControllerV2, product media processing failed",
@@ -304,7 +317,7 @@ router.patch(
         }
 
         if (product?.contentPurchaseHistory && product?.contentPurchaseHistory.length > 0) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeAudioProductInUse,
             message: `EditProductControllerV2, audio product is in use by other users`,
@@ -322,7 +335,7 @@ router.patch(
           const index = files.findIndex((file) => file._id.toString() === id);
 
           if (index === -1) {
-            return Base.newErrorResponse({
+            return Base.errorResponse({
               response,
               code: Const.responsecodeFileToDeleteNotFound,
               message: `EditProductControllerV2, file to delete ${id} not found in product`,
@@ -377,14 +390,14 @@ router.patch(
 
       if (fileOrderString) {
         if (product?.mediaProcessingInfo?.status === "processing") {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeProductMediaIsProcessing,
             message: "EditProductControllerV2, product media is processing",
           });
         }
         if (product?.mediaProcessingInfo?.status === "failed") {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeProductMediaProcessingFailed,
             message: "EditProductControllerV2, product media processing failed",
@@ -397,7 +410,7 @@ router.patch(
           const index = productFiles.findIndex((file) => file._id.toString() === id);
 
           if (index === -1) {
-            return Base.newErrorResponse({
+            return Base.errorResponse({
               response,
               code: Const.responsecodeFileToReorderNotFound,
               message: `EditProductControllerV2, file to reorder ${id} not found in product`,
@@ -460,7 +473,7 @@ router.patch(
       if (checkBusiness) {
         if (businessId) {
           if (!Utils.isValidObjectId(businessId)) {
-            return Base.newErrorResponse({
+            return Base.errorResponse({
               response,
               code: Const.responsecodeInvalidBusinessId,
               message: "EditProductControllerV2, invalid businessId",
@@ -470,20 +483,24 @@ router.patch(
           const business = await Business.findById(businessId).lean();
 
           if (!business) {
-            return Base.newErrorResponse({
+            return Base.errorResponse({
               response,
               code: Const.responsecodeBusinessNotFound,
               message: "EditProductControllerV2, business not found",
             });
           }
 
-          product.business = { _id: business._id.toString(), name: business.name };
+          product.business = {
+            _id: business._id.toString(),
+            name: business.name,
+            avatar: business.avatar,
+          };
         }
 
         if (product.type === Const.productTypeService) {
           if (place) {
             if (!["seller", "customer", "both"].includes(place)) {
-              return Base.newErrorResponse({
+              return Base.errorResponse({
                 response,
                 code: Const.responsecodeInvalidPlace,
                 message: "EditProductControllerV2, edit service - invalid place",
@@ -495,7 +512,7 @@ router.patch(
 
           if (priceTimeUnit && priceTimeUnit !== product.originalPrice.timeUnit) {
             if (!["default", "hour", "day"].includes(priceTimeUnit)) {
-              return Base.newErrorResponse({
+              return Base.errorResponse({
                 response,
                 code: Const.responsecodeInvalidPriceTimeUnit,
                 message: "EditProductControllerV2, edit service - invalid price time unit",
@@ -548,7 +565,7 @@ router.patch(
       let parentCategory, category;
       if (productCategoryId && productCategoryId !== product.categoryId) {
         if (!Utils.isValidObjectId(productCategoryId)) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeProductInvalidCategoryId,
             message: `EditProductControllerV2, categoryId is not a valid id`,
@@ -557,7 +574,7 @@ router.patch(
 
         category = await Category.findOne({ _id: productCategoryId }).lean();
         if (!category) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeCategoryNotFound,
             message: `EditProductControllerV2, category not found`,
@@ -570,7 +587,7 @@ router.patch(
             categoryGroups: category.group,
           })
         ) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeProductInvalidCategory,
             message: `EditProductControllerV2, invalid category`,
@@ -644,7 +661,7 @@ router.patch(
           communityIds !== product.communityIds)
       ) {
         if (Const.productVisibilities.indexOf(visibility) === -1) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeWrongVisibilityParameter,
             message: `EditProductControllerV2, wrong visibility parameter`,
@@ -654,7 +671,7 @@ router.patch(
 
         if (visibility === Const.productVisibilityTribes) {
           if (!tribeIds || tribeIds === "") {
-            return Base.newErrorResponse({
+            return Base.errorResponse({
               response,
               code: Const.responsecodeNoTribeIds,
               message: `EditProductControllerV2, no tribeIds parameter`,
@@ -668,7 +685,7 @@ router.patch(
               requestUserId,
             })) || {};
           if (code) {
-            return Base.newErrorResponse({
+            return Base.errorResponse({
               response,
               code,
               message: `EditProductControllerV2, ${message}`,
@@ -681,7 +698,7 @@ router.patch(
         }
         if (visibility === Const.productVisibilityCommunity) {
           if (!communityIds || communityIds === "") {
-            return Base.newErrorResponse({
+            return Base.errorResponse({
               response,
               code: Const.responsecodeMembershipNotFound,
               message: `EditProductControllerV2, no communityIds parameter`,
@@ -695,7 +712,7 @@ router.patch(
               communityIds: communityIdsArray,
             })) || {};
           if (code) {
-            return Base.newErrorResponse({
+            return Base.errorResponse({
               response,
               code,
               message: `EditProductControllerV2, ${message}`,
@@ -711,7 +728,7 @@ router.patch(
       if (publish && product.moderation.status === Const.moderationStatusDraft) {
         const { code, message } = checkDraftProduct(product) || {};
         if (code) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code,
             message: `EditProductControllerV2, ${message}`,
@@ -755,7 +772,7 @@ router.patch(
           ? undefined
           : +fields.engagementBudgetCredits;
       if (engagementBudgetCredits && engagementBudgetCredits > user.creditBalance) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeCreditsEngagementBonusLargerThanCreditBalance,
           message: `EditProductControllerV2, engagement budget in credits larger than credits balance`,
@@ -824,9 +841,12 @@ router.patch(
       }
 
       Base.successResponse(response, Const.responsecodeSucceed, productObj);
-    } catch (e) {
-      Base.errorResponse(response, Const.httpCodeServerError, "EditProductControllerV2", e);
-      return;
+    } catch (error) {
+      Base.errorResponse({
+        response,
+        message: "EditProductControllerV2",
+        error,
+      });
     }
   },
 );

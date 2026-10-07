@@ -32,12 +32,20 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const messageIds = messageId ? messageId.split(",").map((id) => id.trim()) : null;
     const user = request.user;
     if (!messageIds || messageIds.length === 0) {
-      return Base.successResponse(response, Const.responsecodeDeliverMessageNoMessageId);
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeDeliverMessageNoMessageId,
+        message: `DeliverMessageController, no messageId`,
+      });
     }
 
     const messages = await FlomMessage.find({ _id: { $in: messageIds } }).lean();
     if (messages.length === 0) {
-      return Base.successResponse(response, Const.responsecodeDeliverMessageWrongMessageId);
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeDeliverMessageWrongMessageId,
+        message: `DeliverMessageController, wrong messageId`,
+      });
     }
 
     const undeliveredMessages = messages.filter(
@@ -55,34 +63,37 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     await FlomMessage.updateMany(
       { _id: { $in: undeliveredMessages.map((message) => message._id) } },
       { $push: { deliveredTo: deliveredToRow } },
-      { multi: true },
+      { new: true },
     );
 
-    messages.forEach((message) => {
-      const isDelivered = message.sentTo.length === message.deliveredTo.length + 1; // +1 for the current delivery
-      updateHistory.updateLastMessageStatus({
-        messageId: message._id.toString(),
+    for (const m of messages) {
+      const isDelivered = m.sentTo.length === m.deliveredTo.length + 1; // +1 for the current delivery
+
+      await updateHistory.updateLastMessageStatus({
+        messageId: m._id.toString(),
         delivered: isDelivered,
       });
-    });
+    }
 
-    const res = await FlomMessage.populateMessages(undeliveredMessages);
+    // const res = await FlomMessage.populateMessages(undeliveredMessages);
+
+    const res = await FlomMessage.find({
+      _id: { $in: undeliveredMessages.map((message) => message._id) },
+    }).lean();
+
     const roomIds = [...new Set(res.map((message) => message.roomID))];
 
     roomIds.forEach((roomId) => {
       const chatType = roomId.split("-")[0];
       const filterMessages = res.filter((message) => message.roomID === roomId);
 
-      if (chatType === Const.chatTypeGroup || chatType === Const.chatTypeRoom) {
+      if (chatType == Const.chatTypeGroup || chatType == Const.chatTypeRoom) {
         socketApi.emitToRoom(roomId, "updatemessages", filterMessages);
-      } else if (chatType === Const.chatTypeBusiness) {
-        const tempArr = roomId.split("-");
-        const businessRoom = tempArr[0] + "-" + tempArr[1];
-        const otherUserId = tempArr[2];
-
-        socketApi.emitToRoom(businessRoom, "updatemessages", filterMessages);
-      } else if (chatType === Const.chatTypePrivate) {
+      } else if (chatType == Const.chatTypeBusiness) {
+        socketApi.emitToRoom(roomId, "updatemessages", filterMessages);
+      } else if (chatType == Const.chatTypePrivate) {
         const splitAry = roomId.split("-");
+
         if (splitAry.length < 2) return;
 
         let fromUser = splitAry[1];
@@ -99,12 +110,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    return Base.errorResponse(
+    Base.errorResponse({
       response,
-      Const.httpCodeServerError,
-      "DeliverMessageController",
+      message: "DeliverMessageController",
       error,
-    );
+    });
   }
 });
 

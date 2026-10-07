@@ -138,6 +138,7 @@ Constants.messageTypeLiveStreamCohostInvitation = 17;
 Constants.messageTypeAuctionOffer = 18;
 Constants.messageTypeWhatsAppFollowup = 22;
 Constants.messageTypeBusinessAssistantInvite = 23;
+Constants.messageTypeOrder = 24;
 
 Constants.pushTypeNewMessage = 1;
 Constants.pushTypeCall = 2;
@@ -171,6 +172,7 @@ Constants.pushTypeAuctionWin = 910;
 Constants.pushTypeBusiness = 920;
 Constants.pushTypeBusinessAssistantInvite = 921;
 Constants.pushTypeLowGlobalBalance = 100;
+Constants.pushTypeNewActivity = 101;
 
 Constants.muteActionMute = "mute";
 Constants.muteActionUnmute = "unmute";

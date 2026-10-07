@@ -2,10 +2,10 @@
 
 const router = require("express").Router();
 const Base = require("../../Base");
-const { logger } = require("#infra");
-const { Const, Config } = require("#config");
+const { Const } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
+const { LocationIQ } = require("#services");
 
 /**
  * @api {get} /api/v2/directions/durations Get distance durations
@@ -54,28 +54,28 @@ router.get("/durations", auth({ allowUser: true }), async (request, response) =>
     const endLon = +request.query.endLon;
 
     if ((!startLat && startLat !== 0) || startLat < -90 || startLat > 90) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoReCaptchaParameter,
         message: "DirectionsController, invalid startLat parameter",
       });
     }
     if ((!startLon && startLon !== 0) || startLon < -180 || startLon > 180) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoReCaptchaParameter,
         message: "DirectionsController, invalid startLon parameter",
       });
     }
     if ((!endLat && endLat !== 0) || endLat < -90 || endLat > 90) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoReCaptchaParameter,
         message: "DirectionsController, invalid endLat parameter",
       });
     }
     if ((!endLon && endLon !== 0) || endLon < -180 || endLon > 180) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoReCaptchaParameter,
         message: "DirectionsController, invalid endLon parameter",
@@ -88,26 +88,7 @@ router.get("/durations", auth({ allowUser: true }), async (request, response) =>
     const destination = `${Utils.roundNumber(endLat, 5)},${Utils.roundNumber(endLon, 5)}`;
 
     for (const mode of reqModes) {
-      // https://us1.locationiq.com/v1/directions/walking/16.431191277275307,43.515762721856305;16.458801102615958,43.50384642817355?key=pk.f4c8e61030a5c67c3eb241babd751833&overview=false
-
-      const apiRequest = {
-        method: "GET",
-        url: Config.locationIqUrl + "/v1/directions/" + mode + "/" + origin + ";" + destination,
-        query: {
-          key: Config.locationIqKey,
-          overview: "false",
-        },
-      };
-
-      let data = {};
-      const { err, data: d } = await Utils.sendRequest(apiRequest);
-
-      if (err) {
-        logger.error("DirectionsController error: " + err);
-        continue;
-      }
-
-      data = d;
+      const data = (await LocationIQ.directions({ mode, origin, destination })) || {};
 
       if (data?.routes?.[0]?.duration) {
         durations[mode] = formatDuration(+data.routes[0].duration);
@@ -118,7 +99,7 @@ router.get("/durations", auth({ allowUser: true }), async (request, response) =>
 
     Base.successResponse(response, Const.responsecodeSucceed, { durations });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "DirectionsController",
       error,
@@ -143,48 +124,5 @@ function formatDuration(duration) {
     return `${days} days${hours > 0 ? " " + hours + " hr" : ""}`;
   }
 }
-
-/*
-{
-    "code": "Ok",
-    "routes": [
-        {
-            "legs": [
-                {
-                    "steps": [],
-                    "weight": 2255.4,
-                    "summary": "",
-                    "duration": 2255.4,
-                    "distance": 3123.8
-                }
-            ],
-            "weight_name": "duration",
-            "weight": 2255.4,
-            "duration": 2255.4,
-            "distance": 3123.8
-        }
-    ],
-    "waypoints": [
-        {
-            "hint": "_bOvhAC0r4R-AAAAMQEAAAAAAAAAAAAAFy2MQcceKUIAAAAAAAAAAH4AAAAxAQAAAAAAAAAAAABCAAAAaLj6ACn_lwJXuPoAc_-XAgAADwX5lZZZ",
-            "location": [
-                16.431208,
-                43.515689
-            ],
-            "name": "",
-            "distance": 8.335696344
-        },
-        {
-            "hint": "HyBRkCMgUZAyAAAAoAAAADcAAACOAAAAjpniQCyWsEGE__JAvgWeQTIAAACgAAAANwAAAI4AAABCAAAAxCP7AE7QlwIxJPsA5tCXAgIAXwf5lZZZ",
-            "location": [
-                16.458692,
-                43.503694
-            ],
-            "name": "Spinčićeva ulica",
-            "distance": 19.04843064
-        }
-    ]
-}
-*/
 
 module.exports = router;

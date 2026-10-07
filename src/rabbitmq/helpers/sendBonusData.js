@@ -16,7 +16,7 @@ async function sendBonusData({
 }) {
   try {
     if (!operator) {
-      logger.error("sendBonusData, operator not found");
+      logger.warn("sendBonusData, operator not found");
       return;
     }
 
@@ -31,17 +31,20 @@ async function sendBonusData({
     } = customerActivationData;
 
     if (bonusType === Const.dataForSync && !sendDataForSync) {
-      throw new Error("sendBonusData, sync bonus disabled");
+      logger.warn("sendBonusData, sync bonus disabled");
+      return;
     }
     if (
       bonusType === Const.dataForFirstPaymentOrApprovedProduct &&
       !sendDataForFirstPaymentOrApprovedProduct
     ) {
-      throw new Error("sendBonusData, product bonus disabled");
+      logger.warn("sendBonusData, product bonus disabled");
+      return;
     }
 
     if (totalSpending > totalSpendingCap) {
-      throw new Error("sendBonusData, totalSpending higher than totalSpendingCap");
+      logger.warn("sendBonusData, totalSpending higher than totalSpendingCap");
+      return;
     }
 
     const user = await User.findById(userId).lean();
@@ -57,7 +60,7 @@ async function sendBonusData({
       productId,
       feedbackId,
     });
-    if (check) return;
+    if (check.check || check.error) return;
 
     const monthlyPlanStringArray = ["monthly", "30 days", "30days", "4week", "4 week"];
     const biWeeklyPlanStringsArray = ["14 days", "14days", "2 week"];
@@ -81,7 +84,7 @@ async function sendBonusData({
       });
 
       if (!bonusDataPackage) {
-        logger.error(
+        logger.warn(
           `sendBonusData - default data package not found in db for number: ${phoneNumber} and operator: ${operator}`,
         );
         return;
@@ -96,7 +99,7 @@ async function sendBonusData({
       });
 
       if (dataPackages.length === 0) {
-        logger.error(`sendBonusData - no data packages for number: ${phoneNumber}`);
+        logger.warn(`sendBonusData - no data packages for number: ${phoneNumber}`);
         return;
       }
 
@@ -152,13 +155,13 @@ async function sendBonusData({
           amount = bonusDataPackage?.maxAmount;
           break;
         default:
-          logger.error("sendBonusData - bonusType unknown");
+          logger.warn("sendBonusData - bonusType unknown");
           return;
       }
     }
 
     if (!amount) {
-      logger.error(
+      logger.warn(
         `sendBonusData - Data package not found for this phonenumber's carrier: ${phoneNumber}, no bonus package awarded`,
       );
       return;
@@ -168,19 +171,19 @@ async function sendBonusData({
     const amountUSD = Math.floor((amount / NGNtoUSDRatio) * 100) / 100;
 
     if (amountUSD > maxAmountPerUser) {
-      logger.error(
+      logger.warn(
         "sendBonusData - Price of smallest monthly data package higher than maxAmountPerUser",
       );
       return;
     }
     if (amount > maxAmountNGN) {
-      logger.error(
+      logger.warn(
         `sendBonusData - Price of smallest monthly data package higher than maximum for this bonus type: ${maxAmountNGN} NGN`,
       );
       return;
     }
     if (totalSpending + amountUSD > totalSpendingCap) {
-      logger.error(
+      logger.warn(
         "sendBonusData - package price goes over totalSpendingCap, data package will not be added",
       );
       return;
@@ -189,7 +192,7 @@ async function sendBonusData({
     if (Config.environment === "production") {
       const balanceCheck = await Utils.checkQriosBalance(amount);
       if (!balanceCheck) {
-        logger.error("sendBonusData - Qrios balance insufficient!");
+        logger.warn("sendBonusData - Qrios balance insufficient!");
         return;
       }
     }
@@ -260,7 +263,7 @@ async function sendBonusData({
           status: Const.transferFulfillmentFailed,
           airtimeAPIResponse: err,
         });
-        logger.error("sendBonusData - Data recharge API", err);
+        logger.warn("sendBonusData - Data recharge API", err);
         return;
       }
 

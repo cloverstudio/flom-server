@@ -7,8 +7,127 @@ const { Const, Config, countries } = require("#config");
 const Utils = require("#utils");
 const Logics = require("#logics");
 const { auth } = require("#middleware");
-const { User, CoreIdentity, IdApplication, MerchantApplication } = require("#models");
+const {
+  User,
+  CoreIdentity,
+  IdApplication,
+  MerchantApplication,
+  Product,
+  Business,
+} = require("#models");
 const crypto = require("crypto");
+const jobs = require("../../../jobs");
+
+router.get("/wa", async (request, response) => {
+  try {
+    await jobs.updateWhatsAppPrices();
+
+    Base.successResponse(response, Const.responsecodeSucceed);
+  } catch (error) {
+    Base.errorResponse({
+      response,
+      message: "FixController - wa",
+      error,
+    });
+  }
+});
+
+router.get("/errortest", async (request, response) => {
+  try {
+    throw new Error("nova greška");
+  } catch (error) {
+    Base.errorResponse({
+      response,
+      message: "FixController - errortest",
+      error,
+    });
+  }
+});
+
+router.get("/product-business", async (request, response) => {
+  try {
+    const products = await Product.find({ type: { $in: [5, 6] } }).lean();
+
+    console.log(`Total products fetched: ${products.length}`);
+
+    const owners = await User.find({
+      _id: { $in: Array.from(new Set(products.filter((p) => !!p.ownerId).map((p) => p.ownerId))) },
+    }).lean();
+    const ownersMap = {};
+    for (const owner of owners) {
+      owner._id = owner._id.toString();
+      ownersMap[owner._id.toString()] = owner;
+    }
+
+    const bulkWriteOps = [];
+
+    for (const p of products) {
+      console.log(`Processing product ${p._id}`);
+
+      const ownerId = p.ownerId;
+      const owner = ownersMap[ownerId];
+
+      if (!owner) {
+        console.log(`Owner not found for product ${p._id} with ownerId ${ownerId}`);
+        continue;
+      }
+
+      const ownersBusinesses = await Business.find({ "owner._id": ownerId })
+        .sort({ created: 1 })
+        .lean();
+
+      let firstBusiness = ownersBusinesses[0] || null;
+      console.log(
+        `First business for owner ${ownerId}: ${firstBusiness ? firstBusiness._id : "none"}`,
+      );
+
+      if (!firstBusiness && owner) {
+        console.log(
+          `Creating new business for owner ${owner.userName} with phone number ${owner.phoneNumber}`,
+        );
+
+        const info = {};
+        info.market =
+          owner.countryCode ||
+          Utils.getCountryCodeFromPhoneNumber({ phoneNumber: owner.phoneNumber });
+        info.name = `${owner.userName}'s Business`;
+        info.description = `Business owned by ${owner.userName}`;
+
+        firstBusiness = await Logics.createBusiness({ owner, info });
+      }
+
+      bulkWriteOps.push({
+        updateOne: {
+          filter: { _id: p._id },
+          update: {
+            $set: {
+              business: {
+                _id: firstBusiness._id.toString(),
+                name: firstBusiness.name,
+                avatar: firstBusiness.avatar,
+              },
+            },
+          },
+        },
+      });
+
+      await Utils.sleep(200);
+    }
+
+    console.log(`Total bulk write operations: ${bulkWriteOps.length}`);
+    if (bulkWriteOps.length > 0) {
+      await Product.bulkWrite(bulkWriteOps);
+    }
+
+    Base.successResponse(response, Const.responsecodeSucceed);
+  } catch (error) {
+    Base.errorResponse({
+      response,
+      message: "FixController - product-business",
+      error,
+    });
+  }
+});
 
 router.get("/loglevel", async (request, response) => {
   try {
@@ -18,7 +137,7 @@ router.get("/loglevel", async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "FixController - loglevel",
       error,
@@ -36,7 +155,7 @@ router.get("/logtest", async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "FixController - logtest",
       error,
@@ -50,7 +169,7 @@ router.get("/push", async function (request, response) {
     const mute = muted === "true";
 
     if (!pn) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoPhoneNumber,
         message: "Push, invalid push type: " + pt,
@@ -62,7 +181,7 @@ router.get("/push", async function (request, response) {
     const pushType = !pt ? null : +pt;
 
     if (!pushType || typeof pushType !== "number") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUnknownPushType,
         message: "Push, invalid push type: " + pt,
@@ -72,7 +191,7 @@ router.get("/push", async function (request, response) {
     const user = await User.findOne({ phoneNumber }).lean();
 
     if (!user) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotFound,
         message: "Push, user not found",
@@ -94,7 +213,7 @@ router.get("/push", async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "FixController - Push",
       error,
@@ -120,7 +239,7 @@ router.get("/pushtest/:pushType", async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "FixController - pushtest",
       error,
@@ -140,7 +259,7 @@ router.post("/form", async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed, { fields, files });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "FixController - form",
       error,
@@ -285,7 +404,7 @@ router.get("/names", async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed, {});
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "FixController - form",
       error,

@@ -239,7 +239,7 @@ router.get("/", async function (request, response) {
     } else if (accessToken && accessToken.length !== Const.tokenLength) {
       const adminUser = await AdminPageUser.findOne({ "token.token": accessToken }).lean();
       if (!adminUser) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeSigninInvalidToken,
           message: "Get popular products controller, invalid admin token",
@@ -248,7 +248,7 @@ router.get("/", async function (request, response) {
     } else {
       const user = await User.findOne({ "token.token": accessToken }).lean();
       if (!user)
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeSigninInvalidToken,
           message: "Get popular products controller, invalid user token",
@@ -342,7 +342,7 @@ router.get("/", async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, { products: resultArray });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetPopularProductsController",
       error,

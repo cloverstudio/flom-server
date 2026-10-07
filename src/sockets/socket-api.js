@@ -11,8 +11,7 @@ const socketApi = {
     this.auctionsNsp = io.of(Config.socketAuctionsNameSpace);
 
     this.flomNsp.on("connection", (socket) => {
-      logger.debug("Flom namespace connected: ", socket.id);
-      logger.debug("Flom socket data printout: ", JSON.stringify(socket.data, null, 2));
+      logger.debug("Flom namespace connected: " + socket.id);
 
       socket.on("disconnect", async (reason) => {
         try {
@@ -32,8 +31,7 @@ const socketApi = {
     });
 
     this.auctionsNsp.on("connection", (socket) => {
-      logger.debug("Auctions namespace connected: ", socket.id);
-      logger.debug("Auctions socket data printout: ", JSON.stringify(socket.data, null, 2));
+      logger.debug("Auctions namespace connected: " + socket.id);
 
       socket.on("disconnect", async (reason) => {});
 
@@ -75,6 +73,31 @@ const socketApi = {
       socket = this[`${nsp}Nsp`].sockets.get(socketId);
 
       if (socket) socket.leave(type + "-" + roomId);
+    });
+  },
+  async join(userId, roomId, nsp = "flom") {
+    const value = await redis.get(Const.redisKeyUserId + userId);
+    if (!value) return;
+
+    value.forEach((socket) => {
+      const socketId = socket.socketId;
+      socket = this[`${nsp}Nsp`].sockets.get(socketId);
+
+      if (socket) socket.join(roomId);
+    });
+  },
+  async leave(userId, roomId, nsp = "flom") {
+    const value = await redis.get(Const.redisKeyUserId + userId);
+    if (!value) return;
+
+    value.forEach((socket) => {
+      const socketId = socket.socketId;
+      socket = this[`${nsp}Nsp`].sockets.get(socketId);
+
+      if (socket) {
+        logger.debug(`Socket ${socketId} leaving room ${roomId}`);
+        socket.leave(roomId);
+      }
     });
   },
 };

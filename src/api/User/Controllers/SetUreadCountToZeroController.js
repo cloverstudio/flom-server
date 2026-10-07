@@ -31,11 +31,19 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
   const unreadCount = request.body.unreadCount || 0;
 
   if (!(Number.isInteger(unreadCount) && unreadCount >= 0)) {
-    return Base.successResponse(response, Const.responsecodeInvalidUnreadCount);
+    return Base.errorResponse({
+      response,
+      code: Const.responsecodeInvalidUnreadCount,
+      message: `SetUreadCountToZeroController, invalid unread count`,
+    });
   }
 
   if (!chat && !historyId) {
-    return Base.successResponse(response, Const.responsecodeNoChatIdOrHistoryId);
+    return Base.errorResponse({
+      response,
+      code: Const.responsecodeNoChatIdOrHistoryId,
+      message: `SetUreadCountToZeroController, no chatId or historyId provided`,
+    });
   }
 
   if (historyId) {
@@ -43,7 +51,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       let history = await History.findOne({ _id: historyId });
 
       if (!history) {
-        return Base.successResponse(response, Const.responsecodeHistoryNotFound);
+        return Base.errorResponse({
+          response,
+          code: Const.responsecodeHistoryNotFound,
+          message: `SetUreadCountToZeroController, history not found`,
+        });
       }
 
       history.unreadCount = unreadCount;
@@ -53,7 +65,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       return Base.successResponse(response, Const.responsecodeSucceed);
     } catch (error) {
       console.error("Error in setunredcount to 0: ", { error });
-      return Base.successResponse(response, Const.responsecodeHistoryNotFound);
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeHistoryNotFound,
+        message: `SetUreadCountToZeroController, history not found`,
+      });
     }
   } else {
     try {
@@ -69,11 +85,19 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         chatType == Const.chatTypeRoom
       ) {
         if (chatSplit.length !== 2) {
-          return Base.successResponse(response, Const.responsecodeChatIdNotFound);
+          return Base.errorResponse({
+            response,
+            code: Const.responsecodeChatIdNotFound,
+            message: `SetUreadCountToZeroController, chatId not found`,
+          });
         }
       } else {
         if (chatSplit.length !== 3) {
-          return Base.successResponse(response, Const.responsecodeChatIdNotFound);
+          return Base.errorResponse({
+            response,
+            code: Const.responsecodeChatIdNotFound,
+            message: `SetUreadCountToZeroController, chatId not found`,
+          });
         }
         if (chatId == userId) {
           chatId != chatSplit[1] ? (chatId = chatSplit[1]) : (chatId = chatSplit[2]);
@@ -89,16 +113,24 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       let history = await History.findOne(queryObject);
 
       if (!history) {
-        return Base.successResponse(response, Const.responsecodeHistoryNotFound);
+        return Base.errorResponse({
+          response,
+          code: Const.responsecodeHistoryNotFound,
+          message: `SetUreadCountToZeroController, history not found`,
+        });
       }
 
       history.unreadCount = unreadCount;
       history.lastUpdateUnreadCount = Date.now();
       await history.save();
 
-      return Base.successResponse(response, Const.responsecodeSucceed);
+      Base.successResponse(response, Const.responsecodeSucceed);
     } catch (error) {
-      return Base.successResponse(response, Const.responsecodeHistoryNotFound);
+      Base.errorResponse({
+        response,
+        message: `SetUreadCountToZeroController`,
+        error,
+      });
     }
   }
 });

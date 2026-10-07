@@ -51,7 +51,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const { tribeIds } = request.body;
 
     if (!tribeIds || !Array.isArray(tribeIds)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidTribeIdsParam,
         message: "IsUserTribeMemberController - invalid tribeIds parameter",
@@ -60,7 +60,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     for (const id of tribeIds) {
       if (!Utils.isValidObjectId(id)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidTribeId,
           message: `IsUserTribeMemberController - invalid tribeId: ${id}`,
@@ -70,7 +70,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       const tribe = await Tribe.findById(id);
 
       if (!tribe) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeTribeNotFound,
           message: `IsUserTribeMemberController - tribe ${id} not found`,
@@ -106,7 +106,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const responseData = { tribes: tribesResponseArray };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "IsUserTribeMemberController",
       error,

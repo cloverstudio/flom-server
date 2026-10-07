@@ -92,7 +92,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     console.log("UploadFilesController files", Object.keys(files));
 
     if (Object.keys(files).length === 0) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeFileNotFound,
         message: "UploadFilesController, no files uploaded",
@@ -331,7 +331,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     return;
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "UploadFilesController",
       error,

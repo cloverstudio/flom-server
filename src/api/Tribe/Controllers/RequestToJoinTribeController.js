@@ -44,7 +44,7 @@ router.patch("/:tribeId/join", auth({ allowUser: true }), async (request, respon
     const requestUserId = request.user._id.toString();
     const tribeId = request.params.tribeId;
     if (!Utils.isValidObjectId(tribeId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeTribeBadId,
         message: `RequestToJoinTribeController, bad tribe id`,
@@ -53,7 +53,7 @@ router.patch("/:tribeId/join", auth({ allowUser: true }), async (request, respon
 
     const tribe = await Tribe.findById(tribeId);
     if (!tribe) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeTribeNotFound,
         message: `RequestToJoinTribeController, no tribe found`,
@@ -64,7 +64,7 @@ router.patch("/:tribeId/join", auth({ allowUser: true }), async (request, respon
       tribe.ownerId === requestUserId ||
       tribe.members.accepted.find((member) => member.id === requestUserId)
     ) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeTribeAlreadyJoined,
         message: `RequestToJoinTribeController, already joined`,
@@ -76,7 +76,7 @@ router.patch("/:tribeId/join", auth({ allowUser: true }), async (request, respon
       tribe.members.invited.find((member) => member.id === requestUserId) ||
       tribe.members.declined.find((member) => member.id === requestUserId)
     ) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeTribeAlreadyRequested,
         message: `RequestToJoinTribeController, already requested`,
@@ -91,7 +91,7 @@ router.patch("/:tribeId/join", auth({ allowUser: true }), async (request, respon
 
     Base.successResponse(response, Const.responsecodeSucceed, { requestSent: true });
   } catch (error) {
-    Base.newErrorResponse({ response, message: "RequestToJoinTribeController", error });
+    Base.errorResponse({ response, message: "RequestToJoinTribeController", error });
   }
 });
 

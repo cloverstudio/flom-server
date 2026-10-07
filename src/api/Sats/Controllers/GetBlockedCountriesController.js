@@ -51,7 +51,7 @@ router.get(
         blockedCountriesList: allBlockedCountries.valueArray,
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "GetBlockedCountriesController",
         error,

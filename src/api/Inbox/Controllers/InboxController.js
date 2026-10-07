@@ -3,11 +3,11 @@
 const router = require("express").Router();
 const Base = require("../../Base");
 const { logger } = require("#infra");
-const { Const, countries } = require("#config");
+const { Const } = require("#config");
 const Utils = require("#utils");
 const Logics = require("#logics");
 const { auth } = require("#middleware");
-const { User, Order, ConversionRate, History, Room, FlomMessage } = require("#models");
+const { User, Order, History } = require("#models");
 
 /**
  * @api {get} /api/v2/inbox Get users inbox flom_v1
@@ -150,7 +150,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     const res = await getInbox({ user, type });
 
     if (res.errCode) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: res.errCode,
         message: "InboxController, " + res.errMsg,
@@ -163,7 +163,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
 
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "InboxController",
       error,
@@ -171,7 +171,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
   }
 });
 
-async function getInbox({ user, type, page, size }) {
+async function getInbox({ user, type }) {
   try {
     const userId = user._id.toString();
 
@@ -206,7 +206,7 @@ async function getInbox({ user, type, page, size }) {
         break;
     }
 
-    const orders = await Order.find(query).sort({ createdAt: -1 }).lean();
+    const orders = await Order.find(query).sort({ created: -1 }).lean();
 
     const existingBuyerIds = [];
     const orderToBuyerIdMap = {};
@@ -214,18 +214,26 @@ async function getInbox({ user, type, page, size }) {
       const shouldInclude = !existingBuyerIds.includes(order.buyer._id);
       if (shouldInclude) {
         existingBuyerIds.push(order.buyer._id);
+        order.chatId = order.businessId + "-" + order.buyer._id;
         orderToBuyerIdMap[order.buyer._id] = order;
       }
       return shouldInclude;
     });
 
-    const uniqueBuyerIds = Array.from(new Set(existingBuyerIds));
-    const histories = await History.find({ userId, chatId: { $in: uniqueBuyerIds }, chatType: 1 })
+    // const uniqueBuyerIds = Array.from(new Set(existingBuyerIds));
+    const chatIds = Array.from(
+      new Set(mostRecentOrdersForUniqueBuyers.map((order) => order.chatId)),
+    );
+    const histories = await History.find({
+      chatType: Const.chatTypeBusiness,
+      userId,
+      chatId: { $in: chatIds },
+    })
       .sort({ lastUpdate: -1 })
       .lean();
 
     const otherUsers = await User.find(
-      { _id: { $in: uniqueBuyerIds } },
+      { _id: { $in: existingBuyerIds } },
       { _id: 1, userName: 1, created: 1, phoneNumber: 1, avatar: 1, bankAccounts: 1 },
     ).lean();
     const otherUsersMap = {};
@@ -233,16 +241,18 @@ async function getInbox({ user, type, page, size }) {
       otherUsersMap[otherUser._id.toString()] = otherUser;
     });
 
-    const onlineStatuses = await Logics.getUsersOnlineStatus(uniqueBuyerIds);
+    const onlineStatuses = await Logics.getUsersOnlineStatus(existingBuyerIds);
 
     histories.forEach((history) => {
-      history.orderStatus = orderToBuyerIdMap[history.chatId]?.status || null;
-      history.orderPrice = orderToBuyerIdMap[history.chatId]?.price || null;
-      history.user = otherUsersMap[history.chatId] || null;
+      const buyerId = history.chatId.split("-")[1];
+
+      history.orderStatus = orderToBuyerIdMap[buyerId]?.status || null;
+      history.orderPrice = orderToBuyerIdMap[buyerId]?.price || null;
+      history.user = otherUsersMap[buyerId] || null;
       if (history.user) {
         history.user._id = history.user._id.toString();
 
-        const onlineStatusObj = onlineStatuses.find((status) => status.userId === history.chatId);
+        const onlineStatusObj = onlineStatuses.find((status) => status.userId === buyerId);
         if (onlineStatusObj) {
           history.user.onlineStatus = onlineStatusObj.onlineStatus;
           history.user.lastSeen = onlineStatusObj.lastSeen || null;

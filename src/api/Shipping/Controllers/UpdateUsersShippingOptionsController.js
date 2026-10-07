@@ -49,7 +49,7 @@ router.patch("/", auth({ allowUser: true }), async function (request, response) 
         !Number.isInteger(shippingInterval) ||
         shippingInterval < 0
       ) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidParameter,
           message: "UpdateUsersShippingOptionsController, shippingInterval param is invalid",
@@ -64,7 +64,7 @@ router.patch("/", auth({ allowUser: true }), async function (request, response) 
 
     Base.successResponse(response, Const.responsecodeSucceed);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "UpdateUsersShippingOptionsController",
       error,

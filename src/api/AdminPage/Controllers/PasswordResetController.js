@@ -45,7 +45,7 @@ router.post("/", async (request, response) => {
     const { reCaptcha, username } = request.body;
 
     if (!reCaptcha) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoReCaptchaParameter,
         type: Const.logTypeAdminPage,
@@ -55,7 +55,7 @@ router.post("/", async (request, response) => {
 
     const reCaptchaResult = await Utils.checkReCaptcha(reCaptcha);
     if (!reCaptchaResult) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeReCaptchaFailed,
         type: Const.logTypeAdminPage,
@@ -64,7 +64,7 @@ router.post("/", async (request, response) => {
     }
 
     if (!username) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoUsername,
         type: Const.logTypeAdminPage,
@@ -74,7 +74,7 @@ router.post("/", async (request, response) => {
 
     const user = await AdminPageUser.findOne({ username });
     if (!user) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeWrongUsername,
         type: Const.logTypeAdminPage,
@@ -83,7 +83,7 @@ router.post("/", async (request, response) => {
     }
 
     if (!user.emailVerification.verified) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeEmailNotVerified,
         type: Const.logTypeAdminPage,
@@ -103,7 +103,7 @@ router.post("/", async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed, { emailSend: true });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "PasswordResetController - send reset password email",
       type: Const.logTypeAdminPage,
@@ -152,7 +152,7 @@ router.post("/complete", async (request, response) => {
     const { reCaptcha, passwordResetToken, password } = request.body;
 
     if (!reCaptcha) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoReCaptchaParameter,
         type: Const.logTypeAdminPage,
@@ -162,7 +162,7 @@ router.post("/complete", async (request, response) => {
 
     const reCaptchaResult = await Utils.checkReCaptcha(reCaptcha);
     if (!reCaptchaResult) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeReCaptchaFailed,
         type: Const.logTypeAdminPage,
@@ -171,7 +171,7 @@ router.post("/complete", async (request, response) => {
     }
 
     if (!passwordResetToken) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoToken,
         type: Const.logTypeAdminPage,
@@ -184,7 +184,7 @@ router.post("/complete", async (request, response) => {
       "passwordReset.completed": false,
     });
     if (!user) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidToken,
         type: Const.logTypeAdminPage,
@@ -196,7 +196,7 @@ router.post("/complete", async (request, response) => {
       user.passwordReset.tokenGeneratedAt + Const.adminPagePasswordResetTokenValidInterval <
       Date.now()
     ) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeTokenExpired,
         type: Const.logTypeAdminPage,
@@ -205,7 +205,7 @@ router.post("/complete", async (request, response) => {
     }
 
     if (!password) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoPassword,
         type: Const.logTypeAdminPage,
@@ -214,7 +214,7 @@ router.post("/complete", async (request, response) => {
     }
     const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
     if (!passwordRegex.test(password)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidPassword,
         type: Const.logTypeAdminPage,
@@ -231,7 +231,7 @@ router.post("/complete", async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed, { passwordChanged: true });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "PasswordResetController - complete password reset",
       type: Const.logTypeAdminPage,

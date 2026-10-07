@@ -486,7 +486,7 @@ router.post("/", async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed, { submitted: true });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "SupportController - create ticket",
       error,
@@ -515,7 +515,7 @@ async function isTokenValid(token) {
 }
 
 function supportErrorResponse({ response, code, message }) {
-  return Base.newErrorResponse({
+  return Base.errorResponse({
     response,
     code,
     message,
@@ -594,7 +594,7 @@ router.get(
 
       if (supportTicketId) {
         if (!Utils.isValidObjectId(supportTicketId)) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeSupportTicketIdNotValid,
             message: `SupportController - list, invalid supportTicketId parameter`,
@@ -617,13 +617,13 @@ router.get(
 
       if (status !== null) {
         if ([1, 2, 3, 4, 5, 6].indexOf(status) === -1) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeWrongStatus,
             message: `SupportController - list, invalid status parameter`,
           });
         } else if (status === 5 && request.user.role < Const.Role.SUPER_ADMIN) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeWrongRole,
             message: `SupportController - list, wrong admin role for status 5`,
@@ -634,7 +634,7 @@ router.get(
       }
       if (type) {
         if (Config.supportTypes.indexOf(type) === -1) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidTypeParameter,
             message: `SupportController - list, invalid type parameter`,
@@ -677,7 +677,7 @@ router.get(
         },
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "SupportController - list",
         error,
@@ -730,14 +730,14 @@ router.post(
       const { to, subject = "Support ticket reply (Flom v1)", text } = request.body;
 
       if (!to || to === "") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoToParameter,
           message: `SupportController - send email, no to parameter`,
         });
       }
       if (!Utils.isEmail(to)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidEmail,
           message: `SupportController - send email, to is not a valid email`,
@@ -745,7 +745,7 @@ router.post(
       }
 
       if (!text || text === "") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoTextParameter,
           message: `SupportController - send email, no text parameter`,
@@ -761,7 +761,7 @@ router.post(
 
       Base.successResponse(response, Const.responsecodeSucceed, {});
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "SupportController, send email",
         error,
@@ -810,14 +810,14 @@ router.post(
       const { to, subject = "Support ticket reply (Flom v1)", text } = request.body;
 
       if (!to || to === "") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoToParameter,
           message: `SupportController - send qrios email, no to parameter`,
         });
       }
       if (!Utils.isEmail(to)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidEmail,
           message: `SupportController - send qrios email, to is not a valid email`,
@@ -825,7 +825,7 @@ router.post(
       }
 
       if (!text || text === "") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoTextParameter,
           message: `SupportController - send qrios email, no text parameter`,
@@ -842,7 +842,7 @@ router.post(
 
       Base.successResponse(response, Const.responsecodeSucceed, {});
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "SupportController, send qrios email",
         error,
@@ -913,7 +913,7 @@ router.get("/categories", async (request, response) => {
       });
     }
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "SupportController - get support categories",
       error,
@@ -1095,7 +1095,7 @@ router.get(
       const { supportTicketId } = request.params;
 
       if (!Utils.isValidObjectId(supportTicketId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeSupportTicketIdNotValid,
           message: `SupportController - get by id, invalid supportTicketId parameter`,
@@ -1104,7 +1104,7 @@ router.get(
 
       const supportTicket = await SupportTicket.findOne({ _id: supportTicketId }).lean();
       if (!supportTicket) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeSupportTicketNotFound,
           message: `SupportController - get by id, support ticket with ${supportTicketId} not found`,
@@ -1112,7 +1112,7 @@ router.get(
       }
 
       if (supportTicket.status === 5 && request.user.role < Const.Role.SUPER_ADMIN) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeWrongRole,
           message: `SupportController - get by id, wrong admin role for status 5`,
@@ -1189,7 +1189,7 @@ router.get(
         },
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "SupportController - get by id",
         error,
@@ -1281,7 +1281,7 @@ router.patch(
       const status = +request.body.status;
 
       if (!Utils.isValidObjectId(supportTicketId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeSupportTicketIdNotValid,
           message: `SupportController - update status, invalid supportTicketId parameter`,
@@ -1289,7 +1289,7 @@ router.patch(
       }
 
       if ([1, 2, 3, 4, 5, 6].indexOf(status) === -1) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeWrongStatus,
           message: `SupportController - update status, wrong status parameter`,
@@ -1299,7 +1299,7 @@ router.patch(
       const supportTicket = await SupportTicket.findById(supportTicketId).lean();
 
       if (!supportTicket) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeSupportTicketNotFound,
           message: `SupportController - update status, support ticket with ${supportTicketId} not found`,
@@ -1307,7 +1307,7 @@ router.patch(
       }
 
       if (supportTicket.status === 5 && request.user.role < Const.Role.SUPER_ADMIN) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeWrongRole,
           message: `SupportController - update status, wrong admin role for status 5`,
@@ -1387,7 +1387,7 @@ router.patch(
         },
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "SupportController - update status",
         error,

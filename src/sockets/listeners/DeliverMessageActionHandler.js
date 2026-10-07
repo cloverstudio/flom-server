@@ -85,9 +85,7 @@ module.exports = function (socketApi, socket) {
         socketApi.emitToRoom(fromUser, "updatemessages", [updatedMessage]);
         socketApi.emitToRoom(toUser, "updatemessages", [updatedMessage]);
       } else if (chatType == Const.chatTypeBusiness) {
-        const roomIDSplitted = updatedMessage.roomID.split("-");
-        const businessRoom = Const.chatTypeBusiness + "-" + roomIDSplitted[1];
-        socketApi.emitToRoom(businessRoom, "updatemessages", [updatedMessage]);
+        socketApi.emitToRoom(updatedMessage.roomID, "updatemessages", [updatedMessage]);
       }
     } catch (error) {
       logger.error("deliverMessage", error);

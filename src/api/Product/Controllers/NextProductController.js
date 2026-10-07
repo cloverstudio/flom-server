@@ -170,7 +170,13 @@ router.post("/", async function (request, response) {
 
     if (accessToken) {
       const user = await User.findOne({ "token.token": accessToken }).lean();
-      if (!user) return Base.successResponse(response, Const.responsecodeSigninInvalidToken);
+      if (!user) {
+        return Base.errorResponse({
+          response,
+          code: Const.responsecodeSigninInvalidToken,
+          message: `NextProductController, invalid access token`,
+        });
+      }
 
       if (user.blocked && user.blocked.length > 0) {
         if (!matchQuery.ownerId) matchQuery.ownerId = {};
@@ -205,7 +211,7 @@ router.post("/", async function (request, response) {
     );
 
     if (!filteredProducts.length) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductNotFound,
         message: `NextProductController, no next product found`,
@@ -260,7 +266,7 @@ router.post("/", async function (request, response) {
       product: productObj,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "NextProductController",
       error,

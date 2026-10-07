@@ -54,7 +54,7 @@ router.get(
         payoutLimit: payoutLimit ?? {},
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "PayoutLimitsController, GET",
         error,
@@ -135,7 +135,7 @@ router.get("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (reque
       payoutLimits: payoutLimits ?? [],
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "PayoutLimitsController, GET",
       error,
@@ -192,7 +192,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
     const { errorCode, errorMessage, countryCode, min, max } = checkParams(request.body);
 
     if (errorCode) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: errorCode,
         message: `PayoutLimitsController, POST - ${errorMessage}`,
@@ -201,7 +201,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
 
     const alreadyExists = await PayoutLimit.findOne({ countryCode }).lean();
     if (alreadyExists) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodePayoutLimitAlreadyExists,
         message: `PayoutLimitsController, POST - payout limit with given country code already exists`,
@@ -214,7 +214,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
       payoutLimit: payoutLimit.toObject(),
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "PayoutLimitsController, POST",
       error,
@@ -281,7 +281,7 @@ router.patch(
       const user = request.user;
 
       if (updateObj.errorCode) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: updateObj.errorCode,
           message: `PayoutLimitsController, PATCH - ${updateObj.errorMessage}`,
@@ -294,7 +294,7 @@ router.patch(
         countryCode: request.params.countryCode,
       }).lean();
       if (!exists) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodePayoutLimitDoesNotExist,
           message: `PayoutLimitsController, PATCH - payout limit with given country code does not exist`,
@@ -319,7 +319,7 @@ router.patch(
         updatedPayoutLimit: updatedPayoutLimit.toObject(),
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "PayoutLimitsController, PATCH",
         error,
@@ -375,7 +375,7 @@ router.delete(
       const user = request.user;
 
       if (!countryCode) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoCountryCodeParameter,
           message: `PayoutLimitsController, DELETE - no countryCode parameter`,
@@ -384,7 +384,7 @@ router.delete(
 
       const exists = await PayoutLimit.findOne({ countryCode }).lean();
       if (!exists) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodePayoutLimitDoesNotExist,
           message: `PayoutLimitsController, DELETE - payout limit with given country code does not exist`,
@@ -407,7 +407,7 @@ router.delete(
         deletedPayoutLimit: deletedPayoutLimit.toObject(),
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "PayoutLimitsController, DELETE",
         error,

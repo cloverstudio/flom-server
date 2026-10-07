@@ -40,8 +40,11 @@ router.get("/:fileName", async (request, response) => {
     const { fileName } = request.params;
 
     if (!fileName) {
-      logger.error("SoundController, GET file, no filename");
-      return Base.successResponse(response, Const.responsecodeFileNotFound);
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeFileNotFound,
+        message: "SoundController, GET file, no filename",
+      });
     }
 
     const filePath = `${Config.uploadPath}/sounds/${fileName}`;
@@ -58,16 +61,18 @@ router.get("/:fileName", async (request, response) => {
         throw error;
       }
 
-      logger.error("SoundController, GET file, file not found");
-      return Base.successResponse(response, Const.responsecodeFileNotFound);
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeFileNotFound,
+        message: "SoundController, GET file, file not found",
+      });
     }
   } catch (error) {
-    return Base.errorResponse(
+    Base.errorResponse({
       response,
-      Const.httpCodeServerError,
-      "SoundController, GET file",
+      message: "SoundController, GET file",
       error,
-    );
+    });
   }
 });
 
@@ -177,7 +182,7 @@ router.get(
         paginationData: { total, hasNext, page, pageSize: size },
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "AdminSoundController, GET list",
         error,

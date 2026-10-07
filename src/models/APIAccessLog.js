@@ -12,9 +12,7 @@ const schema = new mongoose.Schema(
     userName: String,
     body: {},
     headers: {},
-    created: Number,
-    createdDate: Date,
-    createdReadable: String,
+    created: { type: Number, default: Date.now, index: true },
   },
   { timestamps: true },
 );

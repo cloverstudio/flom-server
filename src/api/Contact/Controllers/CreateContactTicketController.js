@@ -81,7 +81,7 @@ router.post("/", async (request, response) => {
     } = handleInputs(request.body);
 
     if (errorCode) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: errorCode,
         message: errorMessage,
@@ -107,7 +107,7 @@ router.post("/", async (request, response) => {
 
     Base.successResponse(response, Const.responsecodeSucceed, { ticket: newContactTicket });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "CreateContactTicketController, POST",
       error,

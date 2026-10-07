@@ -199,7 +199,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     const { blockedFromCreatingLiveStreams = false } = user;
     if (blockedFromCreatingLiveStreams) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserIsBlockedFromCreatingLiveStreams,
         message: "CreateLiveStreamController, user is blocked from creating live streams",
@@ -207,7 +207,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (Utils.yearsFromBirthDate(user.dateOfBirth) < 18) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserIsUnderage,
         message: "CreateLiveStreamController, user is underage",
@@ -215,7 +215,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (!user.bankAccounts || user.bankAccounts.length === 0) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNotMerchantAccount,
         message: "CreateLiveStreamController, user is not merchant",
@@ -223,7 +223,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (!name || typeof name !== "string") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidName,
         message: "CreateLiveStreamController, invalid name",
@@ -231,7 +231,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (!type || !Const.liveStreamTypes.includes(type)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidTypeParameter,
         message: "CreateLiveStreamController, invalid type",
@@ -243,7 +243,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     if (type === "market") {
       if (!linkedProductIds || !Array.isArray(linkedProductIds) || linkedProductIds.length === 0) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoProductId,
           message: "CreateLiveStreamController, linkedProductIds array missing or empty",
@@ -252,7 +252,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
       for (const id of linkedProductIds) {
         if (!Utils.isValidObjectId(id)) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidProductId,
             message: "CreateLiveStreamController, invalid linked product id: " + id,
@@ -262,7 +262,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         const linkedProduct = await Product.findById(id).lean();
 
         if (!linkedProduct) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeLinkedProductNotFound,
             message: "CreateLiveStreamController, linked product not found: " + id,
@@ -276,7 +276,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       }
 
       if (!activeProductId) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoProductId,
           message: "CreateLiveStreamController, active product id missing",
@@ -284,7 +284,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       }
 
       if (!linkedProductIds.includes(activeProductId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidProductId,
           message:
@@ -297,7 +297,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     let communityIdsArray, tribeIdsArray;
 
     if (!["public", "tribes", "community"].includes(visibility)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeWrongVisibilityParameter,
         message: "CreateLiveStreamController, invalid visibility",
@@ -306,7 +306,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     if (visibility === "community") {
       if (!communityIds || (communityIds && typeof communityIds !== "string")) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidCommunityIdsParam,
           message: "CreateLiveStreamController, invalid communityIds parameter",
@@ -317,7 +317,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
       for (const id of communityIdsArray) {
         if (!Utils.isValidObjectId(id)) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidMembershipId,
             message: `CreateLiveStreamController, invalid membershipId: ${id}`,
@@ -327,7 +327,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         const membership = await Membership.findById(id);
 
         if (!membership) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeMembershipNotFound,
             message: `CreateLiveStreamController, membership ${id} not found`,
@@ -347,7 +347,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         }
 
         if (!isMemberOrCreator) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeUserNotAllowed,
             message: `CreateLiveStreamController, user is not a member or creator of membership: ${id}`,
@@ -358,7 +358,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     if (visibility === "tribes") {
       if (!tribeIds || (tribeIds && typeof tribeIds !== "string")) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidTribeIdsParam,
           message: "CreateLiveStreamController, invalid tribeIds parameter",
@@ -369,7 +369,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
       for (const id of tribeIdsArray) {
         if (!Utils.isValidObjectId(id)) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidTribeId,
             message: `CreateLiveStreamController, invalid tribeId: ${id}`,
@@ -379,7 +379,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         const tribe = await Tribe.findById(id);
 
         if (!tribe) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeTribeNotFound,
             message: `CreateLiveStreamController, tribe ${id} not found`,
@@ -400,7 +400,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         }
 
         if (!isMemberOrOwner) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeUserNotAllowed,
             message: `CreateLiveStreamController, user is not a member (elder+) or owner of tribe: ${id}`,
@@ -412,7 +412,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     let tags, tagIds;
     if (tagsFromInput) {
       if (typeof tagsFromInput !== "string") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidTagsParam,
           message: "CreateLiveStreamController, invalid tags",
@@ -426,7 +426,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
     if (cohosts && Array.isArray(cohosts) && cohosts.length > 0) {
       if (type !== "event") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidTypeParameter,
           message: "CreateLiveStreamController, only type 'event' can have cohosts",
@@ -434,7 +434,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       }
 
       if (cohosts.length > Const.maxLiveStreamCohosts) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeTooManyCohosts,
           message: "CreateLiveStreamController, too many cohosts",
@@ -443,7 +443,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 
       for (const cohostId of cohosts) {
         if (!Utils.isValidObjectId(cohostId)) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeInvalidCohostId,
             message: `CreateLiveStreamController, invalid cohost id: ${cohostId}`,
@@ -453,7 +453,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         const cohost = await User.findById(cohostId, { isDeleted: 1 }).lean();
 
         if (!cohost || cohost?.isDeleted?.value === true) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeCohostNotFound,
             message: `CreateLiveStreamController, cohost ${cohostId} not found`,
@@ -463,21 +463,21 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     }
 
     if (allowComments !== undefined && typeof allowComments !== "boolean") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidAllowCommentsParam,
         message: "CreateLiveStreamController, invalid allowComments param",
       });
     }
     if (allowSuperBless !== undefined && typeof allowSuperBless !== "boolean") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidAllowSuperBlessParam,
         message: "CreateLiveStreamController, invalid allowSuperBless param",
       });
     }
     if (allowSprayBless !== undefined && typeof allowSprayBless !== "boolean") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidAllowSprayBlessParam,
         message: "CreateLiveStreamController, invalid allowSprayBless param",
@@ -522,7 +522,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       logger.error("CreateLiveStreamController, recombee error: ", error);
     }
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "CreateLiveStreamController",
       error,

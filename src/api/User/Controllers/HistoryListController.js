@@ -47,12 +47,11 @@ router.get("/search", auth({ allowUser: true }), async function (request, respon
 
     return Base.successResponse(response, Const.responsecodeSucceed, res);
   } catch (error) {
-    return Base.errorResponse(
+    Base.errorResponse({
       response,
-      Const.httpCodeServerError,
-      "HistoryListController search error",
+      message: "HistoryListController search",
       error,
-    );
+    });
   }
 });
 
@@ -402,12 +401,11 @@ router.get("/:page", auth({ allowUser: true }), async function (request, respons
 
     return Base.successResponse(response, Const.responsecodeSucceed, res);
   } catch (error) {
-    return Base.errorResponse(
+    Base.errorResponse({
       response,
-      Const.httpCodeServerError,
-      "HistoryListController page error",
+      message: "HistoryListController page",
       error,
-    );
+    });
   }
 });
 
@@ -427,12 +425,11 @@ router.get("/diff/:lastUpdate", auth({ allowUser: true }), async function (reque
 
     return Base.successResponse(response, Const.responsecodeSucceed, res);
   } catch (error) {
-    return Base.errorResponse(
+    Base.errorResponse({
       response,
-      Const.httpCodeServerError,
-      "HistoryListController diff lastUpdate error",
+      message: "HistoryListController diff lastUpdate",
       error,
-    );
+    });
   }
 });
 
@@ -604,11 +601,22 @@ async function getList(lastUpdate, page, request, searchObj = null) {
     usersMap[user._id.toString()] = user;
   });
 
+  let businessChatBuyerIds = [];
+
   res.forEach((item) => {
     if (item.chatType === Const.chatTypePrivate) {
       item.user = usersMap[item.chatId];
     }
+
+    if (item.chatType == Const.chatTypeBusiness) {
+      const temp = item.chatId.split("-");
+      businessChatBuyerIds.push(temp[1]);
+      item.buyer = temp[1];
+    }
   });
+
+  businessChatBuyerIds = Array.from(new Set(businessChatBuyerIds));
+
   res = res.filter((item) => {
     if (item.chatType != Const.chatTypePrivate) {
       return true;
@@ -729,12 +737,24 @@ async function getList(lastUpdate, page, request, searchObj = null) {
 
   const businessIds = res
     .filter((item) => item.chatType === Const.chatTypeBusiness)
-    .map((item) => item.room.business)
-    .filter((businessId) => Utils.isValidObjectId(businessId));
-  const businesses = await User.find({ _id: { $in: businessIds } }).lean();
+    .map((item) => {
+      if (!item.chatId) return null;
+      return item.chatId.split("-")[0] || null;
+    })
+    .filter((businessId) => businessId && Utils.isValidObjectId(businessId));
+  const businesses = await Business.find({ _id: { $in: businessIds } }).lean();
   const businessesMap = {};
   businesses.forEach((business) => {
     businessesMap[business._id.toString()] = business;
+  });
+
+  const buyerModels = await User.find(
+    { _id: { $in: businessChatBuyerIds } },
+    User.getDefaultResponseFields(),
+  ).lean();
+  const buyerModelsMap = {};
+  buyerModels.forEach((buyer) => {
+    buyerModelsMap[buyer._id.toString()] = buyer;
   });
 
   res.forEach((item) => {
@@ -764,7 +784,13 @@ async function getList(lastUpdate, page, request, searchObj = null) {
     }
 
     if (item.chatType == Const.chatTypeBusiness) {
-      item.business = businessesMap[item.chatId];
+      const splitted = item.chatId.split("-");
+      if (splitted[0]) {
+        item.business = businessesMap[splitted[0]];
+      }
+      if (item.buyer) {
+        item.buyer = buyerModelsMap[item.buyer];
+      }
     }
   });
 

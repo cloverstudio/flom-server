@@ -80,7 +80,7 @@ router.get("/:setId", auth({ allowUser: true }), async function (request, respon
     }
 
     if (!emojiSetId) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoEmojiSetId,
         message: "SearchEmojiInSetController - no emoji set id",
@@ -90,7 +90,7 @@ router.get("/:setId", auth({ allowUser: true }), async function (request, respon
     const emojiSet = await EmojiSet.findOne({ _id: emojiSetId, isDeprecated: false }).lean();
 
     if (!emojiSet) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNotValidEmojiSetId,
         message: "SearchEmojiInSetController - not valid emoji set id",
@@ -100,7 +100,7 @@ router.get("/:setId", auth({ allowUser: true }), async function (request, respon
     const user = await User.find({ "token.token": token }).lean();
 
     if (!user) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSigninInvalidToken,
         message: "SearchEmojiInSetController, invalid user token",
@@ -123,7 +123,7 @@ router.get("/:setId", auth({ allowUser: true }), async function (request, respon
       emojis: emojisFiltered.slice(0, emojiCount),
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "SearchEmojiInSetController",
       error,

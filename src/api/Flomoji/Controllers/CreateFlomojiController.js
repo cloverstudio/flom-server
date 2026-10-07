@@ -86,7 +86,7 @@ const { addFlomojiLinks } = require("../helpers");
 router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (request, response) => {
   try {
     if (request.headers["content-type"].indexOf("multipart") === -1) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInputNotMultipart,
         message: `CreateFlomojiController, POST - input is not multipart form data`,
@@ -105,56 +105,56 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
     const position = +(fields.position || 0);
 
     if (!title) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoFlomojiTitle,
         message: `CreateFlomojiController, POST - no flomoji title`,
       });
     }
     if (!keywords) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoFlomojiKeywords,
         message: `CreateFlomojiController, POST - no flomoji keywords`,
       });
     }
     if (!amount) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoFlomojiAmount,
         message: `CreateFlomojiController, POST - no flomoji amount`,
       });
     }
     if (!Number.isInteger(amount) || amount < 0 || isNaN(amount)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeAmountNotANumber,
         message: `CreateFlomojiController, POST - amount is not a positive integer`,
       });
     }
     if (!creditsAmount) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoFlomojiCreditsAmount,
         message: `CreateFlomojiController, POST - no flomoji credits amount`,
       });
     }
     if (!Number.isInteger(creditsAmount) || creditsAmount < 0 || isNaN(creditsAmount)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeCreditsAmountNotANumber,
         message: `CreateFlomojiController, POST - credits amount is not a positive integer`,
       });
     }
     if (!position) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoFlomojiPosition,
         message: `CreateFlomojiController, POST - no flomoji position`,
       });
     }
     if (!Number.isInteger(position) || position < 0 || isNaN(position)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodePositionNotANumber,
         message: `CreateFlomojiController, POST - position is not a positive integer`,
@@ -165,7 +165,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
     const fileKeys = Object.keys(files);
 
     if (!fileKeys.includes("emoji") || !fileKeys.includes("smallEmoji") || fileKeys.length !== 2) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeImageFileInputError,
         message: `CreateFlomojiController, POST - something went wrong with flomoji image files input`,
@@ -177,7 +177,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
       const fileMimeType = file.type;
 
       if (fileMimeType.indexOf("image") === -1) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeOnlyImageFilesAllowed,
           message: `CreateFlomojiController, POST - only image files allowed`,
@@ -186,7 +186,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
 
       const { fileData, code } = await Utils.handleImageFile(file, "flomojis");
       if (code === 123) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeExtensionNotAllowed,
           message: `CreateFlomojiController, POST - image extension not allowed`,
@@ -218,7 +218,7 @@ router.post("/", auth({ allowAdmin: true, role: Const.Role.ADMIN }), async (requ
 
     Base.successResponse(response, Const.responsecodeSucceed, { flomoji: resultWithLinks });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "CreateFlomojiController, POST flomoji",
       error,

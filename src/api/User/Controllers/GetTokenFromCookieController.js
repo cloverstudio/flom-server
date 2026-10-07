@@ -38,7 +38,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed, { accessToken });
   } catch (e) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       message: "GetTokenFromCookieController",
       error: e,

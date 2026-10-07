@@ -43,7 +43,7 @@ router.get("/:orderId", auth({ allowUser: true }), async function (request, resp
     const userId = user._id.toString();
 
     if (!orderId || !Utils.isValidObjectId(orderId)) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeOrderNotFound,
         message: "GetOrderController, get order details - invalid orderId: " + orderId,
@@ -56,7 +56,7 @@ router.get("/:orderId", auth({ allowUser: true }), async function (request, resp
     }).lean();
 
     if (!order) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeOrderNotFound,
         message: "GetOrderController, get order details - order not found: " + orderId,
@@ -79,7 +79,7 @@ router.get("/:orderId", auth({ allowUser: true }), async function (request, resp
 
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetOrderController, get order details",
       error,
@@ -133,7 +133,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     const status = request.query.status ? request.query.status.split(",") : [];
 
     if (!type || (type !== "sold" && type !== "purchased" && type !== "payment_pending")) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidTypeParameter,
         message: "GetOrderController, get order list - invalid type: " + type,
@@ -182,7 +182,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     const responseData = { orders: !orders ? [] : orders, paginationData };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetOrderController, get order list",
       error,

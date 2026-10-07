@@ -126,7 +126,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     const user = await User.find({ "token.token": token }).lean();
 
     if (!user) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSigninInvalidToken,
         message: "GetTotalEarnedController, invalid user token",
@@ -321,7 +321,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       hasNext,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "GetMarketplaceDetailsController",
       error,

@@ -14,6 +14,7 @@ Config.host = "localhost";
 Config.serverType = process.env.SERVER_TYPE || "api";
 Config.port = { api: process.env.API_PORT || 8084, socket: process.env.SOCKET_PORT || 8085 };
 Config.useSSL = false;
+Config.serverNumber = !process.env.SERVER_NUMBER ? 1 : parseInt(process.env.SERVER_NUMBER, 10);
 
 Config.preSelfRegistrationPostUrl = process.env.preSelfRegistrationPostUrl;
 Config.selfRegistrationPostUrl = process.env.selfRegistrationPostUrl;

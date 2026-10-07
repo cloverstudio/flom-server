@@ -58,7 +58,7 @@ router.get(
       const requestUserId = request.user._id.toString();
 
       if (!Utils.isValidObjectId(relatedNotificationId)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoNotificationId,
           message: `GetRelatedNotificationController, invalid related notification id`,
@@ -70,7 +70,7 @@ router.get(
         receiverIds: requestUserId,
       }).lean();
       if (!notification) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidNotificationId,
           message: `GetRelatedNotificationController, notification not found`,
@@ -82,7 +82,7 @@ router.get(
 
       Base.successResponse(response, Const.responsecodeSucceed, { notification });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "GetRelatedNotificationController",
         error,

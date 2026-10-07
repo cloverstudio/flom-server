@@ -5,14 +5,8 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const } = require("#config");
 const { auth } = require("#middleware");
-const {
-  Product,
-  User,
-  Transfer,
-  UserTagInteraction,
-  UserCategoryInteraction,
-  Category,
-} = require("#models");
+const { Product, User, Transfer } = require("#models");
+const Logics = require("#logics");
 const { recombee } = require("#services");
 const { sendBonus } = require("#logics");
 
@@ -55,13 +49,19 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     if (request.user.likedProducts) dataToSend.likedProducts = request.user.likedProducts;
 
     Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
-  } catch (e) {
-    if (e.name == "CastError") {
-      logger.error("LikeProductController, GET", e);
-      return Base.successResponse(response, Const.responsecodeProductWrongProductIdFormat);
+  } catch (error) {
+    if (error.name == "CastError") {
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeProductWrongProductIdFormat,
+        message: "LikeProductController, GET, wrong product id format",
+      });
     }
-    Base.errorResponse(response, Const.httpCodeServerError, "LikeProductController, GET", e);
-    return;
+    Base.errorResponse({
+      response,
+      message: "LikeProductController, GET",
+      error,
+    });
   }
 });
 
@@ -103,12 +103,22 @@ router.post("/add", auth({ allowUser: true }), async function (request, response
     const productId = request.body.productId;
     const recommId = request.body.recommId ?? null;
 
-    if (!productId) return Base.successResponse(response, Const.responsecodeProductNoProductId);
+    if (!productId) {
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeProductNoProductId,
+        message: "LikeProductController, Add like, no product id",
+      });
+    }
 
     const product = await Product.findOne({ _id: productId, isDeleted: false }).lean();
 
     if (!product) {
-      return Base.successResponse(response, Const.responsecodeProductNotFound);
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeProductNotFound,
+        message: "LikeProductController, Add like, product not found",
+      });
     }
 
     // check if product is already liked
@@ -118,7 +128,11 @@ router.post("/add", auth({ allowUser: true }), async function (request, response
     const index = likedProducts.indexOf(productId);
 
     if (index > -1) {
-      return Base.successResponse(response, Const.responsecodeProductAlreadyLiked);
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeProductAlreadyLiked,
+        message: "LikeProductController, Add like, product already liked",
+      });
     }
 
     await User.findByIdAndUpdate(request.user._id, {
@@ -174,45 +188,21 @@ router.post("/add", auth({ allowUser: true }), async function (request, response
       logger.error("LikeProductController, Add like, recombee", error);
     }
 
-    try {
-      const tags = (product.tags ?? "").split(" ").map((tag) => tag.trim().replace("#", ""));
-
-      await UserTagInteraction.updateMany(
-        { userId: user._id.toString(), tag: { $in: tags } },
-        { $inc: { interactions: 3 }, $set: { modified: Date.now() } },
-        { upsert: true },
-      );
-    } catch (error) {
-      logger.error("LikeProductController, add like - UserTagInteraction error:", error);
+    Logics.addUserCategoryInteraction({ product, user });
+    Logics.addUserTagInteraction({ product, user });
+  } catch (error) {
+    if (error.name == "CastError") {
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeProductWrongProductIdFormat,
+        message: "LikeProductController, Add like, wrong product id format",
+      });
     }
-
-    try {
-      const categoryId = product.categoryId.toString();
-      const parentCategoryId = product.parentCategoryId;
-      const catIds = [categoryId];
-      if (parentCategoryId != "-1") {
-        catIds.push(parentCategoryId);
-      }
-
-      const categories = (await Category.find({ _id: { $in: catIds } }).lean()).map(
-        (cat) => cat.name,
-      );
-
-      await UserCategoryInteraction.updateMany(
-        { userId: user._id.toString(), category: { $in: categories } },
-        { $inc: { interactions: 3 }, $set: { modified: Date.now() } },
-        { upsert: true },
-      );
-    } catch (error) {
-      logger.error("LikeProductController, add like - UserCategoryInteraction error:", error);
-    }
-  } catch (e) {
-    if (e.name == "CastError") {
-      logger.error("LikeProductController, Add like", e);
-      return Base.successResponse(response, Const.responsecodeProductWrongProductIdFormat);
-    }
-    Base.errorResponse(response, Const.httpCodeServerError, "LikeProductController, Add like", e);
-    return;
+    Base.errorResponse({
+      response,
+      message: "LikeProductController, Add like",
+      error,
+    });
   }
 });
 
@@ -251,30 +241,37 @@ router.post("/remove", auth({ allowUser: true }), async function (request, respo
   try {
     const productId = request.body.productId;
 
-    if (!productId) return Base.successResponse(response, Const.responsecodeProductNoProductId);
+    if (!productId) {
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeProductNoProductId,
+        message: "LikeProductController, dislike, no product id",
+      });
+    }
 
     const product = await Product.findOne({ _id: productId }).exec();
 
     if (!product) {
-      return Base.successResponse(response, Const.responsecodeProductNotFound);
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeProductNotFound,
+        message: "LikeProductController, dislike, product not found",
+      });
     }
 
     let likedProducts = [];
 
     if (request.user.likedProducts) likedProducts = request.user.likedProducts;
 
-    // check if product is already liked
-    const index = likedProducts.indexOf(productId);
-
-    if (index < 0) {
-      return Base.successResponse(response, Const.responsecodeProductNotLiked);
+    if (!likedProducts.includes(productId)) {
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeProductNotLiked,
+        message: "LikeProductController, dislike, product not liked",
+      });
     }
 
-    const dislikedProduct = likedProducts.splice(index, 1);
-
-    if (dislikedProduct === productId) {
-      return Base.successResponse(response, Const.responsecodeProductNotDisliked);
-    }
+    likedProducts = likedProducts.filter((id) => id !== productId);
 
     await User.findByIdAndUpdate(request.user._id, {
       $set: { likedProducts: likedProducts },
@@ -296,45 +293,21 @@ router.post("/remove", auth({ allowUser: true }), async function (request, respo
       logger.error("LikeProductController, dislike, recombee", error);
     }
 
-    try {
-      const tags = (product.tags ?? "").split(" ").map((tag) => tag.trim().replace("#", ""));
-
-      await UserTagInteraction.updateMany(
-        { userId: request.user._id.toString(), tag: { $in: tags } },
-        { $inc: { interactions: -3 }, $set: { modified: Date.now() } },
-        { upsert: true },
-      );
-    } catch (error) {
-      logger.error("LikeProductController, dislike - UserTagInteraction error:", error);
+    Logics.addUserCategoryInteraction({ product, user: request.user });
+    Logics.addUserTagInteraction({ product, user: request.user });
+  } catch (error) {
+    if (error.name == "CastError") {
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeProductWrongProductIdFormat,
+        message: "LikeProductController, dislike, wrong product id format",
+      });
     }
-
-    try {
-      const categoryId = product.categoryId.toString();
-      const parentCategoryId = product.parentCategoryId;
-      const catIds = [categoryId];
-      if (parentCategoryId != "-1") {
-        catIds.push(parentCategoryId);
-      }
-
-      const categories = (await Category.find({ _id: { $in: catIds } }).lean()).map(
-        (cat) => cat.name,
-      );
-
-      await UserCategoryInteraction.updateMany(
-        { userId: request.user._id.toString(), category: { $in: categories } },
-        { $inc: { interactions: -3 }, $set: { modified: Date.now() } },
-        { upsert: true },
-      );
-    } catch (error) {
-      logger.error("LikeProductController, dislike - UserCategoryInteraction error:", error);
-    }
-  } catch (e) {
-    if (e.name == "CastError") {
-      logger.error("LikeProductController, dislike", e);
-      return Base.successResponse(response, Const.responsecodeProductWrongProductIdFormat);
-    }
-    Base.errorResponse(response, Const.httpCodeServerError, "LikeProductController, dislike", e);
-    return;
+    Base.errorResponse({
+      response,
+      message: "LikeProductController, dislike",
+      error,
+    });
   }
 });
 

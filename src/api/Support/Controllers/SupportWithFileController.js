@@ -65,14 +65,14 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const { email, description, type } = data;
 
     if (!description) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoDescription,
         message: "SupportWithFileController - create ticket, no description",
       });
     }
     if (!type) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeNoTypeParameter,
         message: "SupportWithFileController - create ticket, no type",
@@ -165,7 +165,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       return;
     }
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "SupportWithFileController - create ticket",
       error,
@@ -210,7 +210,7 @@ router.get(
 
       response.sendStatus(404);
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "SupportWithFileController - get support file",
         error,

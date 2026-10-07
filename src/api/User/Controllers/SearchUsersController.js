@@ -38,7 +38,7 @@ router.post("/id", auth({ allowUser: true }), async function (request, response)
     const { userIds } = request.body;
 
     if (!userIds) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeMissingUserIdsParam,
         message: "SearchUsersController, by id - no userIds param",
@@ -46,7 +46,7 @@ router.post("/id", auth({ allowUser: true }), async function (request, response)
     }
 
     if (!Array.isArray(userIds) || userIds.length === 0) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidUserIdsParam,
         message: "SearchUsersController, by id - invalid userIds param",
@@ -55,7 +55,7 @@ router.post("/id", auth({ allowUser: true }), async function (request, response)
 
     for (const id of userIds) {
       if (!Utils.isValidObjectId(id)) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidObjectIdNew,
           message: "SearchUsersController, by id - user id is not object id",
@@ -81,7 +81,7 @@ router.post("/id", auth({ allowUser: true }), async function (request, response)
     const responseData = { users: userProfiles };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "SearchUsersController, by id",
       error,
@@ -118,7 +118,7 @@ router.post("/phone", auth({ allowUser: true }), async function (request, respon
     const { phoneNumbers } = request.body;
 
     if (!phoneNumbers) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeMissingPhoneNumbersParam,
         message: "SearchUsersController, by phone numbers - no phoneNumbers param",
@@ -126,7 +126,7 @@ router.post("/phone", auth({ allowUser: true }), async function (request, respon
     }
 
     if (!Array.isArray(phoneNumbers) || phoneNumbers.length === 0) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidPhoneNumbersParam,
         message: "SearchUsersController, by phone numbers - invalid phoneNumbers param",
@@ -154,7 +154,7 @@ router.post("/phone", auth({ allowUser: true }), async function (request, respon
     const responseData = { users: userProfiles };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "SearchUsersController, by phone numbers",
       error,

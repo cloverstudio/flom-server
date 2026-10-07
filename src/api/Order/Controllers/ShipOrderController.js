@@ -65,7 +65,7 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
     }).lean();
 
     if (!order) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeOrderNotFound,
         message: "ShipOrderController, order not found: " + orderId,
@@ -73,7 +73,7 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
     }
 
     if (order.status !== Const.orderStatus.PAYMENT_COMPLETED) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidOrderStatus,
         message: "ShipOrderController, order status must be payment_completed to ship",
@@ -83,7 +83,7 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
     const relation = order.seller._id.toString() === userId ? "seller" : "buyer";
 
     if (relation === "buyer") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeUserNotAllowed,
         message: "ShipOrderController, buyer cannot ship order",
@@ -146,7 +146,7 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
     const { shippingProvider, shippingProviderName = null, trackingNumber } = data;
 
     if (!shippingProvider) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidShippingProvider,
         message: "ShipOrderController, missing shipping provider",
@@ -157,7 +157,7 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
       (provider) => provider.type === shippingProvider,
     );
     if (!providerExists) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidShippingProvider,
         message: "ShipOrderController, invalid shipping provider: " + shippingProvider,
@@ -165,7 +165,7 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
     }
 
     if (shippingProvider === "other" && !shippingProviderName) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeMissingShippingProviderName,
         message:
@@ -177,14 +177,14 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
       !trackingNumber &&
       (!files || Object.keys(files).length === 0)
     ) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidShippingProof,
         message: "ShipOrderController, missing shipping proof file",
       });
     }
     if (shippingProvider !== "other" && !trackingNumber) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidTrackingNumber,
         message: "ShipOrderController, missing tracking number",
@@ -194,7 +194,7 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
     const { err, msg, formattedFiles = [] } = await handleFiles(files);
 
     if (err) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: err,
         message: "ShipOrderController, " + msg,
@@ -257,7 +257,7 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
     const responseData = { order: updatedOrder };
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "ShipOrderController",
       error,

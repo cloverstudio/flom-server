@@ -65,7 +65,7 @@ router.patch(
   async (request, response) => {
     try {
       if (request.headers["content-type"].indexOf("multipart") === -1) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInputNotMultipart,
           message: `EditBalanceEmojiController - input is not multipart form data`,
@@ -75,7 +75,7 @@ router.patch(
       const emojiId = request.params.id;
 
       if (!emojiId) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoEmojiId,
           message: `EditBalanceEmojiController - no emoji ID`,
@@ -91,7 +91,7 @@ router.patch(
       const limit = +fields.limit;
 
       if (limit !== undefined && (!Number.isInteger(limit) || limit < 0 || isNaN(limit))) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeAmountNotANumber,
           message: `EditBalanceEmojiController - limit is not a positive integer`,
@@ -102,7 +102,7 @@ router.patch(
 
       const balanceEmoji = await BalanceEmoji.findById(emojiId).lean();
       if (!balanceEmoji) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeEmojiNotFound,
           message: "EditBalanceEmojiController - no emoji found with given ID",
@@ -120,7 +120,7 @@ router.patch(
         const fileMimeType = file.type;
 
         if (fileMimeType.indexOf("image") === -1) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeOnlyImageFilesAllowed,
             message: `EditBalanceEmojiController - only image files allowed`,
@@ -129,7 +129,7 @@ router.patch(
 
         const { fileData: data, code } = await Utils.handleImageFile(file, "balance-emojis");
         if (code === 123) {
-          return Base.newErrorResponse({
+          return Base.errorResponse({
             response,
             code: Const.responsecodeExtensionNotAllowed,
             message: `EditBalanceEmojiController - image extension not allowed`,
@@ -164,7 +164,7 @@ router.patch(
         updatedBalanceEmoji: resultObject,
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "EditBalanceEmojiController",
         error,

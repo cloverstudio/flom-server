@@ -50,7 +50,7 @@ async function getCarrier({ phoneNumber, countryCode }) {
     if (
       numberDefaultCarrier &&
       numberDefaultCarrier.modified &&
-      numberDefaultCarrier.modified > Date.now() - Const.dayInMs * 90
+      numberDefaultCarrier.modified > Date.now() - Const.dayInMs * 30
     ) {
       return numberDefaultCarrier.carrier;
     } else {
@@ -74,7 +74,17 @@ async function getCarrier({ phoneNumber, countryCode }) {
 
         return defaultCarrier;
       } else {
-        return "";
+        await NumberDefaultCarrier.updateOne(
+          { phoneNumber },
+          {
+            phoneNumber,
+            carrier: numberDefaultCarrier?.carrier || "",
+            modified: Date.now(),
+          },
+          { upsert: true },
+        );
+
+        return numberDefaultCarrier?.carrier || "";
       }
     }
   } catch (error) {

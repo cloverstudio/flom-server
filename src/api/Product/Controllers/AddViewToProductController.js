@@ -1,18 +1,11 @@
 "use strict";
 
-const router = require("express").Router();
+const router = require("express").Router({ mergeParams: true });
 const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const } = require("#config");
-const {
-  Product,
-  User,
-  View,
-  ViewForYou,
-  UserTagInteraction,
-  UserCategoryInteraction,
-  Category,
-} = require("#models");
+const { Product, User, View, ViewForYou } = require("#models");
+const Logics = require("#logics");
 
 /** 
       * @api {get} /api/v2/product/:productId/numberOfViews Add View To Product
@@ -40,19 +33,19 @@ router.get("/", async function (request, response) {
       user = await User.findOne({ "token.token": accessToken }).lean();
     }
 
-    if (!productId) return Base.successResponse(response, Const.responsecodeProductNoProductId);
+    if (!productId) {
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeProductNoProductId,
+        message: "AddViewToProductController, no product id",
+      });
+    }
 
     const product = await Product.findByIdAndUpdate(
       productId,
-      {
-        $inc: {
-          numberOfViews: 1,
-        },
-      },
-      {
-        new: true,
-      },
-    ).lean();
+      { $inc: { numberOfViews: 1 } },
+      { new: true, lean: true },
+    );
 
     Base.successResponse(response, Const.responsecodeSucceed);
 
@@ -73,45 +66,23 @@ router.get("/", async function (request, response) {
         logger.error("AddViewToProductController - View or ViewForYou error:", error);
       }
 
-      try {
-        const tags = (product.tags ?? "").split(" ").map((tag) => tag.trim().replace("#", ""));
-
-        await UserTagInteraction.updateMany(
-          { userId: user._id.toString(), tag: { $in: tags } },
-          { $inc: { interactions: 1 }, $set: { modified: Date.now() } },
-          { upsert: true },
-        );
-      } catch (error) {
-        logger.error("AddViewToProductController - UserTagInteraction error:", error);
-      }
-
-      try {
-        const categoryId = product.categoryId.toString();
-        const parentCategoryId = product.parentCategoryId;
-        const catIds = [categoryId];
-        if (parentCategoryId != "-1") {
-          catIds.push(parentCategoryId);
-        }
-
-        const categories = (await Category.find({ _id: { $in: catIds } }).lean()).map(
-          (cat) => cat.name,
-        );
-
-        await UserCategoryInteraction.updateMany(
-          { userId: user._id.toString(), category: { $in: categories } },
-          { $inc: { interactions: 1 }, $set: { modified: Date.now() } },
-          { upsert: true },
-        );
-      } catch (error) {
-        logger.error("AddViewToProductController - UserCategoryInteraction error:", error);
-      }
+      Logics.addUserCategoryInteraction({ product, user });
+      Logics.addUserTagInteraction({ product, user });
     }
-  } catch (e) {
-    if (e.name == "CastError") {
-      return Base.successResponse(response, Const.responsecodeProductWrongProductIdFormat);
+  } catch (error) {
+    if (error.name == "CastError") {
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeProductWrongProductIdFormat,
+        message: "AddViewToProductController, wrong product id format",
+      });
     }
-    Base.errorResponse(response, Const.httpCodeServerError, "AddViewToProductController", e);
-    return;
+
+    Base.errorResponse({
+      response,
+      message: "AddViewToProductController",
+      error,
+    });
   }
 });
 

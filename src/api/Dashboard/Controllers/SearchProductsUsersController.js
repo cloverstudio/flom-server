@@ -423,7 +423,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     const user = await User.find({ "token.token": token }).lean();
 
     if (!user) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeSigninInvalidToken,
         message: "SearchProductsUsersController, invalid user token",
@@ -725,7 +725,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
 
     return Base.successResponse(response, Const.responsecodeSucceed, {});
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       message: "SearchProductsUsersController",
       error,

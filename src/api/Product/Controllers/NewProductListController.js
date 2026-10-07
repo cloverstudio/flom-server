@@ -34,6 +34,7 @@ const countryIso = require("country-iso");
  * @apiParam (Query string) {String}   [orderBy] Order parameter for product list (asc or desc, default: desc)
  * @apiParam (Query string) {String}   [page] Page number for paging (default 1)
  * @apiParam (Query string) {String}   [tags] Product tags
+ * @apiParam (Query string) {String}   [businessId] Business ID of the product
  *
  * @apiSuccessExample {json} Success Response
  * {
@@ -222,7 +223,7 @@ router.get("/", async function (request, response) {
       const message =
         code === Const.responsecodeSigninInvalidToken ? "Invalid token" : "Unauthorized";
       if (code) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code,
           message: `NewProductListController, ${message}`,
@@ -246,7 +247,7 @@ router.get("/", async function (request, response) {
       }
 
       if (tribeId && requestUserTribeIds.indexOf(tribeId) === -1) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeTribeUserNotMember,
           message: `NewProductListController, user not a member of the tribe`,
@@ -269,7 +270,7 @@ router.get("/", async function (request, response) {
       }
     } else if (username !== undefined) {
       if (username === "") {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeUsernameEmpty,
           message: `NewProductListController, username is empty`,
@@ -288,9 +289,27 @@ router.get("/", async function (request, response) {
       userId = user._id.toString();
     }
 
+    const businessId = request.query.businessId;
+
+    if (businessId && !Utils.isValidObjectId(businessId)) {
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeInvalidBusinessId,
+        message: `NewProductListController, invalid businessId parameter`,
+      });
+    }
+
+    if (businessId && !["5", "6"].includes(type)) {
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeInvalidTypeParameter,
+        message: `NewProductListController, wrong type parameter`,
+      });
+    }
+
     const typesArray = ["1", "2", "3", "4", "5", "6"];
     if (type !== undefined && typesArray.indexOf(type) === -1) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidTypeParameter,
         message: `NewProductListController, wrong type parameter`,
@@ -299,7 +318,7 @@ router.get("/", async function (request, response) {
 
     const moderationStatusArray = ["1", "2", "3", "4"];
     if (moderationStatus !== undefined && moderationStatusArray.indexOf(moderationStatus) === -1) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeWrongModerationStatusParameter,
         message: `NewProductListController, wrong moderationStatus parameter`,
@@ -308,14 +327,14 @@ router.get("/", async function (request, response) {
 
     if (lat && lon) {
       if (lat < -90 || lat > 90) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidLatParameter,
           message: `NewProductListController, invalid lat parameter`,
         });
       }
       if (lon < -180 || lon > 180) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidLonParameter,
           message: `NewProductListController, invalid lon parameter`,
@@ -328,7 +347,7 @@ router.get("/", async function (request, response) {
     }
     const sortByArray = ["created", "modified"];
     if (sortBy !== undefined && sortByArray.indexOf(sortBy) === -1) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeWrongSortByParameter,
         message: `NewProductListController, wrong sortBy parameter`,
@@ -337,7 +356,7 @@ router.get("/", async function (request, response) {
 
     const orderByArray = ["asc", "desc"];
     if (orderBy !== undefined && orderByArray.indexOf(orderBy) === -1) {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeWrongOrderByParameter,
         message: `NewProductListController, wrong orderBy parameter`,
@@ -351,7 +370,7 @@ router.get("/", async function (request, response) {
         : { [sortBy]: orderBy === "asc" ? 1 : -1 };
 
     if (productName !== undefined && productName === "") {
-      return Base.newErrorResponse({
+      return Base.errorResponse({
         response,
         code: Const.responsecodeProductNameEmpty,
         message: `NewProductListController, product name empty`,
@@ -378,6 +397,7 @@ router.get("/", async function (request, response) {
       kidsMode,
       isGuest,
       blocked,
+      businessId,
     });
 
     //removing unnecessary fields from products which are visible only if person is in the community
@@ -454,7 +474,7 @@ router.get("/", async function (request, response) {
       hasNext,
     });
   } catch (error) {
-    Base.newErrorResponse({
+    Base.errorResponse({
       response,
       message: "NewProductListController",
       error,
@@ -552,6 +572,7 @@ async function getProducts({
   kidsMode,
   isGuest,
   blocked,
+  businessId,
 }) {
   const productQuery = await generateQuery({
     productIds,
@@ -571,6 +592,7 @@ async function getProducts({
     kidsMode,
     isGuest,
     blocked,
+    businessId,
   });
 
   var products = await Product.find(productQuery).sort(sort).lean();
@@ -593,9 +615,11 @@ async function getProducts({
 
   products.forEach((product) => {
     product._id = product._id.toString();
-    product.category = categoriesObj[product.categoryId];
-    if (product.parentCategoryId !== "-1") {
-      product.parentCategory = categoriesObj[product.parentCategoryId];
+    if (product.category) {
+      product.category = categoriesObj[product.categoryId];
+      if (product.parentCategoryId !== "-1") {
+        product.parentCategory = categoriesObj[product.parentCategoryId];
+      }
     }
   });
 
@@ -661,8 +685,13 @@ async function generateQuery({
   kidsMode,
   isGuest,
   blocked,
+  businessId,
 }) {
   const query = { ownerId: { $nin: blocked || [] } };
+
+  if (businessId) {
+    query["business._id"] = businessId;
+  }
 
   let fetchUsersProducts = false;
   if (productIds && Array.isArray(productIds) && productIds.length > 0) {
@@ -698,7 +727,7 @@ async function generateQuery({
     const blockedUserIds = blockedUsers.map((user) => user._id.toString());
 
     //if userId filter is present and that user is not blocked then skip filtering blocked users and request user products
-    if (!userId || (userId && blockedUserIds.indexOf(userId) !== -1)) {
+    if (!businessId && (!userId || (userId && blockedUserIds.indexOf(userId) !== -1))) {
       if (requestUserId && !fetchUsersProducts) {
         blockedUserIds.push(requestUserId);
       }
@@ -808,8 +837,6 @@ async function generateQuery({
 }
 
 async function addOwners(products) {
-  const start = Date.now();
-
   const ownerIds = products.reduce((acc, cur) => {
     return [...acc, cur.ownerId];
   }, []);

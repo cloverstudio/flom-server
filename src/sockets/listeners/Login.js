@@ -33,6 +33,7 @@ module.exports = function (socketApi, socket) {
       // add socket id to the user
       let val = await redis.get(Const.redisKeyUserId + userId);
       if (!val) val = [];
+      val = val.filter((v) => v.connected && v.connected > Date.now() - 1000 * 60 * 60 * 24 * 7);
       val.push({
         socketId: socketId,
         connected: Date.now(),
@@ -87,26 +88,22 @@ module.exports = function (socketApi, socket) {
         }
       }
 
-      const businessMembers = await BusinessMember.find({ userId, status: "active" }).lean();
-      for (const businessMember of businessMembers) {
-        const businessId = businessMember.businessId;
-        const roomSnippet = "6-" + businessId;
-
-        if (!muted.includes(roomSnippet)) {
-          socket.join(roomSnippet);
-        }
-      }
+      const businessMemberships = await BusinessMember.find({ userId, status: "active" }).lean();
+      const businessIds = businessMemberships.map((bm) => bm.businessId.toString());
+      let orCondition = businessIds.map((id) => {
+        return { chatId: { $regex: `^${id}` } };
+      });
+      orCondition = [...orCondition, { chatId: { $regex: `${userId}$` } }];
 
       const businessHistories = await History.find({
-        userId,
         chatType: Const.chatTypeBusiness,
+        $or: orCondition,
       }).lean();
-      for (const businessHistory of businessHistories) {
-        const businessId = businessHistory.chatId;
-        const roomSnippet = "6-" + businessId;
 
-        if (!muted.includes(roomSnippet)) {
-          socket.join(roomSnippet);
+      const businessRoomIds = Array.from(new Set(businessHistories.map((b) => "6-" + b.chatId)));
+      for (const id of businessRoomIds) {
+        if (!muted.includes(id)) {
+          socket.join(id);
         }
       }
 

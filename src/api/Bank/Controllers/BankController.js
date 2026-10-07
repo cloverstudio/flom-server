@@ -111,7 +111,7 @@ router.get("/search", auth({ allowUser: true }), async function (request, respon
       },
     });
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "BankController, search",
@@ -165,7 +165,7 @@ router.get("/:id", auth({ allowUser: true }), async function (request, response)
 
     Base.successResponse(response, Const.responsecodeSucceed, { bank: !bank ? {} : bank });
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "BankController, get bank",
@@ -275,7 +275,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
       },
     });
   } catch (error) {
-    return Base.newErrorResponse({
+    return Base.errorResponse({
       response,
       code: Const.httpCodeServerError,
       message: "BankController, get bank list",

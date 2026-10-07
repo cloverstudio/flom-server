@@ -57,7 +57,7 @@ router.delete(
       const countryCode = request.params.countryCode;
 
       if (countryCode === undefined) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeNoCountryCodeParameter,
           message: `RemoveBlockedCountryController - no countryCode parameter`,
@@ -65,7 +65,7 @@ router.delete(
       }
 
       if (!countries[countryCode]) {
-        return Base.newErrorResponse({
+        return Base.errorResponse({
           response,
           code: Const.responsecodeInvalidCountryCode,
           message: `RemoveBlockedCountryController - invalid countryCode parameter`,
@@ -82,7 +82,7 @@ router.delete(
         blockedCountriesList: allBlockedCountries,
       });
     } catch (error) {
-      Base.newErrorResponse({
+      Base.errorResponse({
         response,
         message: "RemoveBlockedCountryController",
         error,
