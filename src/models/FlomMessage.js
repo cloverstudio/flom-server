@@ -158,8 +158,6 @@ schema.statics.populateMessages = async function (messages) {
     let oldIds = [];
     const newIds = []; // only user from
 
-    console.log("Populating messages:", JSON.stringify(messages, null, 2));
-
     messages.forEach(function (row) {
       // get users for seeny too
       row.seenBy.forEach(function (row2) {

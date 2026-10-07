@@ -63,17 +63,24 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     await FlomMessage.updateMany(
       { _id: { $in: undeliveredMessages.map((message) => message._id) } },
       { $push: { deliveredTo: deliveredToRow } },
+      { new: true },
     );
 
-    messages.forEach((message) => {
-      const isDelivered = message.sentTo.length === message.deliveredTo.length + 1; // +1 for the current delivery
-      updateHistory.updateLastMessageStatus({
-        messageId: message._id.toString(),
+    for (const m of messages) {
+      const isDelivered = m.sentTo.length === m.deliveredTo.length + 1; // +1 for the current delivery
+
+      await updateHistory.updateLastMessageStatus({
+        messageId: m._id.toString(),
         delivered: isDelivered,
       });
-    });
+    }
 
-    const res = await FlomMessage.populateMessages(undeliveredMessages);
+    // const res = await FlomMessage.populateMessages(undeliveredMessages);
+
+    const res = await FlomMessage.find({
+      _id: { $in: undeliveredMessages.map((message) => message._id) },
+    }).lean();
+
     const roomIds = [...new Set(res.map((message) => message.roomID))];
 
     roomIds.forEach((roomId) => {
