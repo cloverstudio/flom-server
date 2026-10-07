@@ -180,7 +180,7 @@ schema.statics.populateMessages = async function (messages) {
     }
 
     if (oldIds.length == 0) {
-      return messages;
+      return [];
     }
 
     messages = await this.find({ user: { $in: oldIds } })
