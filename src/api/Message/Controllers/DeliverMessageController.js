@@ -94,11 +94,11 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         JSON.stringify(filterMessages, null, 2),
       );
 
-      if (chatType === Const.chatTypeGroup || chatType === Const.chatTypeRoom) {
+      if (chatType == Const.chatTypeGroup || chatType == Const.chatTypeRoom) {
         socketApi.emitToRoom(roomId, "updatemessages", filterMessages);
-      } else if (chatType === Const.chatTypeBusiness) {
+      } else if (chatType == Const.chatTypeBusiness) {
         socketApi.emitToRoom(roomId, "updatemessages", filterMessages);
-      } else if (chatType === Const.chatTypePrivate) {
+      } else if (chatType == Const.chatTypePrivate) {
         console.log("entered private chat if");
 
         const splitAry = roomId.split("-");
