@@ -330,6 +330,7 @@ async function notifyNewMessage(obj, originalRequestData) {
         receiverName: obj.receiverName || null,
         senderPhoneNumber: obj.senderPhoneNumber || null,
         senderName: obj.senderName || null,
+        wamId: obj.wamId || null,
       },
       from: {
         id: obj.userID,
