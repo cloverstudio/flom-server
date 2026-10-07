@@ -4,9 +4,8 @@ const router = require("express").Router();
 const Base = require("../../Base");
 const { logger, redis } = require("#infra");
 const { Const, Config } = require("#config");
-const { User, WhatsAppLog, CoreIdentity } = require("#models");
+const { User, WhatsAppLog } = require("#models");
 const helpers = require("../helpers");
-const Logics = require("#logics");
 
 router.get("/", async function (request, response) {
   try {
@@ -73,7 +72,7 @@ router.post("/", async function (request, response) {
           );
           return;
         }
-        await redis.set(`handled_wam_id:${wamId}`, Date.now().toString(), "EX", 24 * 60 * 60); // 24h
+        await redis.set(`handled_wam_id:${wamId}`, Date.now().toString(), 24 * 60 * 60); // 24h
 
         const { type, messageType, msgBody, file, location } = await helpers.getMessageTypeAndAsset(
           message,
