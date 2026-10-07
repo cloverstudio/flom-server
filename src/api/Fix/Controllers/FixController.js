@@ -16,6 +16,21 @@ const {
   Business,
 } = require("#models");
 const crypto = require("crypto");
+const jobs = require("../../../jobs");
+
+router.get("/wa", async (request, response) => {
+  try {
+    await jobs.updateWhatsAppPrices();
+
+    Base.successResponse(response, Const.responsecodeSucceed);
+  } catch (error) {
+    Base.errorResponse({
+      response,
+      message: "FixController - wa",
+      error,
+    });
+  }
+});
 
 router.get("/errortest", async (request, response) => {
   try {

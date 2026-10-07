@@ -15,6 +15,7 @@ const schema = new mongoose.Schema(
     authentication: Number,
     authenticationInternational: Number,
     service: Number,
+    metaBusinessAgent: Number,
   },
   { timestamps: true },
 );
