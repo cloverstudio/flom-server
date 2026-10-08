@@ -393,6 +393,7 @@ class ExtendedUser extends User {
       created: true,
       whatsApp: true,
       slug: true,
+      channel: true,
     };
   }
 
