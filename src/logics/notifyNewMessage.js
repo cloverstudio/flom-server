@@ -339,6 +339,7 @@ async function notifyNewMessage(obj, originalRequestData) {
         created: obj.user.created,
         avatar: obj.user.avatar,
         phoneNumber: obj.user.phoneNumber,
+        channel: obj.user.channel,
       },
     };
 
@@ -394,6 +395,7 @@ async function notifyNewMessage(obj, originalRequestData) {
       created: receiver?.created,
       avatar: receiver?.avatar,
       phoneNumber: receiver?.phoneNumber,
+      channel: receiver?.channel,
     };
 
     if (obj.type == Const.messageTypeProduct) {
