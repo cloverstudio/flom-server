@@ -293,6 +293,7 @@ const schema = new mongoose.Schema(
     notificationListLastViewedAt: { type: Number, default: Date.now },
     firstName: String,
     lastName: String,
+    channel: { type: String, default: "flom" },
   },
   { timestamps: true },
 );
