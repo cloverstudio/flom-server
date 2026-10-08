@@ -91,7 +91,8 @@ app.use(function (req, res, next) {
     !req.originalUrl.includes("uploads") &&
     !req.originalUrl.includes("images")
   ) {
-    logger.info("method: " + req.method + " | url: " + req.originalUrl);
+    const device = req.headers["device-type"] || "unknown";
+    logger.info("method: " + req.method + " | url: " + req.originalUrl + " | device: " + device);
   }
   next();
 });
