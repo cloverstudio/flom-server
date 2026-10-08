@@ -7,14 +7,7 @@ const { Const, Config, countries } = require("#config");
 const Utils = require("#utils");
 const Logics = require("#logics");
 const { auth } = require("#middleware");
-const {
-  User,
-  CoreIdentity,
-  IdApplication,
-  MerchantApplication,
-  Product,
-  Business,
-} = require("#models");
+const { User, IdApplication, MerchantApplication, Product, Business } = require("#models");
 const crypto = require("crypto");
 const jobs = require("../../../jobs");
 
@@ -264,92 +257,6 @@ router.post("/form", async (request, response) => {
       message: "FixController - form",
       error,
     });
-  }
-});
-
-router.get("/core-ids", async (request, response) => {
-  Base.successResponse(response, Const.responsecodeSucceed, {});
-
-  try {
-    let offset = 0;
-    const uuids = [];
-    const phoneToUuidMap = {};
-
-    const users = await User.find(
-      { created: { $gt: offset } },
-      {
-        _id: 1,
-        phoneNumber: 1,
-        created: 1,
-        isDeleted: 1,
-        hasLoggedIn: 1,
-        shadow: 1,
-        deletedUserInfo: 1,
-      },
-    )
-      .sort({ created: 1 })
-      .lean();
-
-    let ops = [];
-
-    for (let i = 0; i < users.length; i++) {
-      const user = users[i];
-
-      const coreInfo = {
-        userId: user._id.toString(),
-        phoneNumber: user.phoneNumber,
-        channel: "flom",
-        created: user.created,
-        isActive: true,
-      };
-
-      if (user.shadow || user.hasLoggedIn == 4) {
-        coreInfo.channel = "shadow";
-      }
-
-      if (user.isDeleted?.value) {
-        if (!user.deletedUserInfo?.phoneNumber) continue;
-
-        coreInfo.isDeleted = true;
-        coreInfo.deleted = user.isDeleted.created;
-        coreInfo.isActive = false;
-        coreInfo.phoneNumber = user.deletedUserInfo.phoneNumber;
-      }
-
-      let uuid = phoneToUuidMap[coreInfo.phoneNumber] || null;
-
-      if (!uuid) {
-        let isUnique = false;
-
-        while (!isUnique) {
-          uuid = crypto.randomUUID().toString();
-          if (!uuids.includes(uuid)) {
-            isUnique = true;
-          }
-        }
-      }
-
-      phoneToUuidMap[coreInfo.phoneNumber] = uuid;
-      uuids.push(uuid);
-      coreInfo.uuid = uuid;
-      ops.push({ insertOne: { document: coreInfo } });
-
-      if (ops.length >= 1000 || i === users.length - 1) {
-        await CoreIdentity.bulkWrite(ops);
-
-        logger.info(
-          `Processed ${ops.length} users, last created processed: ${new Date(
-            user.created,
-          ).toISOString()}`,
-        );
-
-        ops = [];
-      }
-    }
-
-    Base.successResponse(response, Const.responsecodeSucceed, {});
-  } catch (error) {
-    logger.error("Error in /core-ids route:", error);
   }
 });
 

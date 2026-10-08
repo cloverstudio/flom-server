@@ -25,7 +25,6 @@ module.exports = Object.freeze({
   Configuration: require("./Configuration"),
   ContactTicket: require("./ContactTicket"),
   ConversionRate: require("./ConversionRate"),
-  CoreIdentity: require("./CoreIdentity"),
   CountryWideBan: require("./CountryWideBan"),
   CreditConversionRate: require("./CreditConversionRate"),
   CreditPackage: require("./CreditPackage"),

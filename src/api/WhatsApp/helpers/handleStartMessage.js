@@ -2,7 +2,7 @@
 
 const { logger } = require("#infra");
 const { Const, Config } = require("#config");
-const { User, CoreIdentity } = require("#models");
+const { User } = require("#models");
 const Logics = require("#logics");
 
 async function handleStartMessage({ from }) {
@@ -64,13 +64,6 @@ async function handleStartMessage({ from }) {
         bankAccounts: [],
       });
     }
-
-    await CoreIdentity.createCoreIdentity({
-      phoneNumber: from,
-      userId: user ? user._id.toString() : null,
-      channel: "whatsapp_business",
-      created: Date.now(),
-    });
 
     await Logics.sendWhatsAppMessage({
       to: from,
