@@ -26,6 +26,7 @@ async function handleNewChatMessage({
       hasLoggedIn: Const.userShadowUser,
       phoneNumberStatus: Const.phoneNumberUntested,
       channel: "whatsapp_shadow",
+      userChannel: "whatsapp",
     });
 
     createMapping = true;

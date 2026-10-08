@@ -20,6 +20,7 @@ async function createNewUser(userData, raw) {
       longitude,
       hasLoggedIn,
       channel,
+      userChannel,
     } = userData;
 
     const user = new User();
@@ -37,6 +38,7 @@ async function createNewUser(userData, raw) {
     user.phoneNumberStatus = phoneNumberStatus;
     user.deviceType = deviceType;
     user.followedBusinesses = [Config.flomSupportAgentId];
+    if (userChannel) user.channel = userChannel;
 
     let stringExists = false;
     const regexTerminalCode = /[^0-9]/g;

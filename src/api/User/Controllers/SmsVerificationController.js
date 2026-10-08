@@ -333,6 +333,7 @@ router.post("/", async (request, response) => {
       }
 
       updateObj.phoneNumberStatus = existingUser.phoneNumberStatus;
+      updateObj.channel = "flom";
 
       if (!deviceTypeFromUserModel) updateObj.deviceType = deviceType;
 

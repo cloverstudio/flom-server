@@ -293,6 +293,7 @@ const schema = new mongoose.Schema(
     notificationListLastViewedAt: { type: Number, default: Date.now },
     firstName: String,
     lastName: String,
+    channel: { type: String, default: "flom" },
   },
   { timestamps: true },
 );
@@ -392,6 +393,7 @@ class ExtendedUser extends User {
       created: true,
       whatsApp: true,
       slug: true,
+      channel: true,
     };
   }
 
