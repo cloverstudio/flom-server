@@ -14,11 +14,12 @@ async function init() {
       port: Config.redis.port,
       reconnectStrategy: (retries) => {
         logger.warn(`Redis reconnect attempt #${retries}`);
-        if (retries > 10) return new Error("Too many retries");
-        return Math.min(retries * 100, 3000); // backoff
+        const delay = Math.min(retries * 200, 5000);
+        return delay + Math.floor(Math.random() * 200); // jitter so 20 instances don't reconnect in lockstep
       },
     },
     password: Config.redis.password || undefined,
+    pingInterval: 10_000,
   });
 
   // Handle events
@@ -86,7 +87,9 @@ async function set(key = null, value = null, options = {}) {
       options.EX = 60 * 60 * 24 * 7; // default expiration time of 1 week
     }
 
-    await client.set(key, value, options);
+    const resp = await client.set(key, value, options);
+
+    return resp;
   } catch (error) {
     logger.error("Redis SET", error);
     return null;
