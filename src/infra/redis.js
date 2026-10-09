@@ -82,6 +82,10 @@ async function set(key = null, value = null, options = {}) {
 
     value = typeof value === "number" ? value : JSON.stringify(value);
 
+    if (!options.EX) {
+      options.EX = 60 * 60 * 24 * 7; // default expiration time of 1 week
+    }
+
     await client.set(key, value, options);
   } catch (error) {
     logger.error("Redis SET", error);
