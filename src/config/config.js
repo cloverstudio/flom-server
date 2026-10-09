@@ -425,4 +425,6 @@ Config.storageUrl = process.env.STORAGE_URL;
 Config.tavilyApiKey = process.env.TAVILY_API_KEY;
 Config.webSearchUrl = process.env.WEB_SEARCH_URL;
 
+Config.guestToken = process.env.GUEST_TOKEN;
+
 module.exports = Object.freeze(Config);

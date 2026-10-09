@@ -54,7 +54,7 @@ const { LocationIQ } = require("#services");
  * @apiError (Errors) 4000007 Token invalid
  */
 
-router.get("/", auth({ allowUser: true }), async function (request, response) {
+router.get("/", auth({ allowUser: true, allowGuest: true }), async function (request, response) {
   try {
     let { address, countryCode } = request.query;
     if (!address) {
