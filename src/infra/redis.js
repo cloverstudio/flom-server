@@ -75,18 +75,14 @@ async function get(key = null) {
   }
 }
 
-async function set(key = null, value = null, expirationInSeconds = null) {
+async function set(key = null, value = null, options = {}) {
   try {
     if (!key) throw new Error("no key");
     if (!value) throw new Error("no value");
 
     value = typeof value === "number" ? value : JSON.stringify(value);
 
-    if (!expirationInSeconds) {
-      await client.set(key, value);
-    } else {
-      await client.set(key, value, { EX: expirationInSeconds });
-    }
+    await client.set(key, value, options);
   } catch (error) {
     logger.error("Redis SET", error);
     return null;
