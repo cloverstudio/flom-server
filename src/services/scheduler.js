@@ -33,7 +33,7 @@ module.exports = {
       "1 */8 * * *",
       wrapper(jobs.sendPushForUnreadMessages, "sendPushForUnreadMessages"),
     );
-    schedule.scheduleJob("* * * * *", wrapper(jobs.stopDeadLiveStreams, "stopDeadLiveStreams"));
+    schedule.scheduleJob("*/2 * * * *", wrapper(jobs.stopDeadLiveStreams, "stopDeadLiveStreams"));
     schedule.scheduleJob("1 3 * * *", wrapper(jobs.syncRecombee, "syncRecombee"));
     schedule.scheduleJob("1 1 * * 0", wrapper(jobs.viewsCleanup, "viewsCleanup"));
     schedule.scheduleJob("15 4 * * *", wrapper(jobs.updateWhatsAppPrices, "updateWhatsAppPrices"));
