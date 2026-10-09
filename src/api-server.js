@@ -32,7 +32,7 @@ async function startServer() {
 
   onlineStatusChecker.start();
 
-  if (Config.runScheduler && (Config.environment === "development" || Config.instance == "0")) {
+  if (Config.environment !== "local") {
     scheduler.init();
   }
 
