@@ -5,8 +5,119 @@ const Base = require("../../Base");
 const { Const } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
-const { MarketingNotification, User } = require("#models");
+const { MarketingNotification, User, WhatsAppPrice, ConversionRate } = require("#models");
 const { validateMarketingNotificationData } = require("../helpers");
+
+/**
+ * @api {post} /api/v2/marketing-notifications/cost Calculate cost of marketing notification
+ * @apiVersion 2.0.35
+ * @apiName Calculate cost of marketing notification
+ * @apiGroup WebAPI Marketing Notification
+ * @apiDescription API for calculating the cost of a marketing notification
+ *
+ * @apiHeader {String} access-token Users unique access-token.
+ *
+ * @apiParam {String[]} subscriberIds  List of subscriber IDs to whom the marketing notification will be sent. If no list is sent or list is empty, the price for all users' subcribers is returned.
+ *
+ * @apiSuccessExample {json} Success Response
+ * {
+ *   "code": 1,
+ *   "time": 1635925162110,
+ *   "data": {
+ *     "whatsApp": {
+ *       "free": 5,
+ *       "paid": 10,
+ *       "priceInUsd": 2,
+ *       "priceInUsersCurrency": 1500,
+ *       "usersCurrency": "NGN",
+ *     }
+ *   }
+ * }
+ *
+ * @apiSuccessExample {json} Error Response
+ * {
+ *   "code": ErrorCode,
+ *   "time": 1590000125608
+ * }
+ *
+ * @apiError (Errors) 4000007 Token not valid
+ */
+
+router.post("/cost", auth({ allowUser: true }), async function (request, response) {
+  try {
+    const { user } = request;
+    const userId = user._id.toString();
+    let { subscriberIds = [] } = request.body;
+    let subscribers = [];
+
+    if (subscriberIds.length === 0) {
+      subscribers = await User.find(
+        { followedBusinesses: userId },
+        { _id: 1, phoneNumber: 1, countryCode: 1, whatsApp: 1 },
+      ).lean();
+      subscriberIds = subscribers.map((user) => user._id.toString());
+    }
+
+    if (subscribers.length === 0) {
+      subscribers = await User.find(
+        { _id: { $in: subscriberIds } },
+        { _id: 1, phoneNumber: 1, countryCode: 1, whatsApp: 1 },
+      ).lean();
+    }
+
+    let free = 0,
+      paid = 0,
+      priceInUsd = 0;
+
+    const conversionRates = await ConversionRate.getRates();
+
+    const countryCode =
+      user.countryCode || Utils.getCountryCodeFromPhoneNumber({ phoneNumber: user.phoneNumber });
+    const usersCurrency = Utils.getCurrencyFromCountryCode({
+      countryCode,
+      rates: conversionRates.rates,
+    });
+
+    const whatsAppPrices = await WhatsAppPrice.find({}).lean();
+    const priceMap = {};
+    for (const p of whatsAppPrices) {
+      priceMap[p.countryCode] = p.marketing;
+    }
+
+    for (const s of subscribers) {
+      if (s.whatsApp?.windowExpiresAt && s.whatsApp.windowExpiresAt > Date.now()) {
+        free++;
+        continue;
+      }
+
+      const subscriberCountryCode =
+        s.countryCode || Utils.getCountryCodeFromPhoneNumber({ phoneNumber: s.phoneNumber });
+      const subscriberPrice = priceMap[subscriberCountryCode] || priceMap["default"] || 0;
+
+      paid++;
+      priceInUsd += subscriberPrice;
+    }
+
+    const localRate = conversionRates.rates[usersCurrency] || 1;
+    const priceInUsersCurrency = priceInUsd * localRate;
+
+    Base.successResponse(response, Const.responsecodeSucceed, {
+      whatsApp: {
+        free,
+        paid,
+        priceInUsd: Utils.roundNumber(priceInUsd, 2),
+        priceInUsersCurrency: Utils.roundNumber(priceInUsersCurrency, 2),
+        usersCurrency,
+      },
+    });
+  } catch (error) {
+    Base.errorResponse({
+      response,
+      message: "MarketingNotificationsController - add new notification",
+      error,
+    });
+  }
+});
 
 /**
  * @api {post} /api/v2/marketing-notifications Add new marketing notification
