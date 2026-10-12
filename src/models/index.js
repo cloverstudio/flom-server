@@ -60,7 +60,6 @@ module.exports = Object.freeze({
   LoginAttempt: require("./LoginAttempt"),
 
   MainCategory: require("./MainCategory"),
-  MarketingMessage: require("./MarketingMessage"),
   MarketingNotification: require("./MarketingNotification"),
   MarketingNotificationTemplate: require("./MarketingNotificationTemplate"),
   Membership: require("./Membership"),
