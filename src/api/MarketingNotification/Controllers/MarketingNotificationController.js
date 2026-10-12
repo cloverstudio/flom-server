@@ -24,7 +24,7 @@ const { validateMarketingNotificationData } = require("../helpers");
  *   "code": 1,
  *   "time": 1635925162110,
  *   "data": {
- *     "whatsApp": {
+ *     "whatsapp": {
  *       "free": 5,
  *       "paid": 10,
  *       "priceInUsd": 2,
@@ -102,7 +102,7 @@ router.post("/cost", auth({ allowUser: true }), async function (request, respons
     const priceInUsersCurrency = priceInUsd * localRate;
 
     Base.successResponse(response, Const.responsecodeSucceed, {
-      whatsApp: {
+      whatsapp: {
         free,
         paid,
         priceInUsd: Utils.roundNumber(priceInUsd, 2),
