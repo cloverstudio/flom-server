@@ -497,6 +497,7 @@
   "444009": "User is not active business member.",
 
   "444010": "Something went wrong. Please try again later.",
+  "444011": "Invalid channel.",
 
   "4000006": "Wrong User Credentials. Please try again later.",
   "4000007": "Invalid Token. Please try again later.",
