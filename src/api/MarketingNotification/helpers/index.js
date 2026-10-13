@@ -43,7 +43,14 @@ async function validateMarketingNotificationData({
   }
 
   let contentId, contentName;
-  if (Const.productTypes.indexOf(contentType) !== -1) {
+  if (
+    Const.productTypes.indexOf(contentType) !== -1 ||
+    contentType == Const.marketingNotificationsContentTypeService
+  ) {
+    if (contentType == Const.marketingNotificationsContentTypeService) {
+      contentType = Const.productTypeService;
+    }
+
     if (!requestContentId) {
       return {
         code: Const.responsecodeNoContentId,

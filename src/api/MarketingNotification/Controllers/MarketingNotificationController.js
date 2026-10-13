@@ -133,7 +133,7 @@ router.post("/cost", auth({ allowUser: true }), async function (request, respons
  * @apiParam {String} [userIds] List of userIds to who to send the notification separated by a comma. Optional if allSubscribers is 1
  * @apiParam {Number} [allSubscribers] 0 - false, 1 - true. If it is 1 then notification will be sent to all subscribers of the request sender.
  * Moreover, userIds will be ignored if this parameter is set to 1
- * @apiParam {Number} contentType Type of the content: 1 - video, 2 - video story, 3 - podcast, 4 - text story, 5 - product, 6 - profile, 7 - marketplace
+ * @apiParam {Number} contentType Type of the content: 1 - video, 2 - video story, 3 - podcast, 4 - text story, 5 - product, 6 - profile, 7 - marketplace, 8 - service
  * @apiParam {String} [contentId] Id of the content. Required only for content type from 1 to 5
  *
  * @apiSuccessExample {json} Success Response

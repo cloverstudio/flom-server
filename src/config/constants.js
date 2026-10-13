@@ -577,9 +577,10 @@ Constants.productVisibilityCommunity = "community";
 Constants.defaultProductVisibility = "public";
 Constants.productVisibilities = ["public", "tribes", "community"];
 
-Constants.marketingNotificationsContentTypes = [1, 2, 3, 4, 5, 6, 7];
+Constants.marketingNotificationsContentTypes = [1, 2, 3, 4, 5, 6, 7, 8];
 Constants.marketingNotificationsContentTypeProfile = 6;
 Constants.marketingNotificationsContentTypeMarketplace = 7;
+Constants.marketingNotificationsContentTypeService = 8;
 
 Constants.notificationTypeGeneral = 0;
 Constants.notificationTypeTransfer = 1;
