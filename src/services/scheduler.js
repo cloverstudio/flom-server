@@ -10,15 +10,16 @@ function wrapper(fn, jobName) {
 
       const key = `scheduler:${jobName}:${timestamp.slice(0, -5)}`;
 
-      console.log(`Acquiring lock for job ${jobName} with key ${key}`);
+      //console.log(`Acquiring lock for job ${jobName} with key ${key}`);
 
       const lock = await redis.set(key, "locked", { EX: 45, NX: true });
       if (!lock) {
         console.log(`Job ${jobName} is already running, skipping execution.`);
+        console.error(`Job ${jobName} is already running, skipping execution.`);
         return;
       }
 
-      console.log(`Lock acquired for job ${jobName}, executing...`);
+      //console.log(`Lock acquired for job ${jobName}, executing...`);
       await fn();
       await redis.del(key);
     } catch (error) {
