@@ -175,6 +175,7 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
       contentName,
       voiceNote,
       channels,
+      receivers: subscribers.map((s) => s._id.toString()),
     });
 
     const marketingNotificationObj = marketingNotification.toObject();
