@@ -24,6 +24,7 @@ const { validateMarketingNotificationData, getSubscribers, validateData } = requ
  * @apiParam {Number}   [allSubscribers]  Flag indicating whether to send the notification to all subscribers. 1 for yes, 0 for no.
  * @apiParam {Number}   contentType       Type of the content: 1 - video, 2 - video story, 3 - podcast, 4 - text story, 5 - product, 6 - profile, 7 - marketplace, 8 - service
  * @apiParam {String}   [contentId]       Id of the content. Required only for content type from 1 to 5
+ * @apiParam {String[]} channels          List of channels to send the notification through. Array of strings. (e.g., ["whatsapp", "sms" ])
  *
  * @apiSuccessExample {json} Success Response
  * {
@@ -53,7 +54,11 @@ const { validateMarketingNotificationData, getSubscribers, validateData } = requ
  *         "duration": 200.646531,
  *         "mimeType": "audio/mpeg",
  *         "size": 3213130
- *       }
+ *       },
+ *       "channels": [
+ *         "whatsapp",
+ *         "sms"
+ *       ]
  *     }
  *   }
  * }
@@ -123,6 +128,12 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
     const { title, text, voiceNoteId, subscriberIds = [] } = request.body;
     const contentType = +request.body.contentType;
     const allSubscribers = !request.body.allSubscribers ? 0 : +request.body.allSubscribers;
+    const channels =
+      !request.body.channels ||
+      !Array.isArray(request.body.channels) ||
+      request.body.channels.length === 0
+        ? ["flom"]
+        : ["flom", ...request.body.channels];
 
     if (!allSubscribers && subscriberIds.length === 0) {
       return Base.errorResponse({
@@ -163,6 +174,7 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
       contentId,
       contentName,
       voiceNote,
+      channels,
     });
 
     const marketingNotificationObj = marketingNotification.toObject();
