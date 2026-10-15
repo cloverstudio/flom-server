@@ -161,8 +161,10 @@ async function getUserIds({ requestUserId, allSubscribers, requestUserIds }) {
   return { userIds, userPushTokens };
 }
 
-async function getSubscribers({ userId, subscriberIds = [], allSubscribers }) {
+async function getSubscribers({ userId, subscriberIds = [], allSubscribers, page, size, search }) {
   try {
+    const options = { sort: { userName: 1 } };
+
     let query = {
       followedBusinesses: userId,
       _id: { $in: subscriberIds },
@@ -175,7 +177,21 @@ async function getSubscribers({ userId, subscriberIds = [], allSubscribers }) {
 
     const formattedSubscribers = [];
 
-    const subscribers = await User.find(query).lean();
+    if (page && size) {
+      options.skip = (page - 1) * size;
+      options.limit = size;
+    }
+
+    if (search) {
+      query.$or = [
+        { userName: { $regex: search, $options: "i" } },
+        { phoneNumber: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    const subscribers = await User.find(query, null, options).lean();
+    const subscriberCount = await User.countDocuments(query);
+
     for (const s of subscribers) {
       const data = {
         _id: s._id.toString(),
@@ -198,6 +214,7 @@ async function getSubscribers({ userId, subscriberIds = [], allSubscribers }) {
     return {
       subscribers: formattedSubscribers,
       rawSubscribers: subscribers,
+      subscriberCount,
     };
   } catch (error) {
     console.error("Error fetching subscribers:", error);

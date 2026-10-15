@@ -243,6 +243,10 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
  *
  * @apiHeader {String} access-token Users unique access-token.
  *
+ * @apiParam (Query string) {String} [page]    Page (default is 1)
+ * @apiParam (Query string) {String} [size]    Page size (default is 10)
+ * @apiParam (Query string) {String} [search]  Search term to filter usernames or phonenumbers (case insensitive)
+ *
  * @apiSuccessExample {json} Success Response
  * {
  *     "code": 1,
@@ -279,7 +283,12 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
  *                     "whatsapp": true
  *                 }
  *             },
- *         ]
+ *         ],
+ *         "paginationData": {
+ *             "page": 1,
+ *             "size": 10,
+ *             "total": 2
+ *         }
  *     }
  * }
  *
@@ -297,9 +306,25 @@ router.get("/subscribers", auth({ allowUser: true }), async function (request, r
     const { user } = request;
     const userId = user._id.toString();
 
-    const { subscribers } = await getSubscribers({ userId });
+    const { page: p = 1, size: s = 10, search = null } = request.query;
+    const page = +p;
+    const size = +s;
 
-    Base.successResponse(response, Const.responsecodeSucceed, { subscribers });
+    const { subscribers, subscriberCount } = await getSubscribers({
+      userId,
+      page,
+      size,
+      search,
+      allSubscribers: true,
+    });
+
+    const paginationData = {
+      page,
+      size,
+      total: subscriberCount,
+    };
+
+    Base.successResponse(response, Const.responsecodeSucceed, { subscribers, paginationData });
   } catch (error) {
     Base.errorResponse({
       response,
