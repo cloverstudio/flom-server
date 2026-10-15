@@ -10,6 +10,7 @@ const schema = new mongoose.Schema(
   {
     title: String,
     text: String,
+    voiceNote: {},
     notificationType: { type: Number, default: Const.notificationTypeMarketing },
     senderId: String,
     allSubscribers: Number, // 0 - false, 1 - true

@@ -874,6 +874,7 @@ ResponseCodes.responsecodeUserIsNotActiveBusinessMemberOrBuyer = 444009;
 ResponseCodes.responsecodeUnexpectedError = 444010;
 
 ResponseCodes.responsecodeInvalidChannel = 444011;
+ResponseCodes.responsecodeInvalidVoiceNoteId = 444012;
 
 // ResponseCodes.responsecodeNoAccessToken = 443897;
 
