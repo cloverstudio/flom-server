@@ -8,6 +8,81 @@ const { Order, Auction } = require("#models");
 const { auth } = require("#middleware");
 
 /**
+ * @api {get} /api/v2/orders/token/:token Get order details by token flom_v1
+ * @apiVersion 2.0.34
+ * @apiName  Get order details by token flom_v1
+ * @apiGroup WebAPI Order
+ * @apiDescription  Get order details by token. API is open.
+ *
+ * @apiSuccessExample {json} Success Response
+ * {
+ *   "code": 1,
+ *   "time": 1764245263992,
+ *   "data": {
+ *      "transferToken": String, // Only included if order is from auction and payment is pending
+ *      "order": OrderModel
+ *    }
+ * }
+ *
+ * @apiSuccessExample {json} Error Response
+ * {
+ *   "code": ErrorCode,
+ *   "time": 1590000125608
+ * }
+ *
+ * @apiError (Errors) 443940 Order not found
+ * @apiError (Errors) 4000007 Token invalid
+ */
+
+router.get("/token/:token", async function (request, response) {
+  try {
+    const token = request.params.token;
+
+    if (!token) {
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeOrderNotFound,
+        message: "GetOrderController, get order details by token - invalid order token: " + token,
+      });
+    }
+
+    const order = await Order.findOne({ orderToken: token }).lean();
+
+    if (!order) {
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeOrderNotFound,
+        message:
+          "GetOrderController, get order details by token - order not found for order token: " +
+          token,
+      });
+    }
+
+    if (order.product) {
+      order.products = [order.product];
+      delete order.product;
+    }
+
+    const responseData = { order };
+
+    if (order.auctionId && order.status === Const.orderStatus.PAYMENT_PENDING) {
+      const auction = await Auction.findById(order.auctionId).lean();
+      if (auction) {
+        responseData.transferToken = auction.transferToken;
+      }
+    }
+
+    Base.successResponse(response, Const.responsecodeSucceed, responseData);
+  } catch (error) {
+    Base.errorResponse({
+      response,
+      message: "GetOrderController, get order details by token",
+      error,
+    });
+  }
+});
+
+/**
  * @api {get} /api/v2/orders/:orderId Get order details flom_v1
  * @apiVersion 2.0.34
  * @apiName  Get order details flom_v1

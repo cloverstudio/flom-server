@@ -75,7 +75,7 @@ async function handlePayment({ auction, isFromAccept = false }) {
 
     const orderToken = await Order.generateToken();
     const order = await Order.create({
-      token: orderToken,
+      orderToken,
       business: product.business,
       seller: {
         _id: receiver._id.toString(),

@@ -8,7 +8,7 @@ const Utils = require("#utils");
 
 const schema = new mongoose.Schema(
   {
-    token: String,
+    orderToken: String,
     business: { _id: String, name: String, avatar: {} },
     price: { countryCode: String, currency: String, value: Number, valueInSats: Number },
     products: [{ _id: String, name: String, condition: String, quantity: Number, file: {} }],
@@ -87,7 +87,7 @@ class ExtendedOrder extends Order {
 
     while (tokenExists) {
       token = Utils.getRandomString(8, "limited");
-      tokenExists = await this.exists({ token });
+      tokenExists = await this.exists({ orderToken: token });
     }
 
     return token;
