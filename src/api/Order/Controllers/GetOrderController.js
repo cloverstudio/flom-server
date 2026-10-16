@@ -4,7 +4,7 @@ const router = require("express").Router();
 const Base = require("../../Base");
 const { Const } = require("#config");
 const Utils = require("#utils");
-const { Order, Auction } = require("#models");
+const { Order, Auction, User } = require("#models");
 const { auth } = require("#middleware");
 
 /**
@@ -20,7 +20,8 @@ const { auth } = require("#middleware");
  *   "time": 1764245263992,
  *   "data": {
  *      "transferToken": String, // Only included if order is from auction and payment is pending
- *      "order": OrderModel
+ *      "order": OrderModel,
+ *      "isBuyerSubscribed": false
  *    }
  * }
  *
@@ -76,13 +77,21 @@ router.get("/token/:token", async function (request, response) {
       order.buyer.phoneNumber = Utils.maskPhoneNumber(order.buyer.phoneNumber);
     }
 
-    const responseData = { order };
+    const responseData = { order, isBuyerSubscribed: false };
 
     if (order.auctionId && order.status === Const.orderStatus.PAYMENT_PENDING) {
       const auction = await Auction.findById(order.auctionId).lean();
       if (auction) {
         responseData.transferToken = auction.transferToken;
       }
+    }
+
+    const sellerId = order.seller._id.toString();
+    const buyerId = order.buyer._id.toString();
+
+    const b = await User.findById(buyerId, { followedBusinesses: 1 }).lean();
+    if ((b?.followedBusinesses || []).includes(sellerId)) {
+      responseData.isBuyerSubscribed = true;
     }
 
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
