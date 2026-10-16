@@ -64,19 +64,6 @@ router.post("/guest", async function (request, response) {
       });
     }
 
-    let guest = await User.findOne({ phoneNumber, "isDeleted.value": false });
-    if (!guest) {
-      guest = await Logics.createNewUser({
-        phoneNumber,
-        isAppUser: false,
-        shadow: true,
-        hasLoggedIn: Const.userShadowUser,
-        phoneNumberStatus: Const.phoneNumberUntested,
-        channel: "whatsapp_shadow",
-        userChannel: "whatsapp",
-      });
-    }
-
     if (!orderId || !Utils.isValidObjectId(orderId)) {
       return Base.errorResponse({
         response,
@@ -100,6 +87,19 @@ router.post("/guest", async function (request, response) {
         code: Const.responsecodeInvalidAction,
         message:
           "FollowUserController, follow user (for guests) - invalid action: phoneNumber does not match order buyer",
+      });
+    }
+
+    let guest = await User.findOne({ phoneNumber, "isDeleted.value": false });
+    if (!guest) {
+      guest = await Logics.createNewUser({
+        phoneNumber,
+        isAppUser: false,
+        shadow: true,
+        hasLoggedIn: Const.userShadowUser,
+        phoneNumberStatus: Const.phoneNumberUntested,
+        channel: "whatsapp_shadow",
+        userChannel: "whatsapp",
       });
     }
 
