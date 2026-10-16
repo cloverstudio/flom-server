@@ -63,6 +63,19 @@ router.get("/token/:token", async function (request, response) {
       delete order.product;
     }
 
+    if (order.shipping?.origin) {
+      delete order.shipping.origin;
+    }
+    if (order.shipping?.destination) {
+      delete order.shipping.destination;
+    }
+    if (order.seller.phoneNumber) {
+      order.seller.phoneNumber = Utils.maskPhoneNumber(order.seller.phoneNumber);
+    }
+    if (order.buyer.phoneNumber) {
+      order.buyer.phoneNumber = Utils.maskPhoneNumber(order.buyer.phoneNumber);
+    }
+
     const responseData = { order };
 
     if (order.auctionId && order.status === Const.orderStatus.PAYMENT_PENDING) {

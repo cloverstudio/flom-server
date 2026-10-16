@@ -55,6 +55,7 @@ module.exports = Object.freeze({
   isValidObjectId: require("./isValidObjectId"),
 
   makeHash: require("./makeHash"),
+  maskPhoneNumber: require("./maskPhoneNumber"),
 
   replaceAll: require("./replaceAll"),
   resizeImage: require("./resizeImage"),
