@@ -4,7 +4,7 @@ const router = require("express").Router();
 const Base = require("../../Base");
 const { Const } = require("#config");
 const Utils = require("#utils");
-const { Order, Auction, User } = require("#models");
+const { Order, Auction, User, Product } = require("#models");
 const { auth } = require("#middleware");
 
 /**
@@ -85,6 +85,17 @@ router.get("/token/:token", async function (request, response) {
         responseData.transferToken = auction.transferToken;
       }
     }
+
+    const productIds = order.products ? order.products.map((product) => product._id) : [];
+    const products = await Product.find({ _id: { $in: productIds } }, { originalPrice: 1 }).lean();
+    const productMap = {};
+    products.forEach((product) => {
+      productMap[product._id.toString()] = product.originalPrice;
+    });
+
+    order.products.forEach((product) => {
+      product.originalPrice = productMap[product._id.toString()] || null;
+    });
 
     const sellerId = order.seller._id.toString();
     const buyerId = order.buyer._id.toString();
