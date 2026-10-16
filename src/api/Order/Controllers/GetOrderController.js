@@ -4,7 +4,7 @@ const router = require("express").Router();
 const Base = require("../../Base");
 const { Const } = require("#config");
 const Utils = require("#utils");
-const { Order, Auction, User, Product } = require("#models");
+const { Order, Auction, User, Product, Transfer } = require("#models");
 const { auth } = require("#middleware");
 
 /**
@@ -21,7 +21,59 @@ const { auth } = require("#middleware");
  *   "data": {
  *      "transferToken": String, // Only included if order is from auction and payment is pending
  *      "order": OrderModel,
- *      "isBuyerSubscribed": false
+ *      "isBuyerSubscribed": false,
+ *      "receiptData": {
+ *          "id": "6acdfc6dd4327dbb5c9b0398",
+ *          "_id": "6acdfc6dd4327dbb5c9b0398",
+ *          "transferType": 4,
+ *          "status": 3,
+ *          "created": 1791884397318,
+ *          "paymentMethodType": 9,
+ *          "paymentMethodName": "PalmPay Wallet",
+ *          "receiverCountryCode": "NG",
+ *          "receiverPhoneNumber": "+234802******1",
+ *          "senderCountryCode": "NG",
+ *          "senderPhoneNumber": "+234802******2",
+ *          "localAmountSender": {
+ *              "countryCode": "NG",
+ *              "currency": "NGN",
+ *              "value": 100
+ *          },
+ *          "localProcessingFee": {
+ *              "countryCode": "NG",
+ *              "currency": "NGN",
+ *              "value": 0
+ *          },
+ *          "localTaxAmount": {
+ *              "countryCode": "NG",
+ *              "currency": "NGN",
+ *              "value": 7.5
+ *          },
+ *          "taxRate": 0.075,
+ *          "basket": [
+ *              {
+ *                  "id": "6a0ed07ef5b07eeb308e3408",
+ *                  "quantity": 1,
+ *                  "pricePerItem": 0.13,
+ *                  "originalPrice": {
+ *                      "countryCode": "NG",
+ *                      "currency": "NGN",
+ *                      "value": 100
+ *                  },
+ *                  "localAmountSender": {
+ *                      "countryCode": "NG",
+ *                      "currency": "NGN",
+ *                      "value": 100
+ *                  },
+ *                  "localAmountReceiver": {
+ *                      "countryCode": "NG",
+ *                      "currency": "NGN",
+ *                      "value": 100
+ *                  },
+ *                  "name": "Test xz"
+ *              }
+ *          ]
+ *      }
  *    }
  * }
  *
@@ -103,6 +155,33 @@ router.get("/token/:token", async function (request, response) {
     const b = await User.findById(buyerId, { followedBusinesses: 1 }).lean();
     if ((b?.followedBusinesses || []).includes(sellerId)) {
       responseData.isBuyerSubscribed = true;
+    }
+
+    const transferId = order.transferId;
+    if (transferId) {
+      const transfer = await Transfer.findById(transferId).lean();
+      if (transfer) {
+        const receiptData = {
+          id: transferId,
+          _id: transferId,
+          transferType: transfer.transferType,
+          status: transfer.status,
+          created: transfer.created,
+          paymentMethodType: transfer.paymentMethodType,
+          paymentMethodName: transfer.paymentMethodName,
+          receiverCountryCode: transfer.receiverCountryCode,
+          receiverPhoneNumber: Utils.maskPhoneNumber(transfer.receiverPhoneNumber),
+          senderCountryCode: transfer.senderCountryCode,
+          senderPhoneNumber: Utils.maskPhoneNumber(transfer.senderPhoneNumber),
+          localAmountSender: transfer.localAmountSender,
+          localProcessingFee: transfer.localProcessingFee,
+          localTaxAmount: transfer.localTaxAmount,
+          taxRate: transfer.taxRate,
+          totalAmount: transfer.totalAmount,
+          basket: transfer.basket,
+        };
+        responseData.receiptData = receiptData;
+      }
     }
 
     Base.successResponse(response, Const.responsecodeSucceed, responseData);
