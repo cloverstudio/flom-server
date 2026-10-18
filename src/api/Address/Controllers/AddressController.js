@@ -54,66 +54,70 @@ const { LocationIQ } = require("#services");
  * @apiError (Errors) 4000007 Token invalid
  */
 
-router.get("/", auth({ allowUser: true, allowGuest: true }), async function (request, response) {
-  try {
-    let { address, countryCode } = request.query;
-    if (!address) {
-      return Base.errorResponse({
+router.get(
+  "/",
+  auth({ allowUser: true, allowFlomGuest: true }),
+  async function (request, response) {
+    try {
+      let { address, countryCode } = request.query;
+      if (!address) {
+        return Base.errorResponse({
+          response,
+          code: Const.responsecodeNoAddress,
+          message: `AddressController, no address`,
+        });
+      }
+      if (address.length < 4) {
+        return Base.successResponse(response, Const.responsecodeSucceed, { suggestions: [] });
+      }
+      if (!countryCode) {
+        return Base.errorResponse({
+          response,
+          code: Const.responsecodeUserNoCountryCode,
+          message: `AddressController, no countryCode`,
+        });
+      }
+
+      const data = (await LocationIQ.autocomplete({ address, countryCode })) || [];
+
+      const suggestions = data.map((d) => {
+        const a = d.address;
+        let text = "";
+        if (a.house_number) {
+          text += a.house_number + " ";
+        }
+        if (a.road) {
+          text += a.road + " ";
+        } else {
+          text += a.name + " ";
+        }
+        if (a.neighbourhood) {
+          text += a.neighbourhood + " ";
+        }
+        if (a.city) {
+          text += a.city + " ";
+        }
+
+        return {
+          address: text.trim(),
+          zip: a.postcode || "",
+          city: a.city || "",
+          street: a.road || a.name || "",
+          houseNumber: a.house_number || "",
+          state: a.state || "",
+          stateCode: Const.UsStateCodes[a.state] || "",
+        };
+      });
+
+      Base.successResponse(response, Const.responsecodeSucceed, { suggestions });
+    } catch (error) {
+      Base.errorResponse({
         response,
-        code: Const.responsecodeNoAddress,
-        message: `AddressController, no address`,
+        message: "AddressController",
+        error,
       });
     }
-    if (address.length < 4) {
-      return Base.successResponse(response, Const.responsecodeSucceed, { suggestions: [] });
-    }
-    if (!countryCode) {
-      return Base.errorResponse({
-        response,
-        code: Const.responsecodeUserNoCountryCode,
-        message: `AddressController, no countryCode`,
-      });
-    }
-
-    const data = (await LocationIQ.autocomplete({ address, countryCode })) || [];
-
-    const suggestions = data.map((d) => {
-      const a = d.address;
-      let text = "";
-      if (a.house_number) {
-        text += a.house_number + " ";
-      }
-      if (a.road) {
-        text += a.road + " ";
-      } else {
-        text += a.name + " ";
-      }
-      if (a.neighbourhood) {
-        text += a.neighbourhood + " ";
-      }
-      if (a.city) {
-        text += a.city + " ";
-      }
-
-      return {
-        address: text.trim(),
-        zip: a.postcode || "",
-        city: a.city || "",
-        street: a.road || a.name || "",
-        houseNumber: a.house_number || "",
-        state: a.state || "",
-        stateCode: Const.UsStateCodes[a.state] || "",
-      };
-    });
-
-    Base.successResponse(response, Const.responsecodeSucceed, { suggestions });
-  } catch (error) {
-    Base.errorResponse({
-      response,
-      message: "AddressController",
-      error,
-    });
-  }
-});
+  },
+);
 
 module.exports = router;

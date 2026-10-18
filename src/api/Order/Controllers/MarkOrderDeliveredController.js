@@ -39,6 +39,7 @@ router.patch(
   "/:orderId/mark-delivered",
   auth({
     allowUser: true,
+    allowFlomGuest: true,
   }),
   async function (request, response) {
     try {

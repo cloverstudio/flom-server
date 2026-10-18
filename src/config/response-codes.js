@@ -876,6 +876,8 @@ ResponseCodes.responsecodeUnexpectedError = 444010;
 ResponseCodes.responsecodeInvalidChannel = 444011;
 ResponseCodes.responsecodeInvalidVoiceNoteId = 444012;
 
+ResponseCodes.responsecodeReferencedItemNotFound = 444013;
+
 // ResponseCodes.responsecodeNoAccessToken = 443897;
 
 ResponseCodes.responsecodeUnauthorized = 5000001;

@@ -6,7 +6,7 @@ const { User, AdminPageUser } = require("#models");
 function checkTokenAndRole({
   allowUser = false,
   allowAdmin = false,
-  allowGuest = false,
+  allowFlomGuest = false,
   role,
   includedRoles,
   excludedRoles,
@@ -37,7 +37,7 @@ function checkTokenAndRole({
       return sendInvalidTokenResponse(response, request);
     }
 
-    if (allowGuest && token === Config.guestToken) {
+    if (allowFlomGuest && token === Config.guestToken) {
       request.isGuest = true;
       return next();
     }

@@ -6,7 +6,7 @@ const Base = require("../../Base");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
-const { User, SupportTicket } = require("#models");
+const { User, SupportTicket, Order } = require("#models");
 const mediaHandler = require("#media");
 const fs = require("fs");
 const fsp = require("fs/promises");
@@ -23,9 +23,10 @@ const path = require("path");
  *
  * @apiParam (Form data) {Object}  data               Stringified object
  * @apiParam (Form data) {String}  [data.email]       Contact email.
- * @apiParam (Form data) {String}  data.type          Type parameter from the category selected. (bug_report)
+ * @apiParam (Form data) {String}  data.type          Type parameter from the category selected. (bug_report, order_issue)
  * @apiParam (Form data) {String}  data.description   Description of what happened.
- * @apiParam (Form data) {File}    file0              File (images only) (subsequent files are named file1, file2 and so on)
+ * @apiParam (Form data) {String}  data.referenceId   Reference ID related to the support ticket.
+ * @apiParam (Form data) {File}    file0              File (images and audios only) (subsequent files are named file1, file2 and so on)
  *
  * @apiSuccessExample Success Response
  * {
@@ -49,129 +50,172 @@ const path = require("path");
  * @apiError (Errors) 443236 Description parameter is missing
  * @apiError (Errors) 443127 Type parameter is missing
  * @apiError (Errors) 443226 Invalid type parameter
+ * @apiError (Errors) 443129 ReferenceId parameter is missing
+ * @apiError (Errors) 444013 Referenced item not found
  * @apiError (Errors) 4000007 Token invalid
  */
 
-router.post("/", auth({ allowUser: true }), async function (request, response) {
-  try {
-    const { user } = request;
-    const userId = user._id.toString();
-    const { fields, files } = await Utils.formParse(request, {
-      keepExtensions: true,
-      uploadDir: Config.uploadPath,
-    });
-
-    const data = !fields.data ? {} : JSON.parse(fields.data);
-    const { email, description, type } = data;
-
-    if (!description) {
-      return Base.errorResponse({
-        response,
-        code: Const.responsecodeNoDescription,
-        message: "SupportWithFileController - create ticket, no description",
-      });
-    }
-    if (!type) {
-      return Base.errorResponse({
-        response,
-        code: Const.responsecodeNoTypeParameter,
-        message: "SupportWithFileController - create ticket, no type",
-      });
-    }
-
-    const supportTicketData = {
-      type,
-      status: 1,
-      description,
-      userId,
-      // referenceId,
-      userPhoneNumber: user.phoneNumber,
-      email,
-      mediaProcessingInfo: { status: "processing" },
-    };
-
-    if (email) {
-      await User.findByIdAndUpdate(userId, { email });
-    }
-
-    const ticket = await SupportTicket.create(supportTicketData);
-    const ticketId = ticket._id.toString();
-
-    if (email) {
-      const text = `Support ticket type: ${type}\n` + JSON.stringify({ supportTicketData });
-      const supportEmailSubject = "Bug report ticket (Flom v1)";
-      const supportEmail = Config.supportEmail;
-      Utils.sendEmailWithSG({ subject: supportEmailSubject, text, to: supportEmail });
-    }
-
-    Base.successResponse(response, Const.responsecodeSucceed, { submitted: true });
-
-    // files processing
+router.post(
+  "/",
+  auth({ allowUser: true, allowFlomGuest: true }),
+  async function (request, response) {
     try {
-      if (Object.keys(files).length > 0) {
-        const ticketFiles = [];
+      const { user = null } = request;
+      const userId = user ? user._id.toString() : undefined;
+      const { fields, files } = await Utils.formParse(request, {
+        keepExtensions: true,
+        uploadDir: Config.uploadPath,
+      });
 
-        for (const key in files) {
-          const file = files[key];
-          const { name: oldName, type: fileType, path: oldPath, size } = file;
+      const data = !fields.data ? {} : JSON.parse(fields.data);
+      const { email, description, type, referenceId } = data;
 
-          if (!fileType.includes("image")) continue;
+      if (!description) {
+        return Base.errorResponse({
+          response,
+          code: Const.responsecodeNoDescription,
+          message: "SupportWithFileController - create ticket, no description",
+        });
+      }
+      if (!type) {
+        return Base.errorResponse({
+          response,
+          code: Const.responsecodeNoTypeParameter,
+          message: "SupportWithFileController - create ticket, no type",
+        });
+      }
 
-          const { width, height } = await mediaHandler.getImageInfo(oldPath);
+      if (!["bug_report", "order_issue"].includes(type)) {
+        return Base.errorResponse({
+          response,
+          code: Const.responsecodeInvalidTypeParameter,
+          message: "SupportWithFileController - create ticket, invalid type",
+        });
+      }
 
-          const extension = oldName.split(".").pop();
-
-          let nameExists = true,
-            newName;
-          while (nameExists) {
-            newName = Utils.getRandomString(32);
-
-            if (!fs.existsSync(path.resolve(Config.supportFilesPath, `${newName}.${extension}`))) {
-              nameExists = false;
-            }
-          }
-
-          const newPath = path.resolve(Config.supportFilesPath, `${newName}.${extension}`);
-
-          await fsp.copyFile(oldPath, newPath);
-          await fsp.unlink(oldPath);
-
-          const info = {
-            nameOnServer: `${newName}.${extension}`,
-            mimeType: fileType,
-            size,
-            width,
-            height,
-            duration: 0,
-          };
-          ticketFiles.push(info);
+      if (type === "order_issue") {
+        if (!referenceId) {
+          return Base.errorResponse({
+            response,
+            code: Const.responsecodeNoReferenceIdParameter,
+            message: "Support - create ticket, no referenceId",
+          });
+        }
+        if (!Utils.isValidObjectId(referenceId)) {
+          return Base.errorResponse({
+            response,
+            code: Const.responsecodeReferencedItemNotFound,
+            message: "Support - create ticket, referenceId not a valid Id",
+          });
         }
 
-        if (ticketFiles.length > 0) {
-          await SupportTicket.findByIdAndUpdate(ticketId, {
-            files: ticketFiles,
-            "mediaProcessingInfo.status": "completed",
+        const order = await Order.findById(referenceId);
+        if (!order) {
+          return Base.errorResponse({
+            response,
+            code: Const.responsecodeReferencedItemNotFound,
+            message:
+              "SupportWithFileController - create ticket, invalid reference ID for order issue",
           });
         }
       }
+
+      const supportTicketData = {
+        type,
+        status: 1,
+        description,
+        userId,
+        referenceId,
+        userPhoneNumber: user ? user.phoneNumber : undefined,
+        email,
+        mediaProcessingInfo: { status: "processing" },
+      };
+
+      if (email && userId) {
+        await User.findByIdAndUpdate(userId, { email });
+      }
+
+      const ticket = await SupportTicket.create(supportTicketData);
+      const ticketId = ticket._id.toString();
+
+      if (email) {
+        const text = `Support ticket type: ${type}\n` + JSON.stringify({ supportTicketData });
+        const supportEmailSubject = "Bug report ticket (Flom v1)";
+        const supportEmail = Config.supportEmail;
+        Utils.sendEmailWithSG({ subject: supportEmailSubject, text, to: supportEmail });
+      }
+
+      Base.successResponse(response, Const.responsecodeSucceed, { submitted: true });
+
+      // files processing
+      try {
+        if (Object.keys(files).length > 0) {
+          const ticketFiles = [];
+
+          for (const key in files) {
+            const file = files[key];
+            const { name: oldName, type: fileType, path: oldPath, size } = file;
+
+            if (!fileType.includes("image") && !fileType.includes("audio")) continue;
+
+            const { width, height, duration } = await mediaHandler.getMediaInfo(oldPath);
+
+            const extension = oldName.split(".").pop();
+
+            let nameExists = true,
+              newName;
+            while (nameExists) {
+              newName = Utils.getRandomString(32);
+
+              if (
+                !fs.existsSync(path.resolve(Config.supportFilesPath, `${newName}.${extension}`))
+              ) {
+                nameExists = false;
+              }
+            }
+
+            const newPath = path.resolve(Config.supportFilesPath, `${newName}.${extension}`);
+
+            await fsp.copyFile(oldPath, newPath);
+            await fsp.unlink(oldPath);
+
+            const info = {
+              nameOnServer: `${newName}.${extension}`,
+              mimeType: fileType,
+              size,
+              width,
+              height,
+              duration,
+            };
+            ticketFiles.push(info);
+          }
+
+          if (ticketFiles.length > 0) {
+            await SupportTicket.findByIdAndUpdate(ticketId, {
+              files: ticketFiles,
+              "mediaProcessingInfo.status": "completed",
+            });
+          }
+        }
+      } catch (error) {
+        logger.error("SupportWithFileController - create ticket, file processing", error);
+
+        await SupportTicket.findByIdAndUpdate(ticketId, {
+          "mediaProcessingInfo.status": "failed",
+          "mediaProcessingInfo.error": error.message,
+        });
+
+        return;
+      }
     } catch (error) {
-      logger.error("SupportWithFileController - create ticket, file processing", error);
-
-      await SupportTicket.findByIdAndUpdate(ticketId, {
-        "mediaProcessingInfo.status": "failed",
-        "mediaProcessingInfo.error": error.message,
+      Base.errorResponse({
+        response,
+        message: "SupportWithFileController - create ticket",
+        error,
       });
-
-      return;
     }
-  } catch (error) {
-    Base.errorResponse({
-      response,
-      message: "SupportWithFileController - create ticket",
-      error,
-    });
-  }
-});
+  },
+);
 
 /**
  * @api {get} /api/v2/support/file/:fileName Get support ticket file flom_v1

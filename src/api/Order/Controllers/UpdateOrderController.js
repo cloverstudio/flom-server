@@ -50,7 +50,7 @@ const adminActions = ["cancel", "complete"];
 
 router.patch(
   "/:orderId",
-  auth({ allowUser: true, allowAdmin: true, role: Const.Role.ADMIN }),
+  auth({ allowUser: true, allowAdmin: true, role: Const.Role.ADMIN, allowFlomGuest: true }),
   async function (request, response) {
     try {
       const { user, isAdmin } = request;
