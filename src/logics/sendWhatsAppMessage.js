@@ -83,6 +83,7 @@ async function sendWhatsAppMessage({
 
       data[data.type] = {
         link: Config.storageUrl + "/" + (file._id || file.id).toString(),
+        ...(messageType == Const.messageTypeAudio && { voice: true }),
       };
 
       if (data.type !== "audio") {
