@@ -144,6 +144,8 @@ router.post("", async function (request, response) {
       }),
     };
 
+    await fsp.unlink(tempPath);
+
     return Base.successResponse(response, Const.responsecodeSucceed, responseJson);
   } catch (error) {
     Base.errorResponse({
