@@ -8,6 +8,7 @@ const mongoose = require("mongoose");
 const schema = new mongoose.Schema(
   {
     name: String,
+    oggName: String,
     mimeType: String,
     size: Number,
     created: { type: Number, default: Date.now },
