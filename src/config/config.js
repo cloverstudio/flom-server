@@ -382,8 +382,6 @@ Config.appStoreLink = process.env.APP_STORE_LINK;
 Config.infobipUrl = process.env.INFOBIP_URL;
 Config.infobipAuthorization = process.env.INFOBIP_AUTH;
 
-Config.guestToken = process.env.GUEST_TOKEN;
-
 Config.taxApiUrlCanada = process.env.TAX_API_URL_CAN;
 Config.taxApiUrlUsa = process.env.TAX_API_URL_USA;
 Config.taxApiKey = process.env.TAX_API_KEY;
