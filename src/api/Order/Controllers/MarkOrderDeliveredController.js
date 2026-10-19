@@ -44,13 +44,10 @@ router.patch(
   async function (request, response) {
     try {
       const { user } = request;
-      const userId = user._id.toString();
+      const userId = !user ? null : user._id.toString();
 
       const orderId = request.params.orderId;
-      const order = await Order.findOne({
-        _id: orderId,
-        $or: [{ "seller._id": userId }, { "buyer._id": userId }],
-      }).lean();
+      const order = await Order.findById(orderId).lean();
 
       if (!order) {
         return Base.errorResponse({
