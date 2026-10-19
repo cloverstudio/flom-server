@@ -1333,6 +1333,14 @@ Constants.templateMap = {
   shippingUpdate: "shipping_update",
   pendingPayment: "pending_payment",
   unknownRecipientNotice: "unknown_recipient_notice",
+  orderIssueSeller: "order_issue_seller",
+  buyerConfirmedSeller: "buyer_confirmed_seller",
+  paymentReceivedSeller: "payment_received_seller",
+  newOrderSeller: "new_order_seller",
+  orderPaymentReleasedBuyer: "order_payment_released_buyer",
+  orderInProgressBuyer: "order_in_progress_buyer",
+  paymentReceivedBuyer: "payment_received_buyer",
+  orderConfirmedBuyer: "order_confirmed_buyer",
 };
 Constants.marketingTemplates = ["newDrop", "auctionReminder", "secondChance", "goLive"];
 

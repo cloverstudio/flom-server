@@ -12,6 +12,8 @@ const schema = new mongoose.Schema(
     currency: String,
     marketing: Number,
     utility: Number,
+    service: Number,
+    metaBusinessAgent: Number,
   },
   { timestamps: true },
 );
