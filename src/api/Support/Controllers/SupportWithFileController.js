@@ -145,6 +145,14 @@ router.post(
         Utils.sendEmailWithSG({ subject: supportEmailSubject, text, to: supportEmail });
       }
 
+      if (type === "order_issue" && referenceId) {
+        await Order.findByIdAndUpdate(referenceId, {
+          supportTicketId: ticketId,
+          status: Const.orderStatus.SUPPORT_TICKET_OPENED,
+          ticketCreator: userId,
+        });
+      }
+
       Base.successResponse(response, Const.responsecodeSucceed, { submitted: true });
 
       // files processing
