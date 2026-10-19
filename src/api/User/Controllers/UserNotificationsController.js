@@ -268,6 +268,7 @@ async function getMarketingNotifications(userId) {
       _id: 1,
       title: 1,
       text: 1,
+      voiceNote: 1,
       notificationType: 1,
       senderId: 1,
       created: 1,
