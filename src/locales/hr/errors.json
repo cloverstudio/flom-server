@@ -493,6 +493,10 @@
   "444011": "Neispravan kanal.",
   "444012": "Došlo je do problema s glasovnom bilješkom.",
   "444013": "Referentna stavka nije pronađena.",
+  "444014": "Previše pokušaja.",
+  "444015": "Pokušajte ponovno uskoro.",
+  "444016": "Neispravan kod.",
+  "444017": "Kod je istekao.",
 
   "4000006": "Pogrešne korisničke vjerodajnice. Molim pokušajte ponovno kasnije.",
   "4000007": "Neispravan token. Molim pokušajte ponovno kasnije.",

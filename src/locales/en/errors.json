@@ -500,6 +500,10 @@
   "444011": "Invalid channel.",
   "444012": "There was an issue with the voice note.",
   "444013": "Referenced item not found.",
+  "444014": "Too many attempts.",
+  "444015": "Retry too soon.",
+  "444016": "Invalid code.",
+  "444017": "Code expired.",
 
   "4000006": "Wrong User Credentials. Please try again later.",
   "4000007": "Invalid Token. Please try again later.",

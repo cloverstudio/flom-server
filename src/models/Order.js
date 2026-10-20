@@ -41,6 +41,7 @@ const schema = new mongoose.Schema(
     overdue: { type: Boolean, default: false },
     deliveredAt: Number,
     eligibleForPayoutAt: Number,
+    releasedBy: String,
     shipping: {
       origin: {
         name: String,

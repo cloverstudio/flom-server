@@ -10,6 +10,70 @@ const { auth } = require("#middleware");
 const { User, UserContact, LiveStream, Order } = require("#models");
 
 /**
+ * @api {post} /api/v2/user/follow/order Follow order seller
+ * @apiVersion 1.0.0
+ * @apiName Follow order seller
+ * @apiGroup WebAPI User
+ * @apiDescription API for subscribing to a seller by a guest user
+ *
+ * @apiParam {String}   orderToken  Order token
+ * @apiParam {String}   code        Verification code
+ *
+ * @apiSuccessExample Success-Response:
+ * {
+ *   "code": 1,
+ *   "time": 1540989079012,
+ *   "data": {
+ *      "success": true
+ *   }
+ * }
+ *
+ * @apiSuccessExample {json} Error Response
+ * {
+ *   "code": ErrorCode,
+ *   "time": 1590000125608
+ * }
+ *
+ * @apiError (Errors) 443940 Order not found
+ * @apiError (Errors) 444016 Invalid code
+ * @apiError (Errors) 444017 Code expired
+ */
+
+router.post("/order", async function (request, response) {
+  try {
+    const { orderToken, code } = request.body;
+    const dataToSend = { success: true };
+
+    const {
+      success,
+      order,
+      code: errorCode,
+      msg,
+    } = await Logics.confirmOrderCode({ orderToken, code });
+    if (!success) {
+      return Base.errorResponse({
+        response,
+        code: errorCode,
+        message: "FollowUserController, follow order seller, " + msg,
+      });
+    }
+
+    await User.updateOne(
+      { _id: order.buyer._id },
+      { $addToSet: { followedBusinesses: order.seller._id } },
+    );
+
+    Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
+  } catch (error) {
+    Base.errorResponse({
+      response,
+      message: "FollowUserController, follow order seller",
+      error,
+    });
+  }
+});
+
+/**
  * @api {post} /api/v2/user/follow/guest Follow user (for guests)
  * @apiVersion 1.0.0
  * @apiName Follow user (for guests)
@@ -37,7 +101,6 @@ const { User, UserContact, LiveStream, Order } = require("#models");
  * @apiError (Errors) 443107 Invalid phone number
  * @apiError (Errors) 443940 Order not found
  * @apiError (Errors) 443232 Invalid action
- * @apiError (Errors) 4000007 Token not valid
  *
  */
 
@@ -50,7 +113,7 @@ router.post("/guest", async function (request, response) {
       return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidPhoneNumber,
-        message: "FollowUserController, follow user (for guests) - missing phoneNumber",
+        message: "FollowUserController, Follow user (for guests), missing phoneNumber",
       });
     }
 
@@ -60,7 +123,7 @@ router.post("/guest", async function (request, response) {
       return Base.errorResponse({
         response,
         code: Const.responsecodeInvalidPhoneNumber,
-        message: "FollowUserController, follow user (for guests) - invalid phoneNumber",
+        message: "FollowUserController, Follow user (for guests), invalid phoneNumber",
       });
     }
 
@@ -68,7 +131,7 @@ router.post("/guest", async function (request, response) {
       return Base.errorResponse({
         response,
         code: Const.responsecodeOrderNotFound,
-        message: "FollowUserController, follow user (for guests) - missing or invalid orderId",
+        message: "FollowUserController, Follow user (for guests), missing or invalid orderId",
       });
     }
 
@@ -77,7 +140,7 @@ router.post("/guest", async function (request, response) {
       return Base.errorResponse({
         response,
         code: Const.responsecodeOrderNotFound,
-        message: "FollowUserController, follow user (for guests) - order not found",
+        message: "FollowUserController, Follow user (for guests), order not found",
       });
     }
 
@@ -86,7 +149,7 @@ router.post("/guest", async function (request, response) {
         response,
         code: Const.responsecodeInvalidAction,
         message:
-          "FollowUserController, follow user (for guests) - invalid action: phoneNumber does not match order buyer",
+          "FollowUserController, Follow user (for guests), invalid action: phoneNumber does not match order buyer",
       });
     }
 
@@ -112,7 +175,7 @@ router.post("/guest", async function (request, response) {
   } catch (error) {
     Base.errorResponse({
       response,
-      message: "FollowUserController, get followed businesses",
+      message: "FollowUserController, follow user (for guests)",
       error,
     });
   }

@@ -878,6 +878,11 @@ ResponseCodes.responsecodeInvalidVoiceNoteId = 444012;
 
 ResponseCodes.responsecodeReferencedItemNotFound = 444013;
 
+ResponseCodes.responsecodeTooManyAttempts = 444014;
+ResponseCodes.responsecodeRetryTooSoon = 444015;
+ResponseCodes.responsecodeInvalidCode = 444016;
+ResponseCodes.responsecodeCodeExpired = 444017;
+
 // ResponseCodes.responsecodeNoAccessToken = 443897;
 
 ResponseCodes.responsecodeUnauthorized = 5000001;

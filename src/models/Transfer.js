@@ -78,6 +78,7 @@ const schema = new mongoose.Schema(
     recommId: String,
     auctionId: String,
     orderId: String,
+    releasedBy: String,
   },
   { timestamps: true },
 );

@@ -40,6 +40,7 @@ module.exports = Object.freeze({
   Feedback: require("./Feedback"),
   FlomFile: require("./FlomFile"),
   FlomMessage: require("./FlomMessage"),
+  FlomTag: require("./FlomTag"),
   Fulfillment: require("./Fulfillment"),
 
   Gender: require("./Gender"),
@@ -102,7 +103,6 @@ module.exports = Object.freeze({
   SubType: require("./SubType"),
   SupportTicket: require("./SupportTicket"),
 
-  FlomTag: require("./FlomTag"),
   TaxRate: require("./TaxRate"),
   TemporaryBan: require("./TemporaryBan"),
   Terminal: require("./Terminal"),
@@ -123,6 +123,7 @@ module.exports = Object.freeze({
 
   VehicleMake: require("./VehicleMake"),
   VehicleModel: require("./VehicleModel"),
+  VerificationRequest: require("./VerificationRequest"),
   View: require("./View"),
   ViewForYou: require("./ViewForYou"),
 
