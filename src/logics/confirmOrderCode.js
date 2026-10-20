@@ -26,6 +26,10 @@ async function confirmOrderCode({ orderToken, code }) {
     return { code: Const.responsecodeCodeExpired, msg: "Code has expired" };
   }
 
+  if (verificationRequest.attempts >= 3) {
+    return { code: Const.responsecodeTooManyAttempts, msg: "Too many attempts" };
+  }
+
   return { order, success: true };
 }
 
