@@ -294,7 +294,7 @@ const schema = new mongoose.Schema(
     firstName: String,
     lastName: String,
     channel: { type: String, default: "flom" },
-    lastUsedMarketingNotificationChannnels: String,
+    lastUsedMarketingNotificationChannnels: [String],
   },
   { timestamps: true },
 );

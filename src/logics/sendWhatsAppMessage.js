@@ -181,6 +181,19 @@ async function sendWhatsAppMessage({
           break;
         case "unknownRecipientNotice":
           break;
+        case "engageV1":
+          if (!userName || !message) {
+            logger.error(
+              "sendWhatsAppMessage error, missing parameters for engageV1 template: userName or message: " +
+                userName +
+                ", " +
+                message,
+            );
+            return null;
+          }
+          textParamA = userName;
+          textParamB = message;
+          break;
         default:
           logger.error("sendWhatsAppMessage error, invalid template name: " + template);
           return null;

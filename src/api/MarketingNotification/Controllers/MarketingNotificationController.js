@@ -2,8 +2,9 @@
 
 const router = require("express").Router();
 const Base = require("../../Base");
-const { Const } = require("#config");
+const { Const, Config } = require("#config");
 const Utils = require("#utils");
+const Logics = require("#logics");
 const { auth } = require("#middleware");
 const { MarketingNotification, User, WhatsAppPrice, ConversionRate } = require("#models");
 const { validateMarketingNotificationData, getSubscribers, validateData } = require("../helpers");
@@ -185,6 +186,10 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
       marketingNotification: marketingNotificationObj,
     });
 
+    await User.findByIdAndUpdate(requestUserId, {
+      lastUsedMarketingNotificationChannnels: channels,
+    });
+
     const marketingNotificationId = marketingNotificationObj._id.toString();
     const from = {
       id: requestUserId,
@@ -194,31 +199,57 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
       phoneNumber: user.phoneNumber,
     };
 
-    for (const s of subscribers) {
-      if (!s.inApp) continue;
+    const waSubscribers = subscribers.filter((s) => !s.inApp);
+    const pushSubscribers = subscribers.filter((s) => s.inApp);
 
-      const userPushTokens = s.pushToken || [];
+    if (pushSubscribers.length > 0) {
+      for (const s of pushSubscribers) {
+        const userPushTokens = s.pushToken || [];
 
-      for (const t of userPushTokens) {
-        await Utils.callPushService({
-          pushToken: t,
-          isVoip: false,
-          unreadCount: 1,
-          isMuted: false,
-          payload: {
-            pushType: Const.pushTypeMarketingNotification,
-            info: {
-              marketingNotificationId,
-              title,
-              text,
-              contentType,
-              contentName,
-              voiceNote,
-              from,
+        for (const t of userPushTokens) {
+          await Utils.callPushService({
+            pushToken: t,
+            isVoip: false,
+            unreadCount: 1,
+            isMuted: false,
+            payload: {
+              pushType: Const.pushTypeMarketingNotification,
+              info: {
+                marketingNotificationId,
+                title,
+                text,
+                contentType,
+                contentName,
+                voiceNote,
+                from,
+              },
             },
-          },
-        });
+          });
+        }
       }
+    }
+
+    if (waSubscribers.length > 0) {
+      let messageText = "";
+
+      if (title) {
+        messageText = title + ":\n";
+      }
+      if (text) {
+        messageText += text;
+      }
+      if (voiceNote) {
+        messageText += "\n\n" + Config.storageUrl + "/" + voiceNote.oggName;
+      }
+
+      await Logics.sendWhatsAppMessages({
+        sender: user,
+        receivers: waSubscribers,
+        from: user.phoneNumber,
+        template: "engageV1",
+        message: messageText,
+        userName: user.slug,
+      });
     }
 
     await User.updateMany(
