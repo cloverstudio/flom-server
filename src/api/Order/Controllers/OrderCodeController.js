@@ -94,7 +94,8 @@ router.get("/token/:token/code", async function (request, response) {
       });
     }
 
-    const code = Utils.getRandomString(6, "numeric");
+    const code =
+      Config.environment === "production" ? Utils.getRandomString(6, "numeric") : "555555";
 
     const buyer = await User.findOne({ phoneNumber: buyerPhoneNumber }).lean();
     let channel = "sms";
