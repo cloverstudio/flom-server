@@ -33,6 +33,7 @@ const { auth } = require("#middleware");
  *
  * @apiError (Errors) 443940 Order not found
  * @apiError (Errors) 443858 Seller cannot confirm delivery, only buyer can mark order as delivered
+ * @apiError (Errors) 443941 Order not in SHIPPED status
  * @apiError (Errors) 4000007 Token invalid
  */
 
@@ -52,6 +53,14 @@ router.patch(
           response,
           code: Const.responsecodeOrderNotFound,
           message: "MarkOrderDeliveredController, order not found: " + orderId,
+        });
+      }
+
+      if (order.status !== Const.orderStatus.SHIPPED) {
+        return Base.errorResponse({
+          response,
+          code: Const.responsecodeInvalidOrderStatus,
+          message: "MarkOrderDeliveredController, order is not in SHIPPED status",
         });
       }
 
@@ -126,6 +135,7 @@ router.patch(
  * @apiError (Errors) 443940 Order not found
  * @apiError (Errors) 444016 Invalid code
  * @apiError (Errors) 444017 Code expired
+ * @apiError (Errors) 443941 Order not in SHIPPED status
  * @apiError (Errors) 4000007 Token invalid
  */
 
@@ -145,6 +155,14 @@ router.post("/:token/mark-delivered/code", async function (request, response) {
         response,
         code: errorCode,
         message: "MarkOrderDeliveredController code, " + msg,
+      });
+    }
+
+    if (order.status !== Const.orderStatus.SHIPPED) {
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeInvalidOrderStatus,
+        message: "MarkOrderDeliveredController code, order is not in SHIPPED status",
       });
     }
 
