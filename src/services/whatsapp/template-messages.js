@@ -99,4 +99,18 @@ module.exports = {
     textParams: ["buyerName", "sellerName", "orderItems", "orderPriceWithCurrency"],
     buttonParams: ["orderId"],
   },
+  engageV1: {
+    name: "engage_v1",
+    type: "marketing",
+    headerParams: ["headerText"],
+    textParams: ["slug", "messageText"],
+    buttonParams: ["urlStub"],
+  },
+  engageWithImageV1: {
+    name: "engage_with_image_v1",
+    type: "marketing",
+    headerParams: ["headerImageUrl"],
+    textParams: ["slug", "messageText"],
+    buttonParams: ["urlStub"],
+  },
 };

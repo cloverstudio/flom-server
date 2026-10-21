@@ -95,4 +95,16 @@ module.exports = {
     params: ["buyerName", "sellerName", "orderItems", "orderPriceWithCurrency", "orderId"],
     text: "Hi __BUYER_NAME__, your order from __SELLER_NAME__ is confirmed: __ORDER_ITEMS__ (__ORDER_PRICE_WITH_CURRENCY__). We'll let you know the moment your payment is received. Click below to see order receipt:\nhttps://flom.app/order_receipt?id=__ORDER_ID__",
   },
+  engageV1: {
+    name: "engage_v1",
+    type: "marketing",
+    params: ["slug", "messageText", "urlStub"],
+    text: "@__SLUG__: __MESSAGE_TEXT__\n\nhttps://flom.app/__URL_STUB__",
+  },
+  engageWithImageV1: {
+    name: "engage_with_image_v1",
+    type: "marketing",
+    params: ["slug", "messageText", "urlStub"],
+    text: "@__SLUG__: __MESSAGE_TEXT__\n\nhttps://flom.app/__URL_STUB__",
+  },
 };

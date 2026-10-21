@@ -11,7 +11,7 @@ const {
   validateMarketingNotificationData,
   getSubscribers,
   validateData,
-  generateWhatsAppMessage,
+  generateWhatsAppMessageParts,
 } = require("../helpers");
 
 /**
@@ -191,7 +191,7 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
     });
 
     await User.findByIdAndUpdate(requestUserId, {
-      lastUsedMarketingNotificationChannnels: channels,
+      lastUsedMarketingNotificationChannels: channels,
     });
 
     const marketingNotificationId = marketingNotificationObj._id.toString();
@@ -234,16 +234,29 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
     }
 
     if (Config.environment === "production" && waSubscribers.length > 0) {
-      const m = await generateWhatsAppMessage({ notification: marketingNotificationObj });
+      const { baseText, contentUrl, hasText, imageUrl, voiceUrl, urlStub } =
+        await generateWhatsAppMessageParts({ notification: marketingNotificationObj });
 
-      await Logics.sendWhatsAppMessages({
-        sender: user,
-        receivers: waSubscribers,
-        from: user.phoneNumber,
-        template: "engageV1",
-        message: m.free,
-        userName: user.slug,
-      });
+      for (const s of waSubscribers) {
+        let sendFreeMessage = false;
+
+        if (s.whatsApp?.windowExpiresAt && s.whatsApp.windowExpiresAt > Date.now()) {
+          sendFreeMessage = true;
+        }
+
+        if (!hasText && !sendFreeMessage) {
+          continue;
+        }
+
+        await Logics.sendWhatsAppMessage({
+          to: s.phoneNumber,
+          from: user.phoneNumber,
+          template: !sendFreeMessage ? "engageV1" : undefined,
+          message: baseText,
+          userName: user.slug,
+          isFreeMessage: sendFreeMessage,
+        });
+      }
     }
 
     await User.updateMany(

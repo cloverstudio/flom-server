@@ -20,4 +20,8 @@ module.exports = {
   get LocationIQ() {
     return require("./location-iq");
   },
+
+  get WhatsApp() {
+    return require("./whatsapp");
+  },
 };

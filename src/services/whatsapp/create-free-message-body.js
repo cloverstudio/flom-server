@@ -12,17 +12,13 @@ const parameterMapping = {
   orderName: "__ORDER_NAME__",
   shippingStatus: "__SHIPPING_STATUS__",
   orderId: "__ORDER_ID__",
+  slug: "__SLUG__",
+  messageText: "__MESSAGE_TEXT__",
+  urlStub: "__URL_STUB__",
   sellerName: "__SELLER_NAME__",
   buyerName: "__BUYER_NAME__",
   orderItems: "__ORDER_ITEMS__",
   orderPriceWithCurrency: "__ORDER_PRICE_WITH_CURRENCY__",
-};
-
-const deepLink = {
-  order: `https://flom.app/order?id=`,
-  auction: `https://flom.app/auction?id=`,
-  liveStream: `https://flom.app/livestream?id=`,
-  product: `https://flom.app/product?id=`,
 };
 
 function createFreeMessageBody({ template, ...params }) {

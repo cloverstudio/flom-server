@@ -1344,8 +1344,16 @@ Constants.templateMap = {
   paymentReceivedBuyer: "payment_received_buyer",
   orderConfirmedBuyer: "order_confirmed_buyer",
   engageV1: "engage_v1",
+  engageWithImageV1: "engage_with_image_v1",
 };
-Constants.marketingTemplates = ["newDrop", "auctionReminder", "secondChance", "goLive", "engageV1"];
+Constants.marketingTemplates = [
+  "newDrop",
+  "auctionReminder",
+  "secondChance",
+  "goLive",
+  "engageV1",
+  "engageWithImageV1",
+];
 
 Constants.UsStateCodes = {
   Alabama: "AL",

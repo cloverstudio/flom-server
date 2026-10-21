@@ -8,6 +8,10 @@ async function sendWhatsAppMessage({
   from,
   message,
   template = null,
+  isFreeMessage = false,
+  messageType,
+  location,
+  file,
   userName,
   liveStreamId,
   auctionName,
@@ -16,10 +20,6 @@ async function sendWhatsAppMessage({
   orderId,
   orderName,
   productName,
-  isFreeMessage = false,
-  messageType,
-  location,
-  file,
 }) {
   try {
     if (!Config.enableWhatsApp) {

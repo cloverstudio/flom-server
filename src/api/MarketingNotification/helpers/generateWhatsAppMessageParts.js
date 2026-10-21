@@ -3,43 +3,44 @@
 const { Const, Config } = require("#config");
 const { Product, User } = require("#models");
 
-async function generateWhatsAppMessage({ notification }) {
+async function generateWhatsAppMessageParts({ notification }) {
   const { title, text, voiceNote, contentType, contentId } = notification;
 
   let baseText = "",
     image,
-    imageUrl,
+    headerImageUrl,
+    headerText,
     voiceUrl,
-    contentUrl;
+    contentUrl,
+    urlStub;
 
   if (title) {
-    baseText = title + "\n";
+    headerText = title;
   }
   if (text) {
     baseText += text + "\n";
   }
   if (contentType == Const.marketingNotificationsContentTypeProfile) {
     const user = await User.findById(contentId).lean();
+    const safeUserName = encodeURIComponent(user.userName);
 
-    // https://discover.flom.app/discover/user-profile/moshadetoro
-    // TODO: When profile urls uzpdated update them here as well
-
-    const profileUrl = `${Config.discoverUrl}/discover/user-profile/${user.userName}`;
+    const profileUrl = `https://flom.app/profile?username=${safeUserName}`;
+    urlStub = `profile?username=${safeUserName}`;
     contentUrl = profileUrl;
   } else if (contentType == Const.marketingNotificationsContentTypeMarketplace) {
     const user = await User.findById(contentId).lean();
+    const safeUserName = encodeURIComponent(user.userName);
 
-    // https://discover.flom.app/discover/user-profile/moshadetoro
-    // TODO: When profile urls uzpdated update them here as well
-
-    const profileUrl = `${Config.discoverUrl}/discover/user-profile/${user.userName}?type=5`;
+    const profileUrl = `https://flom.app/profile?username=${safeUserName}`;
+    urlStub = `profile?username=${safeUserName}`;
     contentUrl = profileUrl;
   } else {
     const product = await Product.findById(contentId).lean();
 
     // https://discover.flom.app/discover/details/6a0cc2d26108b505f7a04abd
 
-    contentUrl = `${Config.discoverUrl}/discover/details/${product._id.toString()}`;
+    contentUrl = `https://flom.app/product?id=${product._id.toString()}`;
+    urlStub = `product?id=${product._id.toString()}`;
 
     if (product.type === Const.productTypeService || product.type === Const.productTypeProduct) {
       const price = `${product.originalPrice.value} ${product.originalPrice.currency}`;
@@ -52,20 +53,14 @@ async function generateWhatsAppMessage({ notification }) {
   }
 
   if (image) {
-    imageUrl = Config.storageUrl + "/" + image.nameOnServer;
+    headerImageUrl = Config.storageUrl + "/" + image.nameOnServer;
   }
 
   if (voiceNote) {
     voiceUrl = Config.storageUrl + "/" + voiceNote.oggName;
   }
 
-  return {
-    free: `${baseText}${contentUrl}`,
-    paid: { baseText, contentUrl },
-    hasText: !!text,
-    imageUrl,
-    voiceUrl,
-  };
+  return { baseText, contentUrl, hasText: !!text, headerImageUrl, headerText, voiceUrl, urlStub };
 }
 
-module.exports = generateWhatsAppMessage;
+module.exports = generateWhatsAppMessageParts;

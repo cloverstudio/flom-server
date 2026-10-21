@@ -3,7 +3,7 @@
 const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { User, LiveStream, Notification, Tribe, Transfer, ConversionRate } = require("#models");
+const { User, Transfer, ConversionRate } = require("#models");
 
 async function makeFeeTransfer({ fee, feeType, sender, numberOfWaMessages }) {
   try {

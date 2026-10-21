@@ -20,6 +20,7 @@ const feeType = {
   shippingUpdate: "Shipping update",
   pendingPayment: "Pending payment reminder",
   engageV1: "Marketing notification",
+  engageWithImageV1: "Marketing notification",
 };
 
 async function sendWhatsAppMessages({
@@ -77,6 +78,7 @@ async function sendWhatsAppMessages({
       template &&
       template !== "sellerFollowup" &&
       template !== "engageV1" &&
+      template !== "engageWithImageV1" &&
       !sender.notificationOptions?.whatsApp?.enabled
     ) {
       logger.warn(
@@ -88,6 +90,7 @@ async function sendWhatsAppMessages({
       template &&
       template !== "sellerFollowup" &&
       template !== "engageV1" &&
+      template !== "engageWithImageV1" &&
       (!sender.notificationOptions?.whatsApp || !sender.notificationOptions.whatsApp[template])
     ) {
       logger.warn(
