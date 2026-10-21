@@ -7,7 +7,12 @@ const Utils = require("#utils");
 const Logics = require("#logics");
 const { auth } = require("#middleware");
 const { MarketingNotification, User, WhatsAppPrice, ConversionRate } = require("#models");
-const { validateMarketingNotificationData, getSubscribers, validateData } = require("../helpers");
+const {
+  validateMarketingNotificationData,
+  getSubscribers,
+  validateData,
+  generateWhatsAppMessage,
+} = require("../helpers");
 
 /**
  * @api {post} /api/v2/marketing-notifications/send Send marketing notification
@@ -169,7 +174,6 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
     const marketingNotification = await MarketingNotification.create({
       title,
       text,
-      voiceNoteId,
       senderId: requestUserId,
       contentType,
       contentId,
@@ -230,24 +234,14 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
     }
 
     if (waSubscribers.length > 0) {
-      let messageText = "";
-
-      if (title) {
-        messageText = title + ":\n";
-      }
-      if (text) {
-        messageText += text;
-      }
-      if (voiceNote) {
-        messageText += "\n\n" + Config.storageUrl + "/" + voiceNote.oggName;
-      }
+      const m = await generateWhatsAppMessage({ notification: marketingNotificationObj });
 
       await Logics.sendWhatsAppMessages({
         sender: user,
         receivers: waSubscribers,
         from: user.phoneNumber,
         template: "engageV1",
-        message: messageText,
+        message: m.free,
         userName: user.slug,
       });
     }
@@ -311,7 +305,8 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
  *                 "phoneNumber": "+385915913065",
  *                 "userName": "+385915913065",
  *                 "channels": {
- *                     "whatsapp": true
+ *                     "whatsapp": true,
+ *                     "whatsappType": "paid" // "paid" or "free" depending on the user's WhatsApp window status
  *                 }
  *             },
  *         ],
