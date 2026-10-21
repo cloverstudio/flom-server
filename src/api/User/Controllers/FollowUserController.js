@@ -525,7 +525,7 @@ router.get("/my-followers", auth({ allowUser: true }), async function (request, 
  * @apiParam {String}   userId           userId
  * @apiParam {String}   [liveStreamId]   liveStreamId
  * @apiParam {Boolean}  [push]           True to enable, false to disable push notifications (default: true)
- * @apiParam {Boolean}  [whatsApp]       True to enable, false to disable WhatsApp notifications (default: true)
+ * @apiParam {Boolean}  [whatsApp]       True to enable, false to disable WhatsApp notifications (default: false)
  *
  * @apiSuccessExample Success-Response:
  * {
@@ -549,7 +549,7 @@ router.get("/my-followers", auth({ allowUser: true }), async function (request, 
 
 router.post("/add", auth({ allowUser: true }), async function (request, response) {
   try {
-    const { userId, liveStreamId, push = true, whatsApp = true } = request.body;
+    const { userId, liveStreamId, push = true, whatsApp = false } = request.body;
     const { user: requestUser } = request;
 
     if (!userId) {
