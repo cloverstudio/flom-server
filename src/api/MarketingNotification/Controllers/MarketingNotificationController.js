@@ -233,7 +233,7 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
       }
     }
 
-    if (waSubscribers.length > 0) {
+    if (Config.environment === "production" && waSubscribers.length > 0) {
       const m = await generateWhatsAppMessage({ notification: marketingNotificationObj });
 
       await Logics.sendWhatsAppMessages({
