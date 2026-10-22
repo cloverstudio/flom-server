@@ -131,7 +131,9 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
   try {
     const { user } = request;
     const requestUserId = user._id.toString();
-    const { title, text, voiceNoteId, subscriberIds = [] } = request.body;
+    const { title, text, voiceNoteId } = request.body;
+    let subscriberIds = request.body.subscriberIds || [];
+    subscriberIds = subscriberIds.map((id) => id.trim());
     const contentType = +request.body.contentType;
     const allSubscribers = !request.body.allSubscribers ? 0 : +request.body.allSubscribers;
     const channels =
