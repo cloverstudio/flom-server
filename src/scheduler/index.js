@@ -1,4 +1,4 @@
-const { redis } = require("#infra");
+const { redis, logger } = require("#infra");
 const schedule = require("node-schedule");
 const jobs = require("./jobs");
 
@@ -11,7 +11,7 @@ function wrapper(fn, jobName) {
       const key = `scheduler:${jobName}:${timestamp.slice(0, -5)}`;
 
       if (jobName !== "stopDeadLiveStreams") {
-        console.log(`Acquiring lock for job ${jobName} with key ${key}`);
+        logger.info(`Acquiring lock for job ${jobName} with key ${key}`);
       }
 
       const lock = await redis.set(key, "locked", {
@@ -19,18 +19,18 @@ function wrapper(fn, jobName) {
         NX: true,
       });
       if (!lock) {
-        console.log(`Job ${jobName} is already running, skipping execution.`);
-        console.error(`Job ${jobName} is already running, skipping execution.`);
+        // logger.info(`Job ${jobName} is already running, skipping execution.`);
+        // logger.error(`Job ${jobName} is already running, skipping execution.`);
         return;
       }
 
       if (jobName !== "stopDeadLiveStreams") {
-        console.log(`Lock acquired for job ${jobName}, executing...`);
+        logger.info(`Lock acquired for job ${jobName}, executing...`);
       }
       await fn();
       await redis.del(key);
     } catch (error) {
-      console.error(`Scheduler error for job ${jobName}`, error);
+      logger.error(`Scheduler error for job ${jobName}`, error);
     }
   };
 }
