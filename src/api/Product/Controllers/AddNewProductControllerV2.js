@@ -821,7 +821,7 @@ async function processMedia({ productId, files, type, isDraft }) {
           fileData = await handleVideoFile(file);
           hasVideo = true;
         } catch (error) {
-          await handleProcessingError({ productId, error: "error with video file" });
+          await handleProcessingError({ productId, error: error.message });
           return;
         }
       } else if (fileMimeType.indexOf("image") !== -1) {

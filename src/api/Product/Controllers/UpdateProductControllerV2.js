@@ -847,7 +847,7 @@ async function processMedia({ productId, fileKeys, files, productFiles, type }) 
             await deleteFile(fileToDelete);
           }
         } catch (error) {
-          await handleProcessingError({ productId, error: "error with video file" });
+          await handleProcessingError({ productId, error: error.message });
           return;
         }
       } else if (fileMimeType.indexOf("image") !== -1) {
