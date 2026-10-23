@@ -5,6 +5,7 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const, Config, countries } = require("#config");
 const Utils = require("#utils");
+const Logics = require("#logics");
 const { auth } = require("#middleware");
 const { MerchantApplication, User, Bank, Notification, Business } = require("#models");
 const { sendBonus } = require("#logics");
@@ -1022,11 +1023,32 @@ router.patch(
         merchantApplicationId: applicationId,
       });
 
+      if (
+        merchantApplicationObj.approvalStatus ===
+          Const.merchantApplicationStatusApprovedWithPayout ||
+        merchantApplicationObj.approvalStatus ===
+          Const.merchantApplicationStatusApprovedWithoutPayout
+      ) {
+        const businesses = await Business.find({ owner_id: user._id.toString() }).lean();
+
+        if (businesses.length === 0) {
+          await Logics.createBusiness({
+            owner: user,
+            info: {
+              name: `${user.userName}'s business`,
+              description: `${user.userName}'s business`,
+              market:
+                user.countryCode ||
+                Utils.getCountryCodeFromPhoneNumber({ phoneNumber: user.phoneNumber }),
+            },
+          });
+        }
+      }
+      await handleBusiness({ owner: user, merchantApplication: merchantApplicationObj });
+
       Base.successResponse(response, Const.responsecodeSucceed, {
         merchantApplication: merchantApplicationObj,
       });
-
-      await handleBusiness({ owner: user, merchantApplication: merchantApplicationObj });
 
       if (Config.environment !== "production") return;
 
