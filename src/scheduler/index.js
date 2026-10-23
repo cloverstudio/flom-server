@@ -1,6 +1,6 @@
 const { redis } = require("#infra");
 const schedule = require("node-schedule");
-const jobs = require("../jobs");
+const jobs = require("./jobs");
 
 function wrapper(fn, jobName) {
   return async () => {

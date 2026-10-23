@@ -1,43 +1,17 @@
 module.exports = Object.freeze({
-  get upsertUser() {
-    return require("./upsertUser");
-  },
-  get deactivateLiveStreams() {
-    return require("./deactivateLiveStreams");
-  },
-  get deleteAllItems() {
-    return require("./deleteAllItems");
-  },
-  get deleteAllUsers() {
-    return require("./deleteAllUsers");
-  },
-  get getNextRecommendations() {
-    return require("./getNextRecommendations");
-  },
-  get getRecommendations() {
-    return require("./getRecommendations");
-  },
-  get recordInteraction() {
-    return require("./recordInteraction");
-  },
-  get syncLiveStreams() {
-    return require("./syncLiveStreams");
-  },
-  get syncProducts() {
-    return require("./syncProducts");
-  },
-  get syncPurchases() {
-    return require("./syncPurchases");
-  },
-  get syncUsers() {
-    return require("./syncUsers");
-  },
-  get upsertLiveStream() {
-    return require("./upsertLiveStream");
-  },
-  get upsertProduct() {
-    return require("./upsertProduct");
-  },
+  upsertUser: require("./upsertUser"),
+  deactivateLiveStreams: require("./deactivateLiveStreams"),
+  deleteAllItems: require("./deleteAllItems"),
+  deleteAllUsers: require("./deleteAllUsers"),
+  getNextRecommendations: require("./getNextRecommendations"),
+  getRecommendations: require("./getRecommendations"),
+  recordInteraction: require("./recordInteraction"),
+  syncLiveStreams: require("./syncLiveStreams"),
+  syncProducts: require("./syncProducts"),
+  syncPurchases: require("./syncPurchases"),
+  syncUsers: require("./syncUsers"),
+  upsertLiveStream: require("./upsertLiveStream"),
+  upsertProduct: require("./upsertProduct"),
 });
 
 // UserProperty("userName", "string"));
