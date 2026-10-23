@@ -92,10 +92,13 @@ router.post("/", async function (request, response) {
       .collation({ locale: "en", caseLevel: true })
       .lean();
 
-    const fixedCategories = categories.filter((c) => {
-      const catGroups = c.group || [];
-      return catGroups.some((g) => groups.includes(g));
-    });
+    const fixedCategories =
+      groups.length === 0
+        ? categories
+        : categories.filter((c) => {
+            const catGroups = c.group || [];
+            return catGroups.some((g) => groups.includes(g));
+          });
 
     Base.successResponse(response, Const.responsecodeSucceed, fixedCategories);
   } catch (error) {
