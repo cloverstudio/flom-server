@@ -11,6 +11,7 @@ const schema = new mongoose.Schema(
     creatorId: String,
     title: String,
     text: String,
+    voiceNote: {},
     allSubscribers: Number, // 0 - false, 1 - true
     receivers: [String],
     contentType: Number, // 1 - video, 2 - video story, 3 - podcast, 4 - text story, 5 - product, 6 - profile, 7 - marketplace

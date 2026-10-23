@@ -10,6 +10,7 @@ const schema = new mongoose.Schema(
   {
     title: String,
     text: String,
+    voiceNote: {},
     notificationType: { type: Number, default: Const.notificationTypeMarketing },
     senderId: String,
     allSubscribers: Number, // 0 - false, 1 - true
@@ -17,6 +18,7 @@ const schema = new mongoose.Schema(
     contentType: Number, // 1 - video, 2 - video story, 3 - podcast, 4 - text story, 5 - product, 6 - profile, 7 - marketplace
     contentId: String,
     contentName: String,
+    channels: [String],
     created: { type: Number, default: Date.now },
   },
   { timestamps: true },

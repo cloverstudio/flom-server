@@ -382,8 +382,6 @@ Config.appStoreLink = process.env.APP_STORE_LINK;
 Config.infobipUrl = process.env.INFOBIP_URL;
 Config.infobipAuthorization = process.env.INFOBIP_AUTH;
 
-Config.guestToken = process.env.GUEST_TOKEN;
-
 Config.taxApiUrlCanada = process.env.TAX_API_URL_CAN;
 Config.taxApiUrlUsa = process.env.TAX_API_URL_USA;
 Config.taxApiKey = process.env.TAX_API_KEY;
@@ -424,5 +422,7 @@ Config.storageUrl = process.env.STORAGE_URL;
 
 Config.tavilyApiKey = process.env.TAVILY_API_KEY;
 Config.webSearchUrl = process.env.WEB_SEARCH_URL;
+
+Config.guestToken = process.env.GUEST_TOKEN;
 
 module.exports = Object.freeze(Config);

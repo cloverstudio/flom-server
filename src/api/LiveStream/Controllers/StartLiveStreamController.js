@@ -175,7 +175,7 @@ router.post("/start", auth({ allowUser: true }), async function (request, respon
         await Logics.sendWhatsAppMessages({
           sender: user,
           receivers: whatsAppReceivers,
-          template: "goLive",
+          template: "go_live",
           userName: user.userName,
           liveStreamId,
         });

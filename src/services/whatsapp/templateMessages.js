@@ -1,0 +1,116 @@
+module.exports = {
+  seller_followup: {
+    name: "seller_followup",
+    type: "utility",
+    textParams: ["userName", "productName"],
+    buttonParams: [],
+  },
+  go_live: {
+    name: "go_live",
+    type: "marketing",
+    textParams: ["userName"],
+    buttonParams: ["liveStreamId"],
+  },
+  new_drop: { name: "new_drop", type: "marketing", textParams: [], buttonParams: [] },
+  auction_reminder: {
+    name: "auction_reminder",
+    type: "marketing",
+    textParams: ["auctionName", "auctionId"],
+    buttonParams: ["liveStreamId"],
+  },
+  booking_confirmation: {
+    name: "booking_confirmation",
+    type: "utility",
+    textParams: [],
+    buttonParams: [],
+  },
+  booking_reminder: { name: "booking_reminder", type: "utility", textParams: [], buttonParams: [] },
+  second_chance: {
+    name: "second_chance",
+    type: "marketing",
+    textParams: ["auctionName"],
+    buttonParams: ["auctionId"],
+  },
+  shipping_update: {
+    name: "shipping_update",
+    type: "utility",
+    textParams: ["orderName", "shippingStatus"],
+    buttonParams: ["orderId"],
+  },
+  pending_payment: {
+    name: "pending_payment",
+    type: "utility",
+    textParams: ["orderName"],
+    buttonParams: ["orderId"],
+  },
+  unknown_recipient_notice: {
+    name: "unknown_recipient_notice",
+    type: "utility",
+    textParams: [],
+    buttonParams: [],
+  },
+
+  order_issue_seller: {
+    name: "order_issue_seller",
+    type: "utility",
+    textParams: ["sellerName", "buyerName", "orderItems"],
+    buttonParams: ["orderId"],
+  },
+  buyer_confirmed_seller: {
+    name: "buyer_confirmed_seller",
+    type: "utility",
+    textParams: ["sellerName", "buyerName", "orderItems", "orderPriceWithCurrency"],
+    buttonParams: ["orderId"],
+  },
+  payment_received_seller: {
+    name: "payment_received_seller",
+    type: "utility",
+    textParams: ["sellerName", "buyerName", "orderItems"],
+    buttonParams: ["orderId"],
+  },
+  new_order_seller: {
+    name: "new_order_seller",
+    type: "utility",
+    textParams: ["sellerName", "buyerName", "orderItems", "orderPriceWithCurrency"],
+    buttonParams: ["orderId"],
+  },
+
+  order_payment_released_buyer: {
+    name: "order_payment_released_buyer",
+    type: "utility",
+    textParams: ["buyerName", "sellerName"],
+    buttonParams: ["orderId"],
+  },
+  order_in_progress_buyer: {
+    name: "order_in_progress_buyer",
+    type: "utility",
+    textParams: ["sellerName"],
+    buttonParams: ["orderId"],
+  },
+  payment_received_buyer: {
+    name: "payment_received_buyer",
+    type: "utility",
+    textParams: ["buyerName", "orderPriceWithCurrency", "orderItems", "sellerName"],
+    buttonParams: ["orderId"],
+  },
+  order_confirmed_buyer: {
+    name: "order_confirmed_buyer",
+    type: "utility",
+    textParams: ["buyerName", "sellerName", "orderItems", "orderPriceWithCurrency"],
+    buttonParams: ["orderId"],
+  },
+  engage_v1: {
+    name: "engage_v1",
+    type: "marketing",
+    headerParams: ["headerText"],
+    textParams: ["slug", "messageText"],
+    buttonParams: ["urlStub"],
+  },
+  engage_with_image_v1: {
+    name: "engage_with_image_v1",
+    type: "marketing",
+    headerParams: ["headerImageUrl"],
+    textParams: ["slug", "messageText"],
+    buttonParams: ["urlStub"],
+  },
+};

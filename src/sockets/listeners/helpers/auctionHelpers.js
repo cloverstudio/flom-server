@@ -73,7 +73,9 @@ async function handlePayment({ auction, isFromAccept = false }) {
     const productId = auction.product._id;
     const product = await Product.findById(productId).lean();
 
+    const orderToken = await Order.generateToken();
     const order = await Order.create({
+      orderToken,
       business: product.business,
       seller: {
         _id: receiver._id.toString(),
@@ -373,7 +375,7 @@ async function remindWatchers({ auction, liveStream }) {
       await Logics.sendWhatsAppMessages({
         senderId: auction.sellerId,
         receiverIds: userIdsArray,
-        template: "auctionReminder",
+        template: "auction_reminder",
         auctionName: auction.product.name,
         auctionId: auction._id.toString(),
         liveStreamId: liveStream._id.toString(),

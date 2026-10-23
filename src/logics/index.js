@@ -56,4 +56,6 @@ module.exports = Object.freeze({
   addUserTagInteraction: require("./addUserTagInteraction"),
 
   getAddressFromCoordinates: require("./getAddressFromCoordinates"),
+
+  confirmOrderCode: require("./confirmOrderCode"),
 });

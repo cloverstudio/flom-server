@@ -4,8 +4,195 @@ const router = require("express").Router();
 const Base = require("../../Base");
 const { Const } = require("#config");
 const Utils = require("#utils");
-const { Order, Auction } = require("#models");
+const { Order, Auction, User, Product, Transfer } = require("#models");
 const { auth } = require("#middleware");
+
+/**
+ * @api {get} /api/v2/orders/token/:token Get order details by token flom_v1
+ * @apiVersion 2.0.34
+ * @apiName  Get order details by token flom_v1
+ * @apiGroup WebAPI Order
+ * @apiDescription  Get order details by token. API is open.
+ *
+ * @apiSuccessExample {json} Success Response
+ * {
+ *   "code": 1,
+ *   "time": 1764245263992,
+ *   "data": {
+ *      "transferToken": String, // Only included if order is from auction and payment is pending
+ *      "order": OrderModel,
+ *      "isBuyerSubscribed": false,
+ *      "receiptData": {
+ *          "id": "6acdfc6dd4327dbb5c9b0398",
+ *          "_id": "6acdfc6dd4327dbb5c9b0398",
+ *          "transferType": 4,
+ *          "status": 3,
+ *          "created": 1791884397318,
+ *          "paymentMethodType": 9,
+ *          "paymentMethodName": "PalmPay Wallet",
+ *          "receiverCountryCode": "NG",
+ *          "receiverPhoneNumber": "+234802******1",
+ *          "senderCountryCode": "NG",
+ *          "senderPhoneNumber": "+234802******2",
+ *          "localAmountSender": {
+ *              "countryCode": "NG",
+ *              "currency": "NGN",
+ *              "value": 100
+ *          },
+ *          "localProcessingFee": {
+ *              "countryCode": "NG",
+ *              "currency": "NGN",
+ *              "value": 0
+ *          },
+ *          "localTaxAmount": {
+ *              "countryCode": "NG",
+ *              "currency": "NGN",
+ *              "value": 7.5
+ *          },
+ *          "taxRate": 0.075,
+ *          "basket": [
+ *              {
+ *                  "id": "6a0ed07ef5b07eeb308e3408",
+ *                  "quantity": 1,
+ *                  "pricePerItem": 0.13,
+ *                  "originalPrice": {
+ *                      "countryCode": "NG",
+ *                      "currency": "NGN",
+ *                      "value": 100
+ *                  },
+ *                  "localAmountSender": {
+ *                      "countryCode": "NG",
+ *                      "currency": "NGN",
+ *                      "value": 100
+ *                  },
+ *                  "localAmountReceiver": {
+ *                      "countryCode": "NG",
+ *                      "currency": "NGN",
+ *                      "value": 100
+ *                  },
+ *                  "name": "Test xz"
+ *              }
+ *          ]
+ *      }
+ *    }
+ * }
+ *
+ * @apiSuccessExample {json} Error Response
+ * {
+ *   "code": ErrorCode,
+ *   "time": 1590000125608
+ * }
+ *
+ * @apiError (Errors) 443940 Order not found
+ * @apiError (Errors) 4000007 Token invalid
+ */
+
+router.get("/token/:token", async function (request, response) {
+  try {
+    const token = request.params.token;
+
+    if (!token) {
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeOrderNotFound,
+        message: "GetOrderController, get order details by token - invalid order token: " + token,
+      });
+    }
+
+    const order = await Order.findOne({ orderToken: token }).lean();
+
+    if (!order) {
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeOrderNotFound,
+        message:
+          "GetOrderController, get order details by token - order not found for order token: " +
+          token,
+      });
+    }
+
+    if (order.product) {
+      order.products = [order.product];
+      delete order.product;
+    }
+
+    if (order.shipping?.origin) {
+      delete order.shipping.origin;
+    }
+    if (order.shipping?.destination) {
+      delete order.shipping.destination;
+    }
+    if (order.seller.phoneNumber) {
+      order.seller.phoneNumber = Utils.maskPhoneNumber(order.seller.phoneNumber);
+    }
+    if (order.buyer.phoneNumber) {
+      order.buyer.phoneNumber = Utils.maskPhoneNumber(order.buyer.phoneNumber);
+    }
+
+    const responseData = { order, isBuyerSubscribed: false };
+
+    if (order.auctionId && order.status === Const.orderStatus.PAYMENT_PENDING) {
+      const auction = await Auction.findById(order.auctionId).lean();
+      if (auction) {
+        responseData.transferToken = auction.transferToken;
+      }
+    }
+
+    const productIds = order.products ? order.products.map((product) => product._id) : [];
+    const products = await Product.find({ _id: { $in: productIds } }, { originalPrice: 1 }).lean();
+    const productMap = {};
+    products.forEach((product) => {
+      productMap[product._id.toString()] = product.originalPrice;
+    });
+
+    order.products.forEach((product) => {
+      product.originalPrice = productMap[product._id.toString()] || null;
+    });
+
+    const sellerId = order.seller._id.toString();
+    const buyerId = order.buyer._id.toString();
+
+    const b = await User.findById(buyerId, { followedBusinesses: 1 }).lean();
+    if ((b?.followedBusinesses || []).includes(sellerId)) {
+      responseData.isBuyerSubscribed = true;
+    }
+
+    const transferId = order.transferId;
+    if (transferId) {
+      const transfer = await Transfer.findById(transferId).lean();
+      if (transfer) {
+        const receiptData = {
+          id: transferId,
+          _id: transferId,
+          transferType: transfer.transferType,
+          status: transfer.status,
+          created: transfer.created,
+          paymentMethodType: transfer.paymentMethodType,
+          paymentMethodName: transfer.paymentMethodName,
+          receiverCountryCode: transfer.receiverCountryCode,
+          receiverPhoneNumber: Utils.maskPhoneNumber(transfer.receiverPhoneNumber),
+          senderCountryCode: transfer.senderCountryCode,
+          senderPhoneNumber: Utils.maskPhoneNumber(transfer.senderPhoneNumber),
+          localAmountSender: transfer.localAmountSender,
+          localProcessingFee: transfer.localProcessingFee,
+          localTaxAmount: transfer.localTaxAmount,
+          taxRate: transfer.taxRate,
+          totalAmount: transfer.totalAmount,
+          basket: transfer.basket,
+        };
+        responseData.receiptData = receiptData;
+      }
+    }
+
+    Base.successResponse(response, Const.responsecodeSucceed, responseData);
+  } catch (error) {
+    Base.errorResponse({
+      response,
+      message: "GetOrderController, get order details by token",
+      error,
+    });
+  }
+});
 
 /**
  * @api {get} /api/v2/orders/:orderId Get order details flom_v1

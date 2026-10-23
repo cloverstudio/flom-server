@@ -16,6 +16,7 @@ module.exports = Object.freeze({
   convertToDash: require("./convertToDash"),
   convertToHSL: require("./convertToHSL"),
   convertToMP3: require("./convertToMP3"),
+  convertToOgg: require("./convertToOgg"),
   createObjectId: require("./createObjectId"),
 
   deleteHslFile: require("./deleteHslFile"),
@@ -55,6 +56,7 @@ module.exports = Object.freeze({
   isValidObjectId: require("./isValidObjectId"),
 
   makeHash: require("./makeHash"),
+  maskPhoneNumber: require("./maskPhoneNumber"),
 
   replaceAll: require("./replaceAll"),
   resizeImage: require("./resizeImage"),

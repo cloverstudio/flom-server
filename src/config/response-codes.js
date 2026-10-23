@@ -270,9 +270,6 @@ ResponseCodes.responsecodeUserAlreadyFollowed = 400820;
 ResponseCodes.responsecodeUserNotFollowed = 400830;
 ResponseCodes.responsecodeUserNotUnFollowed = 400840;
 ResponseCodes.responsecodeUserWrongUserIdFormat = 400850;
-ResponseCodes.responsecodeInvalidMarketingAction = 400880;
-ResponseCodes.responsecodeNoMarketingMessage = 400890;
-ResponseCodes.responsecodeNoMarketingProductId = 400900;
 ResponseCodes.responsecodeNotValidToId = 400910;
 ResponseCodes.responsecodePhoneNumberNotFound = 400920;
 ResponseCodes.responsecodeInvalidUUID = 400930;
@@ -875,6 +872,16 @@ ResponseCodes.responsecodeInvalidPriceTimeUnit = 444008;
 ResponseCodes.responsecodeUserIsNotActiveBusinessMemberOrBuyer = 444009;
 
 ResponseCodes.responsecodeUnexpectedError = 444010;
+
+ResponseCodes.responsecodeInvalidChannel = 444011;
+ResponseCodes.responsecodeInvalidVoiceNoteId = 444012;
+
+ResponseCodes.responsecodeReferencedItemNotFound = 444013;
+
+ResponseCodes.responsecodeTooManyAttempts = 444014;
+ResponseCodes.responsecodeRetryTooSoon = 444015;
+ResponseCodes.responsecodeInvalidCode = 444016;
+ResponseCodes.responsecodeCodeExpired = 444017;
 
 // ResponseCodes.responsecodeNoAccessToken = 443897;
 

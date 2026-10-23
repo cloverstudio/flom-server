@@ -9,16 +9,27 @@ const makeFeeTransfer = require("./makeFeeTransfer");
 const sendFlomPush = require("./sendFlomPush");
 const { User, Notification } = require("#models");
 
-const feeType = {
-  goLive: "Live stream notification",
-  sellerFollowup: "Seller follow-up",
-  newDrop: "New drop notification",
-  auctionReminder: "Auction reminder",
-  secondChance: "Second chance notification",
-  bookingConfirmation: "Booking confirmation",
-  bookingReminder: "Booking reminder",
-  shippingUpdate: "Shipping update",
-  pendingPayment: "Pending payment reminder",
+const templateMap = {
+  seller_followup: "sellerFollowup",
+  go_live: "goLive",
+  new_drop: "newDrop",
+  auction_reminder: "auctionReminder",
+  booking_confirmation: "bookingConfirmation",
+  booking_reminder: "bookingReminder",
+  second_chance: "secondChance",
+  shipping_update: "shippingUpdate",
+  pending_payment: "pendingPayment",
+  unknown_recipient_notice: "unknownRecipientNotice",
+  order_issue_seller: "orderIssueSeller",
+  buyer_confirmed_seller: "buyerConfirmedSeller",
+  payment_received_seller: "paymentReceivedSeller",
+  new_order_seller: "newOrderSeller",
+  order_payment_released_buyer: "orderPaymentReleasedBuyer",
+  order_in_progress_buyer: "orderInProgressBuyer",
+  payment_received_buyer: "paymentReceivedBuyer",
+  order_confirmed_buyer: "orderConfirmedBuyer",
+  engage_v1: "engageV1",
+  engage_with_image_v1: "engageWithImageV1",
 };
 
 async function sendWhatsAppMessages({
@@ -74,7 +85,9 @@ async function sendWhatsAppMessages({
 
     if (
       template &&
-      template !== "sellerFollowup" &&
+      template !== "seller_followup" &&
+      template !== "engage_v1" &&
+      template !== "engage_with_image_v1" &&
       !sender.notificationOptions?.whatsApp?.enabled
     ) {
       logger.warn(
@@ -84,8 +97,11 @@ async function sendWhatsAppMessages({
     }
     if (
       template &&
-      template !== "sellerFollowup" &&
-      (!sender.notificationOptions?.whatsApp || !sender.notificationOptions.whatsApp[template])
+      template !== "seller_followup" &&
+      template !== "engage_v1" &&
+      template !== "engage_with_image_v1" &&
+      (!sender.notificationOptions?.whatsApp ||
+        !sender.notificationOptions.whatsApp[templateMap[template]])
     ) {
       logger.warn(
         `sendWhatsAppMessages, not sending WhatsApp messages, user has disabled WhatsApp notifications for this template. userId: ${sender._id.toString()}, template: ${template}`,
@@ -94,7 +110,7 @@ async function sendWhatsAppMessages({
     }
 
     if (!receivers || receivers.length === 0) {
-      const isChatMessage = !template || template === "sellerFollowup";
+      const isChatMessage = !template || template === "seller_followup";
 
       receivers = await User.find({
         _id: { $in: receiverIds },
@@ -119,7 +135,7 @@ async function sendWhatsAppMessages({
     }
 
     const prices = await getWhatsAppPrices({ countryCode: sender.countryCode });
-    const price = Const.marketingTemplates.includes(template) ? prices.marketing : prices.utillity;
+    const price = Const.waMarketingTemplates.includes(template) ? prices.marketing : prices.utility;
 
     const wamIds = [];
 
@@ -176,7 +192,7 @@ async function sendWhatsAppMessages({
           orderId,
           orderName,
           productName,
-          isFreeMessage: !receiver.windowExpired && Const.marketingTemplates.includes(template),
+          isFreeMessage: !receiver.windowExpired && Const.waMarketingTemplates.includes(template),
           messageType,
           location,
           file,
@@ -203,7 +219,7 @@ async function sendWhatsAppMessages({
       if (realPrice > 0) {
         await makeFeeTransfer({
           fee: realPrice,
-          feeType: feeType[template],
+          template,
           sender: sender,
           numberOfWaMessages: receivers.length,
         });

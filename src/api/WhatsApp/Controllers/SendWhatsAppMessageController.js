@@ -31,7 +31,7 @@ router.post("/", async function (request, response) {
       return response.status(400).send("Invalid receiverIds");
     }
 
-    if (!template || !Const.templateMap[template]) {
+    if (!template || !Const.waTemplates.includes(template)) {
       return response.status(400).send("Invalid template");
     }
 

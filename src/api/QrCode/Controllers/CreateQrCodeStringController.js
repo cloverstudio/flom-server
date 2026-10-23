@@ -55,7 +55,7 @@ router.get("/", async function (request, response) {
         otherDevice,
         deviceType,
       },
-      180,
+      { EX: 180 },
     );
 
     Base.successResponse(response, Const.responsecodeSucceed, { code });

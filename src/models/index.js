@@ -25,7 +25,6 @@ module.exports = Object.freeze({
   Configuration: require("./Configuration"),
   ContactTicket: require("./ContactTicket"),
   ConversionRate: require("./ConversionRate"),
-  CoreIdentity: require("./CoreIdentity"),
   CountryWideBan: require("./CountryWideBan"),
   CreditConversionRate: require("./CreditConversionRate"),
   CreditPackage: require("./CreditPackage"),
@@ -41,6 +40,7 @@ module.exports = Object.freeze({
   Feedback: require("./Feedback"),
   FlomFile: require("./FlomFile"),
   FlomMessage: require("./FlomMessage"),
+  FlomTag: require("./FlomTag"),
   Fulfillment: require("./Fulfillment"),
 
   Gender: require("./Gender"),
@@ -61,7 +61,6 @@ module.exports = Object.freeze({
   LoginAttempt: require("./LoginAttempt"),
 
   MainCategory: require("./MainCategory"),
-  MarketingMessage: require("./MarketingMessage"),
   MarketingNotification: require("./MarketingNotification"),
   MarketingNotificationTemplate: require("./MarketingNotificationTemplate"),
   Membership: require("./Membership"),
@@ -104,7 +103,6 @@ module.exports = Object.freeze({
   SubType: require("./SubType"),
   SupportTicket: require("./SupportTicket"),
 
-  FlomTag: require("./FlomTag"),
   TaxRate: require("./TaxRate"),
   TemporaryBan: require("./TemporaryBan"),
   Terminal: require("./Terminal"),
@@ -125,6 +123,7 @@ module.exports = Object.freeze({
 
   VehicleMake: require("./VehicleMake"),
   VehicleModel: require("./VehicleModel"),
+  VerificationRequest: require("./VerificationRequest"),
   View: require("./View"),
   ViewForYou: require("./ViewForYou"),
 

@@ -1,6 +1,6 @@
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const { User, CoreIdentity } = require("#models");
+const { User } = require("#models");
 const { recombee } = require("#services");
 
 async function createNewUser(userData, raw) {
@@ -90,12 +90,6 @@ async function createNewUser(userData, raw) {
 
     await user.save();
     await recombee.upsertUser(user.toObject());
-    await CoreIdentity.createCoreIdentity({
-      phoneNumber,
-      userId: user._id.toString(),
-      channel: !channel && shadow ? "shadow" : !channel ? "flom" : channel,
-      created: user.created,
-    });
 
     console.log(
       `===============\n New user created!\n Phone number: ${phoneNumber}\n activation code ${activationCode}\n ===============`,

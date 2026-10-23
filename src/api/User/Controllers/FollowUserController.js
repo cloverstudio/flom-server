@@ -5,8 +5,181 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const } = require("#config");
 const Utils = require("#utils");
+const Logics = require("#logics");
 const { auth } = require("#middleware");
-const { User, UserContact, LiveStream } = require("#models");
+const { User, UserContact, LiveStream, Order } = require("#models");
+
+/**
+ * @api {post} /api/v2/user/follow/order Follow order seller
+ * @apiVersion 1.0.0
+ * @apiName Follow order seller
+ * @apiGroup WebAPI User
+ * @apiDescription API for subscribing to a seller by a guest user
+ *
+ * @apiParam {String}   orderToken  Order token
+ * @apiParam {String}   code        Verification code
+ *
+ * @apiSuccessExample Success-Response:
+ * {
+ *   "code": 1,
+ *   "time": 1540989079012,
+ *   "data": {
+ *      "success": true
+ *   }
+ * }
+ *
+ * @apiSuccessExample {json} Error Response
+ * {
+ *   "code": ErrorCode,
+ *   "time": 1590000125608
+ * }
+ *
+ * @apiError (Errors) 443940 Order not found
+ * @apiError (Errors) 444016 Invalid code
+ * @apiError (Errors) 444017 Code expired
+ */
+
+router.post("/order", async function (request, response) {
+  try {
+    const { orderToken, code } = request.body;
+    const dataToSend = { success: true };
+
+    const {
+      success,
+      order,
+      code: errorCode,
+      msg,
+    } = await Logics.confirmOrderCode({ orderToken, code });
+    if (!success) {
+      return Base.errorResponse({
+        response,
+        code: errorCode,
+        message: "FollowUserController, follow order seller, " + msg,
+      });
+    }
+
+    await User.updateOne(
+      { _id: order.buyer._id },
+      { $addToSet: { followedBusinesses: order.seller._id } },
+    );
+
+    Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
+  } catch (error) {
+    Base.errorResponse({
+      response,
+      message: "FollowUserController, follow order seller",
+      error,
+    });
+  }
+});
+
+/**
+ * @api {post} /api/v2/user/follow/guest Follow user (for guests)
+ * @apiVersion 1.0.0
+ * @apiName Follow user (for guests)
+ * @apiGroup WebAPI User
+ * @apiDescription API for subscribing to a user by a guest user
+ *
+ * @apiParam {String}   phoneNumber      Phone number of guest follower
+ * @apiParam {String}   orderId          ID of order from which following is initiated
+ *
+ * @apiSuccessExample Success-Response:
+ * {
+ *   "code": 1,
+ *   "time": 1540989079012,
+ *   "data": {
+ *      "success": true
+ *   }
+ * }
+ *
+ * @apiSuccessExample {json} Error Response
+ * {
+ *   "code": ErrorCode,
+ *   "time": 1590000125608
+ * }
+ *
+ * @apiError (Errors) 443107 Invalid phone number
+ * @apiError (Errors) 443940 Order not found
+ * @apiError (Errors) 443232 Invalid action
+ *
+ */
+
+router.post("/guest", async function (request, response) {
+  try {
+    let { phoneNumber, orderId } = request.body;
+    const dataToSend = { success: true };
+
+    if (!phoneNumber) {
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeInvalidPhoneNumber,
+        message: "FollowUserController, Follow user (for guests), missing phoneNumber",
+      });
+    }
+
+    phoneNumber = Utils.formatPhoneNumber({ phoneNumber });
+
+    if (!phoneNumber) {
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeInvalidPhoneNumber,
+        message: "FollowUserController, Follow user (for guests), invalid phoneNumber",
+      });
+    }
+
+    if (!orderId || !Utils.isValidObjectId(orderId)) {
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeOrderNotFound,
+        message: "FollowUserController, Follow user (for guests), missing or invalid orderId",
+      });
+    }
+
+    const order = await Order.findById(orderId).lean();
+    if (!order) {
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeOrderNotFound,
+        message: "FollowUserController, Follow user (for guests), order not found",
+      });
+    }
+
+    if (order.buyer.phoneNumber && order.buyer.phoneNumber !== phoneNumber) {
+      return Base.errorResponse({
+        response,
+        code: Const.responsecodeInvalidAction,
+        message:
+          "FollowUserController, Follow user (for guests), invalid action: phoneNumber does not match order buyer",
+      });
+    }
+
+    let guest = await User.findOne({ phoneNumber, "isDeleted.value": false });
+    if (!guest) {
+      guest = await Logics.createNewUser({
+        phoneNumber,
+        isAppUser: false,
+        shadow: true,
+        hasLoggedIn: Const.userShadowUser,
+        phoneNumberStatus: Const.phoneNumberUntested,
+        channel: "whatsapp_shadow",
+        userChannel: "whatsapp",
+      });
+    }
+
+    await User.updateOne(
+      { _id: guest._id },
+      { $addToSet: { followedBusinesses: order.seller._id } },
+    );
+
+    Base.successResponse(response, Const.responsecodeSucceed, dataToSend);
+  } catch (error) {
+    Base.errorResponse({
+      response,
+      message: "FollowUserController, follow user (for guests)",
+      error,
+    });
+  }
+});
 
 /**
  * @api {get} /api/v2/user/follow Get Followed Businesses
@@ -352,7 +525,7 @@ router.get("/my-followers", auth({ allowUser: true }), async function (request, 
  * @apiParam {String}   userId           userId
  * @apiParam {String}   [liveStreamId]   liveStreamId
  * @apiParam {Boolean}  [push]           True to enable, false to disable push notifications (default: true)
- * @apiParam {Boolean}  [whatsApp]       True to enable, false to disable WhatsApp notifications (default: true)
+ * @apiParam {Boolean}  [whatsApp]       True to enable, false to disable WhatsApp notifications (default: false)
  *
  * @apiSuccessExample Success-Response:
  * {
@@ -376,7 +549,7 @@ router.get("/my-followers", auth({ allowUser: true }), async function (request, 
 
 router.post("/add", auth({ allowUser: true }), async function (request, response) {
   try {
-    const { userId, liveStreamId, push = true, whatsApp = true } = request.body;
+    const { userId, liveStreamId, push = true, whatsApp = false } = request.body;
     const { user: requestUser } = request;
 
     if (!userId) {

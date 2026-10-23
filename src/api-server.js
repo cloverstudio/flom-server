@@ -25,14 +25,14 @@ async function startServer() {
   const onlineStatusChecker = require("./services/online-status-checker");
   const app = require("./app");
   const { init: initSockets } = require("./sockets");
-  const { scheduler } = require("./services");
 
   const server = http.createServer(app);
   const io = await initSockets(server);
 
   onlineStatusChecker.start();
 
-  if (Config.runScheduler && (Config.environment === "development" || Config.instance == "0")) {
+  if (Config.environment !== "local") {
+    const scheduler = require("./scheduler");
     scheduler.init();
   }
 

@@ -72,7 +72,7 @@ router.post("/", async function (request, response) {
           );
           return;
         }
-        await redis.set(`handled_wam_id:${wamId}`, Date.now().toString(), 24 * 60 * 60); // 24h
+        await redis.set(`handled_wam_id:${wamId}`, Date.now().toString(), { EX: 24 * 60 * 60 }); // 24h
 
         const { type, messageType, msgBody, file, location } = await helpers.getMessageTypeAndAsset(
           message,

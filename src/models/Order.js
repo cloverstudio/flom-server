@@ -1,5 +1,6 @@
 const { db } = require("#infra");
 const mongoose = require("mongoose");
+const Utils = require("#utils");
 
 /**
  * @type {mongoose.SchemaDefinitionProperty}
@@ -7,6 +8,7 @@ const mongoose = require("mongoose");
 
 const schema = new mongoose.Schema(
   {
+    orderToken: String,
     business: { _id: String, name: String, avatar: {} },
     price: { countryCode: String, currency: String, value: Number, valueInSats: Number },
     products: [{ _id: String, name: String, condition: String, quantity: Number, file: {} }],
@@ -39,6 +41,7 @@ const schema = new mongoose.Schema(
     overdue: { type: Boolean, default: false },
     deliveredAt: Number,
     eligibleForPayoutAt: Number,
+    releasedBy: String,
     shipping: {
       origin: {
         name: String,
@@ -76,4 +79,20 @@ const schema = new mongoose.Schema(
   { timestamps: true },
 );
 
-module.exports = db.db1.model("Order", schema, "orders");
+const Order = db.db1.model("Order", schema, "orders");
+
+class ExtendedOrder extends Order {
+  static async generateToken() {
+    let token,
+      tokenExists = true;
+
+    while (tokenExists) {
+      token = Utils.getRandomString(8, "limited");
+      tokenExists = await this.exists({ orderToken: token });
+    }
+
+    return token;
+  }
+}
+
+module.exports = ExtendedOrder;

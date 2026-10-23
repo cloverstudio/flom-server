@@ -289,10 +289,14 @@ router.post("/", async function (request, response) {
 
     similarProducts = similarProducts.map((product) => {
       allOwners.push(product.ownerId);
-      categoriesSet.add(product.categoryId.toString());
+      if (product.categoryId) {
+        categoriesSet.add(product.categoryId.toString());
+      }
+
       if (product.parentCategoryId !== "-1") {
         categoriesSet.add(product.parentCategoryId);
       }
+
       Product.addUserPriceToProduct({
         product,
         userRate,

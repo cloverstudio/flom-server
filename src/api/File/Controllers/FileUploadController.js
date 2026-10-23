@@ -39,6 +39,10 @@ router.post("", async function (request, response) {
       uploadDir: Config.uploadPath,
     });
 
+    const { whatsapp } = fields;
+
+    const wa = whatsapp == "1";
+
     if (Object.keys(files).length === 0) {
       return Base.errorResponse({
         response,
@@ -114,12 +118,20 @@ router.post("", async function (request, response) {
       }
     }
 
+    let oggName;
+    if (wa) {
+      oggName = await Utils.convertToOgg(destPath);
+
+      await FlomFile.findByIdAndUpdate(newFile._id, { oggName });
+    }
+
     const responseJson = {
       file: {
         id: newFile._id,
         name: newFile.name,
         size: newFile.size,
         mimeType: newFile.mimeType,
+        oggName,
         ...(mediaDuration && { duration: mediaDuration }),
       },
       ...(thumbModel && {
@@ -131,6 +143,8 @@ router.post("", async function (request, response) {
         },
       }),
     };
+
+    await fsp.unlink(tempPath);
 
     return Base.successResponse(response, Const.responsecodeSucceed, responseJson);
   } catch (error) {

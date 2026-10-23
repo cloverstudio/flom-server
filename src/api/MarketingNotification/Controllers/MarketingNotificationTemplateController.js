@@ -5,7 +5,7 @@ const Base = require("../../Base");
 const { Const } = require("#config");
 const Utils = require("#utils");
 const { auth } = require("#middleware");
-const { MarketingNotificationTemplate } = require("#models");
+const { MarketingNotificationTemplate, FlomFile } = require("#models");
 const { getUserIds } = require("../helpers");
 
 /**
@@ -21,9 +21,10 @@ const { getUserIds } = require("../helpers");
  * @apiParam {String} name Marketing notification template name
  * @apiParam {String} [title] Marketing notification title
  * @apiParam {String} [text] Marketing notification text
+ * @apiParam {String} [voiceNoteId] Notification voice note file id
  * @apiParam {String} [userIds] List of userIds to who to send the notification separated by a comma. Optional if allSubscribers is 1
  * @apiParam {Number} [allSubscribers] 0 - false, 1 - true. userIds will be ignored if this parameter is set to 1
- * @apiParam {Number} [contentType] Type of the content: 1 - video, 2 - video story, 3 - podcast, 4 - text story, 5 - product, 6 - profile, 7 - marketplace
+ * @apiParam {Number} [contentType] Type of the content: 1 - video, 2 - video story, 3 - podcast, 4 - text story, 5 - product, 6 - profile, 7 - marketplace, 8 - service
  * @apiParam {String} [contentId] Id of the content. Required only for content type from 1 to 5
  * @apiParam {String} [contentName] Name of the content.
  *
@@ -48,7 +49,15 @@ const { getUserIds } = require("../helpers");
  *       "allSubscribers": 0,
  *       "contentType": 1,
  *       "contentId": "616ec172b752ad6dd2458987",
- *       "contentName": "616ec"
+ *       "contentName": "616ec",
+ *       "voiceNote": {
+ *         "_id": "671107333faac76859bf7466",
+ *         "name": "aMwATKCRJ2mCZxT0LnMb4E40eSusVxtI.mp3",
+ *         "created": 1729169203445,
+ *         "duration": 200.646531,
+ *         "mimeType": "audio/mpeg",
+ *         "size": 3213130
+ *       }
  *     }
  *   }
  * }
@@ -66,7 +75,7 @@ const { getUserIds } = require("../helpers");
 router.post("/", auth({ allowUser: true }), async function (request, response) {
   try {
     const requestUserId = request.user._id.toString();
-    const { name, title, text, contentName } = request.body;
+    const { name, title, text, contentName, voiceNoteId } = request.body;
     let { contentId } = request.body;
     let contentType = +request.body.contentType || undefined;
 
@@ -101,6 +110,36 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       contentId = undefined;
     }
 
+    let voiceNote;
+    if (voiceNoteId) {
+      if (!Utils.isValidObjectId(voiceNoteId)) {
+        return Base.errorResponse({
+          response,
+          code: Const.responsecodeInvalidVoiceNoteId,
+          message: `MarketingNotificationTemplateController - add template, invalid voiceNoteId parameter`,
+        });
+      }
+
+      voiceNote = await FlomFile.findById(voiceNoteId).lean();
+
+      if (!voiceNote) {
+        return Base.errorResponse({
+          response,
+          code: Const.responsecodeFileNotFound,
+          message: `MarketingNotificationTemplateController - add template, voiceNoteId not found`,
+        });
+      }
+
+      voiceNote = {
+        _id: voiceNote._id.toString(),
+        name: voiceNote.name,
+        created: voiceNote.created,
+        duration: voiceNote.duration,
+        mimeType: voiceNote.mimeType,
+        size: voiceNote.size,
+      };
+    }
+
     const marketingNotificationTemplate = await MarketingNotificationTemplate.create({
       name,
       title,
@@ -111,6 +150,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       contentType,
       contentId,
       contentName,
+      voiceNote,
     });
 
     const marketingNotificationTemplateObj = marketingNotificationTemplate.toObject();
@@ -169,7 +209,14 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
  *       "allSubscribers": 0,
  *       "contentType": 1,
  *       "contentId": "616ec172b752ad6dd2458987",
- *       "contentName": "616e"
+ *       "contentName": "616e",
+ *       "voiceNote": {
+ *         "_id": "671107333faac76859bf7466",
+ *         "name": "aMwATKCRJ2mCZxT0LnMb4E40eSusVxtI.mp3",
+ *         "created": 1729169203445,
+ *         "duration": 200.646531,
+ *         "mimeType": "audio/mpeg",
+ *         "size": 3213130
  *       }
  *     ],
  *     "total": 2,
@@ -238,9 +285,10 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
  * @apiParam {String} [name] Marketing notification template name
  * @apiParam {String} [title] Marketing notification title
  * @apiParam {String} [text] Marketing notification text
+ * @apiParam {String} [voiceNoteId] Notification voice note file id
  * @apiParam {String} [userIds] List of userIds to who to send the notification separated by a comma. Optional if allSubscribers is 1
  * @apiParam {Number} [allSubscribers] 0 - false, 1 - true. userIds will be ignored if this parameter is set to 1
- * @apiParam {Number} [contentType] Type of the content: 1 - video, 2 - video story, 3 - podcast, 4 - text story, 5 - product, 6 - profile, 7 - marketplace
+ * @apiParam {Number} [contentType] Type of the content: 1 - video, 2 - video story, 3 - podcast, 4 - text story, 5 - product, 6 - profile, 7 - marketplace, 8 - service
  * @apiParam {String} [contentId] Id of the content. Required only for content type from 1 to 5
  * @apiParam {String} [contentName] Name of the content.
  *
@@ -265,7 +313,15 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
  *       "allSubscribers": 0,
  *       "contentType": 1,
  *       "contentId": "616ec172b752ad6dd2458987",
- *       "contentName": "616e"
+ *       "contentName": "616e",
+ *       "voiceNote": {
+ *         "_id": "671107333faac76859bf7466",
+ *         "name": "aMwATKCRJ2mCZxT0LnMb4E40eSusVxtI.mp3",
+ *         "created": 1729169203445,
+ *         "duration": 200.646531,
+ *         "mimeType": "audio/mpeg",
+ *         "size": 3213130
+ *       }
  *     }
  *   }
  * }
@@ -285,7 +341,7 @@ router.put("/:templateId", auth({ allowUser: true }), async function (request, r
   try {
     const requestUserId = request.user._id.toString();
     const { templateId } = request.params;
-    const { name, title, text, contentName } = request.body;
+    const { name, title, text, contentName, voiceNoteId } = request.body;
     let { contentId } = request.body;
     let contentType = +request.body.contentType || undefined;
 
@@ -343,6 +399,36 @@ router.put("/:templateId", auth({ allowUser: true }), async function (request, r
     }
     if (contentId && Utils.isValidObjectId(contentId)) {
       template.contentId = contentId;
+    }
+
+    let voiceNote;
+    if (voiceNoteId) {
+      if (!Utils.isValidObjectId(voiceNoteId)) {
+        return Base.errorResponse({
+          response,
+          code: Const.responsecodeInvalidVoiceNoteId,
+          message: `MarketingNotificationTemplateController - update template, invalid voiceNoteId parameter`,
+        });
+      }
+
+      voiceNote = await FlomFile.findById(voiceNoteId).lean();
+
+      if (!voiceNote) {
+        return Base.errorResponse({
+          response,
+          code: Const.responsecodeFileNotFound,
+          message: `MarketingNotificationTemplateController - update template, voiceNoteId not found`,
+        });
+      }
+
+      template.voiceNote = {
+        _id: voiceNote._id.toString(),
+        name: voiceNote.name,
+        created: voiceNote.created,
+        duration: voiceNote.duration,
+        mimeType: voiceNote.mimeType,
+        size: voiceNote.size,
+      };
     }
 
     await template.save();
