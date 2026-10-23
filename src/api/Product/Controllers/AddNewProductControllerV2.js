@@ -21,6 +21,7 @@ const {
   sendApprovedProductBonuses,
   sendNewsletterToSubscribers,
 } = require("../helpers");
+const mediaHandler = require("#media");
 
 /**
  * @api {post} /api/v2/products/new Add new product v2 flom_v1
@@ -805,23 +806,20 @@ async function processMedia({ productId, files, type, isDraft }) {
         }
         try {
           if (type === Const.productTypeVideoStory) {
-            const originalVideoMetadata = await Utils.getFileMetadata(file.path);
-            for (let i = 0; i < originalVideoMetadata.streams.length; i++) {
-              if (originalVideoMetadata.streams[i]["codec_type"] === "video") {
-                if (originalVideoMetadata.streams[i].duration > 63) {
-                  await handleProcessingError({
-                    productId,
-                    error: "quick video longer than 63 seconds",
-                  });
-                  return;
-                }
-              }
+            const originalVideoMetadata = await mediaHandler.getMediaInfo(file.path);
+            const duration = originalVideoMetadata.duration;
+            if (duration > 63) {
+              await handleProcessingError({
+                productId,
+                error: "quick video longer than 63 seconds",
+              });
+              return;
             }
           }
           fileData = await handleVideoFile(file);
           hasVideo = true;
         } catch (error) {
-          await handleProcessingError({ productId, error: "error with video file" });
+          await handleProcessingError({ productId, error: error.message });
           return;
         }
       } else if (fileMimeType.indexOf("image") !== -1) {

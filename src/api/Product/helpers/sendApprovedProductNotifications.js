@@ -40,22 +40,24 @@ const notifyProductOwner = async function ({ product, owner, sender }) {
     title += "rejected";
   }
 
-  await Utils.sendPushNotifications({
-    pushTokens: owner.pushToken,
-    pushType: Const.pushTypeProductModeration,
-    info: {
-      title,
-      productId: product._id.toString(),
-      contentType: product.type,
-      moderationStatus: product.moderation.status,
-      from: {
-        id: senderId,
-        name: sender.name,
-        phoneNumber: sender.phoneNumber,
-        avatar: sender.avatar,
+  if (owner.pushToken && owner.pushToken.length > 0) {
+    await Utils.sendPushNotifications({
+      pushTokens: owner.pushToken,
+      pushType: Const.pushTypeProductModeration,
+      info: {
+        title,
+        productId: product._id.toString(),
+        contentType: product.type,
+        moderationStatus: product.moderation.status,
+        from: {
+          id: senderId,
+          name: sender.name,
+          phoneNumber: sender.phoneNumber,
+          avatar: sender.avatar,
+        },
       },
-    },
-  });
+    });
+  }
 
   await Notification.create({
     title,
@@ -111,7 +113,9 @@ const notifyTribeMembersAndSubscribers = async function ({ product, owner }) {
 
       if (tribeUsers.length > 0) {
         receiverIds.push(...new Set(tribeUsers[0].userIds.map((userId) => userId.toString())));
-        pushTokens.push(...new Set(tribeUsers[0].pushTokens));
+        if (tribeUsers[0].pushTokens && tribeUsers[0].pushTokens.length > 0) {
+          pushTokens.push(...new Set(tribeUsers[0].pushTokens));
+        }
       }
     }
   } else if (product.visibility === Const.productVisibilityPublic) {
@@ -123,7 +127,9 @@ const notifyTribeMembersAndSubscribers = async function ({ product, owner }) {
       subscriberPushTokens = [];
     for (const subscriber of subscribers) {
       subscriberIds.push(subscriber._id.toString());
-      subscriberPushTokens.push(...subscriber.pushToken);
+      if (subscriber.pushToken && subscriber.pushToken.length > 0) {
+        subscriberPushTokens.push(...subscriber.pushToken);
+      }
     }
 
     const finalReceiverIds = Array.from(new Set([...receiverIds, ...subscriberIds]));

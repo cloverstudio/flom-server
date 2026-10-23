@@ -4,13 +4,15 @@ const path = require("path");
 require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 
 process.on("uncaughtException", (err, origin) => {
-  console.log("Uncaught exception", err, origin);
-  console.error("Uncaught exception", err, origin);
+  const ts = new Date().toISOString();
+  console.log(ts, "Uncaught exception", err, origin);
+  console.error(ts, "Uncaught exception", err, origin);
   process.exit(1);
 });
 process.on("unhandledRejection", (reason, promise) => {
-  console.log("Unhandled Rejection at:", promise, "reason:", reason);
-  console.error("Unhandled Rejection at:", promise, "reason:", reason);
+  const ts = new Date().toISOString();
+  console.log(ts, "Unhandled Rejection at:", promise, "reason:", reason);
+  console.error(ts, "Unhandled Rejection at:", promise, "reason:", reason);
   process.exit(1);
 });
 

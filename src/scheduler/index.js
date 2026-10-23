@@ -28,7 +28,6 @@ function wrapper(fn, jobName) {
         logger.info(`Lock acquired for job ${jobName}, executing...`);
       }
       await fn();
-      await redis.del(key);
     } catch (error) {
       logger.error(`Scheduler error for job ${jobName}`, error);
     }
