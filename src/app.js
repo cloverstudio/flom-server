@@ -136,7 +136,7 @@ app.use(function (request, response, next) {
         logger.debug(`Headers: ${JSON.stringify(headers)}`);
       } else {
         logger.debug(`Headers: ${JSON.stringify(headers)}`);
-        logger.debug(`Body: ${JSON.stringify(request.body)}`);
+        logger.debug(`Body: ${JSON.stringify(request.body || {})}`);
       }
     }
   }
