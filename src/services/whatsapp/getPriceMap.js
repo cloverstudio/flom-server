@@ -10,6 +10,17 @@ async function getPriceMap(localCountryCode) {
       return {};
     }
 
+    const conversionRatesArray = await ConversionRate.find({}).sort({ date: -1 }).limit(1).lean();
+    const rates =
+      conversionRatesArray && conversionRatesArray.length > 0
+        ? conversionRatesArray[0].rates
+        : null;
+
+    if (!rates) {
+      logger.warn(`getPriceMap, no conversion rates found`);
+      return {};
+    }
+
     let localCurrency, localRate;
     if (localCountryCode) {
       localCurrency = countries[localCountryCode].currency.split(",")[0];
@@ -22,17 +33,6 @@ async function getPriceMap(localCountryCode) {
 
     if (!prices || prices.length === 0) {
       logger.warn(`getPriceMap, no WhatsApp prices found`);
-      return {};
-    }
-
-    const conversionRatesArray = await ConversionRate.find({}).sort({ date: -1 }).limit(1).lean();
-    const rates =
-      conversionRatesArray && conversionRatesArray.length > 0
-        ? conversionRatesArray[0].rates
-        : null;
-
-    if (!rates) {
-      logger.warn(`getPriceMap, no conversion rates found`);
       return {};
     }
 
