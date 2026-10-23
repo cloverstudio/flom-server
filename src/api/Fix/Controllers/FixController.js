@@ -9,7 +9,7 @@ const Logics = require("#logics");
 const { auth } = require("#middleware");
 const { User, IdApplication, MerchantApplication, Product, Business } = require("#models");
 const crypto = require("crypto");
-const jobs = require("../../../jobs");
+const jobs = require("../../../scheduler/jobs");
 
 router.get("/wa", async (request, response) => {
   try {

@@ -128,6 +128,8 @@ class LocationIQ {
   }
 }
 
+module.exports = new LocationIQ();
+
 // Autocomplete response example:
 /*
 [
@@ -165,7 +167,7 @@ class LocationIQ {
 */
 
 // Directions URL example:
-// https://us1.locationiq.com/v1/directions/walking/16.431191277275307,43.515762721856305;16.458801102615958,43.50384642817355?key=pk.f4c8e61030a5c67c3eb241babd751833&overview=false
+// https://us1.locationiq.com/v1/directions/walking/16.431191277275307,43.515762721856305;16.458801102615958,43.50384642817355?key=KEY
 
 // Directions response example:
 /*
@@ -210,5 +212,3 @@ class LocationIQ {
     ]
 }
 */
-
-module.exports = new LocationIQ();
