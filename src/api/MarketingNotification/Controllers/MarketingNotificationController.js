@@ -2,17 +2,19 @@
 
 const router = require("express").Router();
 const Base = require("../../Base");
+const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const Logics = require("#logics");
 const { auth } = require("#middleware");
-const { MarketingNotification, User, WhatsAppPrice, ConversionRate } = require("#models");
+const { MarketingNotification, User } = require("#models");
 const {
   validateMarketingNotificationData,
   getSubscribers,
   validateData,
-  generateWhatsAppMessageParts,
+  sendWhatsAppMessages,
+  getServiceNotificationCountAndMarketingPrice,
 } = require("../helpers");
+const { WhatsApp: W } = require("#services");
 
 /**
  * @api {post} /api/v2/marketing-notifications/send Send marketing notification
@@ -124,6 +126,7 @@ const {
  * @apiError (Errors) 444012 Invalid voiceNoteId parameter
  * @apiError (Errors) 443391 Voice note not found
  * @apiError (Errors) 443407 subscriberIds is empty
+ * @apiError (Errors) 4000133 Global balance too low
  * @apiError (Errors) 4000007 Token not valid
  */
 
@@ -185,6 +188,33 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
     const marketingNotificationObj = marketingNotification.toObject();
     delete marketingNotificationObj.__v;
 
+    const waSubscribers = subscribers.filter((s) => !s.inApp);
+    const pushSubscribers = subscribers.filter((s) => s.inApp);
+
+    let sendServiceMessages = true;
+
+    if (waSubscribers.length > 0) {
+      const { serviceMessagesCount: serviceNotificationCount, priceInSats } =
+        await getServiceNotificationCountAndMarketingPrice({
+          subscribers,
+          notification: marketingNotificationObj,
+          user,
+        });
+      const serviceMessagesCount = await W.getServiceMessagesCount();
+
+      if (serviceNotificationCount + serviceMessagesCount >= 1000) {
+        sendServiceMessages = false;
+      }
+
+      if (priceInSats > user.satsBalance) {
+        return Base.errorResponse({
+          response,
+          code: Const.resCodeAuctionGlobalBalanceTooLow,
+          message: `MarketingNotificationsController - send notification, global balance too low`,
+        });
+      }
+    }
+
     Base.successResponse(response, Const.responsecodeSucceed, {
       marketingNotification: marketingNotificationObj,
     });
@@ -201,9 +231,6 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
       avatar: user.avatar,
       phoneNumber: user.phoneNumber,
     };
-
-    const waSubscribers = subscribers.filter((s) => !s.inApp);
-    const pushSubscribers = subscribers.filter((s) => s.inApp);
 
     if (pushSubscribers.length > 0) {
       for (const s of pushSubscribers) {
@@ -233,29 +260,12 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
     }
 
     if (Config.environment === "production" && waSubscribers.length > 0) {
-      const { baseText, contentUrl, hasText, imageUrl, voiceUrl, urlStub } =
-        await generateWhatsAppMessageParts({ notification: marketingNotificationObj });
-
-      for (const s of waSubscribers) {
-        let sendFreeMessage = false;
-
-        if (s.whatsApp?.windowExpiresAt && s.whatsApp.windowExpiresAt > Date.now()) {
-          sendFreeMessage = true;
-        }
-
-        if (!hasText && !sendFreeMessage) {
-          continue;
-        }
-
-        await Logics.sendWhatsAppMessage({
-          to: s.phoneNumber,
-          from: user.phoneNumber,
-          template: !sendFreeMessage ? "engageV1" : undefined,
-          message: baseText,
-          userName: user.slug,
-          isFreeMessage: sendFreeMessage,
-        });
-      }
+      await sendWhatsAppMessages({
+        subscribers: waSubscribers,
+        notification: marketingNotificationObj,
+        user,
+        sendServiceMessages,
+      });
     }
 
     await User.updateMany(
@@ -377,12 +387,13 @@ router.get("/subscribers", auth({ allowUser: true }), async function (request, r
  * @apiVersion 2.0.35
  * @apiName Calculate cost of marketing notification
  * @apiGroup WebAPI Marketing Notification
- * @apiDescription API for calculating the cost of a marketing notification. Flom is included as only a number because flom's notifications are always free.
+ * @apiDescription API for calculating the cost of a marketing notification. Flom is included as only a number because flom's notifications are always free. If notification has no text, paid messages will not be sent.
  *
  * @apiHeader {String} access-token Users unique access-token.
  *
  * @apiParam {String[]} [subscriberIds]   List of subscriber IDs to whom the marketing notification will be sent.
  * @apiParam {Number}   [allSubscribers]  Flag indicating whether to calculate for all subscribers. 1 for yes, 0 for no.
+ * @apiParam {String}   hasText           Flag indicating whether the marketing notification has text content. 1 for yes, 0 for no. If not provided, defaults to 0.
  *
  * @apiSuccessExample {json} Success Response
  * {
@@ -393,6 +404,7 @@ router.get("/subscribers", auth({ allowUser: true }), async function (request, r
  *         "whatsapp": {
  *             "free": 0,
  *             "paid": 1,
+ *             "priceInSats": 100,
  *             "priceInUsd": 0.09,
  *             "priceInUsersCurrency": 64.5,
  *             "usersCurrency": "NGN"
@@ -416,6 +428,10 @@ router.post("/cost", auth({ allowUser: true }), async function (request, respons
     const userId = user._id.toString();
     const { subscriberIds = [] } = request.body;
     const allSubscribers = !request.body.allSubscribers ? 0 : +request.body.allSubscribers;
+    const hasText =
+      !request.body.hasText || !["0", "1"].includes(request.body.hasText)
+        ? 0
+        : !!+request.body.hasText;
 
     if (!allSubscribers && subscriberIds.length === 0) {
       return Base.errorResponse({
@@ -431,25 +447,16 @@ router.post("/cost", auth({ allowUser: true }), async function (request, respons
       allSubscribers: !!allSubscribers,
     });
 
-    let flom = 0,
+    const userCountryCode =
+      user.countryCode || Utils.getCountryCodeFromPhoneNumber({ phoneNumber: user.phoneNumber });
+    const priceMap = await W.getPriceMap(userCountryCode);
+    const localCurrency = priceMap.localCurrency;
+    let priceInSats = 0,
+      priceInLocalCurrency = 0,
+      flom = 0,
       free = 0,
       paid = 0,
       priceInUsd = 0;
-
-    const conversionRates = await ConversionRate.getRates();
-
-    const countryCode =
-      user.countryCode || Utils.getCountryCodeFromPhoneNumber({ phoneNumber: user.phoneNumber });
-    const usersCurrency = Utils.getCurrencyFromCountryCode({
-      countryCode,
-      rates: conversionRates.rates,
-    });
-
-    const whatsAppPrices = await WhatsAppPrice.find({}).lean();
-    const priceMap = {};
-    for (const p of whatsAppPrices) {
-      priceMap[p.countryCode] = p.marketing;
-    }
 
     for (const s of subscribers) {
       if (s.hasLoggedIn == Const.userLoggedInAtLeastOnce) {
@@ -462,29 +469,35 @@ router.post("/cost", auth({ allowUser: true }), async function (request, respons
         continue;
       }
 
+      if (!hasText) {
+        continue;
+      }
+
       const subscriberCountryCode =
         s.countryCode || Utils.getCountryCodeFromPhoneNumber({ phoneNumber: s.phoneNumber });
-      const subscriberPrice = priceMap[subscriberCountryCode] || priceMap["default"];
 
-      if (!subscriberPrice) {
+      if (!priceMap[subscriberCountryCode].marketingUsd) {
+        logger.warn(
+          `MarketingNotificationsController - calculate cost, no marketing price for subscriber country code: ${subscriberCountryCode}`,
+        );
         continue;
       }
 
       paid++;
-      priceInUsd += subscriberPrice;
+      priceInUsd += priceMap[subscriberCountryCode].marketingUsd;
+      priceInSats += priceMap[subscriberCountryCode].marketing;
+      priceInLocalCurrency += priceMap[subscriberCountryCode].marketingLocal;
     }
-
-    const localRate = conversionRates.rates[usersCurrency] || 1;
-    const priceInUsersCurrency = priceInUsd * localRate;
 
     Base.successResponse(response, Const.responsecodeSucceed, {
       flom,
       whatsapp: {
         free,
         paid,
-        priceInUsd: Utils.roundNumber(priceInUsd, 2),
-        priceInUsersCurrency: Utils.roundNumber(priceInUsersCurrency, 2),
-        usersCurrency,
+        priceInSats,
+        priceInUsd,
+        priceInUsersCurrency: priceInLocalCurrency,
+        usersCurrency: localCurrency,
       },
     });
   } catch (error) {

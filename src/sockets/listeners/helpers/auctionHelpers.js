@@ -375,7 +375,7 @@ async function remindWatchers({ auction, liveStream }) {
       await Logics.sendWhatsAppMessages({
         senderId: auction.sellerId,
         receiverIds: userIdsArray,
-        template: "auctionReminder",
+        template: "auction_reminder",
         auctionName: auction.product.name,
         auctionId: auction._id.toString(),
         liveStreamId: liveStream._id.toString(),

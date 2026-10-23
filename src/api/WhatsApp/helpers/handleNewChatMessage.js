@@ -73,7 +73,7 @@ async function handleNewChatMessage({
     if (!fromUser.whatsApp?.receivedUnknownRecipientNotice) {
       await Logics.sendWhatsAppMessage({
         to: from,
-        template: "unknownRecipientNotice",
+        template: "unknown_recipient_notice",
       });
 
       await User.updateOne(

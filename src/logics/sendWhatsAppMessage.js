@@ -29,7 +29,7 @@ async function sendWhatsAppMessage({
       return null;
     }
 
-    if (template && !Const.templateMap[template]) {
+    if (template && !Const.waTemplates.includes(template)) {
       logger.warn("sendWhatsAppMessage, Template not found for sendWhatsAppMessage: " + template);
       return null;
     }
@@ -95,10 +95,10 @@ async function sendWhatsAppMessage({
       let buttonParam = null;
 
       switch (template) {
-        case "goLive":
+        case "go_live":
           if (!userName || !liveStreamId) {
             logger.error(
-              "sendWhatsAppMessage error, missing parameters for goLive template: userName or liveStreamId: " +
+              "sendWhatsAppMessage error, missing parameters for go_live template: userName or liveStreamId: " +
                 userName +
                 ", " +
                 liveStreamId,
@@ -108,10 +108,10 @@ async function sendWhatsAppMessage({
           textParamA = userName;
           buttonParam = liveStreamId;
           break;
-        case "auctionReminder":
+        case "auction_reminder":
           if (!auctionName || !auctionId || !liveStreamId) {
             logger.error(
-              "sendWhatsAppMessage error, missing parameters for auctionReminder template: auctionName or auctionId or liveStreamId: " +
+              "sendWhatsAppMessage error, missing parameters for auction_reminder template: auctionName or auctionId or liveStreamId: " +
                 auctionName +
                 ", " +
                 auctionId +
@@ -124,10 +124,10 @@ async function sendWhatsAppMessage({
           textParamB = auctionId;
           buttonParam = liveStreamId;
           break;
-        case "secondChance":
+        case "second_chance":
           if (!auctionName || !auctionId) {
             logger.error(
-              "sendWhatsAppMessage error, missing parameters for secondChance template: auctionName or auctionId: " +
+              "sendWhatsAppMessage error, missing parameters for second_chance template: auctionName or auctionId: " +
                 auctionName +
                 ", " +
                 auctionId,
@@ -137,10 +137,10 @@ async function sendWhatsAppMessage({
           textParamA = auctionName;
           buttonParam = auctionId;
           break;
-        case "shippingUpdate":
+        case "shipping_update":
           if (!orderId || !shippingStatus || !orderName) {
             logger.error(
-              "sendWhatsAppMessage error, missing parameters for shippingUpdate template: orderId or shippingStatus or orderName: " +
+              "sendWhatsAppMessage error, missing parameters for shipping_update template: orderId or shippingStatus or orderName: " +
                 orderId +
                 ", " +
                 shippingStatus +
@@ -153,10 +153,10 @@ async function sendWhatsAppMessage({
           textParamB = shippingStatus;
           buttonParam = orderId;
           break;
-        case "pendingPayment":
+        case "pending_payment":
           if (!orderId || !orderName) {
             logger.error(
-              "sendWhatsAppMessage error, missing parameters for pendingPayment template: orderId or orderName: " +
+              "sendWhatsAppMessage error, missing parameters for pending_payment template: orderId or orderName: " +
                 orderId +
                 ", " +
                 orderName,
@@ -166,10 +166,10 @@ async function sendWhatsAppMessage({
           textParamA = orderName;
           buttonParam = orderId;
           break;
-        case "sellerFollowup":
+        case "seller_followup":
           if (!userName || !productName) {
             logger.error(
-              "sendWhatsAppMessage error, missing parameters for sellerFollowup template: userName or productName: " +
+              "sendWhatsAppMessage error, missing parameters for seller_followup template: userName or productName: " +
                 userName +
                 ", " +
                 productName,
@@ -179,12 +179,12 @@ async function sendWhatsAppMessage({
           textParamA = userName;
           textParamB = productName;
           break;
-        case "unknownRecipientNotice":
+        case "unknown_recipient_notice":
           break;
-        case "engageV1":
+        case "engage_v1":
           if (!userName || !message) {
             logger.error(
-              "sendWhatsAppMessage error, missing parameters for engageV1 template: userName or message: " +
+              "sendWhatsAppMessage error, missing parameters for engage_v1 template: userName or message: " +
                 userName +
                 ", " +
                 message,
@@ -260,10 +260,10 @@ function makeTemplateMessage({
   textParamB = null,
   buttonParam = null,
 }) {
-  if (!template || !Const.templateMap[template]) return null;
+  if (!template || !Const.waTemplates.includes(template)) return null;
 
   const base = {
-    name: Const.templateMap[template],
+    name: template,
     language: {
       code: "en",
       //code: "en_US",
@@ -318,19 +318,19 @@ function makeTextMessage({ template, textParamA = null, textParamB = null, butto
   let text = null;
 
   switch (template) {
-    case "goLive":
+    case "go_live":
       text = `${textParamA} is live now!\n\nJoin the live stream: ${deepLink.liveStream}${buttonParam}`;
       break;
-    case "auctionReminder":
+    case "auction_reminder":
       text = `Reminder: ${textParamA} auction is live now!\n\nJoin the auction: ${deepLink.liveStream}${buttonParam}`;
       break;
-    case "secondChance":
+    case "second_chance":
       text = `Second chance to join ${textParamA} auction!\n\nJoin the auction: ${deepLink.auction}${buttonParam}`;
       break;
-    case "shippingUpdate":
+    case "shipping_update":
       text = `Shipping update for your order ${textParamA}: ${textParamB}\n\nTrack your order: ${deepLink.order}${buttonParam}`;
       break;
-    case "pendingPayment":
+    case "pending_payment":
       text = `Your payment for order ${textParamA} is pending. Please complete the payment.\n\nPay now: ${deepLink.order}${buttonParam}`;
       break;
     default:

@@ -1262,6 +1262,7 @@ Constants.recombeeProductTypesMap = {
   3: "Audio",
   4: "Text Story",
   5: "Market Product",
+  6: "Service",
 };
 Constants.recombeeLiveStreamTypesMap = { live: "Live", event: "Event", market: "Market Live" };
 
@@ -1298,15 +1299,9 @@ Constants.orderStatus = {
   CLOSED_BY_SUPPORT: "closed_by_support",
   DELIVERED: "delivered",
 };
-
 Constants.orderExpirationTime = Config.environment === "production" ? 30 : 7; // 30 minutes in production, 7 minutes otherwise
-
 Constants.shippingLimitInDays = 7;
-
 Constants.restockingFee = 2_000;
-
-Constants.flomAgentPhoneNumbers = ["+2348888888888", "+2349999999999"];
-
 Constants.shippingProviders = [
   { type: "dhl", displayName: "DHL" },
   { type: "ups", displayName: "UPS" },
@@ -1322,37 +1317,38 @@ Constants.shippingProviders = [
   { type: "other", displayName: "Other" },
 ];
 
-Constants.whatsAppMarkupRate = 1.3;
+Constants.flomAgentPhoneNumbers = ["+2348888888888", "+2349999999999"];
 
-Constants.templateMap = {
-  sellerFollowup: "seller_followup",
-  goLive: "go_live",
-  newDrop: "new_drop",
-  auctionReminder: "auction_reminder",
-  bookingConfirmation: "booking_confirmation",
-  bookingReminder: "booking_reminder",
-  secondChance: "second_chance",
-  shippingUpdate: "shipping_update",
-  pendingPayment: "pending_payment",
-  unknownRecipientNotice: "unknown_recipient_notice",
-  orderIssueSeller: "order_issue_seller",
-  buyerConfirmedSeller: "buyer_confirmed_seller",
-  paymentReceivedSeller: "payment_received_seller",
-  newOrderSeller: "new_order_seller",
-  orderPaymentReleasedBuyer: "order_payment_released_buyer",
-  orderInProgressBuyer: "order_in_progress_buyer",
-  paymentReceivedBuyer: "payment_received_buyer",
-  orderConfirmedBuyer: "order_confirmed_buyer",
-  engageV1: "engage_v1",
-  engageWithImageV1: "engage_with_image_v1",
-};
-Constants.marketingTemplates = [
-  "newDrop",
-  "auctionReminder",
-  "secondChance",
-  "goLive",
-  "engageV1",
-  "engageWithImageV1",
+Constants.whatsAppMarkupRate = 1.3;
+Constants.waTemplates = [
+  "seller_followup",
+  "go_live",
+  "new_drop",
+  "auction_reminder",
+  "booking_confirmation",
+  "booking_reminder",
+  "second_chance",
+  "shipping_update",
+  "pending_payment",
+  "unknown_recipient_notice",
+  "order_issue_seller",
+  "buyer_confirmed_seller",
+  "payment_received_seller",
+  "new_order_seller",
+  "order_payment_released_buyer",
+  "order_in_progress_buyer",
+  "payment_received_buyer",
+  "order_confirmed_buyer",
+  "engage_v1",
+  "engage_with_image_v1",
+];
+Constants.waMarketingTemplates = [
+  "engage_v1",
+  "engage_with_image_v1",
+  "new_drop",
+  "go_live",
+  "second_chance",
+  "auction_reminder",
 ];
 
 Constants.UsStateCodes = {

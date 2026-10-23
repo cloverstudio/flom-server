@@ -13,12 +13,15 @@ const schema = new mongoose.Schema(
     callback: {},
     failures: [],
     status: String,
+    type: String,
+    waType: String,
     template: String,
     to: String,
     from: String,
     direction: String, // incoming, outgoing
     providerId: String,
     providerPhoneNumber: String,
+    created: { type: Number, default: Date.now },
   },
   { timestamps: true },
 );

@@ -113,7 +113,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
     const wamIds = await Logics.sendWhatsAppMessages({
       sender: user,
       receivers: [receiver],
-      template: "sellerFollowup",
+      template: "seller_followup",
       userName: user.userName,
       productName: product.name,
     });

@@ -1,7 +1,6 @@
-const { Config, Const } = require("#config");
 const { logger } = require("#infra");
 
-const templates = require("./free-messages");
+const templates = require("./freeMessages");
 
 const parameterMapping = {
   userName: "__USER_NAME__",
@@ -21,9 +20,9 @@ const parameterMapping = {
   orderPriceWithCurrency: "__ORDER_PRICE_WITH_CURRENCY__",
 };
 
-function createFreeMessageBody({ template, ...params }) {
+function createTextMessageFromTemplate({ to, template, ...params }) {
   if (!template || !templates[template]) {
-    logger.error(`createFreeMessageBody error, invalid template: ${template}`);
+    logger.error(`createTextMessageFromTemplate error, invalid template: ${template}`);
     return null;
   }
 
@@ -34,7 +33,7 @@ function createFreeMessageBody({ template, ...params }) {
   for (const param of allParamNames) {
     if (!params[param]) {
       logger.error(
-        `createFreeMessageBody error, missing parameter: ${param} for template: ${template}`,
+        `createTextMessageFromTemplate error, missing parameter: ${param} for template: ${template}`,
       );
       return null;
     }
@@ -50,7 +49,14 @@ function createFreeMessageBody({ template, ...params }) {
     }
   }
 
-  return text;
+  const data = {
+    messaging_product: "whatsapp",
+    to,
+    type: "text",
+    text: { body: text },
+  };
+
+  return data;
 }
 
-module.exports = createFreeMessageBody;
+module.exports = createTextMessageFromTemplate;

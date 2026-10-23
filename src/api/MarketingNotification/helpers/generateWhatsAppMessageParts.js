@@ -60,7 +60,17 @@ async function generateWhatsAppMessageParts({ notification }) {
     voiceUrl = Config.storageUrl + "/" + voiceNote.oggName;
   }
 
-  return { baseText, contentUrl, hasText: !!text, headerImageUrl, headerText, voiceUrl, urlStub };
+  return {
+    baseText,
+    contentUrl,
+    hasFreeText: !!text || !!contentUrl,
+    hasPaidText: !!text,
+    hasVoiceNote: !!voiceUrl,
+    headerImageUrl,
+    headerText,
+    voiceUrl,
+    urlStub,
+  };
 }
 
 module.exports = generateWhatsAppMessageParts;

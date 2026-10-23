@@ -132,7 +132,7 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
       await Logics.sendWhatsAppMessages({
         sender: user,
         receivers: [buyer],
-        template: "shippingUpdate",
+        template: "shipping_update",
         shippingStatus: "SHIPPED",
         orderId: order._id.toString(),
         orderName:
@@ -247,7 +247,7 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
     await Logics.sendWhatsAppMessages({
       sender: user,
       receivers: [buyer],
-      template: "shippingUpdate",
+      template: "shipping_update",
       shippingStatus: "SHIPPED",
       orderId: order._id.toString(),
       orderName:

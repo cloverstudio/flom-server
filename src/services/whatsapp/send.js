@@ -2,20 +2,22 @@ const { Config, Const } = require("#config");
 const { logger } = require("#infra");
 const { WhatsAppLog } = require("#models");
 const Utils = require("#utils");
-const createFreeMessageBody = require("./create-free-message-body");
-const createTemplateMessageBody = require("./create-template-message-body");
+const createTextMessageFromTemplate = require("./createTextMessageFromTemplate");
+const createTemplateMessage = require("./createTemplateMessage");
+const createServiceMessage = require("./createServiceMessage");
 
-// params: userName, liveStreamId, auctionName, auctionId, shippingStatus, orderId, orderName, productName, slug, messageText, urlStub, headerImageUrl, headerText, voiceUrl
+// params: userName, liveStreamId, auctionName, auctionId, shippingStatus, orderId, orderName, productName, slug, messageText, urlStub, headerImageUrl, headerText
 
 async function send({
   to,
   from,
+  type, // template, service_from_template, service
   message,
   template = null,
-  isFreeMessage = false,
   messageType,
   location,
   file,
+  voiceUrl,
   ...params
 }) {
   try {
@@ -24,32 +26,34 @@ async function send({
       return null;
     }
 
-    if (template && !Const.templateMap[template]) {
+    if (template && !Const.waTemplates.includes(template)) {
       logger.warn("WhatsApp, send, Template not found for send: " + template);
       return null;
     }
 
     to = to.replace("+", "");
 
-    const data = {
-      messaging_product: "whatsapp",
-      to,
-      type: "text",
-      text: { body: message },
-    };
+    let data, waType;
 
-    if (messageType) {
-      handleChatMessage({ data, messageType, location, file, message });
-    } else if (template) {
-      if (isFreeMessage) {
-        message = createFreeMessageBody({ template, ...params });
-        data.text = { body: message };
-      } else {
-        data.type = "template";
-        delete data.text;
-
-        data.template = createTemplateMessageBody({ template, ...params });
-      }
+    switch (type) {
+      case "service":
+        const type = getServiceMessageType({ messageType, voiceUrl });
+        data = createServiceMessage({ to, messageType: type, location, file, message, voiceUrl });
+        waType = "service";
+        break;
+      case "template":
+        data = createTemplateMessage({ to, template, ...params });
+        waType = "utility";
+        if (Const.waMarketingTemplates.includes(template)) {
+          waType = "marketing";
+        }
+        break;
+      case "service_from_template":
+        data = createTextMessageFromTemplate({ to, template, ...params });
+        waType = "service";
+        break;
+      default:
+        throw new Error("Invalid message type");
     }
 
     const id = Config.whatsAppPhoneNumberId;
@@ -75,6 +79,8 @@ async function send({
       response: result,
       failures: !err ? [] : [err],
       status,
+      type,
+      waType,
       template,
       to: "+" + to,
       from,
@@ -96,84 +102,25 @@ async function send({
   }
 }
 
-function handleChatMessage({ data, messageType, location, file, message }) {
-  if (messageType === Const.messageTypeLocation && location) {
-    data.type = "location";
-    delete data.text;
+function getServiceMessageType({ messageType, voiceUrl }) {
+  if (voiceUrl) {
+    return "audio";
+  }
 
-    data.location = {
-      latitude: location.lat,
-      longitude: location.lng,
-    };
-  } else if (messageType === Const.messageTypeFile && file) {
-    data.type = "document";
-    delete data.text;
-
-    data.document = {
-      link: Config.storageUrl + "/" + file.name,
-      filename: file.name,
-      caption: message,
-    };
-  } else if (
-    [Const.messageTypeAudio, Const.messageTypeImage, Const.messageTypeVideo].includes(
-      messageType,
-    ) &&
-    file
-  ) {
-    data.type =
-      messageType === Const.messageTypeAudio
-        ? "audio"
-        : messageType === Const.messageTypeImage
-        ? "image"
-        : "video";
-
-    delete data.text;
-
-    data[data.type] = {
-      link: Config.storageUrl + "/" + (file._id || file.id).toString(),
-      ...(messageType == Const.messageTypeAudio && { voice: true }),
-    };
-
-    if (data.type !== "audio") {
-      data[data.type].caption = message;
-    }
+  switch (messageType) {
+    case Const.messageTypeLocation:
+      return "location";
+    case Const.messageTypeFile:
+      return "document";
+    case Const.messageTypeAudio:
+      return "audio";
+    case Const.messageTypeImage:
+      return "image";
+    case Const.messageTypeVideo:
+      return "video";
+    default:
+      return "text";
   }
 }
 
 module.exports = send;
-
-/*
-{
-	"messaging_product": "whatsapp",
-	"to": "3859XXXXXXX",
-	"type": "template",
-	"template": {
-		"name": "stream_live_alert",
-		"language": {
-			"code": "en_US"
-		},
-		"components": [
-			{
-				"type": "body",
-				"parameters": [
-					{
-						"type": "text",
-						"text": "Ninja"
-					}
-				]
-			},
-			{
-				"type": "button",
-				"sub_type": "url",
-				"index": "0",
-				"parameters": [
-					{
-						"type": "text",
-						"text": "1234"
-					}
-				]
-			}
-		]
-	}
-}
-*/

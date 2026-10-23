@@ -5,7 +5,21 @@ const { Const, Config } = require("#config");
 const Utils = require("#utils");
 const { User, Transfer, ConversionRate } = require("#models");
 
-async function makeFeeTransfer({ fee, feeType, sender, numberOfWaMessages }) {
+const feeType = {
+  go_live: "Live stream notification",
+  seller_followup: "Seller follow-up",
+  new_drop: "New drop notification",
+  auction_reminder: "Auction reminder",
+  second_chance: "Second chance notification",
+  booking_confirmation: "Booking confirmation",
+  booking_reminder: "Booking reminder",
+  shipping_update: "Shipping update",
+  pending_payment: "Pending payment reminder",
+  engage_v1: "Marketing notification",
+  engage_with_image_v1: "Marketing notification",
+};
+
+async function makeFeeTransfer({ fee, template, sender, numberOfWaMessages }) {
   try {
     if (!fee || fee <= 0) {
       logger.error(`makeFeeTransfer, invalid fee: ${fee}`);
@@ -41,12 +55,12 @@ async function makeFeeTransfer({ fee, feeType, sender, numberOfWaMessages }) {
     await User.updateOne({ _id: sender._id }, { $inc: { satsBalance: -fee } });
     await User.updateOne({ _id: flomAgent._id }, { $inc: { satsBalance: fee } });
 
-    let productName = `${feeType} fee`;
+    let productName = `${feeType[template]} fee`;
     if (numberOfWaMessages) {
       productName += ` (${numberOfWaMessages} WhatsApp messages)`;
     }
 
-    await Transfer.create({
+    const transfer = await Transfer.create({
       senderType: "user",
       senderId: sender._id.toString(),
       senderPhoneNumber: sender.phoneNumber,
@@ -64,7 +78,7 @@ async function makeFeeTransfer({ fee, feeType, sender, numberOfWaMessages }) {
       productName,
     });
 
-    return true;
+    return transfer.toObject();
   } catch (error) {
     logger.error("makeFeeTransfer error: ", error);
     return null;

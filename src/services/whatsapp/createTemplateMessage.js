@@ -1,11 +1,11 @@
-const { Config, Const } = require("#config");
+const { Const } = require("#config");
 const { logger } = require("#infra");
 
-const templates = require("./template-messages");
+const templates = require("./templateMessages");
 
-function createTemplateMessageBody({ template, ...params }) {
+function createTemplateMessage({ to, template, ...params }) {
   if (!template || !templates[template]) {
-    logger.error(`createTemplateMessageBody error, invalid template: ${template}`);
+    logger.error(`createTemplateMessage error, invalid template: ${template}`);
     return null;
   }
 
@@ -19,14 +19,14 @@ function createTemplateMessageBody({ template, ...params }) {
   for (const param of allParamNames) {
     if (!params[param]) {
       logger.error(
-        `createTemplateMessageBody error, missing parameter: ${param} for template: ${template}`,
+        `createTemplateMessage error, missing parameter: ${param} for template: ${template}`,
       );
       return null;
     }
   }
 
   const base = {
-    name: Const.templateMap[template],
+    name: template,
     language: {
       code: "en",
       //code: "en_US",
@@ -112,14 +112,14 @@ function createTemplateMessageBody({ template, ...params }) {
     }
   }
 
-  return base;
+  const data = {
+    messaging_product: "whatsapp",
+    to,
+    type: "template",
+    template: base,
+  };
+
+  return data;
 }
 
-const deepLink = {
-  order: `https://flom.app/order?id=`,
-  auction: `https://flom.app/auction?id=`,
-  liveStream: `https://flom.app/livestream?id=`,
-  product: `https://flom.app/product?id=`,
-};
-
-module.exports = createTemplateMessageBody;
+module.exports = createTemplateMessage;
