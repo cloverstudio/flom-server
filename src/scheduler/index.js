@@ -14,7 +14,10 @@ function wrapper(fn, jobName) {
         console.log(`Acquiring lock for job ${jobName} with key ${key}`);
       }
 
-      const lock = await redis.set(key, "locked", { EX: 45, NX: true });
+      const lock = await redis.set(key, "locked", {
+        EX: jobName !== "stopDeadLiveStreams" ? 45 : 3,
+        NX: true,
+      });
       if (!lock) {
         console.log(`Job ${jobName} is already running, skipping execution.`);
         console.error(`Job ${jobName} is already running, skipping execution.`);
@@ -38,7 +41,7 @@ module.exports = {
       "1 */8 * * *",
       wrapper(jobs.sendPushForUnreadMessages, "sendPushForUnreadMessages"),
     );
-    schedule.scheduleJob("*/2 * * * *", wrapper(jobs.stopDeadLiveStreams, "stopDeadLiveStreams"));
+    schedule.scheduleJob("*/5 * * * *", wrapper(jobs.stopDeadLiveStreams, "stopDeadLiveStreams"));
     schedule.scheduleJob("1 3 * * *", wrapper(jobs.syncRecombee, "syncRecombee"));
     schedule.scheduleJob("1 1 * * 0", wrapper(jobs.viewsCleanup, "viewsCleanup"));
     schedule.scheduleJob("15 4 * * *", wrapper(jobs.updateWhatsAppPrices, "updateWhatsAppPrices"));
