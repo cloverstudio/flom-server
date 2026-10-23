@@ -393,7 +393,7 @@ router.get("/subscribers", auth({ allowUser: true }), async function (request, r
  *
  * @apiParam {String[]} [subscriberIds]   List of subscriber IDs to whom the marketing notification will be sent.
  * @apiParam {Number}   [allSubscribers]  Flag indicating whether to calculate for all subscribers. 1 for yes, 0 for no.
- * @apiParam {String}   hasText           Flag indicating whether the marketing notification has text content. 1 for yes, 0 for no. If not provided, defaults to 0.
+ * @apiParam {Number}   hasText           Flag indicating whether the marketing notification has text content. 1 for yes, 0 for no. If not provided, defaults to 0.
  *
  * @apiSuccessExample {json} Success Response
  * {
@@ -428,10 +428,7 @@ router.post("/cost", auth({ allowUser: true }), async function (request, respons
     const userId = user._id.toString();
     const { subscriberIds = [] } = request.body;
     const allSubscribers = !request.body.allSubscribers ? 0 : +request.body.allSubscribers;
-    const hasText =
-      !request.body.hasText || !["0", "1"].includes(request.body.hasText)
-        ? 0
-        : !!+request.body.hasText;
+    const hasText = !request.body.hasText ? 0 : +request.body.hasText;
 
     if (!allSubscribers && subscriberIds.length === 0) {
       return Base.errorResponse({
