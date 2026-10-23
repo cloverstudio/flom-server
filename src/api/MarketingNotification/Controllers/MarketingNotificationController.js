@@ -404,6 +404,7 @@ router.get("/subscribers", auth({ allowUser: true }), async function (request, r
  *         "whatsapp": {
  *             "free": 0,
  *             "paid": 1,
+ *             "paidExcluded": 0,
  *             "priceInSats": 100,
  *             "priceInUsd": 0.09,
  *             "priceInUsersCurrency": 64.5,
@@ -453,6 +454,7 @@ router.post("/cost", auth({ allowUser: true }), async function (request, respons
       flom = 0,
       free = 0,
       paid = 0,
+      paidExcluded = 0,
       priceInUsd = 0;
 
     for (const s of subscribers) {
@@ -463,10 +465,6 @@ router.post("/cost", auth({ allowUser: true }), async function (request, respons
 
       if (s.whatsApp?.windowExpiresAt && s.whatsApp.windowExpiresAt > Date.now()) {
         free++;
-        continue;
-      }
-
-      if (!hasText) {
         continue;
       }
 
@@ -484,6 +482,11 @@ router.post("/cost", auth({ allowUser: true }), async function (request, respons
         continue;
       }
 
+      if (!hasText) {
+        paidExcluded++;
+        continue;
+      }
+
       paid++;
       priceInUsd += priceMap[subscriberCountryCode].marketingUsd;
       priceInSats += priceMap[subscriberCountryCode].marketing;
@@ -495,6 +498,7 @@ router.post("/cost", auth({ allowUser: true }), async function (request, respons
       whatsapp: {
         free,
         paid,
+        paidExcluded,
         priceInSats,
         priceInUsd,
         priceInUsersCurrency: priceInLocalCurrency,
