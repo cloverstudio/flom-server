@@ -1,3 +1,4 @@
+const { Const } = require("#config");
 const { WhatsApp: W } = require("#services");
 const Utils = require("#utils");
 const generateWhatsAppMessageParts = require("./generateWhatsAppMessageParts");
@@ -21,6 +22,10 @@ async function getServiceNotificationCountAndMarketingPrice({ subscribers, notif
   for (const s of subscribers) {
     let type;
 
+    if (s.hasLoggedIn == Const.userLoggedInAtLeastOnce) {
+      continue;
+    }
+
     if (s.whatsApp?.windowExpiresAt && s.whatsApp.windowExpiresAt > Date.now()) {
       if (!hasFreeText && !hasVoiceNote) {
         continue;
@@ -43,6 +48,11 @@ async function getServiceNotificationCountAndMarketingPrice({ subscribers, notif
 
       const subscriberCountryCode =
         s.countryCode || Utils.getCountryCodeFromPhoneNumber({ phoneNumber: s.phoneNumber });
+
+      if (!subscriberCountryCode) {
+        continue;
+      }
+
       priceInSats += priceMap[subscriberCountryCode].marketing;
       priceInLocalCurrency += priceMap[subscriberCountryCode].marketingLocal;
     }

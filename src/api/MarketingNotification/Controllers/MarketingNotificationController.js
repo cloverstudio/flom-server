@@ -196,7 +196,7 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
     if (waSubscribers.length > 0) {
       const { serviceMessagesCount: serviceNotificationCount, priceInSats } =
         await getServiceNotificationCountAndMarketingPrice({
-          subscribers,
+          subscribers: waSubscribers,
           notification: marketingNotificationObj,
           user,
         });
@@ -476,7 +476,11 @@ router.post("/cost", auth({ allowUser: true }), async function (request, respons
       const subscriberCountryCode =
         s.countryCode || Utils.getCountryCodeFromPhoneNumber({ phoneNumber: s.phoneNumber });
 
-      if (!priceMap[subscriberCountryCode].marketingUsd) {
+      if (
+        !subscriberCountryCode ||
+        !priceMap[subscriberCountryCode] ||
+        !priceMap[subscriberCountryCode].marketingUsd
+      ) {
         logger.warn(
           `MarketingNotificationsController - calculate cost, no marketing price for subscriber country code: ${subscriberCountryCode}`,
         );
