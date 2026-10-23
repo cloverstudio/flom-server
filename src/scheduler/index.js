@@ -11,7 +11,9 @@ function wrapper(fn, jobName) {
       const key = `scheduler:${jobName}:${timestamp.slice(0, -5)}`;
 
       if (jobName !== "stopDeadLiveStreams") {
-        console.log(`Acquiring lock for job ${jobName} with key ${key}`);
+        console.log(
+          `${new Date().toISOString()}: Acquiring lock for job ${jobName} with key ${key}`,
+        );
       }
 
       const lock = await redis.set(key, "locked", {
@@ -19,18 +21,22 @@ function wrapper(fn, jobName) {
         NX: true,
       });
       if (!lock) {
-        console.log(`Job ${jobName} is already running, skipping execution.`);
-        console.error(`Job ${jobName} is already running, skipping execution.`);
+        /* console.log(
+          `${new Date().toISOString()}: Job ${jobName} is already running, skipping execution.`,
+        );
+        console.error(
+          `${new Date().toISOString()}: Job ${jobName} is already running, skipping execution.`,
+        ); */
         return;
       }
 
       if (jobName !== "stopDeadLiveStreams") {
-        console.log(`Lock acquired for job ${jobName}, executing...`);
+        console.log(`${new Date().toISOString()}: Lock acquired for job ${jobName}, executing...`);
       }
       await fn();
       await redis.del(key);
     } catch (error) {
-      console.error(`Scheduler error for job ${jobName}`, error);
+      console.error(`${new Date().toISOString()}: Scheduler error for job ${jobName}`, error);
     }
   };
 }
