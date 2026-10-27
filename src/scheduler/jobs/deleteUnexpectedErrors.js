@@ -1,7 +1,7 @@
 const { logger } = require("#infra");
 const { UnexpectedError } = require("#models");
 
-async function cleanUnexpectedErrors() {
+async function deleteUnexpectedErrors() {
   try {
     await UnexpectedError.deleteMany({
       created: { $lt: Date.now() - 180 * 24 * 60 * 60 * 1000 }, // older than 180 days
@@ -9,8 +9,8 @@ async function cleanUnexpectedErrors() {
 
     // No equivalent for BusinessMember, so this section can be removed
   } catch (error) {
-    logger.error("cleanUnexpectedErrors", error);
+    logger.error("deleteUnexpectedErrors", error);
   }
 }
 
-module.exports = cleanUnexpectedErrors;
+module.exports = deleteUnexpectedErrors;

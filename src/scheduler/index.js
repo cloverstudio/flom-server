@@ -54,8 +54,12 @@ module.exports = {
     );
     schedule.scheduleJob(
       "1 6 */2 * *",
-      wrapper(jobs.removeExpiredIdempotencyRecords, "removeExpiredIdempotencyRecords"),
+      wrapper(jobs.deleteIdempotencyRecords, "deleteIdempotencyRecords"),
     );
-    schedule.scheduleJob("1 0 * * 0", wrapper(jobs.cleanUnexpectedErrors, "cleanUnexpectedErrors"));
+    schedule.scheduleJob(
+      "1 0 * * 0",
+      wrapper(jobs.deleteUnexpectedErrors, "deleteUnexpectedErrors"),
+    );
+    schedule.scheduleJob("45 0 */3 * *", wrapper(jobs.deleteAccessRecords, "deleteAccessRecords"));
   },
 };

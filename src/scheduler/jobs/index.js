@@ -6,8 +6,9 @@ const syncRecombee = require("./syncRecombee");
 const updateWhatsAppPrices = require("./updateWhatsAppPrices");
 const expireBusinessInvites = require("./expireBusinessInvites");
 const sendBusinessInviteNotifications = require("./sendBusinessInviteNotifications");
-const removeExpiredIdempotencyRecords = require("./removeExpiredIdempotencyRecords");
-const cleanUnexpectedErrors = require("./cleanUnexpectedErrors");
+const deleteIdempotencyRecords = require("./deleteIdempotencyRecords");
+const deleteUnexpectedErrors = require("./deleteUnexpectedErrors");
+const deleteAccessRecords = require("./deleteAccessRecords");
 
 module.exports = {
   // sendTestPush,
@@ -18,6 +19,7 @@ module.exports = {
   updateWhatsAppPrices,
   expireBusinessInvites,
   sendBusinessInviteNotifications,
-  removeExpiredIdempotencyRecords,
-  cleanUnexpectedErrors,
+  deleteIdempotencyRecords,
+  deleteUnexpectedErrors,
+  deleteAccessRecords,
 };
