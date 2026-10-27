@@ -12,13 +12,13 @@ const {
   History,
 } = require("#models");
 const socketApi = require("../sockets/socket-api");
+const { WhatsApp: W } = require("#services");
 
 const notifyNewMessage = require("./notifyNewMessage");
 const updateHistory = require("./updateHistory");
 const permissionLogic = require("./permissionLogic");
 const callChatGPTApi = require("./callDeepSeekApiV2");
 const getGPTAssistantResponse = require("./getGPTAssistantResponse");
-const sendWhatsAppMessages = require("./sendWhatsAppMessages");
 
 async function sendMessage(param) {
   try {
@@ -212,21 +212,22 @@ async function sendMessage(param) {
         sendWaMessage = false;
       }
 
-      let wamIds = [];
+      let wamId;
 
       if (sendWaMessage) {
-        wamIds = await sendWhatsAppMessages({
-          sender: user,
-          receivers: [receiver],
+        wamId = await W.send({
+          to: receiver.phoneNumber,
+          from: user.phoneNumber,
+          type: "service",
           message: objMessage.message,
-          userName: user.userName,
           messageType: param.type,
           location: param.location,
           file: param.file?.file,
+          userName: user.userName,
         });
       }
 
-      objMessage.wamId = wamIds[0] || null;
+      objMessage.wamId = wamId || null;
     }
 
     const newMessage = await FlomMessage.create(objMessage);

@@ -4,6 +4,7 @@ const { logger } = require("#infra");
 const { Const } = require("#config");
 const { User, WhatsAppUserMapping, WhatsAppLog, WhatsAppSession } = require("#models");
 const Logics = require("#logics");
+const { WhatsApp: W } = require("#services");
 
 async function handleNewChatMessage({
   from,
@@ -59,10 +60,12 @@ async function handleNewChatMessage({
     } else if (session) {
       toUser = await User.findOne({ phoneNumber: session.to }).lean();
 
-      await Logics.sendWhatsAppMessage({
+      await W.send({
         to: from,
+        from: "flom",
+        type: "service",
         message: `Continue with @${session.toSlug}?`,
-        isFreeMessage: true,
+        messageType: "text",
       });
 
       return;
@@ -71,8 +74,10 @@ async function handleNewChatMessage({
 
   if (!toUser) {
     if (!fromUser.whatsApp?.receivedUnknownRecipientNotice) {
-      await Logics.sendWhatsAppMessage({
+      await W.send({
         to: from,
+        from: "flom",
+        type: "template",
         template: "unknown_recipient_notice",
       });
 

@@ -4,9 +4,9 @@ const router = require("express").Router();
 const Base = require("../../Base");
 const { Const, countries } = require("#config");
 const Utils = require("#utils");
-const Logics = require("#logics");
 const { auth } = require("#middleware");
 const { User, SatsReservation, ConversionRate } = require("#models");
+const { WhatsApp: W } = require("#services");
 
 /**
  * @api {get} /api/v2/user/notification-options Get users notification options flom_v1
@@ -90,7 +90,7 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
 
     const opts = user.notificationOptions;
 
-    const whatsAppPrices = await Logics.getWhatsAppPrices({ countryCode });
+    const whatsAppPrices = await W.getPrices({ countryCode });
 
     const responseData = { notificationOptions: opts, whatsAppPrices };
 
@@ -244,7 +244,7 @@ router.patch("/", auth({ allowUser: true }), async function (request, response) 
       user = await User.findByIdAndUpdate(userId, { $set: updateObj }, { new: true, lean: true });
     }
 
-    const whatsAppPrices = await Logics.getWhatsAppPrices({ countryCode: user.countryCode });
+    const whatsAppPrices = await W.getPrices({ countryCode: user.countryCode });
 
     const responseData = { notificationOptions: user.notificationOptions, whatsAppPrices };
 

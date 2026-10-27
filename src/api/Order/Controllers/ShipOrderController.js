@@ -5,12 +5,12 @@ const { logger } = require("#infra");
 const Base = require("../../Base");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const Logics = require("#logics");
 const { Order, User } = require("#models");
 const { auth } = require("#middleware");
 const sharp = require("sharp");
 const fsp = require("fs").promises;
 const path = require("path");
+const { WhatsApp: W } = require("#services");
 
 /**
  * @api {patch} /api/v2/orders/:orderId/ship Ship order flom_v1
@@ -129,9 +129,10 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
         lean: true,
       });
 
-      await Logics.sendWhatsAppMessages({
-        sender: user,
-        receivers: [buyer],
+      await W.send({
+        to: buyer.phoneNumber,
+        from: user.phoneNumber,
+        type: "template",
         template: "shipping_update",
         shippingStatus: "SHIPPED",
         orderId: order._id.toString(),
@@ -244,9 +245,10 @@ router.patch("/:orderId/ship", auth({ allowUser: true }), async function (reques
       });
     }
 
-    await Logics.sendWhatsAppMessages({
-      sender: user,
-      receivers: [buyer],
+    await W.send({
+      to: buyer.phoneNumber,
+      from: user.phoneNumber,
+      type: "template",
       template: "shipping_update",
       shippingStatus: "SHIPPED",
       orderId: order._id.toString(),

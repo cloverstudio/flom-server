@@ -40,6 +40,7 @@ const { auth } = require("#middleware");
 const { User, Product } = require("#models");
 const Utils = require("#utils");
 const Logics = require("#logics");
+const { WhatsApp: W } = require("#services");
 
 router.post("/", auth({ allowUser: true }), async function (request, response) {
   try {
@@ -110,15 +111,16 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       });
     }
 
-    const wamIds = await Logics.sendWhatsAppMessages({
-      sender: user,
-      receivers: [receiver],
+    const wamId = await W.send({
+      to: receiver.phoneNumber,
+      from: user.phoneNumber,
+      type: "template",
       template: "seller_followup",
       userName: user.userName,
       productName: product.name,
     });
 
-    if (!wamIds.length) {
+    if (!wamId) {
       return Base.errorResponse({
         response,
         code: Const.responsecodeSendingWhatsAppMessageFailed,
@@ -135,7 +137,7 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
       message: "",
       created: Date.now(),
       plainTextMessage: true,
-      wamId: wamIds[0],
+      wamId: wamId,
       attributes: {
         senderName: user.userName,
         productName: product.name,
