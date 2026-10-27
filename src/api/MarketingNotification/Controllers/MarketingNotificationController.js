@@ -219,59 +219,66 @@ router.post("/send", auth({ allowUser: true }), async function (request, respons
       marketingNotification: marketingNotificationObj,
     });
 
-    await User.findByIdAndUpdate(requestUserId, {
-      lastUsedMarketingNotificationChannels: channels,
-    });
+    try {
+      await User.findByIdAndUpdate(requestUserId, {
+        lastUsedMarketingNotificationChannels: channels,
+      });
 
-    const marketingNotificationId = marketingNotificationObj._id.toString();
-    const from = {
-      id: requestUserId,
-      name: user.name,
-      created: user.created,
-      avatar: user.avatar,
-      phoneNumber: user.phoneNumber,
-    };
+      const marketingNotificationId = marketingNotificationObj._id.toString();
+      const from = {
+        id: requestUserId,
+        name: user.name,
+        created: user.created,
+        avatar: user.avatar,
+        phoneNumber: user.phoneNumber,
+      };
 
-    if (pushSubscribers.length > 0) {
-      for (const s of pushSubscribers) {
-        const userPushTokens = s.pushToken || [];
+      if (pushSubscribers.length > 0) {
+        for (const s of pushSubscribers) {
+          const userPushTokens = s.pushToken || [];
 
-        for (const t of userPushTokens) {
-          await Utils.callPushService({
-            pushToken: t,
-            isVoip: false,
-            unreadCount: 1,
-            isMuted: false,
-            payload: {
-              pushType: Const.pushTypeMarketingNotification,
-              info: {
-                marketingNotificationId,
-                title,
-                text,
-                contentType,
-                contentName,
-                voiceNote,
-                from,
+          for (const t of userPushTokens) {
+            await Utils.callPushService({
+              pushToken: t,
+              isVoip: false,
+              unreadCount: 1,
+              isMuted: false,
+              payload: {
+                pushType: Const.pushTypeMarketingNotification,
+                info: {
+                  marketingNotificationId,
+                  title,
+                  text,
+                  contentType,
+                  contentName,
+                  voiceNote,
+                  from,
+                },
               },
-            },
-          });
+            });
+          }
         }
       }
-    }
 
-    if (Config.environment === "production" && waSubscribers.length > 0) {
-      await sendWhatsAppMessages({
-        subscribers: waSubscribers,
-        notification: marketingNotificationObj,
-        user,
-        sendServiceMessages,
-      });
-    }
+      if (Config.environment === "production" && waSubscribers.length > 0) {
+        await sendWhatsAppMessages({
+          subscribers: waSubscribers,
+          notification: marketingNotificationObj,
+          user,
+          sendServiceMessages,
+        });
+      }
 
-    await User.updateMany(
-      { _id: { $in: subscriberIds } },
-      { $inc: { "notifications.unreadCount": 1 } },
-    );
+      await User.updateMany(
+        { _id: { $in: subscriberIds } },
+        { $inc: { "notifications.unreadCount": 1 } },
+      );
+    } catch (error) {
+      logger.error(
+        "MarketingNotificationsController - send notification, error updating user and sending messages",
+        error,
+      );
+    }
   } catch (error) {
     Base.errorResponse({
       response,
