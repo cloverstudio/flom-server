@@ -18,7 +18,7 @@ function createServiceMessage({ to, messageType, location, file, message, voiceU
       filename: file.name,
       caption: message,
     };
-  } else if (["audio", "image", "video"].includes(messageType) && file) {
+  } else if (["audio", "image", "video"].includes(messageType) && (file || voiceUrl)) {
     data.type = messageType === "audio" ? "audio" : messageType === "image" ? "image" : "video";
 
     data[data.type] = {
