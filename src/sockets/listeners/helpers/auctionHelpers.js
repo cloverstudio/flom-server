@@ -6,7 +6,7 @@ const { Const, Config } = require("#config");
 const Utils = require("#utils");
 const Logics = require("#logics");
 const { User, Transfer, Order, Auction, ConversionRate, Product } = require("#models");
-const { authorizeNet } = require("#services");
+const { authorizeNet, WhatsApp: W } = require("#services");
 
 let conversionRates = { rates: null, lastUpdated: 0 };
 
@@ -358,6 +358,8 @@ async function sendNotifications({ order, sender, receiver, localAmountSender })
 }
 
 async function remindWatchers({ auction, liveStream }) {
+  return;
+
   try {
     const userIdsToRemind = new Set(liveStream.viewerIds || []);
     const previousAuctions = await Auction.find({ liveStreamId: liveStream._id.toString() }).lean();
@@ -369,17 +371,20 @@ async function remindWatchers({ auction, liveStream }) {
       }
     });
 
-    const userIdsArray = Array.from(userIdsToRemind);
+    const usersToRemind = await User.find({ _id: { $in: Array.from(userIdsToRemind) } }).lean();
 
-    if (userIdsArray.length === 0) {
-      await Logics.sendWhatsAppMessages({
-        senderId: auction.sellerId,
-        receiverIds: userIdsArray,
-        template: "auction_reminder",
-        auctionName: auction.product.name,
-        auctionId: auction._id.toString(),
-        liveStreamId: liveStream._id.toString(),
-      });
+    if (usersToRemind.length > 0) {
+      for (const receiver of usersToRemind) {
+        const wamId = await W.send({
+          to: receiver.phoneNumber,
+          from: auction.sellerId,
+          type: "template",
+          template: "auction_reminder",
+          auctionName: auction.product.name,
+          auctionId: auction._id.toString(),
+          liveStreamId: liveStream._id.toString(),
+        });
+      }
     }
   } catch (error) {
     logger.error("remindWatchers error: ", error);

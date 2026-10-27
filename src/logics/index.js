@@ -34,10 +34,7 @@ module.exports = Object.freeze({
   sendMessage: require("./sendMessage"), // SendMessageLogic SendMessage
   notifyNewMessage: require("./notifyNewMessage"),
 
-  getWhatsAppPrices: require("./getWhatsAppPrices"),
   makeFeeTransfer: require("./makeFeeTransfer"),
-  sendWhatsAppMessage: require("./sendWhatsAppMessage"),
-  sendWhatsAppMessages: require("./sendWhatsAppMessages"),
 
   countryFromBinNumber: require("./countryFromBinNumber"),
   getCountryFromIpAddress: require("./getCountryFromIpAddress"),

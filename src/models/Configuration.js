@@ -20,4 +20,18 @@ const schema = new mongoose.Schema(
   { timestamps: true },
 );
 
-module.exports = db.db2.model("Configuration", schema, "configurations");
+const Configuration = db.db2.model("Configuration", schema, "configurations");
+
+const ExtendedConfiguration = class extends Configuration {
+  static async checkFloodDetectionWhiteList(phoneNumber) {
+    if (!phoneNumber) {
+      throw new Error("Phone number is required");
+    }
+
+    const c = await this.exists({ type: "floodDetectionWhiteList", valueArray: phoneNumber });
+
+    return !!c;
+  }
+};
+
+module.exports = ExtendedConfiguration;

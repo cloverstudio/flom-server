@@ -34,8 +34,8 @@ const Base = require("../../Base");
 const { logger } = require("#infra");
 const { Const, Config } = require("#config");
 const Utils = require("#utils");
-const Logics = require("#logics");
 const { Order, User, VerificationRequest } = require("#models");
+const { WhatsApp: W } = require("#services");
 
 const delayMap = {
   1: 45000, // 45 seconds delay
@@ -131,9 +131,12 @@ router.get("/token/:token/code", async function (request, response) {
         if (channel === "whatsApp") {
           console.log("OrderCodeController, sending WhatsApp message to:", buyerPhoneNumber);
 
-          await Logics.sendWhatsAppMessage({
+          await W.send({
             to: buyerPhoneNumber,
+            from: "flom",
+            type: "service",
             message: `Your verification code for the order is: ${code}\nNever share this code, not even with the seller`,
+            messageType: "text",
           });
         } else if (channel === "sms") {
           console.log("OrderCodeController, sending SMS to:", buyerPhoneNumber);

@@ -789,11 +789,14 @@ Constants.transferTypePlatformFee = 19;
 Constants.transferTypeMessagingFee = 20;
 Constants.transferTypeRefund = 21;
 Constants.transferTypeService = 22;
+Constants.transferTypeTip = 23;
 Constants.transferTypeBonus = 97;
 Constants.transferTypeBonusData = 98;
 Constants.transferTypePayout = 99;
 
-Constants.transferTypesForNotification = [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 17, 18, 19, 20, 21];
+Constants.transferTypesForNotification = [
+  1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 17, 18, 19, 20, 21, 23,
+];
 Constants.groupTransferTypesForNotification = [1, 2, 6, 8, 10, 13];
 
 Constants.blessEmojiTitles = [
@@ -1403,14 +1406,6 @@ Constants.UsStateCodes = {
   Wisconsin: "WI",
   Wyoming: "WY",
 };
-
-Constants.floodDetectionWhiteList = [
-  "+385976431885",
-  "+385958710207",
-  "+19728788506",
-  "+385976376676",
-  "+385994028413",
-];
 
 Constants.messageButtonType = {
   URL: "url",

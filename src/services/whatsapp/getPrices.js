@@ -3,7 +3,7 @@ const { Const, countries } = require("#config");
 const Utils = require("#utils");
 const { WhatsAppPrice, ConversionRate } = require("#models");
 
-async function getWhatsAppPrices({ countryCode = "XX" }) {
+async function getPrices({ countryCode = "XX" }) {
   try {
     const prices = await WhatsAppPrice.find(
       { countryCode: { $in: [countryCode, "default"] } },
@@ -53,9 +53,9 @@ async function getWhatsAppPrices({ countryCode = "XX" }) {
       prices.find((p) => p.countryCode === "default")
     );
   } catch (error) {
-    logger.error("getWhatsAppPrices error: ", error);
+    logger.error("getPrices error: ", error);
     return null;
   }
 }
 
-module.exports = getWhatsAppPrices;
+module.exports = getPrices;

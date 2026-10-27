@@ -171,7 +171,7 @@ router.post("/start", auth({ allowUser: true }), async function (request, respon
         });
       }
 
-      if (whatsAppReceivers.length > 0) {
+      /*  if (whatsAppReceivers.length > 0) {
         await Logics.sendWhatsAppMessages({
           sender: user,
           receivers: whatsAppReceivers,
@@ -179,7 +179,7 @@ router.post("/start", auth({ allowUser: true }), async function (request, respon
           userName: user.userName,
           liveStreamId,
         });
-      }
+      } */
     } catch (error) {
       logger.error("StartLiveStreamController, messages", error);
     }
@@ -288,3 +288,5 @@ async function getNotificationReceivers({ liveStream, user }) {
 }
 
 module.exports = router;
+
+// TODO: Implement WA

@@ -31,9 +31,6 @@ async function sendWhatsAppMessages({
 
   let paidMsg = baseText;
   let freeMsg = "";
-  if (user.slug) {
-    freeMsg += "@" + user.slug + ":";
-  }
   if (headerText) {
     freeMsg += " " + headerText;
   }

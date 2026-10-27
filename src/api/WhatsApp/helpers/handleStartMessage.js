@@ -1,9 +1,9 @@
 "use strict";
 
 const { logger } = require("#infra");
-const { Const, Config } = require("#config");
+const { Const } = require("#config");
 const { User } = require("#models");
-const Logics = require("#logics");
+const { WhatsApp: W } = require("#services");
 
 async function handleStartMessage({ from }) {
   try {
@@ -16,12 +16,16 @@ async function handleStartMessage({ from }) {
       logger.warn(
         `WhatsAppCallbackController, cb: received FLOM START message from ${from}, but this business phone number is already connected, skipping processing`,
       );
-      await Logics.sendWhatsAppMessage({
+
+      await W.send({
         to: from,
-        from: Config.whatsAppPhoneNumber,
+        from: "flom",
+        type: "service",
         message:
           "FLOM START message received, but this business phone number is already connected.",
+        messageType: "text",
       });
+
       return;
     }
 
@@ -30,11 +34,13 @@ async function handleStartMessage({ from }) {
       logger.warn(
         `WhatsAppCallbackController, cb: received FLOM START message from ${from}, but there is a user registered with this business phone number, skipping processing`,
       );
-      await Logics.sendWhatsAppMessage({
+      await W.send({
         to: from,
-        from: Config.whatsAppPhoneNumber,
+        from: "flom",
+        type: "service",
         message:
           "FLOM START message received, but there is a user registered with this business phone number.",
+        messageType: "text",
       });
       return;
     }
@@ -65,11 +71,13 @@ async function handleStartMessage({ from }) {
       });
     }
 
-    await Logics.sendWhatsAppMessage({
+    await W.send({
       to: from,
-      from: Config.whatsAppPhoneNumber,
+      from: "flom",
+      type: "service",
       message:
         "FLOM START message received, your business phone number has been marked as connected.",
+      messageType: "text",
     });
 
     logger.info(
@@ -81,12 +89,16 @@ async function handleStartMessage({ from }) {
     logger.error(
       `WhatsAppCallbackController, cb: error processing FLOM START message from ${from}: ${error.message}`,
     );
-    await Logics.sendWhatsAppMessage({
+
+    await W.send({
       to: from,
-      from: Config.whatsAppPhoneNumber,
+      from: "flom",
+      type: "service",
       message:
         "FLOM START message received, but there was an error processing your request. Please try again later.",
+      messageType: "text",
     });
+
     return;
   }
 }

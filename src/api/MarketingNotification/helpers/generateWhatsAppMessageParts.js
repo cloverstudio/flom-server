@@ -42,11 +42,16 @@ async function generateWhatsAppMessageParts({ notification }) {
     urlStub = `product?id=${product._id.toString()}`;
 
     if (product.type === Const.productTypeService || product.type === Const.productTypeProduct) {
-      const price = `${product.originalPrice.value} ${product.originalPrice.currency}`;
-      baseText += `: ${product.name} - ${price}`;
+      let price = null;
+      if (product.originalPrice.value && product.originalPrice.value > 0) {
+        price = `${product.originalPrice.value} ${product.originalPrice.currency}`;
+      } else if (product.originalPrice.minValue && product.originalPrice.minValue > 0) {
+        price = `${product.originalPrice.minValue}-${product.originalPrice.maxValue} ${product.originalPrice.currency}`;
+      }
+      baseText += ` - ${product.name} (${price})`;
       image = product.file?.[0]?.thumb;
     } else {
-      baseText += `: ${product.name}`;
+      baseText += ` - ${product.name}`;
       image = product.file?.[0]?.thumb;
     }
   }

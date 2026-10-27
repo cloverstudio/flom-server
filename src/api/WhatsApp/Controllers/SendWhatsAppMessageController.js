@@ -3,11 +3,14 @@
 const router = require("express").Router();
 const { logger } = require("#infra");
 const { Const, Config } = require("#config");
-const Logics = require("#logics");
 const { User } = require("#models");
+
+// TODO: Implement WA
 
 router.post("/", async function (request, response) {
   try {
+    return response.status(401).send("Unauthorized");
+
     const secretToken = request.headers["secret-token"];
     if (secretToken !== Config.secretToken) {
       return response.status(401).send("Unauthorized");
@@ -42,7 +45,7 @@ router.post("/", async function (request, response) {
       return response.status(404).send("Receiver users not found");
     }
 
-    const wamIds = await Logics.sendWhatsAppMessages({
+    /* const wamIds = await Logics.sendWhatsAppMessages({
       sender,
       receivers,
       message,
@@ -58,7 +61,7 @@ router.post("/", async function (request, response) {
 
     if (!wamIds || wamIds.length === 0) {
       return response.status(500).send("No messages sent");
-    }
+    } */
 
     return response.sendStatus(200);
   } catch (error) {
