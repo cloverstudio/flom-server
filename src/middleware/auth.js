@@ -110,7 +110,9 @@ function checkTokenAndRole({
 }
 
 function sendInvalidTokenResponse(response, request) {
-  logger.warn("Error code: 4000007, Invalid token");
+  const api = (request.originalUrl || "<unknown api>") + " ";
+
+  logger.warn(api + "Error code: 4000007, Invalid token");
 
   Utils.clearCookies(response, request.headers.origin);
 
