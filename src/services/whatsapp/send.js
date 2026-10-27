@@ -68,7 +68,11 @@ async function send({
       body: data,
     });
 
-    logger.info("WhatsApp, send, result: " + JSON.stringify(result));
+    if (err) {
+      logger.error("WhatsApp, send, error: " + JSON.stringify(err, null, 2));
+    } else {
+      logger.info("WhatsApp, send, success: " + JSON.stringify(result, null, 2));
+    }
 
     const wamId = result?.messages?.[0]?.id || null;
     const status = result?.messages?.[0]?.message_status ?? null;
@@ -91,7 +95,7 @@ async function send({
 
     if (!wamId) {
       logger.error("WhatsApp, send, message not accepted");
-      logger.error("WhatsApp, send, response: " + JSON.stringify(result));
+      logger.error("WhatsApp, send, error: " + JSON.stringify(err, null, 2));
       return null;
     }
 

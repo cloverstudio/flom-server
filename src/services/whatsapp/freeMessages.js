@@ -98,13 +98,13 @@ module.exports = {
   engage_v1: {
     name: "engage_v1",
     type: "marketing",
-    params: ["slug", "messageText", "urlStub"],
-    text: "@__SLUG__: __MESSAGE_TEXT__\n\nhttps://flom.app/__URL_STUB__",
+    params: ["slug", "headerText", "messageText", "urlStub"],
+    text: "@__SLUG__: __HEADER_TEXT__\n__MESSAGE_TEXT__\n\nhttps://flom.app/__URL_STUB__",
   },
   engage_with_image_v1: {
     name: "engage_with_image_v1",
     type: "marketing",
-    params: ["slug", "messageText", "urlStub"],
-    text: "@__SLUG__: __MESSAGE_TEXT__\n\nhttps://flom.app/__URL_STUB__",
+    params: ["slug", "headerText", "messageText", "urlStub"],
+    text: "@__SLUG__: __HEADER_TEXT__\n__MESSAGE_TEXT__\n\nhttps://flom.app/__URL_STUB__",
   },
 };

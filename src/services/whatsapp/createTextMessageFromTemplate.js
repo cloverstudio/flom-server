@@ -13,6 +13,7 @@ const parameterMapping = {
   orderId: "__ORDER_ID__",
   slug: "__SLUG__",
   messageText: "__MESSAGE_TEXT__",
+  headerText: "__HEADER_TEXT__",
   urlStub: "__URL_STUB__",
   sellerName: "__SELLER_NAME__",
   buyerName: "__BUYER_NAME__",

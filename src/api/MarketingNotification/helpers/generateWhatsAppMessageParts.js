@@ -14,11 +14,10 @@ async function generateWhatsAppMessageParts({ notification }) {
     contentUrl,
     urlStub;
 
-  if (title) {
-    headerText = title;
-  }
+  headerText = !title ? "New marketing notification" : title.trim();
+
   if (text) {
-    baseText += text + "\n";
+    baseText += text;
   }
   if (contentType == Const.marketingNotificationsContentTypeProfile) {
     const user = await User.findById(contentId).lean();
@@ -44,10 +43,10 @@ async function generateWhatsAppMessageParts({ notification }) {
 
     if (product.type === Const.productTypeService || product.type === Const.productTypeProduct) {
       const price = `${product.originalPrice.value} ${product.originalPrice.currency}`;
-      baseText += `${product.name} - ${price}`;
+      baseText += `: ${product.name} - ${price}`;
       image = product.file?.[0]?.thumb;
     } else {
-      baseText += `${product.name}`;
+      baseText += `: ${product.name}`;
       image = product.file?.[0]?.thumb;
     }
   }

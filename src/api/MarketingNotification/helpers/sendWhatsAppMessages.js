@@ -2,7 +2,6 @@ const { WhatsApp: W } = require("#services");
 const Utils = require("#utils");
 const Logics = require("#logics");
 const generateWhatsAppMessageParts = require("./generateWhatsAppMessageParts");
-const getServiceNotificationCountAndMarketingPrice = require("./getServiceNotificationCountAndMarketingPrice");
 
 async function sendWhatsAppMessages({
   subscribers,
@@ -22,22 +21,23 @@ async function sendWhatsAppMessages({
     urlStub,
   } = await generateWhatsAppMessageParts({ notification });
 
-  const { paidCount, priceInSats } = await getServiceNotificationCountAndMarketingPrice({
-    subscribers,
-    notification,
-    user,
-  });
+  const userCountryCode =
+    user.countryCode || Utils.getCountryCodeFromPhoneNumber({ phoneNumber: user.phoneNumber });
+  const priceMap = await W.getPriceMap(userCountryCode);
+
+  let paidCount = 0,
+    priceInSats = 0;
 
   let paidMsg = baseText;
   let freeMsg = "";
   if (user.slug) {
-    freeMsg += "@" + user.slug + ": ";
+    freeMsg += "@" + user.slug + ":";
   }
   if (headerText) {
-    freeMsg += headerText + "\n";
+    freeMsg += " " + headerText;
   }
   if (baseText) {
-    freeMsg += baseText;
+    freeMsg += "\n" + baseText;
   }
   if (contentUrl) {
     freeMsg += "\n" + contentUrl;
@@ -57,7 +57,7 @@ async function sendWhatsAppMessages({
       }
 
       if (hasFreeText && hasVoiceNote) {
-        await W.send({
+        const r = await W.send({
           to: s.phoneNumber,
           from: user.phoneNumber,
           type: "service_from_template",
@@ -66,6 +66,10 @@ async function sendWhatsAppMessages({
           messageText: freeMsg,
           urlStub,
         });
+
+        if (!r) {
+          continue;
+        }
 
         type = "service";
       } else if (hasFreeText) {
@@ -94,7 +98,7 @@ async function sendWhatsAppMessages({
       await Utils.sleep(2000); // Pause for 2 seconds every 50 messages to avoid rate limits
     }
 
-    await W.send({
+    const r = await W.send({
       to: s.phoneNumber,
       from: user.phoneNumber,
       type,
@@ -108,6 +112,15 @@ async function sendWhatsAppMessages({
       urlStub,
       slug: user.slug,
     });
+
+    if (r && type === "template") {
+      const subscriberCountryCode =
+        s.countryCode || Utils.getCountryCodeFromPhoneNumber({ phoneNumber: s.phoneNumber });
+
+      priceInSats += priceMap[subscriberCountryCode];
+
+      paidCount++;
+    }
 
     i++;
   }
