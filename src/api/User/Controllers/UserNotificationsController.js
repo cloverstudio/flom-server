@@ -390,6 +390,9 @@ async function getTransferNotifications({ userId, userPhoneNumber }) {
           title += "Messaging fee";
           ignoreActionString = true;
           break;
+        case Const.transferTypeTip:
+          title += "Tip ";
+          break;
       }
 
       if (senderId === userId && transferType !== Const.transferTypeCreditPackage) {

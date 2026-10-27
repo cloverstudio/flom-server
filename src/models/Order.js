@@ -30,6 +30,7 @@ const schema = new mongoose.Schema(
     },
     auctionId: String,
     transferId: String,
+    tipTransferId: String,
     paymentMethod: String,
     status: { type: String, default: "payment_pending" },
     supportTicketId: String,
