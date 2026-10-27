@@ -87,9 +87,6 @@ async function sendWhatsAppMessages({
       type = "template";
       if (headerImageUrl) {
         template = "engage_with_image_v1";
-        if (headerText) {
-          paidMsg = headerText + "\n" + paidMsg;
-        }
       } else {
         template = "engage_v1";
       }
