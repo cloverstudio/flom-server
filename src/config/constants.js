@@ -1407,14 +1407,6 @@ Constants.UsStateCodes = {
   Wyoming: "WY",
 };
 
-Constants.floodDetectionWhiteList = [
-  "+385976431885",
-  "+385958710207",
-  "+19728788506",
-  "+385976376676",
-  "+385994028413",
-];
-
 Constants.messageButtonType = {
   URL: "url",
   TRANSFER: "transfer",

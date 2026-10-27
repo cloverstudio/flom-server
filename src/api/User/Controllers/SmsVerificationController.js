@@ -13,6 +13,7 @@ const {
   CountryWideBan,
   TemporaryBan,
   ConversionRate,
+  Configuration,
 } = require("#models");
 
 /*
@@ -482,7 +483,7 @@ async function sendUSSDPush(phoneNumber, message, pushType = 2) {
 }
 
 async function detectFlooding(phoneNumber) {
-  if (Const.floodDetectionWhiteList.includes(phoneNumber)) {
+  if (await Configuration.checkFloodDetectionWhiteList(phoneNumber)) {
     return false;
   }
 
@@ -555,7 +556,7 @@ async function detectFlooding(phoneNumber) {
 }
 
 async function detectUserFlooding({ phoneNumber }) {
-  if (Const.floodDetectionWhiteList.includes(phoneNumber)) {
+  if (await Configuration.checkFloodDetectionWhiteList(phoneNumber)) {
     return { flood: false };
   }
 
