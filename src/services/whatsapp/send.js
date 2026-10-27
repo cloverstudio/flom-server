@@ -57,6 +57,11 @@ async function send({
         throw new Error("Invalid message type");
     }
 
+    if (!data) {
+      logger.error("WhatsApp, send, failed to create message data");
+      return null;
+    }
+
     const id = Config.whatsAppPhoneNumberId;
 
     const { data: result, err } = await Utils.sendRequest({
