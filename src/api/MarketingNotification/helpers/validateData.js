@@ -37,6 +37,7 @@ async function validateData({ requestUserId, title, contentType, requestContentI
       duration: voiceNote.duration,
       mimeType: voiceNote.mimeType,
       size: voiceNote.size,
+      oggName: voiceNote.oggName,
     };
   }
 
