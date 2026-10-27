@@ -45,6 +45,7 @@ function createTextMessageFromTemplate({ to, template, ...params }) {
   for (const param of allParamNames) {
     const toReplace = parameterMapping[param];
     if (toReplace) {
+      console.log(`Replacing parameter ${param} with value: ${params[param]}`);
       const regex = new RegExp(toReplace, "g");
       text = text.replace(regex, params[param]);
     }
@@ -56,6 +57,8 @@ function createTextMessageFromTemplate({ to, template, ...params }) {
     type: "text",
     text: { body: text },
   };
+
+  console.log("Final message data:", JSON.stringify(data, null, 2));
 
   return data;
 }

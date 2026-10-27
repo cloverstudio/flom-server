@@ -49,6 +49,7 @@ async function send({
         }
         break;
       case "service_from_template":
+        console.log("Creating service_from_template message with template:", template);
         data = createTextMessageFromTemplate({ to, template, ...params });
         waType = "service";
         break;
