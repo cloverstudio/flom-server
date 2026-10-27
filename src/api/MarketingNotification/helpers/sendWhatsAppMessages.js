@@ -1,3 +1,4 @@
+const { logger } = require("#infra");
 const { WhatsApp: W } = require("#services");
 const Utils = require("#utils");
 const Logics = require("#logics");
@@ -98,6 +99,18 @@ async function sendWhatsAppMessages({
       await Utils.sleep(2000); // Pause for 2 seconds every 50 messages to avoid rate limits
     }
 
+    if (type === "template") {
+      const subscriberCountryCode =
+        s.countryCode || Utils.getCountryCodeFromPhoneNumber({ phoneNumber: s.phoneNumber });
+
+      if (!priceMap[subscriberCountryCode]?.marketing) {
+        logger.error(
+          `MarketingNotificationsHelper - sendWhatsAppMessages, no marketing price for subscriber country code: ${subscriberCountryCode}`,
+        );
+        continue;
+      }
+    }
+
     const r = await W.send({
       to: s.phoneNumber,
       from: user.phoneNumber,
@@ -117,7 +130,7 @@ async function sendWhatsAppMessages({
       const subscriberCountryCode =
         s.countryCode || Utils.getCountryCodeFromPhoneNumber({ phoneNumber: s.phoneNumber });
 
-      priceInSats += priceMap[subscriberCountryCode];
+      priceInSats += priceMap[subscriberCountryCode]?.marketing;
 
       paidCount++;
     }
@@ -134,7 +147,7 @@ async function sendWhatsAppMessages({
     });
 
     if (user.pushToken) {
-      await Utils.callPushService({
+      Utils.callPushService({
         pushToken: user.pushToken,
         isVoip: false,
         unreadCount: 1,
