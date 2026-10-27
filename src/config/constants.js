@@ -1267,7 +1267,7 @@ Constants.recombeeProductTypesMap = {
 Constants.recombeeLiveStreamTypesMap = { live: "Live", event: "Event", market: "Market Live" };
 
 Constants.demoPhoneNumbers = ["+14694687792"];
-Constants.developerPhoneNumbers = ["+385976431885", "+385958710207"];
+Constants.developerPhoneNumbers = ["+385976431885", "+385958710207", "+385994028413"];
 
 Constants.auctionStatus = {
   INACTIVE: "inactive",
@@ -1409,6 +1409,7 @@ Constants.floodDetectionWhiteList = [
   "+385958710207",
   "+19728788506",
   "+385976376676",
+  "+385994028413",
 ];
 
 Constants.messageButtonType = {

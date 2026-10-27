@@ -105,14 +105,11 @@ router.get("/", auth({ allowUser: true }), async function (request, response) {
     );
     const availableSatsBalance = satsBalance - reservedBalance;
 
-    const conversionRates = await ConversionRate.find({}).sort({ date: -1 }).limit(1).lean();
-    const satsRate =
-      conversionRates && conversionRates.length > 0 ? conversionRates[0].rates["SAT"] : null;
+    const conversionRates = await ConversionRate.getRates();
+    const rates = conversionRates.rates;
+    const satsRate = rates["SAT"];
     const currency = countries[countryCode] ? countries[countryCode].currency.split(",")[0] : null;
-    const localRate =
-      conversionRates && conversionRates.length > 0 && currency
-        ? conversionRates[0].rates[currency]
-        : null;
+    const localRate = currency ? rates[currency] : null;
 
     if (satsRate && localRate) {
       responseData.satsBalance = satsBalance;

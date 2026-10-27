@@ -10,11 +10,8 @@ async function getPriceMap(localCountryCode) {
       return {};
     }
 
-    const conversionRatesArray = await ConversionRate.find({}).sort({ date: -1 }).limit(1).lean();
-    const rates =
-      conversionRatesArray && conversionRatesArray.length > 0
-        ? conversionRatesArray[0].rates
-        : null;
+    const conversionRates = await ConversionRate.getRates();
+    const rates = conversionRates.rates;
 
     if (!rates) {
       logger.warn(`getPriceMap, no conversion rates found`);

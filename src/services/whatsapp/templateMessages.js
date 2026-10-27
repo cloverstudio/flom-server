@@ -110,7 +110,7 @@ module.exports = {
     name: "engage_with_image_v1",
     type: "marketing",
     headerParams: ["headerImageUrl"],
-    textParams: ["slug", "messageText"],
+    textParams: ["slug", "headerText", "messageText"],
     buttonParams: ["urlStub"],
   },
 };
