@@ -22,6 +22,7 @@ const { auth } = require("#middleware");
  *      "transferToken": String, // Only included if order is from auction and payment is pending
  *      "order": OrderModel,
  *      "isBuyerSubscribed": false,
+ *      "isTipPaid": false,
  *      "receiptData": {
  *          "id": "6acdfc6dd4327dbb5c9b0398",
  *          "_id": "6acdfc6dd4327dbb5c9b0398",
@@ -129,7 +130,7 @@ router.get("/token/:token", async function (request, response) {
       order.buyer.phoneNumber = Utils.maskPhoneNumber(order.buyer.phoneNumber);
     }
 
-    const responseData = { order, isBuyerSubscribed: false };
+    const responseData = { order, isBuyerSubscribed: false, isTipPaid: false };
 
     if (order.auctionId && order.status === Const.orderStatus.PAYMENT_PENDING) {
       const auction = await Auction.findById(order.auctionId).lean();
@@ -181,6 +182,18 @@ router.get("/token/:token", async function (request, response) {
           basket: transfer.basket,
         };
         responseData.receiptData = receiptData;
+      }
+    }
+
+    const tipTransferId = order.tipTransferId;
+    if (tipTransferId) {
+      const tipTransfer = await Transfer.findById(tipTransferId).lean();
+      if (
+        tipTransfer &&
+        (tipTransfer.status === Const.transferComplete ||
+          tipTransfer.status === Const.transferWaitingForFulfillment)
+      ) {
+        responseData.isTipPaid = true;
       }
     }
 
