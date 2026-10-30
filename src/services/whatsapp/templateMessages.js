@@ -102,7 +102,7 @@ module.exports = {
   engage_v1: {
     name: "engage_v1",
     type: "marketing",
-    // headerParams: ["headerText"],
+    headerParams: ["headerText"],
     textParams: ["slug", "messageText"],
     buttonParams: ["urlStub"],
   },
@@ -114,5 +114,3 @@ module.exports = {
     buttonParams: ["urlStub"],
   },
 };
-
-// TODO: fix header params in engage_v1

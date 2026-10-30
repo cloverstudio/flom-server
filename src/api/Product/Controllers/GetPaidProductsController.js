@@ -280,9 +280,6 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
         conversionRates,
       });
 
-      // TODO: decide on receipt's props
-      //product.receipt = receipts.find(receipt => receipt._id.toString() == transaction.receiptMessageId);
-
       return product;
     });
 
