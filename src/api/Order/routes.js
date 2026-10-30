@@ -1,5 +1,6 @@
 const router = require("express").Router();
 
+router.use("/orders", require("./Controllers/GenerateOrderMessageController"));
 router.use("/orders", require("./Controllers/OrderCodeController"));
 router.use("/orders", require("./Controllers/GetOrderController"));
 router.use("/orders", require("./Controllers/ShipOrderController"));
