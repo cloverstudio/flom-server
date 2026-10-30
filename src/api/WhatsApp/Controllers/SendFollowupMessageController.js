@@ -155,3 +155,5 @@ router.post("/", auth({ allowUser: true }), async function (request, response) {
 });
 
 module.exports = router;
+
+// TODO payment for followup messages
