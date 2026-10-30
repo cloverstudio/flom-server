@@ -5,7 +5,7 @@
  * @apiVersion 2.0.35
  * @apiName  Generate order message flom_v1
  * @apiGroup WebAPI Order
- * @apiDescription  Generate a message for the order buyer based on the status of the order. For "shipped", "ship_by_expired", "cancellation_requested", "canceled", "support_ticket_opened", "closed_by_support" statuses a message is returned in response, for other statuses no message is generated.
+ * @apiDescription  Generate a message for the order buyer based on the status of the order. For "shipped", "ship_by_expired", "cancellation_requested", "canceled", "support_ticket_opened", "closed_by_support" statuses a message is returned in response, for other statuses no message is generated and null is returned.
  *
  * @apiHeader {String} access-token Users unique access token
  *
@@ -74,7 +74,7 @@ router.post("/generate-message", auth({ allowUser: true }), async function (requ
     const productName =
       order.products.length > 1 ? `${order.products[0].name} and others` : order.products[0].name;
 
-    let msg;
+    let msg = null;
 
     switch (order.status) {
       case Const.orderStatus.SHIPPED:
